@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.DivisionRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.DivisionRecord">
+        <id column="record_id" property="recordId" />
+        <result column="user_no" property="userNo" />
+        <result column="user_name" property="userName" />
+        <result column="user_type" property="userType" />
+        <result column="pay_type" property="payType" />
+        <result column="division_passage_id" property="divisionPassageId" />
+        <result column="pay_order_channel_order_no" property="payOrderChannelOrderNo" />
+        <result column="amount" property="amount" />
+        <result column="division_amount" property="divisionAmount" />
+        <result column="division_fee_rate" property="divisionFeeRate" />
+        <result column="division_amount_fee" property="divisionAmountFee" />
+        <result column="channel_batch_order_id" property="channelBatchOrderId" />
+        <result column="state" property="state" />
+        <result column="channel_resp_result" property="channelRespResult" />
+        <result column="acc_type" property="accType" />
+        <result column="acc_no" property="accNo" />
+        <result column="acc_name" property="accName" />
+        <result column="cal_division_amount" property="calDivisionAmount" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="remark" property="remark" />
+        <result column="expired_time" property="expiredTime" />
+    </resultMap>
+
+</mapper>

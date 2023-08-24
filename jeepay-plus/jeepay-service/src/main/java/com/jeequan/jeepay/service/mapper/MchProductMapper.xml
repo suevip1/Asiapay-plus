@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.MchProductMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.MchProduct">
+        <id column="mch_product_id" property="mchProductId" />
+        <result column="mch_no" property="mchNo" />
+        <result column="product_id" property="productId" />
+        <result column="state" property="state" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="mch_rate" property="mchRate" />
+        <result column="agent_rate" property="agentRate" />
+    </resultMap>
+
+
+</mapper>

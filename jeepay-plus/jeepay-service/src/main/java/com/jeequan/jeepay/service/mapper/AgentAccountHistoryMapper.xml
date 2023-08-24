@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.AgentAccountHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.AgentAccountHistory">
+        <id column="agent_account_history_id" property="agentAccountHistoryId" />
+        <result column="agent_no" property="agentNo" />
+        <result column="agent_name" property="agentName" />
+        <result column="amount" property="amount" />
+        <result column="before_balance" property="beforeBalance" />
+        <result column="after_balance" property="afterBalance" />
+        <result column="fund_direction" property="fundDirection" />
+        <result column="biz_type" property="bizType" />
+        <result column="created_uid" property="createdUid" />
+        <result column="created_login_name" property="createdLoginName" />
+        <result column="created_at" property="createdAt" />
+        <result column="pay_order_id" property="payOrderId" />
+        <result column="pay_order_amount" property="payOrderAmount" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+</mapper>

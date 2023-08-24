@@ -1,0 +1,312 @@
+<template>
+  <page-header-wrapper>
+    <a-row :gutter="16">
+      <a-col :span="4">
+        <a-card>
+          <a-statistic
+              title="待审核申请（条）"
+              :value="countData.count"
+              :precision="0"
+              :value-style="{ color: '#439dc4' }"
+              style="margin: 10px"
+          >
+          </a-statistic>
+        </a-card>
+      </a-col>
+      <a-col :span="4">
+        <a-card>
+          <a-statistic
+              title="待审核总金额"
+              :value="((countData.totalAmount)/100).toFixed(2)"
+              :precision="2"
+              :value-style="{ color: '#cf1322' }"
+              style="margin: 10px"
+          >
+          </a-statistic>
+        </a-card>
+      </a-col>
+    </a-row>
+    <a-card style="margin-top: 20px">
+      <div class="table-page-search-wrapper">
+        <a-form layout="inline" class="table-head-ground">
+          <div class="table-layer">
+            <a-form-item label="" class="table-head-layout" style="max-width:350px;min-width:300px">
+              <a-range-picker
+                  @change="onChange"
+                  :show-time="{ format: 'HH:mm:ss' }"
+                  v-model="selectedRange"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  :disabled-date="disabledDate"
+                  :ranges="ranges"
+              >
+                <a-icon slot="suffixIcon" type="sync"/>
+              </a-range-picker>
+            </a-form-item>
+            <jeepay-text-up :placeholder="'流水单号'" :msg="searchData.recordId" v-model="searchData.recordId"/>
+            <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.userNo" v-model="searchData.userNo"/>
+            <a-form-item label="" class="table-head-layout">
+              <!-- 1-待结算 2-结算成功, 3-结算失败(取消) -->
+              <a-select v-model="searchData.state" placeholder="状态" default-value="1">
+                <a-select-option value="">全部</a-select-option>
+                <a-select-option value="1">待结算</a-select-option>
+                <a-select-option value="2">结算成功</a-select-option>
+                <a-select-option value="3">结算失败</a-select-option>
+              </a-select>
+            </a-form-item>
+            <span class="table-page-search-submitButtons">
+              <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
+              <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
+            </span>
+          </div>
+        </a-form>
+      </div>
+      <!-- 列表渲染 -->
+      <JeepayTable
+          @btnLoadClose="btnLoading=false"
+          ref="infoTable"
+          :initData="true"
+          :reqTableDataFunc="reqTableDataFunc"
+          :tableColumns="tableColumns"
+          :searchData="searchData"
+          rowKey="recordId"
+      >
+        <template slot="nameSlot" slot-scope="{record}">
+          <b>[{{ record.userNo }}]</b><span>{{ record.userName }}</span>
+        </template>
+        <template slot="amountSlot" slot-scope="{record}">
+          <b style="color: #1b8fcd">{{(record.amount / 100).toFixed(2)}}</b>
+        </template>
+        <template slot="divisionAmountCount" slot-scope="{record}">
+          <b style="color: #85C52F">{{(record.divisionAmount / 100).toFixed(2)}}</b>
+        </template>
+        <template slot="feeSlot" slot-scope="{record}">
+          <span >{{(record.divisionFeeRate / 100).toFixed(2)}}</span>
+        </template>
+        <template slot="stateSlot" slot-scope="{record}">
+          <!-- 1-待结算 2-结算成功, 3-结算失败(取消),4-超时关闭 -->
+          <a-tag :key="record.state" :color="record.state === 1?'blue':record.state === 2?'green':record.state === 3?'volcano':''">
+            {{ record.state === 1?'待结算':record.state === 2?'结算成功':record.state === 3?'结算失败':'超时关闭'}}
+          </a-tag>
+        </template>
+        <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
+          <JeepayTableColumns>
+            <a-button type="link" v-if="$access('ENT_DIVISION_AGENT')" @click="detailFunc(record.payOrderId)">查看详情</a-button>
+            <a-button type="link" v-if="$access('ENT_DIVISION_AGENT') && record.state === 1" @click="clickReviewedFunc(record)">审核</a-button>
+          </JeepayTableColumns>
+        </template>
+      </JeepayTable>
+    </a-card>
+    <!-- 审核抽屉 -->
+    <template>
+      <a-drawer
+          width="30%"
+          placement="right"
+          :closable="true"
+          :visible="visible"
+          :title="visible === true? '订单详情':''"
+          @close="onClose"
+      >
+        <a-row justify="space-between" type="flex">
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="代理商号">
+                <b>{{ detailData.userNo }}</b>
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="代理名称">
+                {{ detailData.userName }}
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="申请时间">
+                {{ detailData.createdAt }}
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="过期时间">
+                {{ detailData.expiredTime }}
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="订单状态">
+                <a-tag :key="detailData.state" :color="detailData.state === 1?'blue':detailData.state === 2?'green':detailData.state === 3?'volcano':''">
+                  {{ detailData.state === 1?'待结算':detailData.state === 2?'结算成功':detailData.state === 3?'结算失败':'超时关闭'}}
+                </a-tag>
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-divider />
+          <a-col :sm="24">
+            <a-descriptions>
+              <a-descriptions-item label="申请金额">
+                <a-tag color="green">
+                  {{ (detailData.amount/100).toFixed(2) }}
+                </a-tag>
+              </a-descriptions-item>
+            </a-descriptions>
+          </a-col>
+          <a-col :sm="24">
+            <a-descriptions><a-descriptions-item label="手续费"><b>{{ (detailData.divisionAmountFee/100).toFixed(2) }}</b></a-descriptions-item></a-descriptions>
+          </a-col>
+          <a-divider />
+        </a-row>
+        <a-row justify="start" type="flex">
+          <a-col :sm="24">
+            <a-form-model-item label="备注">
+              <a-input
+                  type="textarea"
+                  style="height: 100px;color: black"
+                  v-model="reviewedRemark"
+              />
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+        <div class="drawer-btn-center">
+          <a-button type="primary" style="margin-right:8px" icon="check" @click="handleOkFunc" :loading="btnLoading">
+            已汇款
+          </a-button>
+          <a-button type="danger" style="margin-right:8px" icon="close" @click="handleRefuseFunc" :loading="btnLoading">
+            驳回
+          </a-button>
+          <a-button @click="onClose" style="margin-right:8px">
+            关闭
+          </a-button>
+        </div>
+      </a-drawer>
+    </template>
+  </page-header-wrapper>
+</template>
+<script>
+
+import moment from 'moment'
+import {
+  API_URL_AGENT_DIVISION, req
+} from '@/api/manage'
+import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns.vue'
+import JeepayTable from '@/components/JeepayTable/JeepayTable.vue'
+import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp.vue' // 空数据展示的组件，首页自用
+const tableColumns = [
+  { key: 'id', fixed: 'left', width: '150px', title: '流水单号', dataIndex: 'recordId' },
+  { key: 'name', width: '250px', title: '代理商', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'createdAt', width: '200px', title: '申请时间', dataIndex: 'createdAt' },
+  { key: 'amount', title: '申请金额(￥)', width: 150, scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'divisionAmount', title: '到账金额(￥)', width: '150px', scopedSlots: { customRender: 'divisionAmountCount' } },
+  { key: 'fee', title: '服务费(￥)', width: '150px', scopedSlots: { customRender: 'feeSlot' } },
+  { key: 'state', title: '状态', width: '150px', scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'op', title: '操作', width: 180, fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
+]
+export default {
+  data () {
+    return {
+      btnLoading: false,
+      searchData: {
+        'state': '1'
+      }, // 查询条件
+      selectedRange: [],
+      changeObject: {},
+      visible: false, // 审核抽屉
+      ranges: {
+        今天: [moment().startOf('day'), moment().endOf('day')],
+        昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+        近一周: [
+          moment().subtract(1, 'week').startOf('day'),
+          moment().endOf('day')
+        ]
+      },
+      tableColumns: tableColumns,
+      mchInfo: {},
+      isShowModal: false,
+      changeRules: {
+        amount: [
+          { required: true, message: '请输入申请金额', trigger: 'blur' }
+        ]
+      },
+      detailData: {},
+      reviewedRemark: '',
+      countData: {}
+    }
+  },
+  components: { JeepayTextUp, JeepayTable, JeepayTableColumns },
+  methods: {
+    reqTableDataFunc: (params) => {
+      return req.list(API_URL_AGENT_DIVISION, params)
+    },
+    moment,
+    queryFunc () {
+      this.btnLoading = true
+      this.$refs.infoTable.refTable(true)
+    },
+    disabledDate (current) { // 今日之后日期不可选
+      return current && current > moment().endOf('day')
+    },
+    onChange: function (date, dateString) {
+      this.searchData.createdStart = dateString[0] // 开始时间
+      this.searchData.createdEnd = dateString[1] // 结束时间
+      this.$refs.infoTable.refTable(true)
+    },
+    resetSearch: function () {
+      this.searchData = {}
+      this.selectedRange = [] // 开始时间
+    },
+    clickReviewedFunc (record) {
+      this.detailData = record
+      this.visible = true
+    },
+    handleOkFunc () {
+      const that = this
+      const param = {}
+      param.state = 2
+      param.remark = this.reviewedRemark
+      req.postDataNormal(API_URL_AGENT_DIVISION, 'reviewOk/' + this.detailData.recordId, param).then(res => {
+        that.$message.info('操作成功')
+        that.visible = false
+        that.reviewedRemark = ''
+        that.detailData = {}
+        that.$refs.infoTable.refTable(true)
+      }).catch((err) => {
+        console.error(err)
+      })
+    },
+    handleRefuseFunc () {
+      const that = this
+      const param = {}
+      param.state = 3
+      param.remark = this.reviewedRemark
+      req.postDataNormal(API_URL_AGENT_DIVISION, 'reviewRefuse/' + this.detailData.recordId, param).then(res => {
+        that.$message.info('操作成功')
+        that.visible = false
+        that.reviewedRemark = ''
+        that.detailData = {}
+        that.$refs.infoTable.refTable(true)
+      }).catch((err) => {
+        console.error(err)
+      })
+    },
+    onClose () {
+      this.visible = false
+    }
+  },
+  computed: {
+  },
+  mounted () {
+    const that = this
+    req.postDataNormal(API_URL_AGENT_DIVISION, 'count').then(res => {
+      that.countData = res
+    }).catch((err) => {
+      console.error(err)
+    })
+  }
+}
+</script>
+<style scoped lang="less">
+
+</style>

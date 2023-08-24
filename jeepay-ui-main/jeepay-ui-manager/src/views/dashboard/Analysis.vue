@@ -1,0 +1,626 @@
+<template>
+  <div id="chart-card">
+    <div class="chart-top">
+<!--      <div class="chart-item top-left">-->
+<!--        <div class="chart-data" style="position:relative">-->
+<!--          &lt;!&ndash; 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 &ndash;&gt;-->
+<!--          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />-->
+<!--          <div v-show="!skeletonIsShow">-->
+<!--            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">-->
+<!--              <span>今日总金额</span>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--              <div class="pay-amount-text">-->
+<!--                <span class="pay-amount">{{ (mainChart.todayCount.totalAmount/100).toFixed(2) }}</span>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="payAmountSpan">-->
+<!--              <span>昨日总金额&nbsp;{{ (mainChart.yesterdayCount.totalAmount/100).toFixed(2)}}</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+      <div class="chart-item top-left">
+        <div class="chart-data" style="position:relative">
+          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
+          <div v-show="!skeletonIsShow">
+            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+              <span>今日成交金额</span>
+            </div>
+            <div>
+              <div class="pay-amount-text">
+                <b class="pay-amount">&nbsp;{{ (mainChart.todayCount.totalSuccessAmount/100).toFixed(2) }}</b>
+              </div>
+            </div>
+            <div class="payAmountSpan">
+              <span>昨日成交金额：&nbsp;{{ (mainChart.yesterdayCount.totalSuccessAmount/100).toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-item top-left" style="width: 250px">
+        <div class="chart-data" style="position:relative">
+          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
+          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
+          <div v-show="!skeletonIsShow">
+            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+              <span>今日成交订单数</span>
+            </div>
+            <div>
+              <div class="pay-amount-text">
+                <b class="pay-amount">{{ mainChart.todayCount.orderSuccessCount }}</b>
+              </div>
+            </div>
+            <div class="payAmountSpan">
+              <span>昨日成交订单数：{{ mainChart.yesterdayCount.orderSuccessCount }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-item top-left">
+        <div class="chart-data" style="position:relative">
+          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
+          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
+          <div v-show="!skeletonIsShow">
+            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+              <span>今日平台利润</span>
+            </div>
+            <div>
+              <div class="pay-amount-text">
+                <b class="pay-amount">{{ (mainChart.todayCount.platTotalIncome/100).toFixed(2) }}
+                </b>
+              </div>
+            </div>
+            <div class="payAmountSpan">
+              <span>昨日平台利润：{{ (mainChart.yesterdayCount.platTotalIncome/100).toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-item top-left" style="width: 250px">
+        <div class="chart-data" style="position:relative">
+          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
+          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
+          <div v-show="!skeletonIsShow">
+            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+              <span>今日订单数</span>
+            </div>
+            <div>
+              <div class="pay-amount-text">
+                <span class="pay-amount">{{ mainChart.todayCount.totalOrderCount }}</span>
+              </div>
+            </div>
+            <div class="payAmountSpan">
+              <span>昨日订单数：{{ mainChart.yesterdayCount.totalOrderCount }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="top-middle">
+        <div class="middle-top">
+          <div class="chart-item middle-larger">
+            <div class="chart-data">
+              <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
+                <div class="analy-title">
+                  <span>今日成功率</span>
+                </div>
+                <a-card :bordered="false">
+                  <a-statistic style="margin-top: 10px;font-weight: bold" :value="(mainChart.todaySuccessRate*100).toFixed(2)+ '%'" />
+                </a-card>
+              </a-skeleton>
+            </div>
+          </div>
+          <div class="chart-item middle-smaller">
+            <div class="chart-data">
+              <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
+                <div class="analy-title">
+                  <span>商户数量</span>
+                </div>
+                <a-card :bordered="false">
+                  <a-statistic style="margin-top: 10px" :value="mainChart.mchNum" />
+                </a-card>
+              </a-skeleton>
+            </div>
+          </div>
+        </div>
+        <div class="middle-bottom">
+          <div class="chart-item middle-larger">
+            <div class="chart-data">
+              <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
+                <div class="analy-title">
+                  <span>昨日成功率</span>
+                </div>
+                <a-card :bordered="false">
+                  <a-statistic style="margin-top: 10px" :value="(mainChart.yesterdaySuccessRate*100).toFixed(2)+ '%'" />
+                </a-card>
+              </a-skeleton>
+            </div>
+          </div>
+          <div class="chart-item middle-smaller">
+            <div class="chart-data">
+              <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
+                <div class="analy-title">
+                  <span>代理数量</span>
+                </div>
+                <a-card :bordered="false">
+                  <a-statistic style="margin-top: 10px" :value="mainChart.agentNum" />
+                </a-card>
+              </a-skeleton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-bottom">
+      <div class="chart-item bottom-left">
+        <div class="chart-data">
+          <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 6 }"/>
+          <div v-show="!skeletonIsShow">
+            <div>
+              <div class="pay-count-title">
+                <span class="chart-title">数据排名</span>
+                <a-radio-group v-model="tableChannel" button-style="solid" @change="selectTab">
+                  <a-radio-button value="1">商户</a-radio-button>
+                  <a-radio-button value="2">通道</a-radio-button>
+                  <a-radio-button value="3">代理</a-radio-button>
+                </a-radio-group>
+              </div>
+              <div style="margin-top: 12px;">
+                <JeepayTable
+                    @btnLoadClose="btnLoading=false"
+                    ref="infoTable"
+                    :initData="true"
+                    :reqTableDataFunc="reqTableDataFunc"
+                    :tableColumns="tableColumns"
+                    :pageSize = 10
+                    :searchData="searchData"
+                >
+                  <template slot="nameSlot" slot-scope="{record}">
+                    <template v-if="tableChannel=== '1'">
+                      <span>[{{ record.mchNo }}]</span>&nbsp;<b style="font-weight: bold">{{ record.mchName }}</b>
+                    </template>
+                    <template v-else-if="tableChannel=== '2'">
+                      <span>[{{ record.payPassageId }}]</span>&nbsp;<b style="font-weight: bold">{{ record.payPassageName }}</b>
+                    </template>
+                    <template v-if="tableChannel=== '3'">
+                      <span>[{{ record.agentNo }}]</span>&nbsp;<b style="font-weight: bold">{{ record.agentName }}</b>
+                    </template>
+                  </template> <!-- 自定义插槽 -->
+                  <template slot="stateSlot" slot-scope="{record}">
+                    <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'禁用':'启用'" />
+                  </template>
+                  <!--    全局金额颜色参考此处    -->
+                  <template slot="balanceSlot" slot-scope="{record}">
+                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#85C52F' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+                  </template> <!-- 自定义插槽 -->
+                </JeepayTable>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-item bottom-right">
+        <div class="chart-data">
+<!--          <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 6 }"/>-->
+          <div v-show="!skeletonIsShow">
+            <div class="pay-count-title">
+              <span class="chart-title">实时监控（近30分钟）</span>
+<!--              <div class="chart-padding" style="border: 1px solid #ddd;"></div>-->
+            </div>
+            <template>
+              <div id="chartContainer" style="max-width:800px;width: 800px;min-width: 700px; height:500px;"></div>
+            </template>
+            <div>
+              <!-- 如果没数据就展示一个图标 -->
+<!--              <div v-show="isPayType" id="payType" style="height:300px"></div>-->
+<!--              <empty v-show="!isPayType" />-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+  // import { TinyArea, Column, Pie, measureTextWidth } from '@antv/g2plot'
+  import * as echarts from 'echarts'
+  import {
+    API_URL_AGENT_STAT_LIST,
+    API_URL_MCH_STAT_LIST,
+    API_URL_PASSAGE_STAT_LIST, getRealTimeStat,
+    getTwoDayCount,
+    req
+  } from '@/api/manage'
+  import moment from 'moment'
+  import store from '@/store'
+  import { timeFix } from '@/utils/util'
+  import empty from './empty'
+  import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns.vue'
+  import JeepayTable from '@/components/JeepayTable/JeepayTable.vue' // 空数据展示的组件，首页自用
+  const tableColumns = [
+    { key: 'name', fixed: 'left', width: '300px', title: 'ID/名称', scopedSlots: { customRender: 'nameSlot' } },
+    { key: 'balance', title: '余额(￥)', width: 150, scopedSlots: { customRender: 'balanceSlot' }, fixed: 'left' },
+    { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } }
+  ]
+  export default {
+    data () {
+      return {
+        rowKey: 'mchNo',
+        btnLoading: false,
+        skeletonIsShow: true, // 骨架屏是否显示
+        skeletonReqNum: 0, // 当所有数据请求完毕后关闭骨架屏（共四个请求）
+        lastSevenDays: true, // 最近七天是否显示
+        pieDays: false, // 饼状图的关闭按钮是否展示
+        visible: false,
+        recordId: store.state.user.userId,
+        searchData: {}, // 查询条件
+        greetImg: store.state.user.avatarImgPath, // 头像图片地址
+        isPayType: true, // 产品是否存在数据
+        isPayCount: true, // 交易统计是否存在数据
+        ispayAmount: true, // 今日交易金额是否存在数据
+        jeeDate: undefined, // 自定义日期选择框所用状态
+        jeeDatePie: undefined, // 自定义日期选择框所用状态-产品
+        isAdmin: store.state.user.isAdmin, // 是否为超级管理员
+        mainTips: { // 主页提示
+          helloTitle: ''
+        },
+        mainChart: { // 主页统计数据
+          todayCount: {},
+          yesterdayCount: {}
+        },
+        tableChannel: '1', // tab选择
+        tableColumns: tableColumns,
+        passageData: [],
+        chartPassage: null
+      }
+    },
+    components: { JeepayTable, JeepayTableColumns, empty },
+    methods: {
+      init () {
+        const that = this
+        if (this.$access('ENT_C_MAIN_PAY_COUNT')) {
+          getTwoDayCount().then(res => {
+            that.mainChart = res
+            that.skeletonClose(that)
+          }).catch((err) => {
+            console.error(err)
+            that.skeletonClose(that)
+          })
+        } else {
+          that.skeletonClose(that)
+        }
+      },
+      initChart () { // 初始化统计表
+        var chartContainer = document.getElementById('chartContainer')
+        this.chartPassage = echarts.init(chartContainer)
+        this.passageData = []
+        const that = this
+        getRealTimeStat().then(res => {
+          // 在这里配置你的图表选项和数据
+          const yAxisData = []
+          for (var key in res) {
+            if (res.hasOwnProperty(key)) {
+              var value = res[key]
+              var successRate = 0
+              if (value.allCount !== 0) {
+                successRate = (value.successCount / value.allCount * 100).toFixed(2)
+              } else {
+                successRate = successRate.toFixed(2)
+              }
+              that.passageData.push(successRate)
+              yAxisData.push(value.passageName + '-成交金额：' + (value.successAmount / 100).toFixed(2))
+            }
+          }
+          const options = {
+            align: {
+              options: {
+                left: 'left',
+                center: 'center',
+                right: 'right'
+              }
+            },
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                type: 'shadow'
+              }
+            },
+            xAxis: {
+              max: 'dataMax'
+            },
+            yAxis: {
+              type: 'category',
+              data: yAxisData,
+              animationDuration: 300,
+              animationDurationUpdate: 300,
+              max: 20,
+              axisLabel: {
+                show: true,
+                inside: true, // 设置文本显示在柱图内部
+                textStyle: {
+                  color: '#fff',
+                  fontSize: 12
+                }
+              }
+            },
+            series: [
+              {
+                // realtimeSort: true,
+                name: '通道成功率',
+                type: 'bar',
+                data: that.passageData,
+                label: {
+                  show: true,
+                  position: 'right',
+                  valueAnimation: true
+                }
+              }
+            ],
+            legend: {
+              show: true
+            },
+            animationDuration: 0,
+            animationDurationUpdate: 3000,
+            animationEasing: 'linear',
+            animationEasingUpdate: 'linear'
+          }
+          that.chartPassage.setOption(options)
+        }).catch((err) => {
+          console.error(err)
+        })
+        setInterval(function () {
+          that.updatePassageData()
+        }, 30000)
+      },
+      reqTableDataFunc: (params) => {
+        // 区分 1-商户 2-通道 3-代理
+        if (params.tableChannel === undefined) {
+          return req.list(API_URL_MCH_STAT_LIST, params)
+        }
+        switch (params.tableChannel) {
+          case '1':
+            return req.list(API_URL_MCH_STAT_LIST, params)
+          case '2':
+            return req.list(API_URL_PASSAGE_STAT_LIST, params)
+          case '3':
+            return req.list(API_URL_AGENT_STAT_LIST, params)
+        }
+      },
+      moment,
+      disabledDate (current) {
+        // 当天之前的三十天，可选。 当天也可选
+        return current < moment().subtract(32, 'days') || current > moment().endOf('day')
+      },
+      skeletonClose (that) {
+        that.skeletonIsShow = false
+      },
+      selectTab () {
+        // rowKey
+        switch (this.tableChannel) {
+          case '1':
+            this.rowKey = 'mchNo'
+            break
+          case '2':
+            this.rowKey = 'payPassageId'
+            break
+          case '3':
+            this.rowKey = 'agentNo'
+            break
+        }
+        this.searchData.tableChannel = this.tableChannel
+        this.$refs.infoTable.refTable(true)
+      },
+      updatePassageData () {
+        const that = this
+        that.passageData = []
+        getRealTimeStat().then(res => {
+          const yAxisData = []
+          for (const key in res) {
+            if (res.hasOwnProperty(key)) {
+              var value = res[key]
+              var successRate = 0
+              if (value.allCount !== 0) {
+                successRate = (value.successCount / value.allCount * 100).toFixed(2)
+              } else {
+                successRate = successRate.toFixed(2)
+              }
+              that.passageData.push(successRate)
+              yAxisData.push(value.passageName + '-成交金额：' + (value.successAmount / 100).toFixed(2))
+            }
+          }
+          that.chartPassage.setOption({
+            series: [
+              {
+                data: that.passageData
+              }
+            ],
+            yAxis: {
+              data: yAxisData
+            }
+          })
+        }).catch((err) => {
+          console.error(err)
+        })
+      }
+    },
+    computed: {
+    },
+    mounted () {
+      this.initChart()
+      // 用户名信息以及时间问候语句。由于退出登陆才让他更改成功，所以这里的数据先从 vuex中获取
+      this.mainTips.helloTitle = `${timeFix()}，` + this.$store.state.user.loginUsername
+      this.init()
+    }
+  }
+</script>
+
+<style lang="less" scoped>
+  @import './index.less'; // 响应式布局
+  .user-greet {
+    font-size: 19px;
+    font-weight: 500;
+
+    .quick-start {
+      box-sizing: border-box;
+      padding-top: 20px;
+
+      .quick-start-title {
+        font-size: 16px;
+        font-weight: 500;
+        text-align: left;
+        margin-bottom:0;
+      }
+      .quick-start-ul {
+        font-size: 13px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        padding: 0;
+        margin-bottom:0;
+
+        li {
+          margin-right: 20px;
+          margin-top: 10px;
+          text-align: left;
+
+          :hover {
+            color: @jee-inside-link
+          }
+        }
+        li:hover {
+          cursor:pointer;
+        }
+      }
+    }
+  }
+  .chart-padding {
+    box-sizing: border-box;
+    padding: 0 5px;
+    width:300px;
+  }
+
+  .user-greet-title{
+    box-sizing:border-box;
+    padding-bottom:20px;
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #ddd;
+
+    .user-greet-all {
+      display:flex;
+      flex-direction:row;
+
+      .user-greet-img {
+        width:60px;
+        height:60px;
+        border-radius:50%;
+        overflow:hidden;
+        background:#ddd;
+        margin-right:10px;
+        img {
+          width:60px;
+          height:60px;
+          border:1px solid rgba(0,0,0,0.08)
+        }
+      }
+      .user-greet-all {
+        display:flex;
+        flex-direction:column;
+        justify-content: space-around;
+      }
+    }
+  }
+  .analy-title {
+    display:flex;
+    justify-content:space-between;
+    padding-bottom:0;
+    align-items: center;
+  }
+  .there-spot:hover {
+    cursor:pointer;
+  }
+  .ant-calendar-picker-input {
+    border:none !important
+  }
+  .payAmountSpan {
+   display:flex;
+   justify-content:space-between;
+   width: 100%;
+   box-sizing: border-box;
+   position: absolute;
+   bottom:20px;
+   padding:0 20px;
+   box-sizing: border-box;
+  }
+
+  .chart-data {
+    padding:20px;
+    box-sizing: border-box;
+  }
+
+  .top-left {
+
+    .chart-data {
+      padding:0;
+    }
+  }
+
+  .pay-amount-text {
+    display: flex;
+    padding: 0 20px 0 16px;
+    box-sizing: border-box;
+    height: 33px;
+    line-height: 33px;
+    align-items: baseline;
+    margin-bottom: 10px;
+    .pay-amount {
+      font-size: 33px;
+      margin-right: 10px;
+    }
+  }
+
+  .pay-count-title {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content:space-between;
+    align-items:center;
+    .pay-count-date{
+      display:flex;
+      justify-content:space-around;
+    }
+  }
+  .chart-padding {
+    box-sizing: border-box;
+    max-width:330px;
+    min-width:260px;
+    flex-grow: 1;
+    flex-shrink:1;
+    margin-bottom: 20px;
+  }
+  .change-date-layout {
+    padding-left: 11px;
+    align-items: center;
+    display:flex;
+    justify-content:space-between;
+
+    .change-date-icon {
+      width:50px;
+      height:36px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+  }
+
+  .chart-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-right:20px;
+    margin-bottom:20px;
+  }
+</style>

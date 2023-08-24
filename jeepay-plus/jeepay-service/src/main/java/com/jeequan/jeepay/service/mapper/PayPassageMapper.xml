@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.PayPassageMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.PayPassage">
+        <id column="pay_passage_id" property="payPassageId" />
+        <result column="pay_passage_name" property="payPassageName" />
+        <result column="if_code" property="ifCode" />
+        <result column="product_id" property="productId" />
+        <result column="rate" property="rate" />
+        <result column="pay_type" property="payType" />
+        <result column="pay_rules" property="payRules" />
+        <result column="pay_interface_config" property="payInterfaceConfig" />
+        <result column="balance" property="balance" />
+        <result column="state" property="state" />
+        <result column="weights" property="weights" />
+        <result column="quota_limit_state" property="quotaLimitState" />
+        <result column="quota" property="quota" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="agent_no" property="agentNo" />
+        <result column="agent_rate" property="agentRate" />
+        <result column="time_limit" property="timeLimit" />
+        <result column="time_rules" property="timeRules" />
+    </resultMap>
+
+    <update id="updateBalance" parameterType="java.util.Map">
+        update t_pay_passage
+        <set>
+            <if test="changeAmount != null" >
+                balance = (balance + #{changeAmount}),
+            </if>
+        </set>
+        <where>
+            <if test="payPassageId != null" >
+                pay_passage_id = #{payPassageId}
+            </if>
+        </where>
+    </update>
+
+    <update id="updateQuota" parameterType="java.util.Map">
+        update t_pay_passage
+        <set>
+            <if test="changeAmount != null" >
+                quota = (quota + #{changeAmount}),
+            </if>
+        </set>
+        <where>
+            <if test="payPassageId != null" >
+                pay_passage_id = #{payPassageId}
+            </if>
+        </where>
+    </update>
+    <select id="sumPassageInfo" parameterType="java.util.Map" resultType="com.alibaba.fastjson.JSONObject" >
+        select sum(balance) as totalBalance,count(*) as passageNum from t_pay_passage
+    </select>
+</mapper>

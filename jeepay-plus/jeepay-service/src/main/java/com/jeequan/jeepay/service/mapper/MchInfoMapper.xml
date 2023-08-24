@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.MchInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.MchInfo">
+        <id column="mch_no" property="mchNo" />
+        <result column="mch_name" property="mchName" />
+        <result column="state" property="state" />
+        <result column="remark" property="remark" />
+        <result column="init_user_id" property="initUserId" />
+        <result column="created_uid" property="createdUid" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="secret" property="secret" />
+        <result column="mch_group_id" property="mchGroupId" />
+        <result column="agent_no" property="agentNo" />
+        <result column="balance" property="balance" />
+        <result column="freeze_balance" property="freezeBalance" />
+    </resultMap>
+
+    <!-- 根据支付方式查询可用的支付接口列表  -->
+    <select id="selectAvailablePayInterfaceList" resultType="com.alibaba.fastjson.JSONObject" parameterType="java.util.Map">
+        select pid.if_code ifCode, pid.if_name ifName, pid.config_page_type configPageType, pid.bg_color bgColor, pid.icon icon, pic.if_params ifParams, pic.if_rate ifRate from t_pay_interface_define pid
+        inner join t_pay_interface_config pic on pid.if_code = pic.if_code
+        where JSON_CONTAINS(pid.way_codes, JSON_OBJECT('wayCode', #{wayCode}))
+        and pid.state = 1
+        and pic.state = 1
+        and pic.info_type = #{infoType}
+        and pic.info_id = #{appId}
+        and (pic.if_params is not null and trim(pic.if_params) != '')
+        <if test="mchType == 1">
+            and pid.is_mch_mode = 1
+        </if>
+        <if test="mchType == 2">
+            and pid.is_isv_mode = 1
+        </if>;
+    </select>
+
+    <!-- 更新余额数据 -->
+    <update id="updateBalance" parameterType="java.util.Map">
+        update t_mch_info
+        <set>
+            <if test="changeAmount != null" >
+                balance = (balance + #{changeAmount}),
+            </if>
+        </set>
+        <where>
+            <if test="mchNo != null" >
+                mch_no = #{mchNo}
+            </if>
+        </where>
+    </update>
+
+    <select id="sumMchInfo" parameterType="java.util.Map" resultType="com.alibaba.fastjson.JSONObject" >
+        select sum(balance) as totalBalance,sum(freeze_balance) as freezeBalance,count(*) as mchNum from t_mch_info
+    </select>
+
+</mapper>

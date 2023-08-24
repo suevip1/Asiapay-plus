@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.SysUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.SysUser">
+        <id column="sys_user_id" property="sysUserId" />
+        <result column="login_username" property="loginUsername" />
+        <result column="is_admin" property="isAdmin" />
+        <result column="state" property="state" />
+        <result column="sys_type" property="sysType" />
+        <result column="belong_info_id" property="belongInfoId" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+</mapper>
