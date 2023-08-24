@@ -444,7 +444,6 @@ public class RobotsService extends TelegramLongPollingBot {
 
 
         //下发
-        //todo 保留两天流水   记总账
         Pattern patternAddRecord = Pattern.compile(ADD_RECORD);
         Matcher matcherAddRecord = patternAddRecord.matcher(text);
         if (matcherAddRecord.find()) {
@@ -458,7 +457,7 @@ public class RobotsService extends TelegramLongPollingBot {
                     robotsMch.setBalance(robotsMch.getBalance() + amount);
                     robotsMchService.saveOrUpdate(robotsMch);
                     //pin
-                    String msg = AmountUtil.convertCent2Dollar(robotsMch.getBalance());
+                    String msg = "当前商户结余:"+AmountUtil.convertCent2Dollar(robotsMch.getBalance());
                     //发送今日所有记录以及余额
                     sendSingleMessage(chatId, msg);
                 } catch (Exception e) {

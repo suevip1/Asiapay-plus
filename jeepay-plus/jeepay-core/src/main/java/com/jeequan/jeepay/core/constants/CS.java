@@ -327,6 +327,8 @@ public class CS {
         String BENCHI = "benchi";
 
         String NAICHA = "naicha";
+
+        String KAMIPAY = "kamipay";
     }
 
 
