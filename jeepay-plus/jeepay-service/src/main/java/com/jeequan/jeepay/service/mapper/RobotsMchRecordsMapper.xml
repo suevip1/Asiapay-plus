@@ -5,10 +5,12 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.RobotsMchRecords">
         <id column="robot_mch_record_id" property="robotMchRecordId" />
-        <result column="mch_no" property="mchNo" />
+        <result column="chat_id" property="chatId" />
         <result column="amount" property="amount" />
         <result column="user_name" property="userName" />
         <result column="created_at" property="createdAt" />
+        <result column="type" property="type" />
+        <result column="remark" property="remark" />
     </resultMap>
 
 </mapper>

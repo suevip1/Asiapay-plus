@@ -34,16 +34,16 @@ public class RobotsMch extends BaseModel {
     /**
      * 商户号
      */
-    @TableId(value = "mch_no")
     private String mchNo;
 
     /**
      * chat id
      */
+    @TableId(value = "chat_id")
     private Long chatId;
 
     /**
-     * 记账余额
+     * 群记账余额
      */
     private Long balance;
 

@@ -3,6 +3,7 @@ package com.jeequan.jeepay.core.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.util.Date;
 import java.io.Serializable;
 
@@ -13,7 +14,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author [mybatis plus generator]
@@ -29,7 +30,16 @@ public class RobotsMchRecords implements Serializable {
         return new LambdaQueryWrapper<>();
     }
 
-    private static final long serialVersionUID=1L;
+    /**
+     * 下发
+     */
+    public static final String DAY_TYPE = "DAY";
+    /**
+     * 记账
+     */
+    public static final String TOTAL_TYPE = "TOTAL";
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 主键
@@ -38,9 +48,9 @@ public class RobotsMchRecords implements Serializable {
     private Long robotMchRecordId;
 
     /**
-     * 商户号
+     * chatId
      */
-    private String mchNo;
+    private Long chatId;
 
     /**
      * 金额
@@ -56,6 +66,22 @@ public class RobotsMchRecords implements Serializable {
      * 创建时间
      */
     private Date createdAt;
+
+    /**
+     * 记录类型-记账、下发
+     */
+    private String type;
+
+
+    /**
+     * 记录状态：0-撤销 1-可用
+     */
+    private Byte state;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
 
 }

@@ -4,8 +4,8 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.RobotsMch">
-        <id column="mch_no" property="mchNo" />
-        <result column="chat_id" property="chatId" />
+        <id column="chat_id" property="chatId" />
+        <result column="mch_no" property="mchNo" />
         <result column="balance" property="balance" />
     </resultMap>
 

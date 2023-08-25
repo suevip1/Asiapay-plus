@@ -19,6 +19,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
@@ -68,9 +69,9 @@ public class RobotsService extends TelegramLongPollingBot {
     private static final String BLIND_MCH = "绑定商户 M\\w+";
     private static final String BLIND_DEL_MCH = "商户解绑";
 
-    private static final String TODAY_BILL = "今日账单";
+    private static final String TODAY_BILL = "今日跑量";
 
-    private static final String YESTERDAY_BILL = "昨日账单";
+    private static final String YESTERDAY_BILL = "昨日跑量";
 
     private static final String QUERY_BALANCE = "查询余额";
 
@@ -79,15 +80,27 @@ public class RobotsService extends TelegramLongPollingBot {
     /**
      * 绑定通道
      */
-    private static final String BLIND_PASSAGE = "绑定通道 \\d+";
-    private static final String BLIND_PASSAGE_REMOVE = "解绑通道 \\d+";
+    private static final String BLIND_PASSAGE = "绑定通道\\s+([\\d,]+)";
+    private static final String BLIND_PASSAGE_REMOVE = "解绑通道\\s+([\\d,]+)";
     private static final String BLIND_PASSAGE_CLEAR_ALL = "解绑全部通道";
     private static final String BLIND_PASSAGE_ALL = "全部通道";
 
     /**
-     * 记账功能
+     * 下发功能
      */
-    private static final String ADD_RECORD = "记账\\s+([-+]?\\d+)";
+    private static final String ADD_RECORD = "[+-]\\d+(\\.\\d+)?";
+    private static final String REVOKE_RECORD = "撤销下发";
+    private static final String CLEAR_RECORD = "清除下发";
+    /**
+     * 记账
+     */
+    private static final String ADD_RECORD_TOTAL = "记账 [+-]?\\d+(\\.\\d+)?";
+    private static final String REVOKE_RECORD_TOTAL = "撤销记账";
+    private static final String CLEAR_RECORD_TOTAL = "清除记账";
+
+    private static final String TODAY_RECORD = "今日账单";
+
+    private static final String YESTERDAY_RECORD = "昨日账单";
 
 
     private static final String ROBOT_QUIT = "机器人退群";
@@ -165,17 +178,18 @@ public class RobotsService extends TelegramLongPollingBot {
         if (text.equals(BLIND_MGR)) {
             //是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
-                //不是商户群就覆盖
+                //不是商户群就覆盖  chatId下有商户号
                 RobotsMch robotsMch = robotsMchService.getMch(chatId);
-                if (robotsMch != null) {
+                if (checkIsMchChat(robotsMch)) {
                     sendSingleMessage(chatId, "当前群已绑定为商户群,不可绑定为四方群!");
-                } else {
-                    RobotsMch robotsMchAdmin = new RobotsMch();
-                    robotsMchAdmin.setChatId(chatId);
-                    robotsMchAdmin.setMchNo(CS.ROBOTS_MGR_MCH);
-                    robotsMchService.saveOrUpdate(robotsMchAdmin);
-                    sendSingleMessage(chatId, "当前群绑定四方管理群成功!");
+                    return;
                 }
+                if (checkIsPassageChat(chatId)) {
+                    sendSingleMessage(chatId, "当前群已绑定为通道群,不可绑定为四方群!");
+                    return;
+                }
+                robotsMchService.updateManageMch(chatId);
+                sendSingleMessage(chatId, "当前群绑定四方管理群成功!");
             }
             return;
         }
@@ -201,31 +215,30 @@ public class RobotsService extends TelegramLongPollingBot {
         //绑定商户-管理员
         Pattern patternBlindMch = Pattern.compile(BLIND_MCH);
         Matcher matcherBlindMch = patternBlindMch.matcher(text);
-        if (matcherBlindMch.find()) {
-            String replyStr = "";
+        if (matcherBlindMch.matches()) {
             if (robotsUserService.checkIsAdmin(userName)) {
                 RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
                 if (robotsMchAdmin != null && robotsMchAdmin.getChatId().longValue() == chatId.longValue()) {
-                    replyStr = "当前群已绑定为四方管理群，不可重复绑定商户";
-                } else {
-                    //重复绑定则覆盖
-                    String mchNo = text.substring(5);
-                    MchInfo mchInfo = mchInfoService.getById(mchNo);
-
-                    SendMessage sendMessage = new SendMessage();
-                    sendMessage.setChatId(chatId);
-
-                    if (mchInfo == null) {
-                        replyStr = "未查询到该商户 [" + mchNo + "] 请检查！";
-                    } else {
-                        RobotsMch robotsMch = new RobotsMch();
-                        robotsMch.setMchNo(mchNo);
-                        robotsMch.setChatId(chatId);
-                        robotsUserService.saveMch(robotsMch);
-                        replyStr = "绑定商户成功! [ " + mchNo + " ] " + mchInfo.getMchName();
-                    }
+                    sendSingleMessage(chatId, "当前群已绑定为四方管理群，不可重复绑定商户");
+                    return;
                 }
-                sendSingleMessage(chatId, replyStr);
+
+                if (checkIsPassageChat(chatId)) {
+                    sendSingleMessage(chatId, "当前群已绑定为通道群，不可重复绑定商户");
+                    return;
+                }
+
+                //清空老的商户号-chatId
+                String mchNo = text.substring(5);
+                MchInfo mchInfo = mchInfoService.getById(mchNo);
+
+                if (mchInfo == null) {
+                    sendSingleMessage(chatId, "未查询到该商户 [" + mchNo + "] 请检查！");
+                } else {
+                    robotsMchService.updateBlindMch(chatId, mchNo);
+                    sendSingleMessage(chatId, "绑定商户成功! [ " + mchNo + " ] " + mchInfo.getMchName());
+                }
+                return;
             }
             return;
         }
@@ -237,7 +250,7 @@ public class RobotsService extends TelegramLongPollingBot {
 //          是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
                 //是否已绑定商户
-                if (robotsMchService.remove(RobotsMch.gw().eq(RobotsMch::getChatId, chatId).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH))) {
+                if (robotsMchService.unBlindMch(chatId)) {
                     sendSingleMessage(chatId, "商户群解绑成功!");
                 } else {
                     sendSingleMessage(chatId, "当前群未绑定商户");
@@ -250,10 +263,9 @@ public class RobotsService extends TelegramLongPollingBot {
         //设置操作员  无关那个群，针对每个商户群-通道群
         Pattern patternSetOP = Pattern.compile(SET_OP);
         Matcher matcherSetOP = patternSetOP.matcher(text);
-        if (matcherSetOP.find()) {
+        if (matcherSetOP.matches()) {
             //是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
-                //是否已绑定商户
                 String opUserName = text.substring(7);
                 RobotsUser robotsUser = robotsUserService.getById(opUserName);
                 if (robotsUser == null) {
@@ -271,7 +283,7 @@ public class RobotsService extends TelegramLongPollingBot {
         //删除操作员
         Pattern patternDelOP = Pattern.compile(DEL_OP);
         Matcher matcherDelOP = patternDelOP.matcher(text);
-        if (matcherDelOP.find()) {
+        if (matcherDelOP.matches()) {
             //是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
                 String opUserName = text.substring(7);
@@ -282,6 +294,7 @@ public class RobotsService extends TelegramLongPollingBot {
                     sendSingleMessage(chatId, "用户 [ " + opUserName + " ] 未查询到操作员记录");
                 }
             }
+            return;
         }
 
         //操作员名单
@@ -300,11 +313,11 @@ public class RobotsService extends TelegramLongPollingBot {
                 } else {
                     sendSingleMessage(chatId, "当前没有操作员记录!");
                 }
-
             }
+            return;
         }
 
-        //今日账单
+        //今日跑量
         if (text.equals(TODAY_BILL)) {
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
             //是否已绑定商户
@@ -316,10 +329,10 @@ public class RobotsService extends TelegramLongPollingBot {
                 List<StatisticsMchProduct> statisticsMchProductList = statisticsService.QueryStatMchProduct(mchNo, today);
 
                 if (todayStatisticsMch == null) {
-                    sendSingleMessage(chatId, "没有今日账单记录");
+                    sendSingleMessage(chatId, "没有今日跑量记录");
                 } else {
-                    SendMchProduct(statisticsMchProductList, chatId);
-                    SendDayStat(todayStatisticsMch, chatId);
+                    sendMchProduct(statisticsMchProductList, chatId, "今日");
+                    sendDayStat(todayStatisticsMch, chatId);
                 }
             } else {
                 sendSingleMessage(chatId, "未绑定商户或没有记录");
@@ -327,7 +340,7 @@ public class RobotsService extends TelegramLongPollingBot {
             return;
         }
 
-        //昨日账单
+        //昨日跑量
         if (text.equals(YESTERDAY_BILL)) {
 
             Date today = DateUtil.parse(DateUtil.today());
@@ -337,16 +350,15 @@ public class RobotsService extends TelegramLongPollingBot {
             //是否已绑定商户
             if (robotsMch != null) {
                 String mchNo = robotsMch.getMchNo();
-                //查账单
-
+                //查跑量
                 StatisticsMch todayStatisticsMch = statisticsService.QueryStatisticsMchByDate(mchNo, yesterday);
                 List<StatisticsMchProduct> statisticsMchProductList = statisticsService.QueryStatMchProduct(mchNo, yesterday);
 
                 if (todayStatisticsMch == null) {
-                    sendSingleMessage(chatId, "没有昨日账单记录");
+                    sendSingleMessage(chatId, "没有昨日跑量记录");
                 } else {
-                    SendMchProduct(statisticsMchProductList, chatId);
-                    SendDayStat(todayStatisticsMch, chatId);
+                    sendMchProduct(statisticsMchProductList, chatId, "昨日");
+                    sendDayStat(todayStatisticsMch, chatId);
                 }
             } else {
                 sendSingleMessage(chatId, "未绑定商户或没有记录");
@@ -361,7 +373,6 @@ public class RobotsService extends TelegramLongPollingBot {
             //是否已绑定商户
             if (robotsMch != null) {
                 String mchNo = robotsMch.getMchNo();
-
                 MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
                 if (mchInfo == null) {
                     sendSingleMessage(chatId, "没有该商户的记录");
@@ -381,9 +392,8 @@ public class RobotsService extends TelegramLongPollingBot {
         //查单 商户订单号 平台订单号
         Pattern patternQueryOrder = Pattern.compile(QUERY_ORDER);
         Matcher matcherQueryOrder = patternQueryOrder.matcher(text);
-        if (matcherQueryOrder.find()) {
-
-            RobotsMch robotsMch = checkBlindMch(chatId);
+        if (matcherQueryOrder.matches()) {
+            RobotsMch robotsMch = robotsMchService.getMch(chatId);
             //是否已绑定商户
             if (robotsMch != null) {
                 String unionOrderId = text.substring(3).trim();
@@ -439,37 +449,187 @@ public class RobotsService extends TelegramLongPollingBot {
                         }
                     }
                 }
+            } else {
+                sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
             }
+            return;
         }
 
-
-        //下发
+        //下发-账单记录跟群走
         Pattern patternAddRecord = Pattern.compile(ADD_RECORD);
         Matcher matcherAddRecord = patternAddRecord.matcher(text);
-        if (matcherAddRecord.find()) {
-            RobotsMch robotsMch = checkBlindMch(chatId, userName);
-            //是否admin or 商户操作员？
-            if (robotsMch != null) {
+        if (matcherAddRecord.matches()) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
-                    String amountStr = text.substring(3);
+                    String amountStr = text;
                     Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
-                    robotsMchRecordsService.AddRecord(robotsMch.getMchNo(), amount, userName);
-                    robotsMch.setBalance(robotsMch.getBalance() + amount);
-                    robotsMchService.saveOrUpdate(robotsMch);
-                    //pin
-                    String msg = "当前商户结余:"+AmountUtil.convertCent2Dollar(robotsMch.getBalance());
-                    //发送今日所有记录以及余额
-                    sendSingleMessage(chatId, msg);
+                    if (amount.longValue() == 0) {
+                        return;
+                    }
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+                    robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
+
+                    Date today = DateUtil.parse(DateUtil.today());
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
             }
+            return;
+        }
+        //撤销下发
+        if (text.equals(REVOKE_RECORD)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                try {
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+                    Date today = DateUtil.parse(DateUtil.today());
+                    robotsMchRecordsService.RemoveRecentlyRecord(chatId, userNickname, today);
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            return;
+        }
+
+        //清除下发  清除当天全部
+        if (text.equals(CLEAR_RECORD)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                try {
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+                    //清除全部
+                    Date today = DateUtil.parse(DateUtil.today());
+                    robotsMchRecordsService.RemoveAllRecordByDate(chatId, userNickname, today);
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            return;
+        }
+
+
+        //记账
+        Pattern patternAddRecordTotal = Pattern.compile(ADD_RECORD_TOTAL);
+        Matcher matcherAddRecordTotal = patternAddRecordTotal.matcher(text);
+        if (matcherAddRecordTotal.matches()) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                try {
+                    //没有就添加记账群记录
+                    RobotsMch robotsMch = robotsMchService.getById(chatId);
+                    if (robotsMch == null) {
+                        robotsMch = new RobotsMch();
+                        robotsMch.setChatId(chatId);
+                        robotsMch.setMchNo("");
+                        robotsMch.setBalance(0L);
+                        robotsMchService.save(robotsMch);
+                    }
+
+                    String amountStr = text.substring(3);
+                    Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
+                    if (amount.longValue() == 0) {
+                        return;
+                    }
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+                    robotsMchRecordsService.AddTotalRecord(chatId, amount, userNickname);
+                    robotsMch.setBalance(robotsMch.getBalance() + amount);
+                    robotsMchService.saveOrUpdate(robotsMch);
+
+                    Date today = DateUtil.parse(DateUtil.today());
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+
+            }
+            return;
+        }
+
+        //撤销记账
+        if (text.equals(REVOKE_RECORD_TOTAL)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                try {
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+
+                    //没有就添加记账群记录
+                    RobotsMch robotsMch = robotsMchService.getById(chatId);
+                    if (robotsMch == null) {
+                        robotsMch = new RobotsMch();
+                        robotsMch.setChatId(chatId);
+                        robotsMch.setMchNo("");
+                        robotsMch.setBalance(0L);
+                        robotsMchService.save(robotsMch);
+                    }
+                    Date today = DateUtil.parse(DateUtil.today());
+
+                    Long amount = robotsMchRecordsService.RemoveRecentlyRecordTotal(chatId, userNickname, today);
+                    robotsMch.setBalance(robotsMch.getBalance() - amount);
+                    robotsMchService.saveOrUpdate(robotsMch);
+
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            return;
+        }
+
+
+        //今日账单
+        if (text.equals(TODAY_RECORD)) {
+            try {
+                Date today = DateUtil.parse(DateUtil.today());
+                sendBillStat(chatId, today, message.getMessageId(), "今日");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+            return;
+        }
+
+        //昨日账单
+        if (text.equals(YESTERDAY_RECORD)) {
+            try {
+                sendBillStat(chatId, DateUtil.yesterday(), message.getMessageId(), "昨日");
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+            return;
         }
 
         //绑定通道  BLIND_PASSAGE
         Pattern patternBlindPassage = Pattern.compile(BLIND_PASSAGE);
         Matcher matcherBlindPassage = patternBlindPassage.matcher(text);
-        if (matcherBlindPassage.find()) {
+        if (matcherBlindPassage.matches()) {
             try {
                 //是否空群  是否有权限
                 if (checkBlindPassage(chatId, userName)) {
@@ -516,7 +676,7 @@ public class RobotsService extends TelegramLongPollingBot {
         //解绑通道  BLIND_PASSAGE
         Pattern patternBlindPassageRemove = Pattern.compile(BLIND_PASSAGE_REMOVE);
         Matcher matcherBlindPassageRemove = patternBlindPassageRemove.matcher(text);
-        if (matcherBlindPassageRemove.find()) {
+        if (matcherBlindPassageRemove.matches()) {
             try {
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                     String passageStr = text.substring(5);
@@ -527,6 +687,7 @@ public class RobotsService extends TelegramLongPollingBot {
                         Long passageId = Long.parseLong(passageIds[index]);
                         robotsPassageService.removeById(passageId);
                     }
+                    sendSingleMessage(chatId, "解绑成功!");
                     //发送当前绑定列表
                     SendPassageList(chatId);
                 }
@@ -542,7 +703,7 @@ public class RobotsService extends TelegramLongPollingBot {
         if (text.trim().equals(BLIND_PASSAGE_CLEAR_ALL)) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 robotsPassageService.remove(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
-                sendSingleMessage(chatId, "通道解绑执行成功");
+                sendSingleMessage(chatId, "解绑全部通道执行成功");
                 //发送当前绑定列表
                 SendPassageList(chatId);
             }
@@ -573,6 +734,7 @@ public class RobotsService extends TelegramLongPollingBot {
         sendMessage.setChatId(chatId);
         sendMessage.setReplyToMessageId(messageId);
         sendMessage.setText(messageStr);
+        sendMessage.setParseMode(ParseMode.HTML);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -715,52 +877,6 @@ public class RobotsService extends TelegramLongPollingBot {
         sendSingleMessage(replyMessage);
     }
 
-    /**
-     * 是否邦绑定了商户
-     *
-     * @param chatId
-     * @param userName
-     * @return
-     */
-    private RobotsMch checkBlindMch(Long chatId, String userName) {
-        if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
-            RobotsMch robotsMch = robotsMchService.getMch(chatId);
-            //是否已绑定商户
-            if (robotsMch != null) {
-                return robotsMch;
-            } else {
-                RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
-                if (robotsMchAdmin == null) {
-                    sendSingleMessage(chatId, "请先绑定商户!命令[绑定商户 xxx]xxx为商户号");
-                } else {
-                    sendSingleMessage(chatId, "当前是四方管理群,仅支持商户群编辑操作员");
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 不需要检查权限的不传名字
-     *
-     * @param chatId
-     * @return
-     */
-    private RobotsMch checkBlindMch(Long chatId) {
-        RobotsMch robotsMch = robotsMchService.getMch(chatId);
-        //是否已绑定商户
-        if (robotsMch != null) {
-            return robotsMch;
-        } else {
-            RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
-            if (robotsMchAdmin == null) {
-                sendSingleMessage(chatId, "请先绑定商户!命令[绑定商户 xxx]xxx为商户号");
-            } else {
-                sendSingleMessage(chatId, "当前是四方管理群,仅支持商户群编辑操作员");
-            }
-        }
-        return null;
-    }
 
     private boolean checkBlindPassage(Long chatId, String userName) {
         if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
@@ -771,7 +887,7 @@ public class RobotsService extends TelegramLongPollingBot {
                 return false;
             }
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
-            if (robotsMch != null) {
+            if (checkIsMchChat(robotsMch)) {
                 sendSingleMessage(chatId, "当前群已绑定商户,不支持绑定通道");
                 return false;
             }
@@ -807,9 +923,9 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
-    private void SendMchProduct(List<StatisticsMchProduct> list, Long chatId) {
+    private void sendMchProduct(List<StatisticsMchProduct> list, Long chatId, String dayTitle) {
         StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("跑量明细：" + System.lineSeparator());
+        stringBuffer.append(dayTitle + "跑量明细：" + System.lineSeparator());
         stringBuffer.append("===================================" + System.lineSeparator());
         for (int i = 0; i < list.size(); i++) {
             stringBuffer.append("[" + list.get(i).getProductId() + "] " + list.get(i).getExt().getString("productName") + "     " + AmountUtil.convertCent2Dollar(list.get(i).getTotalSuccessAmount()) + System.lineSeparator());
@@ -817,7 +933,7 @@ public class RobotsService extends TelegramLongPollingBot {
         sendSingleMessage(chatId, stringBuffer.toString());
     }
 
-    private void SendDayStat(StatisticsMch statisticsMch, Long chatId) {
+    private void sendDayStat(StatisticsMch statisticsMch, Long chatId) {
 
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         float rate = (statisticsMch.getOrderSuccessCount().floatValue() / statisticsMch.getTotalOrderCount().floatValue()) * 100;
@@ -829,6 +945,114 @@ public class RobotsService extends TelegramLongPollingBot {
         stringBuffer.append("总订单数: " + statisticsMch.getTotalOrderCount() + System.lineSeparator());
         stringBuffer.append("成功率: " + rateStr + "%");
         sendSingleMessage(chatId, stringBuffer.toString());
+    }
+
+    private void sendBillStat(Long chatId, Date date, Integer messageId, String dayTitle) {
+        //默认发送今日统计
+        StringBuffer stringBuffer = new StringBuffer();
+        List<RobotsMchRecords> dayList = getDayStatByDate(chatId, date);
+        List<RobotsMchRecords> totalList = getTotalStatByDate(chatId, date);
+
+        //没有就添加记账群记录
+        RobotsMch robotsMch = robotsMchService.getById(chatId);
+        if (robotsMch == null) {
+            robotsMch = new RobotsMch();
+            robotsMch.setChatId(chatId);
+            robotsMch.setMchNo("");
+            robotsMch.setBalance(0L);
+            robotsMchService.save(robotsMch);
+        }
+        Long totalAmount = robotsMch.getBalance();
+        Long dayAmount = 0L;
+        StringBuffer dayStatStr = new StringBuffer();
+        for (int i = 0; i < dayList.size(); i++) {
+            if (dayList.get(i).getState() == CS.YES) {
+                dayAmount += dayList.get(i).getAmount();
+                dayStatStr.append(DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "</b>  " + dayList.get(i).getUserName() + System.lineSeparator());
+            } else {
+                dayStatStr.append("<s>" + DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "  " + dayList.get(i).getUserName() + "</s>  " + dayList.get(i).getRemark() + System.lineSeparator());
+            }
+        }
+
+
+        StringBuffer totalStatStr = new StringBuffer();
+        for (int i = 0; i < totalList.size(); i++) {
+            if (totalList.get(i).getState() == CS.YES) {
+                totalStatStr.append(DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "</b>  " + totalList.get(i).getUserName() + System.lineSeparator());
+            } else {
+                totalStatStr.append("<s>" + DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "  " + totalList.get(i).getUserName() + "</s>  " + totalList.get(i).getRemark() + System.lineSeparator());
+            }
+        }
+        stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
+        stringBuffer.append("下发总额: " + AmountUtil.convertCent2Dollar(dayAmount) + System.lineSeparator());
+        stringBuffer.append("记账总额: " + AmountUtil.convertCent2Dollar(totalAmount) + System.lineSeparator());
+//        stringBuffer.append(System.lineSeparator());
+        stringBuffer.append("================" + System.lineSeparator());
+        stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
+        stringBuffer.append(dayStatStr);
+        stringBuffer.append("================" + System.lineSeparator());
+        stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
+        stringBuffer.append(totalStatStr);
+
+        sendReplyMessage(robotsMch.getChatId(), messageId, stringBuffer.toString());
+    }
+
+    private List<RobotsMchRecords> getDayStatByDate(Long chatId, Date date) {
+        LambdaQueryWrapper<RobotsMchRecords> wrapper = RobotsMchRecords.gw();
+
+        wrapper.eq(RobotsMchRecords::getChatId, chatId);
+        wrapper.eq(RobotsMchRecords::getType, RobotsMchRecords.DAY_TYPE);
+
+        //一天的开始，结果：2017-03-01 00:00:00
+        Date beginOfDay = DateUtil.beginOfDay(date);
+
+        //一天的结束，结果：2017-03-01 23:59:59
+        Date endOfDay = DateUtil.endOfDay(date);
+
+        wrapper.ge(RobotsMchRecords::getCreatedAt, DateUtil.format(beginOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.le(RobotsMchRecords::getCreatedAt, DateUtil.format(endOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.orderByAsc(RobotsMchRecords::getCreatedAt);
+
+        return robotsMchRecordsService.list(wrapper);
+
+    }
+
+    private List<RobotsMchRecords> getTotalStatByDate(Long chatId, Date date) {
+        LambdaQueryWrapper<RobotsMchRecords> wrapper = RobotsMchRecords.gw();
+
+        wrapper.eq(RobotsMchRecords::getChatId, chatId);
+        wrapper.eq(RobotsMchRecords::getType, RobotsMchRecords.TOTAL_TYPE);
+
+        //一天的开始，结果：2017-03-01 00:00:00
+        Date beginOfDay = DateUtil.beginOfDay(date);
+
+        //一天的结束，结果：2017-03-01 23:59:59
+        Date endOfDay = DateUtil.endOfDay(date);
+
+        wrapper.ge(RobotsMchRecords::getCreatedAt, DateUtil.format(beginOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.le(RobotsMchRecords::getCreatedAt, DateUtil.format(endOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.orderByAsc(RobotsMchRecords::getCreatedAt);
+        return robotsMchRecordsService.list(wrapper);
+    }
+
+    /**
+     * 判断是否商户群
+     *
+     * @param robotsMch
+     * @return
+     */
+    private boolean checkIsMchChat(RobotsMch robotsMch) {
+        return robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo()) && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
+    }
+
+    /**
+     * 判断是否通道群
+     *
+     * @param chatId
+     * @return
+     */
+    private boolean checkIsPassageChat(Long chatId) {
+        return robotsPassageService.count(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId)) != 0;
     }
 
     /**
@@ -941,7 +1165,7 @@ public class RobotsService extends TelegramLongPollingBot {
         Date offsetDate = DateUtil.offsetMinute(nowTime, -1);
 
         //发警报
-        RobotsMch robotsMch = robotsMchService.getOne(RobotsMch.gw().eq(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
+        RobotsMch robotsMch = robotsMchService.getManageMch();
         if (robotsMch != null) {
 
             LambdaQueryWrapper<PayOrder> lambdaQueryWrapper = PayOrder.gw().eq(PayOrder::getForceChangeState, CS.YES).le(PayOrder::getSuccessTime, nowTime).ge(PayOrder::getSuccessTime, offsetDate);
@@ -964,9 +1188,12 @@ public class RobotsService extends TelegramLongPollingBot {
     /**
      * 额度检查
      */
-    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+    @Scheduled(fixedRate = 5000) // 每60秒执行一次
     public void quotaCheck() {
-
+        RobotsMch robotsMch = robotsMchService.getManageMch();
+        if (robotsMch != null) {
+//            sendSingleMessage(robotsMch.getChatId(), "test mgr");
+        }
     }
 
     /**

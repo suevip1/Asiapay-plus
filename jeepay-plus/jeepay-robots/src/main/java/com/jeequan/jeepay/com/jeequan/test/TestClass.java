@@ -2,6 +2,7 @@ package com.jeequan.jeepay.com.jeequan.test;
 
 import cn.hutool.core.date.DateUtil;
 import com.jeequan.jeepay.core.entity.RobotsMch;
+import com.jeequan.jeepay.core.utils.AmountUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,22 +15,15 @@ import java.util.regex.Pattern;
 public class TestClass {
 
     public static void main(String[] args) {
-        //查单 \w+
-        //下发\s+([-+]?\d+)
-        String ADD_BILL = "下发\\s+([-+]?\\d+)";
-//        Pattern patternBlindMch = Pattern.compile(ADD_BILL);
-//        Matcher matcherBlindMch = patternBlindMch.matcher("查单");
-        String text = "下发 -50";
-        Pattern patternAddBill = Pattern.compile(ADD_BILL);
-        Matcher matcherAddBill = patternAddBill.matcher("下发 -50");
+        String input = "绑定通道 1002";
+//        String input = "绑定通道 1002,1003,1004";
 
-        log.info(matcherAddBill.find()+"");
-        log.info(text.substring(3));
+        String regex = "绑定通道\\s+([\\d,]+)";  // 正则表达式
 
-
-        String test="1005,5006,5005,";
-        String [] tests = test.split(",");
-        log.info(tests.length+"");
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        log.info(matcher.matches() + "");
+        log.info(matcher.find() + "");
     }
 
 }
