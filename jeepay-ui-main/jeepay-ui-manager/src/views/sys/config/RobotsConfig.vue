@@ -5,6 +5,64 @@
     >
       <a-tab-pane key="applicationConfig" tab="机器人配置">
         <div class="account-settings-info-view">
+          <a-row>
+            <a-col :span="8" :offset="1"><b>机器人帮助说明：</b></a-col>
+          </a-row>
+          <br/>
+          <a-row>
+            <a-col :span="23" :offset="1">1. 先将机器人添加到群组内，然后给机器人管理员权限。</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">2. 管理员在系统后台配置，管理员可以设置其他账号成为操作员，机器人只会执行管理员和操作员发送的下发、记账等敏感指令。</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">3. 下发数据按天统计，数据只保留昨日和今日两天的数据。</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">4. 查单功能需要先绑定好商户群以及通道群后才能正确识别、转发</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">5. 补单预警以及异常订单预警均为每分钟检测一次，可在下方自由设置预警阈值</a-col>
+          </a-row>
+          <br/>
+          <a-row>
+            <a-col :span="8" :offset="1"><b>机器人使用说明：</b></a-col>
+          </a-row>
+          <br/>
+          <a-row>
+            <a-col :span="23" :offset="1">绑定管理群--管理员发送，在不同群重复发送即可换绑，管理群用于接受预警相关提醒</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">设置操作员--格式[设置操作员 @xxx] (如：设置操作员 @test @后面是用户名) 管理员发送，不同的群可通用只需要设置一次，下发、记账操作需要操作员权限</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">删除操作员--格式[删除操作员 @xxx] (如：设置操作员 @test @后面是用户名) 管理员发送，下发、记账操作需要操作员权限</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">操作员名单--格式[操作员名单]管理员发送，查看操作员名单</a-col>
+          </a-row>
+          <br/>
+          <a-row>
+            <a-col :span="23" :offset="1">绑定商户--格式[绑定商户 XXXXXXXX] (如：绑定商户 M10000000)管理员发送，在不同群重复发送即可换绑</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">商户解绑--格式[商户解绑] 管理员发送，解绑当前群绑定的商户</a-col>
+          </a-row>
+          <br/>
+          <a-row>
+            <a-col :span="23" :offset="1">绑定通道--格式[绑定通道 通道ID] (如：绑定通道 1000 或者 绑定通道 1000,2000,3000) 管理员发送，在不同群重复发送即可换绑</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">解绑通道--格式[解绑通道 通道ID] (如：解绑通道 1000 或者 解绑通道 1000,2000,3000) 管理员发送</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">全部通道--格式[全部通道] 管理员发送，查看当前群绑定的所有通道</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1">解绑全部通道--格式[解绑全部通道] 管理员发送，解绑当前群绑定的所有通道</a-col>
+          </a-row>
+
+          <br/>
           <a-form-model
               ref="configFormModel"
           >

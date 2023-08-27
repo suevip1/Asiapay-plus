@@ -11,7 +11,7 @@
     <springProperty scope="context" name="currentProjectLevel" source="logging.level.com.jeequan.jeepay"/>
 
     <!-- 日志文件名称  logback属性 -->
-    <property name="currentLoggerFileName" value="agent" />
+    <property name="currentLoggerFileName" value="robots" />
     <!-- 日志格式, 参考：https://logback.qos.ch/manual/layouts.html -->
     <property name="currentLoggerPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%logger{15}] - %msg%n" />
 

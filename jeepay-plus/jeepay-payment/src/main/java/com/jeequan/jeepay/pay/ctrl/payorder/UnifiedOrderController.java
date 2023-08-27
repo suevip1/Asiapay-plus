@@ -91,8 +91,8 @@ public class UnifiedOrderController extends AbstractPayOrderController {
             UnifiedOrderRS bizRS = (UnifiedOrderRS) paymentService.pay(null, payOrderParams, payConfigContext);
             log.info("订单号-[{}] 接口响应数据:{}", payOrderParams.getPayOrderId(), JSONObject.toJSONString(bizRS.getChannelRetMsg()));
             if (StringUtils.isEmpty(bizRS.getPayData())) {
-                bizRS.setErrMsg(JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
-                return ApiRes.customFail(JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
+                bizRS.setErrMsg(bizRS.getChannelRetMsg().getChannelOriginResponse());
+                return ApiRes.customFail(bizRS.getChannelRetMsg().getChannelOriginResponse());
             }
             return ApiRes.ok(bizRS);
         } catch (Exception e) {

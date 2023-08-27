@@ -13,6 +13,7 @@ import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -109,8 +110,6 @@ public class RobotsService extends TelegramLongPollingBot {
      * 绑定管理群
      */
     private static final String BLIND_MGR = "绑定管理群";
-    private static final String BLIND_MGR_CONFIRM = "BLIND_MGR_CONFIRM";
-    private static final String BLIND_MGR_CANCEL = "BLIND_MGR_CANCEL";
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -144,7 +143,14 @@ public class RobotsService extends TelegramLongPollingBot {
         //if (update.hasMessage() && update.getMessage().hasText()) {
         if (update.hasMessage()) {
             //检测权限，命令
-            handleCommand(update);
+            if (update.getMessage().isCommand()) {
+                handleCommand(update);
+            } else if (update.getMessage().isGroupMessage()) {
+                handleGroupCommand(update);
+            } else if (update.getMessage().isUserMessage()) {
+                handlePrivateCommand(update);
+            }
+
         } else if (update.hasCallbackQuery()) {
             //用户点击按钮的回复
             handleCallbackQuery(update);
@@ -152,12 +158,60 @@ public class RobotsService extends TelegramLongPollingBot {
     }
 
     /**
-     * 命令管理
+     * 私聊命令
+     *
+     * @param update
+     */
+    private void handlePrivateCommand(Update update) {
+
+    }
+
+    /**
+     * /开头的命令
      *
      * @param update
      */
     private void handleCommand(Update update) {
+        //发送机器人使用说明
+        if (update.getMessage().getText().startsWith("/help")) {
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("欢迎使用亚洲科技四方系统机器人，以下是机器人使用说明:" + System.lineSeparator());
+            stringBuffer.append("======================================" + System.lineSeparator());
+            stringBuffer.append("<b>记账功能</b>:（记账数据每个群分开，无需绑定商户，敏感操作需管理员以及操作员权限）" + System.lineSeparator());
+            stringBuffer.append("+xxx -- 添加下发金额，xxx为金额，例如：+1000" + System.lineSeparator());
+            stringBuffer.append("-xxx -- 扣减下发金额，xxx为金额，例如：-1000" + System.lineSeparator());
+            stringBuffer.append("撤销下发 -- 删除最后一笔下发记录" + System.lineSeparator());
+            stringBuffer.append("清除下发 -- 删除当天的全部下发记录" + System.lineSeparator());
+            stringBuffer.append("记账 xxx -- 添加记账金额，xxx为金额，例如：记账 1000" + System.lineSeparator());
+            stringBuffer.append("记账 -xxx -- 扣减记账金额，xxx为金额，例如：记账 -1000" + System.lineSeparator());
+            stringBuffer.append("撤销记账 -- 删除最后一笔记账记录" + System.lineSeparator());
+            stringBuffer.append("清除记账 -- 删除当天的全部记账记录" + System.lineSeparator());
+            stringBuffer.append("今日账单 -- 查看今日完整账单" + System.lineSeparator());
+            stringBuffer.append("昨日账单 -- 查看昨日完整账单" + System.lineSeparator());
+            stringBuffer.append("======================================" + System.lineSeparator());
+            stringBuffer.append("<b>商户功能</b>:（需先绑定商户才能使用）" + System.lineSeparator());
+            stringBuffer.append("查询余额 -- 查询商户或通道的余额" + System.lineSeparator());
+            stringBuffer.append("查单 XXXXXXX -- 支持发送平台订单号或商户订单号进行查单操作" + System.lineSeparator());
+            stringBuffer.append("今日跑量 -- 查看今日完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("昨日跑量 -- 查看昨日完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("======================================" + System.lineSeparator());
+
+
+            sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
+        }
+    }
+
+
+    /**
+     * 命令管理
+     *
+     * @param update
+     */
+    private void handleGroupCommand(Update update) {
+
         Message message = update.getMessage();
+//        log.info("群消息" + message.getText());
+
         Long chatId = message.getChatId();
         String userName = message.getFrom().getUserName();
         Message messageReply = message.getReplyToMessage();
@@ -216,7 +270,7 @@ public class RobotsService extends TelegramLongPollingBot {
         Pattern patternBlindMch = Pattern.compile(BLIND_MCH);
         Matcher matcherBlindMch = patternBlindMch.matcher(text);
         if (matcherBlindMch.matches()) {
-            if (robotsUserService.checkIsAdmin(userName)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
                 if (robotsMchAdmin != null && robotsMchAdmin.getChatId().longValue() == chatId.longValue()) {
                     sendSingleMessage(chatId, "当前群已绑定为四方管理群，不可重复绑定商户");
@@ -248,7 +302,7 @@ public class RobotsService extends TelegramLongPollingBot {
          */
         if (text.trim().equals(BLIND_DEL_MCH)) {
 //          是否admin
-            if (robotsUserService.checkIsAdmin(userName)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 //是否已绑定商户
                 if (robotsMchService.unBlindMch(chatId)) {
                     sendSingleMessage(chatId, "商户群解绑成功!");
@@ -604,6 +658,41 @@ public class RobotsService extends TelegramLongPollingBot {
             return;
         }
 
+        //清除记账  清除当天全部
+        if (text.equals(CLEAR_RECORD_TOTAL)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                try {
+                    String userNickname = "";
+                    if (StringUtils.isNotEmpty(message.getFrom().getFirstName())) {
+                        userNickname += message.getFrom().getFirstName();
+                    }
+                    if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
+                        userNickname += message.getFrom().getLastName();
+                    }
+                    //清除全部
+                    Date today = DateUtil.parse(DateUtil.today());
+                    Long amount = robotsMchRecordsService.RemoveAllRecordTotalByDate(chatId, userNickname, today);
+
+                    //没有就添加记账群记录
+                    RobotsMch robotsMch = robotsMchService.getById(chatId);
+                    if (robotsMch == null) {
+                        robotsMch = new RobotsMch();
+                        robotsMch.setChatId(chatId);
+                        robotsMch.setMchNo("");
+                        robotsMch.setBalance(0L);
+                        robotsMchService.save(robotsMch);
+                    }
+                    robotsMch.setBalance(robotsMch.getBalance() - amount);
+                    robotsMchService.saveOrUpdate(robotsMch);
+
+                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            return;
+        }
+
 
         //今日账单
         if (text.equals(TODAY_RECORD)) {
@@ -742,6 +831,44 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
+    private void sendReplyMessageWithMenu(Long chatId, Integer messageId, String messageStr) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(false);
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyToMessageId(messageId);
+        sendMessage.setText(messageStr);
+        sendMessage.setParseMode(ParseMode.HTML);
+        // 創建Inline Keyboard
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+        List<InlineKeyboardButton> rowInline = new ArrayList<>();
+
+        // 添加按鈕
+        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
+        inlineKeyboardButton1.setText("昨日账单");
+        inlineKeyboardButton1.setCallbackData(YESTERDAY_RECORD);
+
+        InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
+        inlineKeyboardButton2.setText("今日账单");
+        inlineKeyboardButton2.setCallbackData(TODAY_RECORD);
+
+        rowInline.add(inlineKeyboardButton1);
+        rowInline.add(inlineKeyboardButton2);
+
+        // 添加按鈕到行，然後將行添加到Inline Keyboard
+        rowsInline.add(rowInline);
+        markupInline.setKeyboard(rowsInline);
+
+        // 將Inline Keyboard添加到回復消息中
+        sendMessage.setReplyMarkup(markupInline);
+
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            log.error("{} {}", LOG_TAG, e);
+        }
+    }
+
     /**
      * 发消息
      *
@@ -784,7 +911,6 @@ public class RobotsService extends TelegramLongPollingBot {
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
                     execute(sendMessage);
                 }
-//                RedisUtil.del(REDIS_SOURCE_SUFFIX + message.getReplyToMessage().getMessageId());
             }
         } catch (Exception e) {
             log.error("{} {}", LOG_TAG, e);
@@ -835,6 +961,7 @@ public class RobotsService extends TelegramLongPollingBot {
         sendMessage.enableMarkdown(false);
         sendMessage.setChatId(chatId);
         sendMessage.setText(messageStr);
+        sendMessage.setParseMode(ParseMode.HTML);
         return sendSingleMessage(sendMessage);
     }
 
@@ -844,37 +971,6 @@ public class RobotsService extends TelegramLongPollingBot {
         sendMessage.setChatId(chatId);
         sendMessage.setText(messageStr);
         return sendSingleMessage(sendMessage);
-    }
-
-    private void sendMgrBlindMenu(Long chatId) {
-        SendMessage replyMessage = new SendMessage();
-        replyMessage.setChatId(chatId);
-        replyMessage.setText("确认绑定该群为四方管理群么？");
-
-        // 創建Inline Keyboard
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-        List<InlineKeyboardButton> rowInline = new ArrayList<>();
-
-        // 添加按鈕
-        InlineKeyboardButton inlineKeyboardButton1 = new InlineKeyboardButton();
-        inlineKeyboardButton1.setText("✅确认");
-        inlineKeyboardButton1.setCallbackData(BLIND_MGR_CONFIRM);
-
-        InlineKeyboardButton inlineKeyboardButton2 = new InlineKeyboardButton();
-        inlineKeyboardButton2.setText("❌取消");
-        inlineKeyboardButton2.setCallbackData(BLIND_MGR_CANCEL);
-
-        rowInline.add(inlineKeyboardButton1);
-        rowInline.add(inlineKeyboardButton2);
-
-        // 添加按鈕到行，然後將行添加到Inline Keyboard
-        rowsInline.add(rowInline);
-        markupInline.setKeyboard(rowsInline);
-
-        // 將Inline Keyboard添加到回復消息中
-        replyMessage.setReplyMarkup(markupInline);
-        sendSingleMessage(replyMessage);
     }
 
 
@@ -974,7 +1070,6 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         }
 
-
         StringBuffer totalStatStr = new StringBuffer();
         for (int i = 0; i < totalList.size(); i++) {
             if (totalList.get(i).getState() == CS.YES) {
@@ -984,9 +1079,8 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         }
         stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
-        stringBuffer.append("下发总额: " + AmountUtil.convertCent2Dollar(dayAmount) + System.lineSeparator());
-        stringBuffer.append("记账总额: " + AmountUtil.convertCent2Dollar(totalAmount) + System.lineSeparator());
-//        stringBuffer.append(System.lineSeparator());
+        stringBuffer.append("下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("当日记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
         stringBuffer.append("================" + System.lineSeparator());
         stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(dayStatStr);
@@ -994,7 +1088,7 @@ public class RobotsService extends TelegramLongPollingBot {
         stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(totalStatStr);
 
-        sendReplyMessage(robotsMch.getChatId(), messageId, stringBuffer.toString());
+        sendReplyMessageWithMenu(robotsMch.getChatId(), messageId, stringBuffer.toString());
     }
 
     private List<RobotsMchRecords> getDayStatByDate(Long chatId, Date date) {
@@ -1067,34 +1161,12 @@ public class RobotsService extends TelegramLongPollingBot {
         Long chatId = callbackQuery.getMessage().getChatId();
 
         switch (data) {
-            case BLIND_MGR_CONFIRM:
-                //商户群跟管理群不可重复绑定
-                int count = robotsMchService.count(RobotsMch.gw().eq(RobotsMch::getChatId, chatId).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
-                if (count != 0) {
-                    sendSingleMessage(chatId, "当前群已绑定为商户群，不可重复绑定");
-                } else {
-                    //blind mgr
-                    RobotsMch robotsMch = new RobotsMch();
-                    robotsMch.setChatId(chatId);
-                    robotsMch.setMchNo(CS.ROBOTS_MGR_MCH);
-                    if (robotsMchService.count(RobotsMch.gw().eq(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH)) != 0) {
-                        robotsMchService.update(robotsMch, RobotsMch.gw().eq(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
-                    } else {
-                        robotsMchService.save(robotsMch);
-                    }
-                    EditMessageText editMessageText = new EditMessageText();
-                    editMessageText.setChatId(chatId);
-                    editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-                    editMessageText.setText("管理群绑定成功!"); // 将消息内容设置为空字符串，相当于删除消息
-                    sendSingleMessage(editMessageText);
-                }
+            case TODAY_RECORD://今日账单
+                Date today = DateUtil.parse(DateUtil.today());
+                sendBillStat(chatId, today, callbackQuery.getMessage().getMessageId(), "今日");
                 break;
-            case BLIND_MGR_CANCEL:
-                EditMessageText editMessageText = new EditMessageText();
-                editMessageText.setChatId(chatId);
-                editMessageText.setMessageId(callbackQuery.getMessage().getMessageId());
-                editMessageText.setText("取消操作"); // 将消息内容设置为空字符串，相当于删除消息
-                sendSingleMessage(editMessageText);
+            case YESTERDAY_RECORD://昨日账单
+                sendBillStat(chatId, DateUtil.yesterday(), callbackQuery.getMessage().getMessageId(), "昨日");
                 break;
         }
 
@@ -1127,18 +1199,23 @@ public class RobotsService extends TelegramLongPollingBot {
     @Override
     public void onRegister() {
         // Define the commands to set
-//        List<BotCommand> commands = new ArrayList<>();
-//        commands.add(new BotCommand("help", "机器人帮助说明"));
-//
-//        // Create the SetMyCommands request
-//        SetMyCommands setMyCommands = new SetMyCommands();
-//        setMyCommands.setCommands(commands);
-//
-//        try {
-//            execute(setMyCommands);
-//        } catch (TelegramApiException e) {
-//            e.printStackTrace();
-//        }
+        List<BotCommand> commands = new ArrayList<>();
+        commands.add(new BotCommand("help", "亚洲科技机器人帮助说明"));
+
+        // Create the SetMyCommands request
+        SetMyCommands setMyCommands = new SetMyCommands();
+        setMyCommands.setCommands(commands);
+
+        RobotsMch robotsAdmin = robotsMchService.getManageMch();
+        if (robotsAdmin != null) {
+            sendSingleMessage(robotsAdmin.getChatId(), "四方机器人初始化成功");
+        }
+
+        try {
+            execute(setMyCommands);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -1161,45 +1238,77 @@ public class RobotsService extends TelegramLongPollingBot {
      */
     @Scheduled(fixedRate = 60000) // 每60秒执行一次
     public void forceOrderCheck() {
-        Date nowTime = new Date();
-        Date offsetDate = DateUtil.offsetMinute(nowTime, -1);
 
-        //发警报
-        RobotsMch robotsMch = robotsMchService.getManageMch();
-        if (robotsMch != null) {
+        try {
+            Date nowTime = new Date();
+            Date offsetDate = DateUtil.offsetMinute(nowTime, -1);
 
-            LambdaQueryWrapper<PayOrder> lambdaQueryWrapper = PayOrder.gw().eq(PayOrder::getForceChangeState, CS.YES).le(PayOrder::getSuccessTime, nowTime).ge(PayOrder::getSuccessTime, offsetDate);
-            List<PayOrder> list = payOrderService.list(lambdaQueryWrapper);
-            int count = list.size();
-            if (count >= WARNING_COUNT) {
-                log.error("过去一分钟手动补单为[ " + count + " ]条，触发预警请检查❗");
-                StringBuffer stringBuffer = new StringBuffer();
-                stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
-                for (int i = 0; i < count; i++) {
-                    stringBuffer.append("强补-平台订单号：[ " + list.get(i).getPayOrderId() + " ] 操作员:" + list.get(i).getForceChangeLoginName() + System.lineSeparator());
+            //发警报
+            RobotsMch robotsMch = robotsMchService.getManageMch();
+            if (robotsMch != null) {
+                int warnCount = Integer.parseInt(sysConfigService.getRobotsConfig().getForceOrderWarnConfig());
+                if (warnCount > 0) {
+                    LambdaQueryWrapper<PayOrder> lambdaQueryWrapper = PayOrder.gw().eq(PayOrder::getForceChangeState, CS.YES).le(PayOrder::getSuccessTime, nowTime).ge(PayOrder::getSuccessTime, offsetDate);
+                    List<PayOrder> list = payOrderService.list(lambdaQueryWrapper);
+                    int count = list.size();
+                    if (count >= warnCount) {
+                        log.error("过去一分钟手动补单为[ " + count + " ]条，触发预警请检查❗");
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
+                        for (int i = 0; i < count; i++) {
+                            stringBuffer.append("强补-平台订单号：[ " + list.get(i).getPayOrderId() + " ] 操作员:" + list.get(i).getForceChangeLoginName() + System.lineSeparator());
+                        }
+                        stringBuffer.append("过去一分钟手动补单为[ " + count + " ]条，触发预警请检查❗" + System.lineSeparator());
+                        sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
+                    }
                 }
-                stringBuffer.append("过去一分钟手动补单为[ " + count + " ]条，触发预警请检查❗" + System.lineSeparator());
-                sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 
 
     /**
-     * 额度检查
+     * 异常订单查询
      */
-    @Scheduled(fixedRate = 5000) // 每60秒执行一次
-    public void quotaCheck() {
-        RobotsMch robotsMch = robotsMchService.getManageMch();
-        if (robotsMch != null) {
-//            sendSingleMessage(robotsMch.getChatId(), "test mgr");
+    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+    public void errorOrderCheck() {
+        Date nowTime = new Date();
+        Date offsetDate = DateUtil.offsetMinute(nowTime, -1);
+        try {
+            //发警报
+            RobotsMch robotsMch = robotsMchService.getManageMch();
+            if (robotsMch != null) {
+                int warnCount = Integer.parseInt(sysConfigService.getRobotsConfig().getErrorOrderWarnConfig());
+                if (warnCount > 0) {
+                    LambdaQueryWrapper<PayOrder> lambdaQueryWrapper = PayOrder.gw().eq(PayOrder::getState, PayOrder.STATE_ERROR).le(PayOrder::getCreatedAt, nowTime).ge(PayOrder::getCreatedAt, offsetDate);
+                    List<PayOrder> list = payOrderService.list(lambdaQueryWrapper);
+                    int count = list.size();
+
+                    if (count >= warnCount) {
+                        log.error("过去一分钟异常订单(出码失败)数为[ " + count + " ]条，触发预警请检查❗");
+                        Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
+                        for (int i = 0; i < count; i++) {
+                            PayOrder payOrder = list.get(i);
+                            stringBuffer.append("订单号：[ " + payOrder.getPayOrderId() + " ]--通道:<b>[" + payOrder.getPassageId() + "] " + payPassageMap.get(payOrder.getPassageId()).getPayPassageName() + "</b>" + System.lineSeparator());
+                        }
+                        stringBuffer.append("过去一分钟异常订单数为[ <b>" + count + "</b> ]条，触发预警请检查❗" + System.lineSeparator());
+                        sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 
     /**
      * 通道配置修改检测
      */
-    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+    @Scheduled(fixedRate = 10000) // 每60秒执行一次
     public void passageConfigCheck() {
 
         String REDIS_SUFFIX = "Passage_Pay_Config";
@@ -1208,6 +1317,11 @@ public class RobotsService extends TelegramLongPollingBot {
         if (cacheSize.intValue() == 0) {
             return;
         }
+        //通道配置预警(0关闭，1打开)
+        if (!sysConfigService.getRobotsConfig().getPassageConfig().trim().equals("1")) {
+            return;
+        }
+
         int count = cacheSize.intValue();
         for (int index = 0; index < count; index++) {
             list.add(RedisUtil.removeFromQueue(REDIS_SUFFIX, PayPassage.class));
@@ -1224,5 +1338,15 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("如非工作人员操作请注意风险❗" + System.lineSeparator());
             sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
         }
+    }
+
+    @Async
+    @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
+    public void start() {
+        int dayOffset = -2;
+        Date date = DateUtil.parse(DateUtil.today());
+        Date offsetDate = DateUtil.offsetDay(date, dayOffset);
+        //过期订单
+        robotsMchRecordsService.ClearRecord(offsetDate, 500);
     }
 }

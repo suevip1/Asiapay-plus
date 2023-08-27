@@ -24,4 +24,19 @@ public class RobotsConfig implements Serializable {
      * 机器人token
      */
     private String robotsToken;
+
+    /**
+     * 通道配置修改预警 (0关闭，1打开)
+     */
+    private String passageConfig;
+
+    /**
+     * 强制补单预警(0关闭，任意正数打开)
+     */
+    private String forceOrderWarnConfig;
+
+    /**
+     * 异常订单预警 (0关闭，任意正数打开)
+     */
+    private String errorOrderWarnConfig;
 }

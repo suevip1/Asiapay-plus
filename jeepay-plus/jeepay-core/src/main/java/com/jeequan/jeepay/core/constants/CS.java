@@ -293,6 +293,8 @@ public class CS {
 
         String RIXINPAY = "rixinpay";
 
+        String RIXINPAY2 = "rixinpay2";
+
         String XXPAY = "xxpay";
 
         String SHAYUPAY = "shayupay";
