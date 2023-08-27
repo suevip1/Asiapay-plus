@@ -70,6 +70,8 @@ public class RobotsService extends TelegramLongPollingBot {
     private static final String BLIND_MCH = "绑定商户 M\\w+";
     private static final String BLIND_DEL_MCH = "商户解绑";
 
+    private static final String CURRENT_MCH = "当前商户";
+
     private static final String TODAY_BILL = "今日跑量";
 
     private static final String YESTERDAY_BILL = "昨日跑量";
@@ -145,7 +147,7 @@ public class RobotsService extends TelegramLongPollingBot {
             //检测权限，命令
             if (update.getMessage().isCommand()) {
                 handleCommand(update);
-            } else if (update.getMessage().isGroupMessage()) {
+            } else if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
                 handleGroupCommand(update);
             } else if (update.getMessage().isUserMessage()) {
                 handlePrivateCommand(update);
@@ -308,6 +310,25 @@ public class RobotsService extends TelegramLongPollingBot {
                     sendSingleMessage(chatId, "商户群解绑成功!");
                 } else {
                     sendSingleMessage(chatId, "当前群未绑定商户");
+                }
+            }
+            return;
+        }
+
+        //当前商户信息
+        if (text.trim().equals(CURRENT_MCH)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                RobotsMch robotsMch = robotsMchService.getMch(chatId);
+                //是否已绑定商户
+                if (robotsMch != null) {
+                    MchInfo mchInfo = mchInfoService.queryMchInfo(robotsMch.getMchNo());
+                    if (mchInfo != null) {
+                        sendSingleMessage(chatId, "当前群绑定的商户为 [" + mchInfo.getMchNo() + "] " + mchInfo.getMchName());
+                    } else {
+                        sendSingleMessage(chatId, "当前群未绑定商户!");
+                    }
+                } else {
+                    sendSingleMessage(chatId, "当前群未绑定商户！");
                 }
             }
             return;
@@ -879,6 +900,7 @@ public class RobotsService extends TelegramLongPollingBot {
             return execute(sendMessage);
         } catch (TelegramApiException e) {
             log.error("{} {}", LOG_TAG, e);
+            log.error(e.getMessage());
         }
         return null;
     }
@@ -1340,9 +1362,9 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
-    @Async
+    //    @Async
     @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
-    public void start() {
+    public void clearRecordCheck() {
         int dayOffset = -2;
         Date date = DateUtil.parse(DateUtil.today());
         Date offsetDate = DateUtil.offsetDay(date, dayOffset);

@@ -122,22 +122,22 @@ public class Rixinpay2PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "cqv52tkimd7ozfszgipuoyea1sha3s8d";
+        String key = "qq0io7vrgbu7774xfwvq4bolkizmvt1t";
 
-        String pay_memberid = "230852070";
+        String pay_memberid = "230869685";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
 
 
-        String pay_bankcode = "800";
+        String pay_bankcode = "106";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
 
 
-        String pay_amount = AmountUtil.convertCent2Dollar(10000L);
+        String pay_amount = AmountUtil.convertCent2Dollar(39900L);
         String pay_user_ip = "127.0.0.1";
 
-
+        log.info("[{}]请求响应:{}", LOG_TAG, pay_applydate);
         map.put("pay_memberid", pay_memberid);
         map.put("pay_orderid", pay_orderid);
         map.put("pay_applydate", pay_applydate);
@@ -149,10 +149,10 @@ public class Rixinpay2PaymentService extends AbstractPaymentService {
         map.put("pay_amount", pay_amount);
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("pay_md5sign", sign);
-        map.put("pay_user_ip", pay_user_ip);
+//        map.put("pay_user_ip", pay_user_ip);
         map.put("pay_productname", "下单");
 
-        String payGateway = "https://www.hs168.gay/Pay_Index.html";
+        String payGateway = "https://zzjijipay.eazyzhi.com/Pay_index.html";
 
         raw = HttpUtil.post(payGateway, map);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
