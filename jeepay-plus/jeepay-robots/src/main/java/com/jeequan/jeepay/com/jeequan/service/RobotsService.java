@@ -24,14 +24,18 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.groupadministration.LeaveChat;
 import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButton;
 import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButtonCommands;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -193,7 +197,7 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("======================================" + System.lineSeparator());
             stringBuffer.append("<b>商户功能</b>:（需先绑定商户才能使用）" + System.lineSeparator());
             stringBuffer.append("查询余额 -- 查询商户或通道的余额" + System.lineSeparator());
-            stringBuffer.append("查单 XXXXXXX -- 支持发送平台订单号或商户订单号进行查单操作" + System.lineSeparator());
+            stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日完整跑量统计" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
@@ -210,13 +214,11 @@ public class RobotsService extends TelegramLongPollingBot {
      * @param update
      */
     private void handleGroupCommand(Update update) {
-
         Message message = update.getMessage();
-//        log.info("群消息" + message.getText());
-
         Long chatId = message.getChatId();
         String userName = message.getFrom().getUserName();
         Message messageReply = message.getReplyToMessage();
+
         if (messageReply != null) {
             //检测是否查单转发信息
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
@@ -224,11 +226,88 @@ public class RobotsService extends TelegramLongPollingBot {
                 sendQueryMessage(message, messageSource);
             }
         }
-        if (!message.hasText() || message.hasPhoto()) {
+        if (message.hasPhoto() || message.hasVideo()) {
+
+            //查单必须带图或者视频
+            if (StringUtils.isNotEmpty(message.getCaption())) {
+                String unionOrderId = message.getCaption();
+                RobotsMch robotsMch = robotsMchService.getMch(chatId);
+                String regex = "^[a-zA-Z0-9]{6,}$";
+
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(unionOrderId);
+
+                if (!matcher.matches()) {
+                    return;
+                }
+                //不是通道群
+                if (robotsPassageService.count(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId)) > 0) {
+                    return;
+                }
+                //是否已绑定商户
+                if (robotsMch != null) {
+
+                    LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
+                    wrapper.and(wr -> {
+                        wr.eq(PayOrder::getPayOrderId, unionOrderId).or().eq(PayOrder::getMchOrderNo, unionOrderId);
+                    });
+                    wrapper.eq(PayOrder::getMchNo, robotsMch.getMchNo());
+                    PayOrder payOrder = payOrderService.getOne(wrapper);
+                    if (payOrder == null) {
+                        sendSingleMessage(chatId, "未查询到商户[" + robotsMch.getMchNo() + "]下，订单号为[" + unionOrderId + "]的记录");
+                    } else {
+                        //1、将这条消息转发到通道群,带图或视频
+                        Long passageId = payOrder.getPassageId();
+                        RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
+                        if (robotsPassage != null) {
+                            StringBuffer stringBuffer = new StringBuffer();
+                            stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
+                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+                                stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
+                            }
+
+                            Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, stringBuffer.toString());
+                            if (messageTemp != null) {
+                                //保持2小时缓存
+                                RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
+                            } else {
+//                                robotsPassageService.removeById(passageId);
+                                sendReplyMessage(chatId, message.getMessageId(), "该订单对应通道群已失效,请联系四方工作人员检查");
+                            }
+                        } else {
+                            Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                            PayPassage passage = payPassageMap.get(passageId);
+
+                            //发送到管理群并提醒
+                            RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
+                            if (robotsMchAdmin != null) {
+                                StringBuffer stringBuffer = new StringBuffer();
+                                stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                                stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                                stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                                stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
+                                stringBuffer.append("通道信息：[ " + passage.getPayPassageId() + " ] " + passage.getPayPassageName() + System.lineSeparator());
+                                sendSingleMessage(robotsMchAdmin.getChatId(), stringBuffer.toString());
+                            } else {
+                                StringBuffer stringBuffer = new StringBuffer();
+                                stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                                stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                                stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                                stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
+                                stringBuffer.append("该订单未查询到已绑定的通道群,请通知四方工作人员先绑定通道群!" + System.lineSeparator());
+                                sendSingleMessage(chatId, stringBuffer.toString());
+                            }
+                        }
+                    }
+                } else {
+                    sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
+                }
+            }
             return;
         }
 
-        //==================================匹配命令==========================================================
+        //==================================匹配文字命令==========================================================
         String text = message.getText().trim();
         //绑定管理群
         if (text.equals(BLIND_MGR)) {
@@ -460,72 +539,6 @@ public class RobotsService extends TelegramLongPollingBot {
                 }
             } else {
                 sendSingleMessage(chatId, "未绑定商户或没有记录");
-            }
-            return;
-        }
-
-        //查单 商户订单号 平台订单号
-        Pattern patternQueryOrder = Pattern.compile(QUERY_ORDER);
-        Matcher matcherQueryOrder = patternQueryOrder.matcher(text);
-        if (matcherQueryOrder.matches()) {
-            RobotsMch robotsMch = robotsMchService.getMch(chatId);
-            //是否已绑定商户
-            if (robotsMch != null) {
-                String unionOrderId = text.substring(3).trim();
-                LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
-                wrapper.and(wr -> {
-                    wr.eq(PayOrder::getPayOrderId, unionOrderId).or().eq(PayOrder::getMchOrderNo, unionOrderId);
-                });
-                wrapper.eq(PayOrder::getMchNo, robotsMch.getMchNo());
-                PayOrder payOrder = payOrderService.getOne(wrapper);
-                if (payOrder == null) {
-                    sendSingleMessage(chatId, "未查询到商户[" + robotsMch.getMchNo() + "]下，订单号为[" + unionOrderId + "]的记录");
-                } else {
-                    //1、将这条消息转发到通道群
-                    Long passageId = payOrder.getPassageId();
-                    RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
-                    if (robotsPassage != null) {
-                        StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
-                        stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
-                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
-                        }
-                        Message messageTemp = sendSingleMessage(robotsPassage.getChatId(), stringBuffer.toString());
-                        if (messageTemp != null) {
-                            //保持2小时缓存
-                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
-                        } else {
-                            robotsPassageService.removeById(passageId);
-                            sendReplyMessage(chatId, message.getMessageId(), "该订单对应通道群已失效,请联系四方工作人员检查");
-                        }
-                    } else {
-                        Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
-                        PayPassage passage = payPassageMap.get(passageId);
-
-                        //发送到管理群并提醒
-                        RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
-                        if (robotsMchAdmin != null) {
-                            StringBuffer stringBuffer = new StringBuffer();
-                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
-                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
-                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-                            stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
-                            stringBuffer.append("通道信息：[ " + passage.getPayPassageId() + " ] " + passage.getPayPassageName() + System.lineSeparator());
-                            sendSingleMessage(robotsMchAdmin.getChatId(), stringBuffer.toString());
-                        } else {
-                            StringBuffer stringBuffer = new StringBuffer();
-                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
-                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
-                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-                            stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
-                            stringBuffer.append("该订单未查询到已绑定的通道群,请通知四方工作人员先绑定通道群!" + System.lineSeparator());
-                            sendSingleMessage(chatId, stringBuffer.toString());
-                        }
-                    }
-                }
-            } else {
-                sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
             }
             return;
         }
@@ -977,6 +990,28 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
+    protected Message sendQueryOrderMessage(Long chatId, Message sourceMessage, String addOn) {
+        try {
+//            SendMediaGroup sendMediaGroup = new SendMediaGroup();
+            List<InputMedia> list = new ArrayList<>();
+            if (sourceMessage.hasPhoto()) {
+                SendPhoto sendPhoto = new SendPhoto();
+                sendPhoto.setCaption(addOn);
+                sendPhoto.setChatId(chatId);
+                sendPhoto.setPhoto(new InputFile(sourceMessage.getPhoto().get(0).getFileId()));
+                return execute(sendPhoto);
+            } else if (sourceMessage.hasVideo()) {
+                SendVideo sendVideo = new SendVideo();
+                sendVideo.setChatId(chatId);
+                sendVideo.setCaption(addOn);
+                sendVideo.setVideo(new InputFile(sourceMessage.getVideo().getFileId()));
+                return execute(sendVideo);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
+    }
 
     protected Message sendSingleMessage(Long chatId, String messageStr) {
         SendMessage sendMessage = new SendMessage();

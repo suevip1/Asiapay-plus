@@ -11,7 +11,7 @@
  Target Server Version : 50736
  File Encoding         : 65001
 
- Date: 17/08/2023 15:09:13
+ Date: 28/08/2023 02:26:37
 */
 
 SET NAMES utf8mb4;
@@ -39,20 +39,11 @@ CREATE TABLE `t_agent_account_history`  (
   PRIMARY KEY (`agent_account_history_id`) USING BTREE,
   UNIQUE INDEX `id`(`agent_account_history_id`) USING BTREE,
   INDEX `agent_no_index`(`agent_no`, `pay_order_id`, `created_at`, `biz_type`, `fund_direction`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8512 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商资金账户流水表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 15947 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商资金账户流水表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_agent_account_history
 -- ----------------------------
-INSERT INTO `t_agent_account_history` VALUES (8503, 'A1691231069', '测试代理', 30, 0, 30, 1, 1, NULL, '2023-08-17 14:57:06.107830', 'P1692067678568984577', 2000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8504, 'A1692255110', '测试通道代理', 20, 0, 20, 1, 1, NULL, '2023-08-17 14:57:06.109707', 'P1692067678568984577', 2000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8505, 'A1691231069', '测试代理', 30, 30, 60, 1, 1, NULL, '2023-08-17 15:03:06.105399', 'P1692068961581514753', 2000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8506, 'A1692255110', '测试通道代理', 20, 20, 40, 1, 1, NULL, '2023-08-17 15:03:06.107153', 'P1692068961581514753', 2000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8507, 'A1691231069', '测试代理', 75, 60, 135, 1, 1, NULL, '2023-08-17 15:03:31.105139', 'P1692068961648623617', 5000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8508, 'A1691231069', '测试代理', 300, 135, 435, 1, 1, NULL, '2023-08-17 15:03:36.111958', 'P1692068961384382465', 20000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8509, 'A1691231069', '测试代理', 300, 435, 735, 1, 1, NULL, '2023-08-17 15:03:41.110878', 'P1692068961187250177', 20000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8510, 'A1691231069', '测试代理', 300, 735, 1035, 1, 1, NULL, '2023-08-17 15:03:46.107923', 'P1692068961124335618', 20000, '', '');
-INSERT INTO `t_agent_account_history` VALUES (8511, 'A1691231069', '测试代理', -75, 1035, 960, 2, 6, NULL, '2023-08-17 15:04:17.183390', 'P1692068961648623617', -5000, '', '');
 
 -- ----------------------------
 -- Table structure for t_agent_account_info
@@ -77,8 +68,7 @@ CREATE TABLE `t_agent_account_info`  (
 -- ----------------------------
 -- Records of t_agent_account_info
 -- ----------------------------
-INSERT INTO `t_agent_account_info` VALUES ('A1691231069', '测试代理', 960, 1, NULL, 100034, 801, '2023-08-05 18:24:29.000000', '2023-08-17 15:04:17.182182', 0);
-INSERT INTO `t_agent_account_info` VALUES ('A1692255110', '测试通道代理', 40, 1, NULL, 100115, 801, '2023-08-17 14:51:50.680112', '2023-08-17 15:03:06.113268', 0);
+INSERT INTO `t_agent_account_info` VALUES ('A1691231069', '测试代理', 0, 1, NULL, 100034, 801, '2023-08-05 18:24:29.464283', '2023-08-05 18:24:29.535498', 0);
 
 -- ----------------------------
 -- Table structure for t_agent_mch
@@ -150,7 +140,7 @@ CREATE TABLE `t_division_record`  (
   PRIMARY KEY (`record_id`) USING BTREE,
   UNIQUE INDEX `id`(`record_id`) USING BTREE,
   INDEX `index`(`user_no`, `user_name`, `user_type`, `pay_type`, `division_passage_id`, `pay_order_channel_order_no`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 84 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '分账记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 137 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '分账记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_division_record
@@ -185,18 +175,11 @@ CREATE TABLE `t_mch_history`  (
   PRIMARY KEY (`mch_history_id`) USING BTREE,
   UNIQUE INDEX `id`(`mch_history_id`) USING BTREE,
   INDEX `mch_history_index`(`mch_no`, `fund_direction`, `biz_type`, `pay_order_id`, `passage_order_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 40775 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户资金账户流水表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 87600 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户资金账户流水表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_mch_history
 -- ----------------------------
-INSERT INTO `t_mch_history` VALUES (40768, 'M1691231056', '测试商户', 1700, 0, 1700, 300, 1, 1, NULL, '', '2023-08-17 14:57:06.105050', 'P1692067678568984577', 2000, '', '', 70, 30, 'A1691231069', '测试代理', 'AZsHBX8gtgUGeuj');
-INSERT INTO `t_mch_history` VALUES (40769, 'M1691231056', '测试商户', 1700, 1700, 3400, 300, 1, 1, NULL, '', '2023-08-17 15:03:06.103634', 'P1692068961581514753', 2000, '', '', 70, 30, 'A1691231069', '测试代理', 'XceEIzfKwkeE3DA');
-INSERT INTO `t_mch_history` VALUES (40770, 'M1691231056', '测试商户', 4250, 3400, 7650, 750, 1, 1, NULL, '', '2023-08-17 15:03:31.102634', 'P1692068961648623617', 5000, '', '', 275, 75, 'A1691231069', '测试代理', 'ADXwjziSpy7Gwok');
-INSERT INTO `t_mch_history` VALUES (40771, 'M1691231056', '测试商户', 17000, 7650, 24650, 3000, 1, 1, NULL, '', '2023-08-17 15:03:36.109519', 'P1692068961384382465', 20000, '', '', 1100, 300, 'A1691231069', '测试代理', 'oouje5vhM5cImSw');
-INSERT INTO `t_mch_history` VALUES (40772, 'M1691231056', '测试商户', 17000, 24650, 41650, 3000, 1, 1, NULL, '', '2023-08-17 15:03:41.109473', 'P1692068961187250177', 20000, '', '', 1100, 300, 'A1691231069', '测试代理', 'Tj9kYzlYiOwt222');
-INSERT INTO `t_mch_history` VALUES (40773, 'M1691231056', '测试商户', 17000, 41650, 58650, 3000, 1, 1, NULL, '', '2023-08-17 15:03:46.106023', 'P1692068961124335618', 20000, '', '', 1100, 300, 'A1691231069', '测试代理', 'JclIH1nnXe5BhLY');
-INSERT INTO `t_mch_history` VALUES (40774, 'M1691231056', '测试商户', -4250, 58650, 54400, -750, 2, 6, NULL, '', '2023-08-17 15:04:17.181153', 'P1692068961648623617', -5000, '', '', -275, -75, 'A1691231069', '测试代理', 'ADXwjziSpy7Gwok');
 
 -- ----------------------------
 -- Table structure for t_mch_info
@@ -224,7 +207,7 @@ CREATE TABLE `t_mch_info`  (
 -- ----------------------------
 -- Records of t_mch_info
 -- ----------------------------
-INSERT INTO `t_mch_info` VALUES ('M1691231056', '测试商户', 1, NULL, 100033, 801, '2023-08-05 18:24:16.000000', '2023-08-17 15:04:17.179831', 'XFjGbHNUho8MqYWycYsNFzSwBVvOAIepDz1QDTfoIfKFojXVyTFHReNteWzGSVoXyXLJzDAo9p0G6GIjQYPAPJXSttlymJ9pqvaVUsna8v6cRezJvmTSJleEPImlTqDI', NULL, 'A1691231069', 54400, 0);
+INSERT INTO `t_mch_info` VALUES ('M1691231056', '测试商户', 1, NULL, 100033, 801, '2023-08-05 18:24:16.000000', '2023-08-16 23:25:23.025187', 'XFjGbHNUho8MqYWycYsNFzSwBVvOAIepDz1QDTfoIfKFojXVyTFHReNteWzGSVoXyXLJzDAo9p0G6GIjQYPAPJXSttlymJ9pqvaVUsna8v6cRezJvmTSJleEPImlTqDI', NULL, '', 0, 0);
 
 -- ----------------------------
 -- Table structure for t_mch_notify_record
@@ -249,17 +232,11 @@ CREATE TABLE `t_mch_notify_record`  (
   PRIMARY KEY (`notify_id`) USING BTREE,
   UNIQUE INDEX `Uni_OrderId_Type`(`order_id`) USING BTREE,
   INDEX `index`(`passage_order_no`, `state`, `order_type`, `order_id`, `mch_no`, `agent_no`, `pay_passage_id`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 40598 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户通知记录表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 87293 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户通知记录表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_mch_notify_record
 -- ----------------------------
-INSERT INTO `t_mch_notify_record` VALUES (40592, 'P1692067678568984577', 1, '', 'M1691231056', 'A1691231069', 1272, 'https://www.test.com?ifCode=testpay&amount=2000&payOrderId=P1692067678568984577&mchOrderNo=AZsHBX8gtgUGeuj&sign=24BC8C475586B2B84B947C2FCA689C03&reqTime=1692255422942&createdAt=1692255346336&clientIp=154.82.113.215&successTime=1692255423000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 14:59:04', '2023-08-17 14:57:02.946405', '2023-08-17 14:59:04.158326');
-INSERT INTO `t_mch_notify_record` VALUES (40593, 'P1692068961581514753', 1, '', 'M1691231056', 'A1691231069', 1272, 'https://www.test.com?ifCode=testpay&amount=2000&payOrderId=P1692068961581514753&mchOrderNo=XceEIzfKwkeE3DA&sign=2D0E06509555AAB31A53DAD53AC78269&reqTime=1692255785275&createdAt=1692255652228&clientIp=154.82.113.215&successTime=1692255785000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 15:05:06', '2023-08-17 15:03:05.287868', '2023-08-17 15:05:06.256921');
-INSERT INTO `t_mch_notify_record` VALUES (40594, 'P1692068961648623617', 1, '', 'M1691231056', 'A1691231069', 1273, 'https://www.test.com?ifCode=testpay&amount=5000&payOrderId=P1692068961648623617&mchOrderNo=ADXwjziSpy7Gwok&sign=DCA1F8D2EC4F9FD7395DA5793F45664B&reqTime=1692255809318&createdAt=1692255652242&clientIp=154.82.113.215&successTime=1692255809000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 15:05:29', '2023-08-17 15:03:29.321354', '2023-08-17 15:05:29.419086');
-INSERT INTO `t_mch_notify_record` VALUES (40595, 'P1692068961384382465', 1, '', 'M1691231056', 'A1691231069', 1273, 'https://www.test.com?ifCode=testpay&amount=20000&payOrderId=P1692068961384382465&mchOrderNo=oouje5vhM5cImSw&sign=7F5D1816CAA6AEA061985E776093D9E0&reqTime=1692255813704&createdAt=1692255652178&clientIp=154.82.113.215&successTime=1692255814000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 15:05:33', '2023-08-17 15:03:33.706348', '2023-08-17 15:05:33.831994');
-INSERT INTO `t_mch_notify_record` VALUES (40596, 'P1692068961187250177', 1, '', 'M1691231056', 'A1691231069', 1273, 'https://www.test.com?ifCode=testpay&amount=20000&payOrderId=P1692068961187250177&mchOrderNo=Tj9kYzlYiOwt222&sign=862856A193EEC2DBFF1B43106F780137&reqTime=1692255818134&createdAt=1692255652137&clientIp=154.82.113.215&successTime=1692255818000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 15:05:38', '2023-08-17 15:03:38.136378', '2023-08-17 15:05:38.252795');
-INSERT INTO `t_mch_notify_record` VALUES (40597, 'P1692068961124335618', 1, '', 'M1691231056', 'A1691231069', 1273, 'https://www.test.com?ifCode=testpay&amount=20000&payOrderId=P1692068961124335618&mchOrderNo=JclIH1nnXe5BhLY&sign=E9102EC8499F1DA7B859297414A075A7&reqTime=1692255822000&createdAt=1692255652118&clientIp=154.82.113.215&successTime=1692255822000&state=2&mchNo=M1691231056', '连接[www.test.com]异常:【SocketTimeoutException: connect timed out】', 6, 6, 3, '2023-08-17 15:05:42', '2023-08-17 15:03:42.002326', '2023-08-17 15:05:42.088918');
 
 -- ----------------------------
 -- Table structure for t_mch_pay_passage
@@ -275,13 +252,11 @@ CREATE TABLE `t_mch_pay_passage`  (
   PRIMARY KEY (`mch_pay_passage_id`) USING BTREE,
   UNIQUE INDEX `id`(`mch_pay_passage_id`) USING BTREE,
   INDEX `index`(`mch_no`, `pay_passage_id`, `state`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 13080 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-通道关系表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 17839 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-通道关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_mch_pay_passage
 -- ----------------------------
-INSERT INTO `t_mch_pay_passage` VALUES (13078, 'M1691231056', 1272, 1, '2023-08-17 14:55:36.075733', '2023-08-17 14:55:36.075733');
-INSERT INTO `t_mch_pay_passage` VALUES (13079, 'M1691231056', 1273, 1, '2023-08-17 14:59:59.021196', '2023-08-17 14:59:59.021196');
 
 -- ----------------------------
 -- Table structure for t_mch_product
@@ -299,12 +274,11 @@ CREATE TABLE `t_mch_product`  (
   PRIMARY KEY (`mch_product_id`) USING BTREE,
   UNIQUE INDEX `id`(`mch_product_id`) USING BTREE,
   INDEX `index`(`mch_no`, `product_id`, `state`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2793 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-产品关系表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3307 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-产品关系表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_mch_product
 -- ----------------------------
-INSERT INTO `t_mch_product` VALUES (2792, 'M1691231056', 1000, 1, '2023-08-17 14:51:36.055149', '2023-08-17 14:51:36.055149', 0.150000, 0.015000);
 
 -- ----------------------------
 -- Table structure for t_passage_transaction_history
@@ -327,18 +301,11 @@ CREATE TABLE `t_passage_transaction_history`  (
   PRIMARY KEY (`passage_transaction_history_id`) USING BTREE,
   UNIQUE INDEX `id`(`passage_transaction_history_id`) USING BTREE,
   INDEX `index`(`pay_passage_id`, `fund_direction`, `pay_order_id`, `biz_type`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 25443 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通道余额调额记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 72720 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通道余额调额记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_passage_transaction_history
 -- ----------------------------
-INSERT INTO `t_passage_transaction_history` VALUES (25436, 1272, '测试通道', 1800, 0, 1800, 1, 4, 0, '', '2023-08-17 14:57:06.111732', '', 'P1692067678568984577');
-INSERT INTO `t_passage_transaction_history` VALUES (25437, 1272, '测试通道', 1800, 1800, 3600, 1, 4, 0, '', '2023-08-17 15:03:06.109356', '', 'P1692068961581514753');
-INSERT INTO `t_passage_transaction_history` VALUES (25438, 1273, '测试通道2', 4600, 0, 4600, 1, 4, 0, '', '2023-08-17 15:03:31.107667', '', 'P1692068961648623617');
-INSERT INTO `t_passage_transaction_history` VALUES (25439, 1273, '测试通道2', 18400, 4600, 23000, 1, 4, 0, '', '2023-08-17 15:03:36.114031', '', 'P1692068961384382465');
-INSERT INTO `t_passage_transaction_history` VALUES (25440, 1273, '测试通道2', 18400, 23000, 41400, 1, 4, 0, '', '2023-08-17 15:03:41.112474', '', 'P1692068961187250177');
-INSERT INTO `t_passage_transaction_history` VALUES (25441, 1273, '测试通道2', 18400, 41400, 59800, 1, 4, 0, '', '2023-08-17 15:03:46.110145', '', 'P1692068961124335618');
-INSERT INTO `t_passage_transaction_history` VALUES (25442, 1273, '测试通道2', -4600, 59800, 55200, 2, 4, 0, '', '2023-08-17 15:04:17.185420', '测试冲正', 'P1692068961648623617');
 
 -- ----------------------------
 -- Table structure for t_pay_interface_define
@@ -363,22 +330,24 @@ CREATE TABLE `t_pay_interface_define`  (
 -- ----------------------------
 INSERT INTO `t_pay_interface_define` VALUES ('benchi', '奔驰支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#818646', 1, NULL, '2023-08-15 11:56:21.533510', '2023-08-15 11:56:21.533510');
 INSERT INTO `t_pay_interface_define` VALUES ('cardpay', '卡密支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"支付类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#D0AF6D', 1, NULL, '2023-07-27 11:45:58.000000', '2023-07-27 11:45:58.000000');
-INSERT INTO `t_pay_interface_define` VALUES ('changsheng', '昌盛支付', '[{\"desc\": \"商户号AccessKey\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#121AA9', 1, NULL, '2023-08-11 11:14:04.000000', '2023-08-11 11:14:04.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('changsheng', '昌盛、腾达', '[{\"desc\": \"商户号AccessKey\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#121AA9', 1, NULL, '2023-08-11 11:14:04.000000', '2023-08-11 11:14:04.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('changsheng2', '昌盛支付2', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#2334BA', 1, NULL, '2023-08-23 17:25:50.599861', '2023-08-23 17:25:50.599861');
 INSERT INTO `t_pay_interface_define` VALUES ('chuangxin', '创新支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#208684', 1, NULL, '2023-08-13 20:04:53.062313', '2023-08-13 20:04:53.062313');
 INSERT INTO `t_pay_interface_define` VALUES ('gawasy', 'Gawasy支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#45CABB', 1, NULL, '2023-08-09 18:19:52.684416', '2023-08-09 18:19:52.684416');
-INSERT INTO `t_pay_interface_define` VALUES ('jomalongpay', '祖玛珑支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"产品编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#065C6B', 1, NULL, '2023-08-05 22:44:38.000000', '2023-08-05 22:44:38.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('jomalongpay', '祖玛珑,lv,鸿蒙', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"产品编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#065C6B', 1, NULL, '2023-08-05 22:44:38.000000', '2023-08-05 22:44:38.000000');
 INSERT INTO `t_pay_interface_define` VALUES ('languifang', '兰桂坊支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"查询网关\", \"name\": \"queryUrl\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#B72E07', 1, NULL, '2023-08-05 23:21:43.441595', '2023-08-05 23:21:43.441595');
+INSERT INTO `t_pay_interface_define` VALUES ('naicha', '奶茶支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#640033', 1, NULL, '2023-08-19 16:19:47.387714', '2023-08-19 16:19:47.387714');
 INSERT INTO `t_pay_interface_define` VALUES ('pay731', '731支付接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#7F71FE', 1, NULL, '2023-08-13 02:15:42.946802', '2023-08-13 02:15:42.946802');
 INSERT INTO `t_pay_interface_define` VALUES ('qipay', '百川支付接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#CBD3CF', 1, NULL, '2023-08-05 20:20:53.000000', '2023-08-05 20:20:53.000000');
-INSERT INTO `t_pay_interface_define` VALUES ('rixinpay', '日鑫支付接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#0CC145', 1, NULL, '2023-08-06 16:33:51.000000', '2023-08-06 16:33:51.000000');
-INSERT INTO `t_pay_interface_define` VALUES ('shayupay', '鲨鱼支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#9248E8', 1, '', '2023-08-07 20:36:40.000000', '2023-08-07 20:36:40.000000');
-INSERT INTO `t_pay_interface_define` VALUES ('shengyang', '盛阳支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#C9CD52', 1, NULL, '2023-08-09 00:40:06.000000', '2023-08-09 00:40:06.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('rixinpay', '日鑫/JD支付/刀哥/ 万家/吉吉', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#0CC145', 1, NULL, '2023-08-06 16:33:51.000000', '2023-08-06 16:33:51.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('shayupay', '鲨鱼支付 桃园星河', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#9248E8', 1, '', '2023-08-07 20:36:40.000000', '2023-08-07 20:36:40.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('shengyang', '盛阳支付亨利', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#C9CD52', 1, NULL, '2023-08-09 00:40:06.000000', '2023-08-09 00:40:06.000000');
 INSERT INTO `t_pay_interface_define` VALUES ('testpay', '测试接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"支付类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#E2791E', 1, NULL, '2023-06-29 01:30:32.000000', '2023-06-29 01:30:32.000000');
 INSERT INTO `t_pay_interface_define` VALUES ('tianhepay', '天合支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#3E463F', 1, NULL, '2023-08-08 17:25:54.459954', '2023-08-08 17:25:54.459954');
 INSERT INTO `t_pay_interface_define` VALUES ('xiaobawang', '小霸王支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#104A23', 1, NULL, '2023-08-15 12:25:42.096118', '2023-08-15 12:25:42.096118');
 INSERT INTO `t_pay_interface_define` VALUES ('xiaoji', '小鸡支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道类型\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"查询网关\", \"name\": \"queryUrl\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#38FFEB', 1, NULL, '2023-08-14 23:05:27.214268', '2023-08-14 23:05:27.214268');
-INSERT INTO `t_pay_interface_define` VALUES ('xxpay', 'xxpay接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"产品编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#A0A351', 1, '库利南最支付丰胸鲁班买卖通', '2023-08-06 13:10:35.000000', '2023-08-06 13:10:35.000000');
-INSERT INTO `t_pay_interface_define` VALUES ('xxpay2', 'XXPay2接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#CFE987', 1, NULL, '2023-08-07 20:37:33.000000', '2023-08-07 20:37:33.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('xxpay', 'xxpay接口库利南最支付丰胸鲁班买卖通最支付光支付', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"产品编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#A0A351', 1, '库利南最支付丰胸鲁班买卖通', '2023-08-06 13:10:35.000000', '2023-08-06 13:10:35.000000');
+INSERT INTO `t_pay_interface_define` VALUES ('xxpay2', 'XXPay2接口宇宙系统  大白兔', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#CFE987', 1, NULL, '2023-08-07 20:37:33.000000', '2023-08-07 20:37:33.000000');
 INSERT INTO `t_pay_interface_define` VALUES ('xxpay3', 'xxpay3接口道道', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#665929', 1, NULL, '2023-08-10 17:27:57.000000', '2023-08-10 17:27:57.000000');
 INSERT INTO `t_pay_interface_define` VALUES ('xxpay4', 'XXPay4接口', '[{\"desc\": \"商户号\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"通道编码\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#319B48', 1, NULL, '2023-08-11 19:59:32.385876', '2023-08-11 19:59:32.385876');
 INSERT INTO `t_pay_interface_define` VALUES ('yifupay', '亿付支付 ', '[{\"desc\": \"appId\", \"name\": \"mchNo\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"秘钥\", \"name\": \"secret\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"支付方式\", \"name\": \"payType\", \"type\": \"text\", \"verify\": \"required\"}, {\"desc\": \"支付网关\", \"name\": \"payGateway\", \"type\": \"textarea\", \"verify\": \"required\"}, {\"desc\": \"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\", \"name\": \"whiteList\", \"type\": \"textarea\", \"verify\": \"required\"}]', '#76E3FF', 1, NULL, '2023-07-27 23:24:25.000000', '2023-07-27 23:24:25.000000');
@@ -437,46 +406,6 @@ CREATE TABLE `t_pay_order`  (
 -- ----------------------------
 -- Records of t_pay_order
 -- ----------------------------
-INSERT INTO `t_pay_order` VALUES ('P1692067662941007874', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 5000, 0.150000, 750, 0.015000, 75, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.611000', '2023-08-17 14:55:42.647608', 'ECmr33dswKPnvt5', 0.090000, 450, NULL, 50, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663268163586', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.691000', '2023-08-17 14:55:42.696518', 'MAavuS3qCc7u8gK', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663402381314', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 1000, 0.150000, 150, 0.015000, 15, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.716000', '2023-08-17 14:55:42.721960', 'IU5BH4BMniCkSfX', 0.090000, 90, NULL, 10, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663486267394', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.740000', '2023-08-17 14:55:42.746171', 'Eg6Qq7MQkrdwPU5', 0.090000, 2700, NULL, 300, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663595319298', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 10000, 0.150000, 1500, 0.015000, 150, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.763000', '2023-08-17 14:55:42.767306', '6eJZf2ju4sYlC59', 0.090000, 900, NULL, 100, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663725342721', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.788000', '2023-08-17 14:55:42.792829', 'z0tuC82tiO7ZAV7', 0.090000, 2700, NULL, 300, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663788257281', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.812000', '2023-08-17 14:55:42.816685', '5HIHxYKCya3k0qO', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663918280705', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 10000, 0.150000, 1500, 0.015000, 150, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.836000', '2023-08-17 14:55:42.839826', '1RAC4MSKWrRRnkZ', 0.090000, 900, NULL, 100, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067663981195266', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 1000, 0.150000, 150, 0.015000, 15, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.858000', '2023-08-17 14:55:42.861702', 'TF8XSr8WA1MRa1y', 0.090000, 90, NULL, 10, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067664111218689', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:43', NULL, '2023-08-17 14:55:42.879000', '2023-08-17 14:55:42.884118', 'JnzQPPXjpThDwRl', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067677910478849', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 10000, 0.150000, 1500, 0.015000, 150, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.171000', '2023-08-17 14:55:46.174884', 'avw14v8q4Qric1s', 0.090000, 900, NULL, 100, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678044696577', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.202000', '2023-08-17 14:55:46.205262', 'bootGJqLdJ1WBO3', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678107611138', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 10000, 0.150000, 1500, 0.015000, 150, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.221000', '2023-08-17 14:55:46.224027', 'LINnRNUjsNfK8ac', 0.090000, 900, NULL, 100, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678170525697', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.239000', '2023-08-17 14:55:46.241737', 'oFiceBdqrwXmnoL', 0.090000, 2700, NULL, 300, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678237634561', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.257000', '2023-08-17 14:55:46.260014', 'KBr0u8XJPoa3BKp', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678304743426', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.276000', '2023-08-17 14:55:46.280650', 'JJIMBBNKzcV7K1S', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678367657986', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.293000', '2023-08-17 14:55:46.296049', 'CKMn8tBHBpfUVfL', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678434766849', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.307000', '2023-08-17 14:55:46.310863', 'LmggWxg9NpCD61u', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678497681410', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', NULL, '2023-08-17 14:55:46.322000', '2023-08-17 14:55:46.325240', 'bT5yt6HI9g7nbQR', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692067678568984577', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 2, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 15:55:46', '2023-08-17 14:57:03', '2023-08-17 14:55:46.336000', '2023-08-17 14:57:23.806557', 'AZsHBX8gtgUGeuj', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068804689379330', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 10000, 0.150000, 1500, 0.015000, 150, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:14.826000', '2023-08-17 15:00:14.853167', 'bKP8pnsO9ZgZ7jA', 0.090000, 900, NULL, 100, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805146558466', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:14.933000', '2023-08-17 15:00:14.939740', 'vvcSI0Y7tDCj7Zi', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805276581889', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 1000, 0.150000, 150, 0.015000, 15, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:14.969000', '2023-08-17 15:00:14.974472', 'BSQEGHzB6fcxbaU', 0.090000, 90, NULL, 10, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805410799618', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:14.995000', '2023-08-17 15:00:14.999058', 'KdltKPuzXrhDpOp', 0.090000, 1800, NULL, 200, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805540823041', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.019000', '2023-08-17 15:00:15.023797', 'nLRBcf2lWwISgwQ', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805607931905', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.041000', '2023-08-17 15:00:15.044601', 'hNfGmplHn4wumch', 0.090000, 2700, NULL, 300, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805675040770', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.061000', '2023-08-17 15:00:15.064964', '9Ld7R0QmppRU3Te', 0.090000, 2700, NULL, 300, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805800869889', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 5000, 0.150000, 750, 0.015000, 75, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.086000', '2023-08-17 15:00:15.088908', 'LE6hwDvX1CWnYFu', 0.090000, 450, NULL, 50, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805867978753', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.105000', '2023-08-17 15:00:15.109345', 'No2rQnFEfdmQLim', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068805930893314', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 1000, 0.150000, 150, 0.015000, 15, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:15', NULL, '2023-08-17 15:00:15.127000', '2023-08-17 15:00:15.129971', 'B3mXffsNhXyeCHT', 0.090000, 90, NULL, 10, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068960998506498', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', NULL, '2023-08-17 15:00:52.090000', '2023-08-17 15:00:52.093544', 'vlB667lRPqhvt0Y', 0.080000, 160, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961124335618', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 2, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', '2023-08-17 15:03:42', '2023-08-17 15:00:52.118000', '2023-08-17 15:04:02.011163', 'JclIH1nnXe5BhLY', 0.080000, 1600, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961187250177', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 2, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', '2023-08-17 15:03:38', '2023-08-17 15:00:52.137000', '2023-08-17 15:03:58.187258', 'Tj9kYzlYiOwt222', 0.080000, 1600, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961254359041', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 30000, 0.150000, 4500, 0.015000, 450, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', NULL, '2023-08-17 15:00:52.157000', '2023-08-17 15:00:52.161195', '4xCsLNgNdKIvd4K', 0.080000, 2400, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961384382465', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 20000, 0.150000, 3000, 0.015000, 300, 2, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', '2023-08-17 15:03:34', '2023-08-17 15:00:52.178000', '2023-08-17 15:03:53.724434', 'oouje5vhM5cImSw', 0.080000, 1600, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961451491329', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 5000, 0.150000, 750, 0.015000, 75, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', NULL, '2023-08-17 15:00:52.199000', '2023-08-17 15:00:52.203136', '04Z8zCabVs5GsyS', 0.080000, 400, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961514405890', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 5000, 0.150000, 750, 0.015000, 75, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', NULL, '2023-08-17 15:00:52.214000', '2023-08-17 15:00:52.217541', 'qAxMghBkBU8Kknp', 0.080000, 400, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961581514753', 'M1691231056', 'A1691231069', 1272, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 2, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', '2023-08-17 15:03:05', '2023-08-17 15:00:52.228000', '2023-08-17 15:03:26.189994', 'XceEIzfKwkeE3DA', 0.090000, 180, NULL, 20, 0.010000, 'A1692255110', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961648623617', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 5000, 0.150000, 750, 0.015000, 75, 5, 1, '{\"state\":\"1\"}', NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', '2023-08-17 15:03:29', '2023-08-17 15:00:52.242000', '2023-08-17 15:04:17.155000', 'ADXwjziSpy7Gwok', 0.080000, 400, NULL, 0, 0.000000, '', 0, '', NULL);
-INSERT INTO `t_pay_order` VALUES ('P1692068961715732482', 'M1691231056', 'A1691231069', 1273, '测试商户', '', 'testpay', 1000, '测试产品', 2000, 0.150000, 300, 0.015000, 30, 1, 0, NULL, NULL, '154.82.113.215', NULL, NULL, NULL, NULL, 'https://www.test.com', '', '2023-08-17 16:00:52', NULL, '2023-08-17 15:00:52.257000', '2023-08-17 15:00:52.260219', 'qEiT8UBi7tgdBTH', 0.080000, 160, NULL, 0, 0.000000, '', 0, '', NULL);
 
 -- ----------------------------
 -- Table structure for t_pay_passage
@@ -505,13 +434,12 @@ CREATE TABLE `t_pay_passage`  (
   PRIMARY KEY (`pay_passage_id`) USING BTREE,
   UNIQUE INDEX `id`(`pay_passage_id`) USING BTREE,
   UNIQUE INDEX `Pay_Passage_Index`(`product_id`, `if_code`, `pay_passage_name`, `state`, `pay_type`, `created_at`, `agent_no`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1274 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付通道表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1346 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付通道表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_pay_passage
 -- ----------------------------
-INSERT INTO `t_pay_passage` VALUES (1272, '测试通道', 'testpay', 1000, 0.090000, 1, '10-5000', '{\"mchNo\": \"1\", \"secret\": \"2\", \"payType\": \"3\", \"whiteList\": \"*\", \"payGateway\": \"4\"}', 3600, 1, 1, 0, 0, '2023-08-17 14:52:20.000000', '2023-08-17 15:03:06.114864', 'A1692255110', 0.010000, 0, '');
-INSERT INTO `t_pay_passage` VALUES (1273, '测试通道2', 'testpay', 1000, 0.080000, 1, '10-50000', '{\"mchNo\": \"1\", \"secret\": \"2\", \"payType\": \"3\", \"whiteList\": \"*\", \"payGateway\": \"4\"}', 55200, 1, 5, 0, 0, '2023-08-17 14:59:51.000000', '2023-08-17 15:04:17.186533', '', 0.000000, 0, '');
+INSERT INTO `t_pay_passage` VALUES (1008, '测试通道', 'testpay', 1000, 0.100000, 1, '10-5000', '{\"mchNo\": \"1\", \"secret\": \"2\", \"payType\": \"3\", \"whiteList\": \"*\", \"payGateway\": \"4\"}', 0, 0, 1, 0, 0, '2023-08-05 18:24:56.000000', '2023-08-14 00:14:18.118000', '', 0.000000, 0, '22:59|23:25');
 
 -- ----------------------------
 -- Table structure for t_product
@@ -530,21 +458,58 @@ CREATE TABLE `t_product`  (
 -- ----------------------------
 -- Records of t_product
 -- ----------------------------
-INSERT INTO `t_product` VALUES (1000, '测试产品', '2023-08-17 14:51:25.856249', '2023-08-17 14:51:25.855000');
+INSERT INTO `t_product` VALUES (1000, '测试专用', '2023-08-06 17:21:54.572724', '2023-08-06 17:21:54.571000');
 
 -- ----------------------------
 -- Table structure for t_robots_mch
 -- ----------------------------
 DROP TABLE IF EXISTS `t_robots_mch`;
 CREATE TABLE `t_robots_mch`  (
-  `mch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商户号',
   `chat_id` bigint(30) NOT NULL COMMENT 'chat id',
-  PRIMARY KEY (`mch_no`) USING BTREE,
+  `mch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '商户号',
+  `balance` bigint(30) NULL DEFAULT 0 COMMENT '群记账余额',
+  PRIMARY KEY (`chat_id`) USING BTREE,
   INDEX `index`(`mch_no`, `chat_id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'chat-商户绑定表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_robots_mch
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_robots_mch_records
+-- ----------------------------
+DROP TABLE IF EXISTS `t_robots_mch_records`;
+CREATE TABLE `t_robots_mch_records`  (
+  `robot_mch_record_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `chat_id` bigint(60) NULL DEFAULT NULL COMMENT 'chat_id',
+  `amount` bigint(30) NOT NULL DEFAULT 0 COMMENT '金额',
+  `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '操作者用户名',
+  `created_at` timestamp(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '创建时间',
+  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '类型：下发-DAY,记账-TOTAL',
+  `state` tinyint(6) NOT NULL DEFAULT 1 COMMENT '记录状态：0-撤销 1-可用',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '备注',
+  PRIMARY KEY (`robot_mch_record_id`) USING BTREE,
+  INDEX `index`(`user_name`, `created_at`, `chat_id`, `type`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 75 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of t_robots_mch_records
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for t_robots_passage
+-- ----------------------------
+DROP TABLE IF EXISTS `t_robots_passage`;
+CREATE TABLE `t_robots_passage`  (
+  `passage_id` bigint(20) NOT NULL COMMENT '通道ID/通道群组ID',
+  `chat_id` bigint(30) NOT NULL COMMENT '群组ID',
+  PRIMARY KEY (`passage_id`) USING BTREE,
+  INDEX `index`(`passage_id`, `chat_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of t_robots_passage
 -- ----------------------------
 
 -- ----------------------------
@@ -553,10 +518,8 @@ CREATE TABLE `t_robots_mch`  (
 DROP TABLE IF EXISTS `t_robots_user`;
 CREATE TABLE `t_robots_user`  (
   `user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '机器人用户名',
-  `chat_id` bigint(30) NOT NULL COMMENT '频道ID',
-  `mch_no` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '商户号',
   PRIMARY KEY (`user_name`) USING BTREE,
-  INDEX `index`(`user_name`, `mch_no`, `chat_id`) USING BTREE
+  INDEX `index`(`user_name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -581,13 +544,11 @@ CREATE TABLE `t_statistics_agent`  (
   PRIMARY KEY (`statistics_agent_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_agent_id`) USING BTREE,
   INDEX `index`(`agent_no`, `statistics_date`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 31 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_agent
 -- ----------------------------
-INSERT INTO `t_statistics_agent` VALUES (29, 'A1691231069', '2023-08-17', 40, 6, 479000, 64000, 960, '2023-08-17 14:55:51.114000', '2023-08-17 14:55:51.114000');
-INSERT INTO `t_statistics_agent` VALUES (30, 'A1692255110', '2023-08-17', 31, 2, 370000, 4000, 40, '2023-08-17 14:55:51.116000', '2023-08-17 14:55:51.116000');
 
 -- ----------------------------
 -- Table structure for t_statistics_agent_mch
@@ -608,12 +569,11 @@ CREATE TABLE `t_statistics_agent_mch`  (
   PRIMARY KEY (`statistics_agent_mch_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_agent_mch_id`) USING BTREE,
   INDEX `index`(`agent_no`, `statistics_date`, `mch_no`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商-商户日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 52 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商-商户日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_agent_mch
 -- ----------------------------
-INSERT INTO `t_statistics_agent_mch` VALUES (21, 'A1691231069', 'M1691231056', '2023-08-17', 40, 6, 479000, 64000, 960, '2023-08-17 14:55:51.123000', '2023-08-17 14:55:51.123000');
 
 -- ----------------------------
 -- Table structure for t_statistics_agent_passage
@@ -634,12 +594,11 @@ CREATE TABLE `t_statistics_agent_passage`  (
   PRIMARY KEY (`statistics_agent_passage_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_agent_passage_id`) USING BTREE,
   INDEX `index`(`agent_no`, `statistics_date`, `pay_passage_id`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 110 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商-通道日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 239 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '代理商-通道日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_agent_passage
 -- ----------------------------
-INSERT INTO `t_statistics_agent_passage` VALUES (109, 'A1692255110', 1272, '2023-08-17', 31, 2, 370000, 4000, 40, '2023-08-17 14:55:51.130000', '2023-08-17 14:55:51.130000');
 
 -- ----------------------------
 -- Table structure for t_statistics_mch
@@ -659,12 +618,11 @@ CREATE TABLE `t_statistics_mch`  (
   PRIMARY KEY (`statistics_mch_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_mch_id`) USING BTREE,
   INDEX `index`(`mch_no`, `statistics_date`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 308 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 611 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_mch
 -- ----------------------------
-INSERT INTO `t_statistics_mch` VALUES (307, 'M1691231056', '2023-08-17', 40, 6, 479000, 64000, 9600, '2023-08-17 14:55:51.110000', '2023-08-17 14:55:51.110000');
 
 -- ----------------------------
 -- Table structure for t_statistics_mch_product
@@ -685,12 +643,11 @@ CREATE TABLE `t_statistics_mch_product`  (
   PRIMARY KEY (`statistics_product_mch_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_product_mch_id`) USING BTREE,
   INDEX `index`(`product_id`, `statistics_date`, `mch_no`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1045 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-产品日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2211 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '商户-产品日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_mch_product
 -- ----------------------------
-INSERT INTO `t_statistics_mch_product` VALUES (1044, 1000, '2023-08-17', 40, 6, 479000, 64000, '2023-08-17 14:55:51.144000', '2023-08-17 14:55:51.144000', 9600, 'M1691231056');
 
 -- ----------------------------
 -- Table structure for t_statistics_passage
@@ -710,13 +667,11 @@ CREATE TABLE `t_statistics_passage`  (
   PRIMARY KEY (`statistics_passage_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_passage_id`) USING BTREE,
   INDEX `index`(`pay_passage_id`, `statistics_date`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 717 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付通道日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1346 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付通道日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_passage
 -- ----------------------------
-INSERT INTO `t_statistics_passage` VALUES (715, 1272, '2023-08-17', 31, 2, 370000, 4000, 360, '2023-08-17 14:55:51.134000', '2023-08-17 14:55:51.134000');
-INSERT INTO `t_statistics_passage` VALUES (716, 1273, '2023-08-17', 9, 4, 109000, 60000, 4800, '2023-08-17 15:01:01.121000', '2023-08-17 15:01:01.121000');
 
 -- ----------------------------
 -- Table structure for t_statistics_plat
@@ -739,7 +694,6 @@ CREATE TABLE `t_statistics_plat`  (
 -- ----------------------------
 -- Records of t_statistics_plat
 -- ----------------------------
-INSERT INTO `t_statistics_plat` VALUES ('2023-08-17', 40, 6, 479000, 64000, 3440, '2023-08-17 14:55:51.098000', '2023-08-17 14:55:51.104000');
 
 -- ----------------------------
 -- Table structure for t_statistics_product
@@ -758,12 +712,11 @@ CREATE TABLE `t_statistics_product`  (
   PRIMARY KEY (`statistics_product_id`) USING BTREE,
   UNIQUE INDEX `id`(`statistics_product_id`) USING BTREE,
   INDEX `index`(`product_id`, `statistics_date`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 198 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付产品日统计表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 389 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '支付产品日统计表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_statistics_product
 -- ----------------------------
-INSERT INTO `t_statistics_product` VALUES (197, 1000, '2023-08-17', 40, 6, 479000, 64000, '2023-08-17 14:55:51.139000', '2023-08-17 14:55:51.139000');
 
 -- ----------------------------
 -- Table structure for t_sys_config
@@ -771,7 +724,7 @@ INSERT INTO `t_statistics_product` VALUES (197, 1000, '2023-08-17', 40, 6, 47900
 DROP TABLE IF EXISTS `t_sys_config`;
 CREATE TABLE `t_sys_config`  (
   `config_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置KEY',
-  `config_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置名称',
+  `config_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '配置名称',
   `config_desc` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '描述信息',
   `group_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分组key',
   `group_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '分组名称',
@@ -788,14 +741,17 @@ CREATE TABLE `t_sys_config`  (
 -- ----------------------------
 INSERT INTO `t_sys_config` VALUES ('agentSiteUrl', '代理商平台网址(不包含结尾/)', '代理商平台网址(不包含结尾/)', 'applicationConfig', '系统应用配置', 'http://agent-api.eluosi-pay.com', 'text', 0, '2023-08-06 16:30:07.485074');
 INSERT INTO `t_sys_config` VALUES ('dataOffset', '数据清理设置(保留xx天的数据)', '数据清理设置(保留xx天的数据)', 'applicationConfig', '系统应用配置', '15', 'text', 0, '2023-08-06 21:43:57.736626');
+INSERT INTO `t_sys_config` VALUES ('errorOrderWarnConfig', '异常订单预警 (0关闭，任意正数打开，如5)', '每分钟检测一次，异常订单数超过设置的数量时机器人发预警到管理群', 'robotsConfigGroup', '机器人配置', '10', 'text', 10, '2023-08-20 13:06:53.183269');
+INSERT INTO `t_sys_config` VALUES ('forceOrderWarnConfig', '强制补单预警(0关闭，任意正数打开，如5)', '每分钟检测一次，强制补单数超过设置的数量时机器人发预警到管理群', 'robotsConfigGroup', '机器人配置', '5', 'text', 9, '2023-08-20 13:06:53.183269');
 INSERT INTO `t_sys_config` VALUES ('loginWhiteList', '运营平台登录白名单(多个IP | 隔开,允许所有IP登录为*)', '运营平台登录白名单', 'applicationConfig', '系统应用配置', '*', 'textarea', 0, '2023-07-26 15:16:34.581903');
 INSERT INTO `t_sys_config` VALUES ('mchSiteUrl', '商户平台网址(不包含结尾/)', '商户平台网址(不包含结尾/)', 'applicationConfig', '系统应用配置', 'http://mch-api.eluosi-pay.com', 'text', 0, '2023-08-06 16:30:07.514215');
 INSERT INTO `t_sys_config` VALUES ('mgrSiteUrl', '运营平台网址(不包含结尾/)', '运营平台网址(不包含结尾/)', 'applicationConfig', '系统应用配置', 'http://mgr-api.eluosi-pay.com', 'text', 0, '2023-08-06 16:30:07.494783');
+INSERT INTO `t_sys_config` VALUES ('passageConfig', '通道配置预警(0关闭，1打开)', '三方通道商户信息被修改时机器人发预警到管理群', 'robotsConfigGroup', '机器人配置', '1', 'text', 8, '2023-08-20 13:06:53.183269');
 INSERT INTO `t_sys_config` VALUES ('payPassageAutoClean', '通道余额过零点自动清零', '通道余额过零点自动清零', 'payConfigGroup', '支付配置', '1', 'text', 0, '2023-08-13 18:35:07.601811');
 INSERT INTO `t_sys_config` VALUES ('paySiteUrl', '支付网关地址(不包含结尾/)', '支付网关地址(不包含结尾/)', 'applicationConfig', '系统应用配置', 'http://pay-api.eluosi-pay.com', 'text', 0, '2023-08-06 16:30:07.465521');
-INSERT INTO `t_sys_config` VALUES ('robotsAdmin', '机器人管理员(飞机用户名)', '机器人管理员', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-05 18:25:29.421483');
-INSERT INTO `t_sys_config` VALUES ('robotsToken', '机器人token(勿乱动，可能导致机器人失效)', '机器人token', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-05 18:25:29.425972');
-INSERT INTO `t_sys_config` VALUES ('robotsUserName', '机器人用户名(勿乱动，可能导致机器人失效)', '机器人用户名(不带@)', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-05 18:25:29.423765');
+INSERT INTO `t_sys_config` VALUES ('robotsAdmin', '机器人管理员(飞机用户名)', '机器人管理员', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-28 02:23:32.363813');
+INSERT INTO `t_sys_config` VALUES ('robotsToken', '机器人token(勿乱动，可能导致机器人失效)', '机器人token', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-28 02:23:35.727446');
+INSERT INTO `t_sys_config` VALUES ('robotsUserName', '机器人用户名(勿乱动，可能导致机器人失效)', '机器人用户名(不带@)', 'robotsConfigGroup', '机器人配置', '', 'text', 0, '2023-08-28 02:23:37.410225');
 
 -- ----------------------------
 -- Table structure for t_sys_entitlement
@@ -957,50 +913,11 @@ CREATE TABLE `t_sys_log`  (
   PRIMARY KEY (`sys_log_id`) USING BTREE,
   UNIQUE INDEX `id`(`sys_log_id`) USING BTREE,
   INDEX `index`(`login_username`, `sys_type`, `created_at`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6287 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统操作日志表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 8542 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统操作日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_sys_log
 -- ----------------------------
-INSERT INTO `t_sys_log` VALUES (6248, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.anon.AuthController.validate', '登录认证', 'http://localhost:9217/api/anon/auth/validate', '{\"ip\":\"c2lyaXVzOTE1\",\"ia\":\"YWRtaW4=\",\"gc\":\"dW5kZWZpbmVk\",\"vc\":\"NTU5Mg==\",\"vt\":\"MTY5MmI5ZjQtNWJmYS00NzA0LWJmMjUtODIzNzE5OTk2MWJi\"}', '{\"msg\":\"SUCCESS\",\"code\":0,\"data\":{\"iToken\":\"eyJhbGciOiJIUzUxMiJ9.eyJjYWNoZUtleSI6IlRPS0VOXzgwMV84OTQ2NGFmMi00NzY5LTQ5MGMtODk3Mi0wZTc4NmMxYmViNTAiLCJjcmVhdGVkIjoxNjkyMjU1MDQwMTI4LCJzeXNVc2VySWQiOjgwMX0.W0J8r2Opgj4u8yZIbz1QXf_NqqIgUnilkQF8Awub-SaNxrxRizr3XqK_kHorEn_2eNzD-0ApvpWOI75kf3t5Ug\"}}', '2023-08-17 14:50:40.141000');
-INSERT INTO `t_sys_log` VALUES (6249, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.merchant.MchInfoController.update', '更新商户信息', 'http://localhost:9217/api/mchInfo/M1691231056', '{\"defaultPass\":true,\"agentNo\":\"A1691231069\",\"mchName\":\"测试商户\",\"confirmPwd\":\"\",\"createdUid\":801,\"secret\":\"XFjGbHNUho8MqYWycYsNFzSwBVvOAIepDz1QDTfoIfKFojXVyTFHReNteWzGSVoXyXLJzDAo9p0G6GIjQYPAPJXSttlymJ9pqvaVUsna8v6cRezJvmTSJleEPImlTqDI\",\"createdAt\":\"2023-08-05 18:24:16\",\"loginUserName\":\"test123\",\"initUserId\":100033,\"balance\":0,\"state\":1,\"freezeBalance\":0,\"mchNo\":\"M1691231056\",\"resetPass\":true,\"updatedAt\":\"2023-08-16 23:25:23\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:50:52.828000');
-INSERT INTO `t_sys_log` VALUES (6250, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.agent.AgentInfoController.update', '更新代理商信息', 'http://localhost:9217/api/isvInfo/A1691231069', '{\"defaultPass\":true,\"agentNo\":\"A1691231069\",\"confirmPwd\":\"\",\"agentName\":\"测试代理\",\"createdUid\":801,\"createdAt\":\"2023-08-05 18:24:29\",\"loginUserName\":\"atest123\",\"initUserId\":100034,\"balance\":0,\"state\":1,\"freezeBalance\":0,\"resetPass\":true,\"updatedAt\":\"2023-08-05 18:24:29\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:50:59.827000');
-INSERT INTO `t_sys_log` VALUES (6251, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayWayController.add', '新增支付方式', 'http://localhost:9217/api/payWays', '{\"productId\":\"1000\",\"productName\":\"测试产品\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:51:25.856000');
-INSERT INTO `t_sys_log` VALUES (6252, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.ProductMchController.update', '更新产品-商户绑定信息', 'http://localhost:9217/api/productMchInfo/', '{\"productId\":1000,\"mchRate\":0.15,\"state\":1,\"mchNo\":\"M1691231056\",\"agentRate\":0.015}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:51:36.055000');
-INSERT INTO `t_sys_log` VALUES (6253, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.agent.AgentInfoController.add', '新增代理商', 'http://localhost:9217/api/isvInfo', '{\"loginUserName\":\"ptest123\",\"agentName\":\"测试通道代理\",\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:51:50.752000');
-INSERT INTO `t_sys_log` VALUES (6254, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.add', '新建通道', 'http://localhost:9217/api/mchApps', '{\"ifCode\":\"testpay\",\"payType\":1,\"productId\":1000,\"agentNo\":\"A1692255110\",\"rate\":0.09,\"payPassageName\":\"测试通道\",\"state\":1,\"payRules\":\"10-5000\",\"agentRate\":0.01}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:52:20.142000');
-INSERT INTO `t_sys_log` VALUES (6255, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/rixinpay', '{\"ifCode\":\"rixinpay\",\"createdAt\":\"2023-08-06 16:33:51\",\"bgColor\":\"#0CC145\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"通道编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"日鑫支付接口\",\"state\":1,\"updatedAt\":\"2023-08-06 16:33:51\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:52:43.651000');
-INSERT INTO `t_sys_log` VALUES (6256, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/jomalongpay', '{\"ifCode\":\"jomalongpay\",\"createdAt\":\"2023-08-05 22:44:38\",\"bgColor\":\"#065C6B\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"产品编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"祖玛珑支付\",\"state\":1,\"updatedAt\":\"2023-08-05 22:44:38\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:52:54.196000');
-INSERT INTO `t_sys_log` VALUES (6257, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/xxpay', '{\"ifCode\":\"xxpay\",\"createdAt\":\"2023-08-06 13:10:35\",\"bgColor\":\"#A0A351\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"产品编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"xxpay接口\",\"remark\":\"库利南最支付丰胸鲁班买卖通\",\"state\":1,\"updatedAt\":\"2023-08-06 13:10:35\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:00.550000');
-INSERT INTO `t_sys_log` VALUES (6258, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/shayupay', '{\"ifCode\":\"shayupay\",\"createdAt\":\"2023-08-07 20:36:40\",\"bgColor\":\"#9248E8\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"通道编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"鲨鱼支付\",\"remark\":\"\",\"state\":1,\"updatedAt\":\"2023-08-07 20:36:40\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:05.768000');
-INSERT INTO `t_sys_log` VALUES (6259, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/xxpay2', '{\"ifCode\":\"xxpay2\",\"createdAt\":\"2023-08-07 20:37:33\",\"bgColor\":\"#CFE987\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"通道编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"XXPay2接口\",\"state\":1,\"updatedAt\":\"2023-08-07 20:37:33\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:09.647000');
-INSERT INTO `t_sys_log` VALUES (6260, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/shengyang', '{\"ifCode\":\"shengyang\",\"createdAt\":\"2023-08-09 00:40:06\",\"bgColor\":\"#C9CD52\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"通道编码\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔)，*表示允许全部IP\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"盛阳支付\",\"state\":1,\"updatedAt\":\"2023-08-09 00:40:06\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:15.583000');
-INSERT INTO `t_sys_log` VALUES (6261, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.payconfig.PayInterfaceDefineController.update', '更新支付接口', 'http://localhost:9217/api/payIfDefines/changsheng', '{\"ifCode\":\"changsheng\",\"createdAt\":\"2023-08-11 11:14:04\",\"bgColor\":\"#121AA9\",\"ifParams\":\"[{\\\"desc\\\": \\\"商户号AccessKey\\\", \\\"name\\\": \\\"mchNo\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"秘钥\\\", \\\"name\\\": \\\"secret\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"通道类型\\\", \\\"name\\\": \\\"payType\\\", \\\"type\\\": \\\"text\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"支付网关\\\", \\\"name\\\": \\\"payGateway\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}, {\\\"desc\\\": \\\"回调白名单(多个地址以 | 分隔，*表示允许全部IP)\\\", \\\"name\\\": \\\"whiteList\\\", \\\"type\\\": \\\"textarea\\\", \\\"verify\\\": \\\"required\\\"}]\",\"ifName\":\"昌盛支付\",\"state\":1,\"updatedAt\":\"2023-08-11 11:14:04\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:23.500000');
-INSERT INTO `t_sys_log` VALUES (6262, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.add', '添加管理员', 'http://localhost:9217/api/sysUsers', '{\"loginUsername\":\"admin1\",\"sex\":1,\"isAdmin\":1,\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:51.034000');
-INSERT INTO `t_sys_log` VALUES (6263, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.add', '添加管理员', 'http://localhost:9217/api/sysUsers', '{\"loginUsername\":\"admin2\",\"sex\":1,\"isAdmin\":1,\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:55.629000');
-INSERT INTO `t_sys_log` VALUES (6264, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.add', '添加管理员', 'http://localhost:9217/api/sysUsers', '{\"loginUsername\":\"admin3\",\"sex\":1,\"isAdmin\":1,\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:53:59.700000');
-INSERT INTO `t_sys_log` VALUES (6265, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.add', '添加管理员', 'http://localhost:9217/api/sysUsers', '{\"loginUsername\":\"admin4\",\"sex\":1,\"isAdmin\":1,\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:05.213000');
-INSERT INTO `t_sys_log` VALUES (6266, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.add', '添加管理员', 'http://localhost:9217/api/sysUsers', '{\"loginUsername\":\"admin5\",\"sex\":1,\"isAdmin\":1,\"state\":1}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:10.013000');
-INSERT INTO `t_sys_log` VALUES (6267, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.update', '修改操作员信息', 'http://localhost:9217/api/sysUsers/100120', '{\"defaultPass\":true,\"createdAt\":\"2023-08-17 14:54:09\",\"loginUsername\":\"admin5\",\"sysType\":\"MGR\",\"confirmPwd\":\"\",\"isAdmin\":0,\"state\":1,\"sysUserId\":100120,\"belongInfoId\":\"0\",\"resetPass\":false,\"updatedAt\":\"2023-08-17 14:54:09\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:15.902000');
-INSERT INTO `t_sys_log` VALUES (6268, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.update', '修改操作员信息', 'http://localhost:9217/api/sysUsers/100119', '{\"defaultPass\":true,\"createdAt\":\"2023-08-17 14:54:05\",\"loginUsername\":\"admin4\",\"sysType\":\"MGR\",\"confirmPwd\":\"\",\"isAdmin\":0,\"state\":1,\"sysUserId\":100119,\"belongInfoId\":\"0\",\"resetPass\":false,\"updatedAt\":\"2023-08-17 14:54:05\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:19.705000');
-INSERT INTO `t_sys_log` VALUES (6269, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserController.update', '修改操作员信息', 'http://localhost:9217/api/sysUsers/100120', '{\"defaultPass\":true,\"createdAt\":\"2023-08-17 14:54:09\",\"loginUsername\":\"admin5\",\"sysType\":\"MGR\",\"confirmPwd\":\"\",\"isAdmin\":0,\"state\":1,\"sysUserId\":100120,\"belongInfoId\":\"0\",\"resetPass\":false,\"updatedAt\":\"2023-08-17 14:54:09\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:26.889000');
-INSERT INTO `t_sys_log` VALUES (6270, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserRoleRelaController.relas', '更改用户角色信息', 'http://localhost:9217/api/sysUserRoleRelas/relas/100116', '{\"roleIdListStr\":\"[\\\"ROLE_ADMIN\\\"]\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:32.588000');
-INSERT INTO `t_sys_log` VALUES (6271, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserRoleRelaController.relas', '更改用户角色信息', 'http://localhost:9217/api/sysUserRoleRelas/relas/100117', '{\"roleIdListStr\":\"[\\\"ROLE_ADMIN\\\"]\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:37.109000');
-INSERT INTO `t_sys_log` VALUES (6272, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserRoleRelaController.relas', '更改用户角色信息', 'http://localhost:9217/api/sysUserRoleRelas/relas/100118', '{\"roleIdListStr\":\"[\\\"ROLE_ADMIN\\\"]\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:40.007000');
-INSERT INTO `t_sys_log` VALUES (6273, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserRoleRelaController.relas', '更改用户角色信息', 'http://localhost:9217/api/sysUserRoleRelas/relas/100119', '{\"roleIdListStr\":\"[\\\"ROLE_ADMIN\\\"]\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:42.530000');
-INSERT INTO `t_sys_log` VALUES (6274, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysUserRoleRelaController.relas', '更改用户角色信息', 'http://localhost:9217/api/sysUserRoleRelas/relas/100120', '{\"roleIdListStr\":\"[\\\"ROLE_ADMIN\\\"]\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:54:45.927000');
-INSERT INTO `t_sys_log` VALUES (6275, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.merchant.PassageMchController.blindAll', '通道-商户一键全绑定', 'http://localhost:9217/api/passageMchInfo/blindAll/1272', '{}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:55:36.076000');
-INSERT INTO `t_sys_log` VALUES (6276, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.update', '更新通道信息', 'http://localhost:9217/api/mchApps/1272', '{\"ifCode\":\"testpay\",\"agentNo\":\"A1692255110\",\"productId\":1000,\"successRate\":\"0.00\",\"weights\":1,\"productName\":\"测试产品\",\"timeLimit\":0,\"createdAt\":\"2023-08-17 14:52:20\",\"timeRules\":\"\",\"payType\":1,\"balance\":0,\"rate\":0.09,\"quota\":0,\"payPassageName\":\"测试通道\",\"payInterfaceConfig\":\"{\\\"mchNo\\\":\\\"1\\\",\\\"secret\\\":\\\"2\\\",\\\"payType\\\":\\\"3\\\",\\\"payGateway\\\":\\\"4\\\",\\\"whiteList\\\":\\\"*\\\"}\",\"payRules\":\"10-5000\",\"quotaLimitState\":0,\"state\":1,\"payPassageId\":1272,\"agentRate\":0.01,\"updatedAt\":\"2023-08-17 14:52:20\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:56:40.528000');
-INSERT INTO `t_sys_log` VALUES (6277, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.add', '新建通道', 'http://localhost:9217/api/mchApps', '{\"ifCode\":\"testpay\",\"payType\":1,\"productId\":1000,\"agentNo\":\"\",\"rate\":0.14,\"payPassageName\":\"测试通道2\",\"state\":1,\"payRules\":\"10-50000\",\"agentRate\":0}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:59:51.956000');
-INSERT INTO `t_sys_log` VALUES (6278, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.merchant.PassageMchController.blindAll', '通道-商户一键全绑定', 'http://localhost:9217/api/passageMchInfo/blindAll/1273', '{}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 14:59:59.021000');
-INSERT INTO `t_sys_log` VALUES (6279, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.update', '更新通道信息', 'http://localhost:9217/api/mchApps/1273', '{\"ifCode\":\"testpay\",\"agentNo\":\"\",\"productId\":1000,\"successRate\":\"0.00\",\"weights\":\"5\",\"productName\":\"测试产品\",\"timeLimit\":0,\"createdAt\":\"2023-08-17 14:59:51\",\"timeRules\":\"\",\"payType\":1,\"balance\":0,\"rate\":0.14,\"quota\":0,\"payPassageName\":\"测试通道2\",\"payRules\":\"10-50000\",\"quotaLimitState\":0,\"state\":1,\"payPassageId\":1273,\"agentRate\":0,\"updatedAt\":\"2023-08-17 14:59:51\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:00:08.953000');
-INSERT INTO `t_sys_log` VALUES (6280, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.update', '更新通道信息', 'http://localhost:9217/api/mchApps/1273', '{\"ifCode\":\"testpay\",\"agentNo\":\"\",\"productId\":1000,\"weights\":5,\"timeLimit\":0,\"createdAt\":\"2023-08-17 14:59:51\",\"timeRules\":\"\",\"payType\":1,\"balance\":0,\"rate\":0.08,\"quota\":0,\"payPassageName\":\"测试通道2\",\"payRules\":\"10-50000\",\"quotaLimitState\":0,\"state\":1,\"payPassageId\":1273,\"agentRate\":0,\"updatedAt\":\"2023-08-17 15:00:08\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:00:44.965000');
-INSERT INTO `t_sys_log` VALUES (6281, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.passage.MchAppController.update', '更新通道信息', 'http://localhost:9217/api/mchApps/1273', '{\"ifCode\":\"testpay\",\"agentNo\":\"\",\"productId\":1000,\"successRate\":\"0.00\",\"weights\":5,\"productName\":\"测试产品\",\"timeLimit\":0,\"createdAt\":\"2023-08-17 14:59:51\",\"timeRules\":\"\",\"payType\":1,\"balance\":0,\"rate\":0.08,\"quota\":0,\"payPassageName\":\"测试通道2\",\"payInterfaceConfig\":\"{\\\"mchNo\\\":\\\"1\\\",\\\"secret\\\":\\\"2\\\",\\\"payType\\\":\\\"3\\\",\\\"payGateway\\\":\\\"4\\\",\\\"whiteList\\\":\\\"*\\\"}\",\"payRules\":\"10-50000\",\"quotaLimitState\":0,\"state\":1,\"payPassageId\":1273,\"agentRate\":0,\"updatedAt\":\"2023-08-17 15:00:44\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:03:18.637000');
-INSERT INTO `t_sys_log` VALUES (6282, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.order.PayOrderController.forcePayOrderRedo', '订单测试冲正', 'http://localhost:9217/api/payOrder/P1692068961648623617/forcePayOrderRedo', '{}', '{\"msg\":\"为了您的资金安全，该操作需要先绑定谷歌验证码\",\"code\":5007}', '2023-08-17 15:04:01.872000');
-INSERT INTO `t_sys_log` VALUES (6283, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.order.PayOrderController.forcePayOrderRedo', '订单测试冲正', 'http://localhost:9217/api/payOrder/P1692068961648623617/forcePayOrderRedo', '{}', '{\"msg\":\"SUCCESS\",\"code\":0,\"data\":{\"ifCode\":\"testpay\",\"payOrderId\":\"P1692068961648623617\",\"mchOrderNo\":\"ADXwjziSpy7Gwok\",\"productName\":\"测试产品\",\"passageFeeAmount\":400,\"createdAt\":\"2023-08-17 15:00:52\",\"successTime\":\"2023-08-17 15:03:29\",\"forceChangeLoginName\":\"\",\"state\":2,\"returnUrl\":\"\",\"agentFeeAmount\":75,\"mchNo\":\"M1691231056\",\"notifyParams\":\"{\\\"state\\\":\\\"1\\\"}\",\"agentRate\":0.015000,\"updatedAt\":\"2023-08-17 15:03:49\",\"mchFeeAmount\":750,\"agentPassageFee\":0,\"amount\":5000,\"agentNo\":\"A1691231069\",\"productId\":1000,\"mchName\":\"测试商户\",\"agentNoPassage\":\"\",\"expiredTime\":\"2023-08-17 16:00:52\",\"mchFeeRate\":0.150000,\"notifyState\":1,\"passageOrderNo\":\"\",\"passageRate\":0.080000,\"agentPassageRate\":0.000000,\"clientIp\":\"154.82.113.215\",\"notifyUrl\":\"https://www.test.com\",\"passageId\":1273,\"forceChangeState\":0}}', '2023-08-17 15:04:17.176000');
-INSERT INTO `t_sys_log` VALUES (6284, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysRoleController.update', '更新角色信息', 'http://localhost:9217/api/sysRoles/ROLE_cab448', '{\"entIdListStr\":\"[\\\"ENT_C_MAIN_PAY_COUNT\\\",\\\"ENT_C_MAIN\\\",\\\"ENT_C_USERINFO\\\",\\\"ENT_COMMONS\\\",\\\"ENT_DIVISION_AGENT\\\",\\\"ENT_DIVISION_MANAGE\\\",\\\"ENT_DIVISION_MCH\\\",\\\"ENT_ISV_INFO_ADD\\\",\\\"ENT_ISV_INFO\\\",\\\"ENT_ISV\\\",\\\"ENT_ISV_INFO_DEL\\\",\\\"ENT_ISV_INFO_EDIT\\\",\\\"ENT_ISV_INFO_HISTORY\\\",\\\"ENT_ACCOUNT_HISTORY\\\",\\\"ENT_ISV_INFO_VIEW\\\",\\\"ENT_ISV_LIST\\\",\\\"ENT_MCH_APP_ADD\\\",\\\"ENT_MCH_APP\\\",\\\"ENT_PC\\\",\\\"ENT_MCH_APP_CONFIG\\\",\\\"ENT_MCH_INFO\\\",\\\"ENT_MCH\\\",\\\"ENT_MCH_APP_DEL\\\",\\\"ENT_MCH_APP_EDIT\\\",\\\"ENT_MCH_APP_LIST\\\",\\\"ENT_MCH_APP_VIEW\\\",\\\"ENT_MCH_INFO_ADD\\\",\\\"ENT_MCH_INFO_DEL\\\",\\\"ENT_MCH_INFO_EDIT\\\",\\\"ENT_MCH_INFO_HISTORY\\\",\\\"ENT_MCH_INFO_VIEW\\\",\\\"ENT_MCH_LIST\\\",\\\"ENT_MCH_NOTIFY_RESEND\\\",\\\"ENT_MCH_NOTIFY\\\",\\\"ENT_ORDER\\\",\\\"ENT_MCH_NOTIFY_VIEW\\\",\\\"ENT_MCH_PAY_PASSAGE_ADD\\\",\\\"ENT_MCH_PAY_PASSAGE_LIST\\\",\\\"ENT_MCH_PAY_PASSAGE_CONFIG\\\",\\\"ENT_NOTIFY_LIST\\\",\\\"ENT_ORDER_LIST\\\",\\\"ENT_PAY_ORDER\\\",\\\"ENT_PASSAGE_HISTORY\\\",\\\"ENT_PAY_FORCE_ORDER\\\",\\\"ENT_PAY_ORDER_EDIT\\\",\\\"ENT_PAY_ORDER_SEARCH_PAY_WAY\\\",\\\"ENT_PAY_ORDER_VIEW\\\",\\\"ENT_PC_IF_DEFINE_ADD\\\",\\\"ENT_PC_IF_DEFINE\\\",\\\"ENT_PC_IF_DEFINE_DEL\\\",\\\"ENT_PC_IF_DEFINE_EDIT\\\",\\\"ENT_PC_IF_DEFINE_LIST\\\",\\\"ENT_PC_IF_DEFINE_SEARCH\\\",\\\"ENT_PC_IF_DEFINE_VIEW\\\",\\\"ENT_PC_WAY_ADD\\\",\\\"ENT_PC_WAY\\\",\\\"ENT_PC_WAY_DEL\\\",\\\"ENT_PC_WAY_EDIT\\\",\\\"ENT_PC_WAY_LIST\\\",\\\"ENT_PC_WAY_SEARCH\\\",\\\"ENT_PC_WAY_VIEW\\\",\\\"ENT_TRANSFER_ORDER_LIST\\\",\\\"ENT_TRANSFER_ORDER\\\",\\\"ENT_TRANSFER_ORDER_VIEW\\\"]\",\"sysType\":\"MGR\",\"roleId\":\"ROLE_cab448\",\"roleName\":\"财务运营\",\"belongInfoId\":\"0\",\"updatedAt\":\"2023-07-27 23:46:55\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:07:51.111000');
-INSERT INTO `t_sys_log` VALUES (6285, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysRoleController.update', '更新角色信息', 'http://localhost:9217/api/sysRoles/ROLE_OP', '{\"entIdListStr\":\"[\\\"ENT_C_MAIN_PAY_COUNT\\\",\\\"ENT_C_MAIN\\\",\\\"ENT_C_USERINFO\\\",\\\"ENT_COMMONS\\\",\\\"ENT_ISV_INFO_ADD\\\",\\\"ENT_ISV_INFO\\\",\\\"ENT_ISV\\\",\\\"ENT_ISV_INFO_DEL\\\",\\\"ENT_ISV_INFO_EDIT\\\",\\\"ENT_ISV_INFO_VIEW\\\",\\\"ENT_ISV_LIST\\\",\\\"ENT_ISV_INFO_HISTORY\\\",\\\"ENT_ACCOUNT_HISTORY\\\",\\\"ENT_PASSAGE_HISTORY\\\",\\\"ENT_MCH_INFO_HISTORY\\\",\\\"ENT_LOG_LIST\\\",\\\"ENT_SYS_LOG\\\",\\\"ENT_SYS_CONFIG\\\",\\\"ENT_SYS_LOG_VIEW\\\",\\\"ENT_MCH_APP_ADD\\\",\\\"ENT_MCH_APP\\\",\\\"ENT_PC\\\",\\\"ENT_MCH_APP_DEL\\\",\\\"ENT_MCH_APP_EDIT\\\",\\\"ENT_MCH_APP_LIST\\\",\\\"ENT_MCH_APP_VIEW\\\",\\\"ENT_MCH_PAY_PASSAGE_LIST\\\",\\\"ENT_MCH_PAY_PASSAGE_ADD\\\",\\\"ENT_MCH_PAY_PASSAGE_CONFIG\\\",\\\"ENT_PC_WAY\\\",\\\"ENT_PC_WAY_ADD\\\",\\\"ENT_PC_WAY_DEL\\\",\\\"ENT_PC_WAY_EDIT\\\",\\\"ENT_PC_WAY_LIST\\\",\\\"ENT_PC_WAY_SEARCH\\\",\\\"ENT_PC_WAY_VIEW\\\",\\\"ENT_PC_IF_DEFINE\\\",\\\"ENT_PC_IF_DEFINE_ADD\\\",\\\"ENT_PC_IF_DEFINE_DEL\\\",\\\"ENT_PC_IF_DEFINE_EDIT\\\",\\\"ENT_PC_IF_DEFINE_LIST\\\",\\\"ENT_PC_IF_DEFINE_SEARCH\\\",\\\"ENT_PC_IF_DEFINE_VIEW\\\",\\\"ENT_MCH_APP_CONFIG\\\",\\\"ENT_MCH_INFO\\\",\\\"ENT_MCH\\\",\\\"ENT_MCH_INFO_ADD\\\",\\\"ENT_MCH_INFO_DEL\\\",\\\"ENT_MCH_INFO_EDIT\\\",\\\"ENT_MCH_INFO_VIEW\\\",\\\"ENT_MCH_LIST\\\",\\\"ENT_MCH_NOTIFY_RESEND\\\",\\\"ENT_MCH_NOTIFY\\\",\\\"ENT_ORDER\\\",\\\"ENT_MCH_NOTIFY_VIEW\\\",\\\"ENT_NOTIFY_LIST\\\",\\\"ENT_PAY_ORDER\\\",\\\"ENT_ORDER_LIST\\\",\\\"ENT_PAY_ORDER_EDIT\\\",\\\"ENT_PAY_ORDER_SEARCH_PAY_WAY\\\",\\\"ENT_PAY_ORDER_VIEW\\\",\\\"ENT_PAY_FORCE_ORDER\\\",\\\"ENT_TRANSFER_ORDER\\\",\\\"ENT_TRANSFER_ORDER_LIST\\\",\\\"ENT_TRANSFER_ORDER_VIEW\\\"]\",\"sysType\":\"MGR\",\"roleId\":\"ROLE_OP\",\"roleName\":\"普通操作员\",\"belongInfoId\":\"0\",\"updatedAt\":\"2021-05-01 00:00:00\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:08:42.227000');
-INSERT INTO `t_sys_log` VALUES (6286, 'admin', '0:0:0:0:0:0:0:1', 'MGR', 'com.jeequan.jeepay.mgr.ctrl.sysuser.SysRoleController.update', '更新角色信息', 'http://localhost:9217/api/sysRoles/ROLE_354990', '{\"entIdListStr\":\"[\\\"ENT_C_USERINFO\\\",\\\"ENT_COMMONS\\\",\\\"ENT_ISV_INFO_ADD\\\",\\\"ENT_ISV_INFO\\\",\\\"ENT_ISV\\\",\\\"ENT_ISV_INFO_DEL\\\",\\\"ENT_ISV_INFO_EDIT\\\",\\\"ENT_ISV_INFO_HISTORY\\\",\\\"ENT_ACCOUNT_HISTORY\\\",\\\"ENT_ISV_INFO_VIEW\\\",\\\"ENT_ISV_LIST\\\",\\\"ENT_MCH_APP_CONFIG\\\",\\\"ENT_MCH_INFO\\\",\\\"ENT_MCH\\\",\\\"ENT_MCH_INFO_ADD\\\",\\\"ENT_MCH_INFO_DEL\\\",\\\"ENT_MCH_INFO_EDIT\\\",\\\"ENT_MCH_INFO_HISTORY\\\",\\\"ENT_MCH_INFO_VIEW\\\",\\\"ENT_MCH_LIST\\\",\\\"ENT_MCH_NOTIFY_RESEND\\\",\\\"ENT_MCH_NOTIFY\\\",\\\"ENT_ORDER\\\",\\\"ENT_MCH_NOTIFY_VIEW\\\",\\\"ENT_NOTIFY_LIST\\\",\\\"ENT_ORDER_LIST\\\",\\\"ENT_PAY_ORDER\\\",\\\"ENT_PASSAGE_HISTORY\\\",\\\"ENT_PAY_FORCE_ORDER\\\",\\\"ENT_PAY_ORDER_EDIT\\\",\\\"ENT_PAY_ORDER_SEARCH_PAY_WAY\\\",\\\"ENT_PAY_ORDER_VIEW\\\",\\\"ENT_TRANSFER_ORDER_LIST\\\",\\\"ENT_TRANSFER_ORDER\\\",\\\"ENT_TRANSFER_ORDER_VIEW\\\"]\",\"sysType\":\"MGR\",\"roleId\":\"ROLE_354990\",\"roleName\":\"客服\",\"belongInfoId\":\"0\",\"updatedAt\":\"2023-07-27 23:47:32\"}', '{\"msg\":\"SUCCESS\",\"code\":0}', '2023-08-17 15:08:49.158000');
 
 -- ----------------------------
 -- Table structure for t_sys_role
@@ -1294,11 +1211,32 @@ INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_PC_WAY_LIST');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_PC_WAY_SEARCH');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_PC_WAY_VIEW');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_SYS_CONFIG');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_SYS_CONFIG_EDIT');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_SYS_CONFIG_INFO');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_SYS_LOG');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_SYS_LOG_VIEW');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_TRANSFER_ORDER');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_TRANSFER_ORDER_LIST');
 INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_TRANSFER_ORDER_VIEW');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_ADD');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_DEL');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_DIST');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_EDIT');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_ENT');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_ENT_EDIT');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_ENT_LIST');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_LIST');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_ROLE_SEARCH');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_ADD');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_DELETE');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_EDIT');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_LIST');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_SEARCH');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_UPD_ROLE');
+INSERT INTO `t_sys_role_ent_rela` VALUES ('ROLE_OP', 'ENT_UR_USER_VIEW');
 
 -- ----------------------------
 -- Table structure for t_sys_user
@@ -1315,20 +1253,14 @@ CREATE TABLE `t_sys_user`  (
   `updated_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '更新时间',
   PRIMARY KEY (`sys_user_id`) USING BTREE,
   INDEX `sys_type`(`sys_type`, `login_username`, `state`, `belong_info_id`, `created_at`, `is_admin`, `sys_user_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 100121 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 100120 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_sys_user
 -- ----------------------------
-INSERT INTO `t_sys_user` VALUES (801, 'admin', 1, 1, 'MGR', '0', '2020-06-13 00:00:00.000000', '2023-06-15 16:38:15.078204');
-INSERT INTO `t_sys_user` VALUES (100033, 'test123', 1, 1, 'MCH', 'M1691231056', '2023-08-05 18:24:16.352531', '2023-08-05 18:24:16.352531');
-INSERT INTO `t_sys_user` VALUES (100034, 'atest123', 1, 1, 'AGENT', 'A1691231069', '2023-08-05 18:24:29.466723', '2023-08-05 18:24:29.466723');
-INSERT INTO `t_sys_user` VALUES (100115, 'ptest123', 1, 1, 'AGENT', 'A1692255110', '2023-08-17 14:51:50.684388', '2023-08-17 14:51:50.684388');
-INSERT INTO `t_sys_user` VALUES (100116, 'admin1', 1, 1, 'MGR', '0', '2023-08-17 14:53:50.967866', '2023-08-17 14:53:50.967866');
-INSERT INTO `t_sys_user` VALUES (100117, 'admin2', 1, 1, 'MGR', '0', '2023-08-17 14:53:55.564041', '2023-08-17 14:53:55.564041');
-INSERT INTO `t_sys_user` VALUES (100118, 'admin3', 1, 1, 'MGR', '0', '2023-08-17 14:53:59.635474', '2023-08-17 14:53:59.635474');
-INSERT INTO `t_sys_user` VALUES (100119, 'admin4', 1, 1, 'MGR', '0', '2023-08-17 14:54:05.145022', '2023-08-17 14:54:05.145022');
-INSERT INTO `t_sys_user` VALUES (100120, 'admin5', 1, 1, 'MGR', '0', '2023-08-17 14:54:09.948398', '2023-08-17 14:54:09.948398');
+INSERT INTO `t_sys_user` VALUES (801, 'admin', 1, 1, 'MGR', '0', '2020-06-12 16:00:00.000000', '2023-06-15 08:38:15.078204');
+INSERT INTO `t_sys_user` VALUES (100033, 'test123', 1, 1, 'MCH', 'M1691231056', '2023-08-05 10:24:16.352531', '2023-08-05 10:24:16.352531');
+INSERT INTO `t_sys_user` VALUES (100034, 'atest123', 1, 1, 'AGENT', 'A1691231069', '2023-08-05 10:24:29.466723', '2023-08-05 10:24:29.466723');
 
 -- ----------------------------
 -- Table structure for t_sys_user_auth
@@ -1346,20 +1278,14 @@ CREATE TABLE `t_sys_user_auth`  (
   `google_auth_key` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '谷歌验证密钥',
   PRIMARY KEY (`auth_id`) USING BTREE,
   INDEX `index`(`auth_id`, `user_id`, `identity_type`, `sys_type`, `google_auth_status`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1123 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统用户认证表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1122 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统用户认证表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_sys_user_auth
 -- ----------------------------
 INSERT INTO `t_sys_user_auth` VALUES (801, 801, 1, 'admin', '$2a$10$8/eu5o3x5eRDuo0uo4j9Mu/U/Wrqzfn.Tj.zsc4Z3oSpclBr0ti92', 'testkey', 'MGR', 0, 'MLC72VZKZRDOTCTM73TVGIN6F7FZOKPT');
-INSERT INTO `t_sys_user_auth` VALUES (1035, 100033, 1, 'test123', '$2a$10$LQDxeLAX37AT56UHCUubG.BAVe8cUOM3rzZ027yZ13GTASwjQ1oC2', 'f9026c', 'MCH', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1036, 100034, 1, 'atest123', '$2a$10$abd0fqbyjp0OmN.f3qTTdu7lRODI/Z6gCKXVRhGpIthPvdAQmHs0W', '066634', 'AGENT', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1117, 100115, 1, 'ptest123', '$2a$10$6F6IiSwpqU3sKyErVfV/POwNcrzOUv.Xhm/hGvCpX.VXAK5bA953i', '5f8530', 'AGENT', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1118, 100116, 1, 'admin1', '$2a$10$pi/ZIgAXF66Ijm1DLm7YxuA2AgNvPjuoqH7ubsMCmxmiLFBpbY7Fq', '52c2b9', 'MGR', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1119, 100117, 1, 'admin2', '$2a$10$n9B1.49.1AAeUv2bggfuyOYbmROYajuS1Fy4iabqjYWx9VrEWt86K', 'dc81ce', 'MGR', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1120, 100118, 1, 'admin3', '$2a$10$31FS1Ee9glSHePNuLmg8Lu9FkDCdLCgIZJk4xMEfDJG0d4ctGZhsi', 'd3462e', 'MGR', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1121, 100119, 1, 'admin4', '$2a$10$66ouVXC4wzX/3sI0ShIlI.2pkm1I7JJypw2UB.620LkCvNgkD7V7a', 'bfab67', 'MGR', 0, NULL);
-INSERT INTO `t_sys_user_auth` VALUES (1122, 100120, 1, 'admin5', '$2a$10$JY9TLOSMx8QV6Gn7ywHkXen0mF67B1Oyq2FWsValRelEQbeiBu2ue', '95bb18', 'MGR', 0, NULL);
+INSERT INTO `t_sys_user_auth` VALUES (1035, 100033, 1, 'test123', '$2a$10$9IEn0gfKOENa1tLxoRWUgehP2rJ/7dOLysyrWtm..oz0GHCjwRUVi', 'f9026c', 'MCH', 0, NULL);
+INSERT INTO `t_sys_user_auth` VALUES (1036, 100034, 1, 'atest123', '$2a$10$EBoDVY9Q7MgPLX0ALnvxwOjt9kCXF.bP1Rc1V2Sn/dka76E4lf9P.', '066634', 'AGENT', 0, NULL);
 
 -- ----------------------------
 -- Table structure for t_sys_user_role_rela
@@ -1381,10 +1307,5 @@ INSERT INTO `t_sys_user_role_rela` VALUES (100027, 'ROLE_ADMIN');
 INSERT INTO `t_sys_user_role_rela` VALUES (100029, 'ROLE_354990');
 INSERT INTO `t_sys_user_role_rela` VALUES (100035, 'ROLE_ADMIN');
 INSERT INTO `t_sys_user_role_rela` VALUES (100108, 'ROLE_cab448');
-INSERT INTO `t_sys_user_role_rela` VALUES (100116, 'ROLE_ADMIN');
-INSERT INTO `t_sys_user_role_rela` VALUES (100117, 'ROLE_ADMIN');
-INSERT INTO `t_sys_user_role_rela` VALUES (100118, 'ROLE_ADMIN');
-INSERT INTO `t_sys_user_role_rela` VALUES (100119, 'ROLE_ADMIN');
-INSERT INTO `t_sys_user_role_rela` VALUES (100120, 'ROLE_ADMIN');
 
 SET FOREIGN_KEY_CHECKS = 1;
