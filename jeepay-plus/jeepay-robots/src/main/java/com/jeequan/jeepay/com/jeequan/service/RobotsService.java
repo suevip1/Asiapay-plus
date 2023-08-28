@@ -3,6 +3,9 @@ package com.jeequan.jeepay.com.jeequan.service;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
@@ -112,6 +115,8 @@ public class RobotsService extends TelegramLongPollingBot {
 
     private static final String ROBOT_QUIT = "机器人退群";
 
+    private static final String GET_USDT = "/usdt";
+
     /**
      * 绑定管理群
      */
@@ -204,6 +209,34 @@ public class RobotsService extends TelegramLongPollingBot {
 
 
             sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
+
+            return;
+        }
+
+
+        if (update.getMessage().getText().startsWith(GET_USDT)) {
+            String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
+            //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
+            String raw = HttpUtil.get(url);
+            JSONObject result = JSONObject.parseObject(raw);
+            if (result.getString("code").equals("0")) {
+                JSONArray buys = result.getJSONObject("data").getJSONArray("buy");
+                String price = buys.getJSONObject(0).getString("price");
+                StringBuffer stringBuffer = new StringBuffer();
+                stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
+                for (int i = 0; i < buys.size(); i++) {
+                    if (i < 4) {
+                        stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
+                    } else {
+                        break;
+                    }
+                }
+                sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
+            } else {
+                sendSingleMessage(update.getMessage().getChatId(), "网络异常，请稍后再试");
+                log.error(raw);
+            }
+            return;
         }
     }
 
@@ -1258,7 +1291,7 @@ public class RobotsService extends TelegramLongPollingBot {
         // Define the commands to set
         List<BotCommand> commands = new ArrayList<>();
         commands.add(new BotCommand("help", "亚洲科技机器人帮助说明"));
-
+        commands.add(new BotCommand("usdt", "今日U价格查询"));
         // Create the SetMyCommands request
         SetMyCommands setMyCommands = new SetMyCommands();
         setMyCommands.setCommands(commands);
