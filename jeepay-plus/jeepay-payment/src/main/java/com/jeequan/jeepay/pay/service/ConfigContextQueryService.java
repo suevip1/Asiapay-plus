@@ -172,10 +172,14 @@ public class ConfigContextQueryService {
                 }
             }
             BigDecimal totalCostRate = passageRate.add(agentRate).add(agentMchRate);
-            if (mchRate.compareTo(totalCostRate) > 0) {
-                payConfigFilter.setMchInfo(mchInfo);
-                rateFilterList.add(payConfigFilter);
-            }
+            //todo 检测费率问题，暂时屏蔽
+//            if (mchRate.compareTo(totalCostRate) > 0) {
+//                payConfigFilter.setMchInfo(mchInfo);
+//                rateFilterList.add(payConfigFilter);
+//            }
+
+            payConfigFilter.setMchInfo(mchInfo);
+            rateFilterList.add(payConfigFilter);
         }
 
         if (!CollUtil.isNotEmpty(rateFilterList)) {
