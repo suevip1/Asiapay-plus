@@ -331,6 +331,8 @@ public class CS {
         String NAICHA = "naicha";
 
         String KAMIPAY = "kamipay";
+
+        String DAFU = "dafu";
     }
 
 

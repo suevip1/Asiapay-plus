@@ -32,15 +32,15 @@ public class RobotsMch extends BaseModel {
     }
 
     /**
-     * 商户号
-     */
-    private String mchNo;
-
-    /**
      * chat id
      */
     @TableId(value = "chat_id")
     private Long chatId;
+
+    /**
+     * 商户号
+     */
+    private String mchNo;
 
     /**
      * 群记账余额
