@@ -8,8 +8,8 @@
   min-height: 100px;
   height: 100%;
   width: 100%;
-  border-radius: 6px;
-  background-color: #fff;
+  border-radius: 13px;
+  background-color: rgba(255,255,255,0);
 }
 #chart-card .chart-top,
 #chart-card .chart-bottom {

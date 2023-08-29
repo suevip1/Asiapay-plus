@@ -203,7 +203,7 @@
       </a-modal>
     </template>
     <template>
-      <a-modal v-model="isShowSetAutoCleanModal" title="设置通道自动日切" @ok="handleSetAutoCleanOkFunc">
+      <a-modal v-model="isShowSetAutoCleanModal" title="设置通道自动日切清零" @ok="handleSetAutoCleanOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
           <b style="color: gray">开启后每天北京时间 00:00 自动清空所有通道余额</b><br/><br/>
           <a-form-model-item label="通道自动日切开关：">

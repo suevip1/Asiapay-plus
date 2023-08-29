@@ -21,77 +21,81 @@
 <!--        </div>-->
 <!--      </div>-->
       <div class="chart-item top-left">
-        <div class="chart-data" style="position:relative">
+        <div class="chart-data chengjiaojine" style="position:relative;">
           <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
           <div v-show="!skeletonIsShow">
-            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
-              <span>今日成交金额</span>
-            </div>
             <div>
               <div class="pay-amount-text">
                 <b class="pay-amount">&nbsp;{{ (mainChart.todayCount.totalSuccessAmount/100).toFixed(2) }}</b>
               </div>
-            </div>
-            <div class="payAmountSpan">
-              <span>昨日成交金额：&nbsp;{{ (mainChart.yesterdayCount.totalSuccessAmount/100).toFixed(2) }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="chart-item top-left" style="width: 250px">
-        <div class="chart-data" style="position:relative">
-          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
-          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
-          <div v-show="!skeletonIsShow">
-            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
-              <span>今日成交订单数</span>
-            </div>
-            <div>
-              <div class="pay-amount-text">
-                <b class="pay-amount">{{ mainChart.todayCount.orderSuccessCount }}</b>
+              <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+                <span>今日成交金额</span>
               </div>
             </div>
+            <div class="chart-icon-div">
+            </div>
             <div class="payAmountSpan">
-              <span>昨日成交订单数：{{ mainChart.yesterdayCount.orderSuccessCount }}</span>
+              <span class="title">昨日：</span><span>{{ (mainChart.yesterdayCount.totalSuccessAmount/100).toFixed(2) }}</span>
             </div>
           </div>
         </div>
       </div>
       <div class="chart-item top-left">
-        <div class="chart-data" style="position:relative">
-          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
+        <div class="chart-data chengjiaodingdan" style="position:relative;">
           <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
           <div v-show="!skeletonIsShow">
-            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
-              <span>今日平台利润</span>
-            </div>
             <div>
               <div class="pay-amount-text">
-                <b class="pay-amount">{{ (mainChart.todayCount.platTotalIncome/100).toFixed(2) }}
-                </b>
+                <b class="pay-amount">&nbsp;{{ mainChart.todayCount.orderSuccessCount }}</b>
+              </div>
+              <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+                <span>今日成交订单数</span>
               </div>
             </div>
+            <div class="chart-icon-div-order-success-num">
+            </div>
             <div class="payAmountSpan">
-              <span>昨日平台利润：{{ (mainChart.yesterdayCount.platTotalIncome/100).toFixed(2) }}</span>
+              <span class="title">昨日：</span><span>{{ mainChart.yesterdayCount.orderSuccessCount }}</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="chart-item top-left" style="width: 250px">
-        <div class="chart-data" style="position:relative">
-          <!-- 骨架屏与图表有冲突，故不使用内嵌方式。 因为内边距的原因，采取v-if的方式 -->
+      <div class="chart-item top-left">
+        <div class="chart-data today-income" style="position:relative;">
           <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
           <div v-show="!skeletonIsShow">
-            <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
-              <span>今日订单数</span>
-            </div>
             <div>
               <div class="pay-amount-text">
-                <span class="pay-amount">{{ mainChart.todayCount.totalOrderCount }}</span>
+                <b class="pay-amount">&nbsp;{{ (mainChart.todayCount.platTotalIncome/100).toFixed(2) }}</b>
+              </div>
+              <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+                <span>今日平台利润</span>
               </div>
             </div>
+            <div class="chart-icon-div-today-income">
+            </div>
             <div class="payAmountSpan">
-              <span>昨日订单数：{{ mainChart.yesterdayCount.totalOrderCount }}</span>
+              <span class="title">昨日：</span><span>{{ (mainChart.yesterdayCount.platTotalIncome/100).toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-item top-left">
+        <div class="chart-data order-num" style="position:relative;">
+          <a-skeleton active :loading="true" v-if="skeletonIsShow" style="padding:20px" :paragraph="{ rows: 6 }" />
+          <div v-show="!skeletonIsShow">
+            <div>
+              <div class="pay-amount-text">
+                <b class="pay-amount">&nbsp;{{ mainChart.todayCount.totalOrderCount }}</b>
+              </div>
+              <div class="analy-title" style="padding:20px;box-sizing:border-box;padding-bottom:10px">
+                <span>今日订单数</span>
+              </div>
+            </div>
+            <div class="chart-icon-div-order-num">
+            </div>
+            <div class="payAmountSpan">
+              <span class="title">昨日：</span><span>{{ mainChart.yesterdayCount.totalOrderCount }}</span>
             </div>
           </div>
         </div>
@@ -99,52 +103,52 @@
       <div class="top-middle">
         <div class="middle-top">
           <div class="chart-item middle-larger">
-            <div class="chart-data">
+            <div class="four-small">
               <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
-                <div class="analy-title">
+                <a-card :bordered="false" style="border-radius: 13px;">
+                  <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#2F61DC' }" :value="(mainChart.todaySuccessRate*100).toFixed(2)+ '%'" />
+                </a-card>
+                <div class="four-small-title">
                   <span>今日成功率</span>
                 </div>
-                <a-card :bordered="false">
-                  <a-statistic style="margin-top: 10px;font-weight: bold" :value="(mainChart.todaySuccessRate*100).toFixed(2)+ '%'" />
-                </a-card>
               </a-skeleton>
             </div>
           </div>
           <div class="chart-item middle-smaller">
-            <div class="chart-data">
+            <div class="four-small">
               <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
-                <div class="analy-title">
+                <a-card :bordered="false" style="border-radius: 13px;">
+                  <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#30CC99' }" :value="mainChart.mchNum" />
+                </a-card>
+                <div class="four-small-title">
                   <span>商户数量</span>
                 </div>
-                <a-card :bordered="false">
-                  <a-statistic style="margin-top: 10px" :value="mainChart.mchNum" />
-                </a-card>
               </a-skeleton>
             </div>
           </div>
         </div>
         <div class="middle-bottom">
           <div class="chart-item middle-larger">
-            <div class="chart-data">
+            <div class="four-small">
               <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
-                <div class="analy-title">
+                <a-card :bordered="false" style="border-radius: 13px;">
+                  <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#DB4B4B' }" :value="(mainChart.yesterdaySuccessRate*100).toFixed(2)+ '%'" />
+                </a-card>
+                <div class="four-small-title">
                   <span>昨日成功率</span>
                 </div>
-                <a-card :bordered="false">
-                  <a-statistic style="margin-top: 10px" :value="(mainChart.yesterdaySuccessRate*100).toFixed(2)+ '%'" />
-                </a-card>
               </a-skeleton>
             </div>
           </div>
           <div class="chart-item middle-smaller">
-            <div class="chart-data">
+            <div class="four-small">
               <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 1 }">
-                <div class="analy-title">
+                <a-card :bordered="false" style="border-radius: 13px;">
+                  <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#864FE1' }" :value="mainChart.agentNum" />
+                </a-card>
+                <div class="four-small-title">
                   <span>代理数量</span>
                 </div>
-                <a-card :bordered="false">
-                  <a-statistic style="margin-top: 10px" :value="mainChart.agentNum" />
-                </a-card>
               </a-skeleton>
             </div>
           </div>
@@ -159,7 +163,7 @@
           <div v-show="!skeletonIsShow">
             <div>
               <div class="pay-count-title">
-                <span class="chart-title">数据排名</span>
+                <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">数据排名</span>
                 <a-radio-group v-model="tableChannel" button-style="solid" @change="selectTab">
                   <a-radio-button value="1">商户</a-radio-button>
                   <a-radio-button value="2">通道</a-radio-button>
@@ -178,13 +182,13 @@
                 >
                   <template slot="nameSlot" slot-scope="{record}">
                     <template v-if="tableChannel=== '1'">
-                      <span>[{{ record.mchNo }}]</span>&nbsp;<b style="font-weight: bold">{{ record.mchName }}</b>
+                      <span class="name-label">[{{ record.mchNo }}]&nbsp{{ record.mchName }}</span>
                     </template>
                     <template v-else-if="tableChannel=== '2'">
-                      <span>[{{ record.payPassageId }}]</span>&nbsp;<b style="font-weight: bold">{{ record.payPassageName }}</b>
+                      <span class="name-label">[{{ record.payPassageId }}]&nbsp{{ record.payPassageName }}</span>
                     </template>
                     <template v-if="tableChannel=== '3'">
-                      <span>[{{ record.agentNo }}]</span>&nbsp;<b style="font-weight: bold">{{ record.agentName }}</b>
+                      <span class="name-label">[{{ record.agentNo }}]&nbsp;{{ record.agentName }}</span>
                     </template>
                   </template> <!-- 自定义插槽 -->
                   <template slot="stateSlot" slot-scope="{record}">
@@ -192,7 +196,7 @@
                   </template>
                   <!--    全局金额颜色参考此处    -->
                   <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#85C52F' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
                   </template> <!-- 自定义插槽 -->
                 </JeepayTable>
               </div>
@@ -203,19 +207,14 @@
 
       <div class="chart-item bottom-right">
         <div class="chart-data">
-<!--          <a-skeleton active :loading="skeletonIsShow" :paragraph="{ rows: 6 }"/>-->
           <div v-show="!skeletonIsShow">
             <div class="pay-count-title">
-              <span class="chart-title">实时监控（近30分钟）</span>
-<!--              <div class="chart-padding" style="border: 1px solid #ddd;"></div>-->
+              <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">实时监控</span><span style="color: #969B9F">（近30分钟）</span>
             </div>
             <template>
-              <div id="chartContainer" style="max-width:800px;width: 800px;min-width: 700px; height:500px;"></div>
+              <div id="chartContainer" style="max-width:800px;width: 700px;min-width: 700px; height:500px;"></div>
             </template>
             <div>
-              <!-- 如果没数据就展示一个图标 -->
-<!--              <div v-show="isPayType" id="payType" style="height:300px"></div>-->
-<!--              <empty v-show="!isPayType" />-->
             </div>
           </div>
         </div>
@@ -357,6 +356,9 @@
                   show: true,
                   position: 'right',
                   valueAnimation: true
+                },
+                itemStyle: {
+                  color: '#369AFE'
                 }
               }
             ],
@@ -536,10 +538,14 @@
     }
   }
   .analy-title {
-    display:flex;
-    justify-content:space-between;
-    padding-bottom:0;
-    align-items: center;
+    //display:flex;
+    //justify-content:space-between;
+    //padding-bottom:0;
+    //align-items: center;
+    color: white;
+    padding-right:20px;
+    text-align: right;
+    width: 100%;
   }
   .there-spot:hover {
     cursor:pointer;
@@ -550,12 +556,33 @@
   .payAmountSpan {
    display:flex;
    justify-content:space-between;
-   width: 100%;
+   width: 180px;
+   height: 26px;
    box-sizing: border-box;
    position: absolute;
-   bottom:20px;
-   padding:0 20px;
+    padding-right: 10px;
+    padding-left: 10px;
+   bottom:30px;
+    right: 10px;
    box-sizing: border-box;
+    background: rgba(255,255,255,0.2);
+    border-radius: 13px 13px 13px 13px;
+  }
+  .payAmountSpan span{
+    text-align: right;
+    color: white;
+    width: 60%;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 26px;
+  }
+  .payAmountSpan .title{
+    text-align: left;
+    color: white;
+    width: 40%;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 26px;
   }
 
   .chart-data {
@@ -564,7 +591,6 @@
   }
 
   .top-left {
-
     .chart-data {
       padding:0;
     }
@@ -580,7 +606,13 @@
     margin-bottom: 10px;
     .pay-amount {
       font-size: 33px;
-      margin-right: 10px;
+      //margin-right: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+      color: white;
+      //padding:20px;
+      text-align: right;
+      width: 100%;
     }
   }
 
@@ -616,11 +648,93 @@
       justify-content:center;
     }
   }
-
+  .chart-icon-div{
+    position: absolute;
+    width: 62px;
+    height: 62px;
+    border-radius: 40px 40px 40px 40px;
+    opacity: 1;
+    bottom: 30px;
+    left: 20px;
+    background: #FFFFFF url(~@/assets/dashboard/icon_chengjiaojine.png) no-repeat center center ;
+  }
+  .chart-icon-div-order-success-num{
+    position: absolute;
+    width: 62px;
+    height: 62px;
+    border-radius: 40px 40px 40px 40px;
+    opacity: 1;
+    bottom: 30px;
+    left: 20px;
+    background: #FFFFFF url(~@/assets/dashboard/icon_chengjiaodingdshu.png) no-repeat center center ;
+  }
+  .chart-icon-div-today-income{
+    position: absolute;
+    width: 62px;
+    height: 62px;
+    border-radius: 40px 40px 40px 40px;
+    opacity: 1;
+    bottom: 30px;
+    left: 20px;
+    background: #FFFFFF url(~@/assets/dashboard/icon_pingtailirun.png) no-repeat center center ;
+  }
+  .chart-icon-div-order-num{
+    position: absolute;
+    width: 62px;
+    height: 62px;
+    border-radius: 40px 40px 40px 40px;
+    opacity: 1;
+    bottom: 30px;
+    left: 20px;
+    background: #FFFFFF url(~@/assets/dashboard/icon_dingdanshu.png) no-repeat center center ;
+  }
   .chart-title {
     font-size: 16px;
     font-weight: 500;
     margin-right:20px;
     margin-bottom:20px;
+  }
+  .chengjiaojine{
+    background-image: url(~@/assets/dashboard/bg_chengjiaojine.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+  .chengjiaodingdan{
+    background-image: url(~@/assets/dashboard/bg_chengjiaodingdanshu.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+  .today-income{
+    background-image: url(~@/assets/dashboard/bg_pingtailirun.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+  .order-num{
+    background-image: url(~@/assets/dashboard/bg_dingdanshu.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+  .four-small{
+    min-height: 75px;
+    min-width: 146px;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    border-radius: 13px;
+  }
+  .four-small-title {
+    //display:flex;
+    //justify-content:space-between;
+    //padding-bottom:0;
+    //align-items: center;
+    color: #717579;
+    padding-left:20px;
+    text-align: left;
+    width: 100%;
+  }
+  .name-label{
+    color: #333333;
+    font-size: 14px;
+    font-weight: 400;
   }
 </style>
