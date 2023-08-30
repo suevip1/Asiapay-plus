@@ -34,14 +34,17 @@
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
         <a-row>
-          <a-col :span="3">
-            <span>通道总数:</span>&nbsp;<a-tag color="blue">{{this.totalPassageInfo.passageNum}}</a-tag>
+          <a-col class="stat-col bg-color-1" :span="4">
+            <span class="title">通道总数</span>
+            <b style="color: #DB4B4B;">{{this.totalPassageInfo.passageNum}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>通道总余额:</span>&nbsp;<a-tag color="blue">{{(this.totalPassageInfo.totalBalance/100).toFixed(2)}}</a-tag>
+          <a-col class="stat-col bg-color-2" :span="4" :offset="1">
+            <span class="title">通道总余额</span>
+            <b style="color: #FA9D2A;">{{(this.totalPassageInfo.totalBalance/100).toFixed(2)}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>通道自动日切:</span>&nbsp;<a-badge style="font-weight: bold;" :status="this.totalPassageInfo.payPassageAutoClean === 0?'error':'processing'" :text="this.totalPassageInfo.payPassageAutoClean === 0?'禁用':'启用'" />
+          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
+            <span class="title">通道自动日切状态</span>
+            <a-badge class="stat-content" :status="this.totalPassageInfo.payPassageAutoClean === 0?'error':'processing'" :text="this.totalPassageInfo.payPassageAutoClean === 0?'禁用中':'启用中'" />
           </a-col>
         </a-row>
       </div>
@@ -58,12 +61,12 @@
         rowKey="payPassageId"
       >
         <template slot="payPassageId" slot-scope="{record}"> <!-- 通道名插槽 -->
-          <b :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':'#1A79FF'}">[{{ record.payPassageId }}]</b>&nbsp;<b :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':'#1A79FF'}">{{ record.payPassageName }}</b>
+          <span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':'#007CFD'}">[{{ record.payPassageId }}]</span>&nbsp;<span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':'#007CFD'}">{{ record.payPassageName }}</span>
           <br/>
-          <span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':''}" style="font-size: 13px">[{{ record.productId }}]</span>&nbsp;<span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':''}" style="font-size: 13px">{{ record.productName }}</span>
+          <span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':''}" style="font-size: 13px;color: #1E2229">[{{ record.productId }}]</span>&nbsp;<span :style="{'color': record.state === 0?'rgba(0, 0, 0, 0.25)':''}" style="font-size: 13px;color: #1E2229">{{ record.productName }}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="productId" slot-scope="{record}">
-          <span style="color: #1A79FF">[{{ record.productId }}]</span>&nbsp;<span>{{ record.productName }}</span>
+          <span style="color: #007CFD">[{{ record.productId }}]</span>&nbsp;<span>{{ record.productName }}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="balanceSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeBalance(record)" >调额</a-button>
@@ -71,11 +74,9 @@
         </template> <!-- 自定义插槽 -->
         <template slot="weightsSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeWeights(record)" >设置</a-button>
-          &nbsp;<b>{{record.weights}}</b>
+          &nbsp;<span style="color: #1E2229">{{record.weights}}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="stateSlot" slot-scope="{record}">
-<!--          <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'禁用':'启用'" />-->
-<!--          <a-switch checked-children="通道开" un-checked-children="通道关"  v-model="record.state"  @change="onSwitchChange(record)" :loading="stateLoading" />-->
           <JeepayTableColState :state="record.state" :showSwitchType="true" :onChange="(state) => { return onSwitchChange(record.payPassageId, state)}"/>
         </template>
         <template slot="rateSlot" slot-scope="{record}">
@@ -86,16 +87,28 @@
         <template slot="quotaLimitStateSlot" slot-scope="{record}">
            <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeQuota(record)" >设置</a-button>
           &nbsp;<a-badge :status="record.quotaLimitState === 0?'error':'processing'" :text="record.quotaLimitState === 0?'禁用':'启用'" />
-          &nbsp;<b :style="{'color': record.quota >0 ? '#4BD884' : '#DB4B4B' ,'text-decoration': record.quotaLimitState === 0?'line-through':''}" >{{ (record.quota / 100).toFixed(2) }}</b>
+          &nbsp;<span :style="{'color': record.quota >0 ? '#4BD884' : '#DB4B4B' ,'text-decoration': record.quotaLimitState === 0?'line-through':''}" >{{ (record.quota / 100).toFixed(2) }}</span>
         </template>
         <template slot="timeLimitStateSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeTimeLimit(record)" >设置</a-button>
           &nbsp;<a-badge :status="record.timeLimit === 0?'error':'processing'" :text="record.timeLimit === 0?'禁用':'启用'" />
-          &nbsp;<b>{{record.timeLimit === 1?record.timeRules : ''}}</b>
+          &nbsp;<span style="color: #1E2229">{{record.timeLimit === 1?record.timeRules : ''}}</span>
         </template>
         <template slot="successRateSlot" slot-scope="{record}">
-          &nbsp;<b>{{record.successRate}}%</b>
+          &nbsp;<span style="color: #1E2229">{{record.successRate}}%</span>
         </template>
+        <template slot="configStrSlot" slot-scope="{record}"> <!-- 通道名插槽 -->
+<!--          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>-->
+          <a-tooltip placement="bottom" style="font-size: 13px;color: #1E2229" v-if="JSON.parse(record.payInterfaceConfig).mchNo.length > 14">
+            <template slot="title">
+              <span>{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>
+            </template>
+            {{ changeStr2ellipsis(JSON.parse(record.payInterfaceConfig).mchNo, 14) }}
+          </a-tooltip>
+          <span style="font-size: 13px;color: #1E2229" v-else>{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>
+          <br/>
+          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).payType}}</span>
+        </template> <!-- 自定义插槽 -->
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
             <a-button type="link" @click="detailFunc(record)">查看</a-button>
@@ -114,7 +127,7 @@
       <a-modal v-model="isShowBalanceModal" title="调整通道余额" @ok="handleBalanceOkFunc">
         <a-form-model ref="infoFormModel" :model="changeBalanceObject" :label-col="{span: 6}" :wrapper-col="{span: 15}" :rules="changeBalanceRules">
           <a-form-model-item label="支付通道名称：" >
-            <b style="color: #1A79FF">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
+            <b style="color: #007CFD">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
           </a-form-model-item>
           <a-form-model-item label="调整金额：" prop="changeAmount">
             <a-input prefix="￥" type="number" v-model="changeBalanceObject.changeAmount" />
@@ -131,7 +144,7 @@
       <a-modal v-model="isShowWeightsModal" title="调整通道权重" @ok="handleWeightsOkFunc">
         <a-form-model ref="weightsFormModel" :model="selectPayPassage" :label-col="{span: 6}" :wrapper-col="{span: 15}">
           <a-form-model-item label="支付通道名称：" >
-            <b style="color: #1A79FF">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
+            <b style="color: #007CFD">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
           </a-form-model-item>
           <a-form-model-item label="轮询权重：" prop="changeWeights">
             <a-input type="number" v-model="changeWeights" />
@@ -145,7 +158,7 @@
       <a-modal v-model="isShowQuotaModal" title="设置通道授信" @ok="handleQuotaOkFunc">
         <a-form-model ref="quotaFormModel" :model="changeQuotaObject" :label-col="{span: 6}" :wrapper-col="{span: 15}">
           <a-form-model-item label="支付通道名称：" >
-            <b style="color: #1A79FF">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
+            <b style="color: #007CFD">[{{ selectPayPassage.payPassageId }}]</b>&nbsp;<b>{{ selectPayPassage.payPassageName }}</b>
           </a-form-model-item>
           <a-form-model-item label="授信限制状态：">
             <a-radio-group v-model="changeQuotaLimitState">
@@ -254,15 +267,15 @@ import JeepayTableColState from '@/components/JeepayTable/JeepayTableColState.vu
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'payPassageId', fixed: 'left', width: '260px', title: '通道名称/所属产品', scopedSlots: { customRender: 'payPassageId' } },
+  { key: 'payPassageId', fixed: 'left', width: '240px', title: '通道名称/所属产品', scopedSlots: { customRender: 'payPassageId' } },
   { key: 'state', title: '状态', width: 100, scopedSlots: { customRender: 'stateSlot' } },
-  { key: 'balance', title: '通道余额', width: 200, scopedSlots: { customRender: 'balanceSlot' } },
+  { key: 'balance', title: '通道余额', width: 180, scopedSlots: { customRender: 'balanceSlot' } },
   { key: 'weightsSlot', title: '轮询权重', width: 100, scopedSlots: { customRender: 'weightsSlot' } },
   { key: 'quotaLimitState', width: 210, title: '通道授信限制', scopedSlots: { customRender: 'quotaLimitStateSlot' } },
   { key: 'timeLimitState', width: 210, title: '通道定时设置', scopedSlots: { customRender: 'timeLimitStateSlot' } },
-  { key: 'rate', title: '通道费率', width: 100, scopedSlots: { customRender: 'rateSlot' } },
-  { key: 'successRate', width: 110, title: '成功率%(天)', scopedSlots: { customRender: 'successRateSlot' } },
-  // { key: 'updatedAt', dataIndex: 'updatedAt', title: '更新日期' },
+  { key: 'rate', title: '通道费率', scopedSlots: { customRender: 'rateSlot' } },
+  { key: 'successRate', title: '成功率(天)', scopedSlots: { customRender: 'successRateSlot' } },
+  { key: 'configStr', width: 160, title: '三方用户/通道标识', scopedSlots: { customRender: 'configStrSlot' } },
   { key: 'op', title: '操作', width: '280px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
 
@@ -539,6 +552,10 @@ export default {
         that.autoCleanEnable = res.payPassageAutoClean
       })
     },
+    changeStr2ellipsis (orderNo, baseLength) {
+      const halfLengh = parseInt(baseLength / 2)
+      return orderNo.substring(0, halfLengh - 1) + '...' + orderNo.substring(orderNo.length - halfLengh, orderNo.length)
+    },
     onSwitchChange (recordId, state) {
       const that = this
       const title = state === 1 ? '确认[启用]该通道？' : '确认[停用]该通道？'
@@ -566,4 +583,58 @@ export default {
 </script>
 
 <style lang="less" scoped>
+.stat-col{
+  position: relative;
+  //background-color: gray;
+  height: 100px;
+  border-radius: 13px;
+}
+
+.stat-col b{
+  position: absolute;
+  font-size: 30px;
+  top: 10px;
+  left: 20px;
+}
+.stat-content{
+  position: absolute;
+  //font-size: 30px;
+  top: 20px;
+  left: 20px;
+  font-weight: bold;
+}
+
+.stat-col img{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.stat-col .title{
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #717579;
+}
+
+.stat-col .num{
+  position: absolute;
+  border-radius: 13px;
+}
+
+.bg-color-1{
+  background-color: #FFDADA;
+}
+.bg-color-2{
+  background-color: #FFEAD1;
+}
+.bg-color-3{
+  background-color: #DFEFFF;
+}
+.bg-color-4{
+  background-color: #EFE1FF;
+}
+.bg-color-5{
+  background-color: #E4FFEF;
+}
 </style>

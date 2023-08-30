@@ -58,18 +58,6 @@ public class PayOrderController extends CommonCtrl {
     private PayOrderService payOrderService;
 
     @Autowired
-    private MchHistoryService mchHistoryService;
-
-    @Autowired
-    private MchInfoService mchInfoService;
-
-    @Autowired
-    private AgentAccountHistoryService agentAccountHistoryService;
-
-    @Autowired
-    private AgentAccountInfoService agentAccountInfoService;
-
-    @Autowired
     private PayPassageService payPassageService;
 
     @Autowired

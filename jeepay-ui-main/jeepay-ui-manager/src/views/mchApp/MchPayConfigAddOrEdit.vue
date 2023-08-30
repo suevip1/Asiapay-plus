@@ -131,7 +131,7 @@ export default {
             that.$message.success('保存成功')
             that.visible = false
             that.btnLoading = false
-            that.callbackFunc()
+            // that.callbackFunc()
           })
         }
       })

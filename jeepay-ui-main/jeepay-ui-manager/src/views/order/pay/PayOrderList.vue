@@ -16,7 +16,8 @@
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
-            <jeepay-text-up :placeholder="'支付订单号/商户订单号/渠道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+            <jeepay-text-up :placeholder="'支付单号/商户单号/通道单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+            <jeepay-text-up :placeholder="'商户名'" :msg="searchData.mchName" v-model="searchData.mchName" />
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />
             <a-form-model-item label="" class="table-head-layout">
@@ -83,7 +84,6 @@
             <img src="~@/assets/dashboard/icon_shanghushuliang.png">
           </a-col>
         </a-row>
-<!--        <a-divider></a-divider>-->
       </div>
 
       <!-- 列表渲染 -->
@@ -98,8 +98,6 @@
         rowKey="payOrderId"
       >
         <template slot="mchSlot" slot-scope="{record}">
-<!--          <span style="color: #1A79FF">{{ record.mchNo }}</span>-->
-<!--          <p>{{ record.mchName }}</p>-->
           <div class="mch-name">
             <p><span style="color: #007EFF;font-size: 14px">{{ record.mchNo }}</span></p>
             <p style="margin-bottom: 0"><span style="font-size: 16px;text-align: left">{{ record.mchName }}</span></p>

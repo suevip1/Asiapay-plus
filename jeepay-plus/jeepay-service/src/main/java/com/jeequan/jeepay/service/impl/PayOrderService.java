@@ -218,23 +218,23 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     public IPage<PayOrder> listByPage(IPage iPage, PayOrder payOrder, JSONObject paramJSON, LambdaQueryWrapper<PayOrder> wrapper) {
 
         if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
-            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId().trim());
         }
         //商户号
         if (StringUtils.isNotEmpty(payOrder.getMchNo())) {
-            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo());
+            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo().trim());
         }
         //商户名
         if (StringUtils.isNotEmpty(payOrder.getMchName())) {
-            wrapper.like(PayOrder::getMchName, payOrder.getMchName());
+            wrapper.like(PayOrder::getMchName, payOrder.getMchName().trim());
         }
         //商户代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
-            wrapper.eq(PayOrder::getAgentNo, payOrder.getAgentNo());
+            wrapper.eq(PayOrder::getAgentNo, payOrder.getAgentNo().trim());
         }
         //通道代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNoPassage())) {
-            wrapper.eq(PayOrder::getAgentNoPassage, payOrder.getAgentNoPassage());
+            wrapper.eq(PayOrder::getAgentNoPassage, payOrder.getAgentNoPassage().trim());
         }
         //通道ID
         if (payOrder.getPassageId() != null) {
@@ -242,7 +242,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
         //商户订单号
         if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
-            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo().trim());
         }
         if (payOrder.getState() != null) {
             wrapper.eq(PayOrder::getState, payOrder.getState());
@@ -269,9 +269,9 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         // 三合一订单
         if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
             wrapper.and(wr -> {
-                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId"))
-                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId"))
-                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId"));
+                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId").trim())
+                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId").trim())
+                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId").trim());
             });
         }
 

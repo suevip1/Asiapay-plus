@@ -39,8 +39,10 @@
           rowKey="payOrderId"
       >
         <template slot="mchSlot" slot-scope="{record}">
-          <span style="color: #1A79FF">{{ record.mchNo }}</span>
-          <br/> <span>{{ record.mchName }}</span>
+          <div class="mch-name">
+            <p><span style="color: #007EFF;font-size: 14px">{{ record.mchNo }}</span></p>
+            <p style="margin-bottom: 0"><span style="font-size: 16px;text-align: left">{{ record.mchName }}</span></p>
+          </div>
         </template> <!-- 商户信息插槽 -->
         <template slot="amountSlot" slot-scope="{record}"><b>￥{{ record.amount/100 }}</b></template> <!-- 订单金额插槽 -->
         <template slot="beforeStateSlot" slot-scope="{record}">
@@ -60,7 +62,7 @@
           </a-tag>
         </template>
         <template slot="forceChangeStateSlot" slot-scope="{record}">
-          <a-tag :color="record.forceChangeState != undefined && record.forceChangeState === 1?'blue':''">
+          <a-tag :color="record.forceChangeState != undefined && record.forceChangeState === 1?'#007EFF':''">
             {{ record.forceChangeState != undefined && record.forceChangeState === 1?'是':'否'}}
           </a-tag>
         </template>
@@ -80,9 +82,9 @@
         </template> <!-- 商户信息插槽 -->
         <template slot="orderSlot" slot-scope="{record}">
           <div class="order-list">
-            <p><span style="color:#729ED5;background:#e7f5f7">支付单号</span><b>{{ record.payOrderId }}</b></p>
+            <p><span style="color:#007EFF;background:#DFEFFF">支付单号</span><b>{{ record.payOrderId }}</b></p>
             <p style="margin-bottom: 0">
-              <span style="color:#56cf56;background:#d8eadf">商户单号</span>
+              <span style="color:#FA9D2A;background:#FFEDD6">商户单号</span>
               <a-tooltip placement="bottom" style="font-weight: normal;" v-if="record.mchOrderNo.length > record.payOrderId.length">
                 <template slot="title">
                   <span>{{ record.mchOrderNo }}</span>
@@ -446,13 +448,30 @@ export default {
     white-space:nowrap;
     span {
       display: inline-block;
-      font-weight: 800;
+      height: 24px;
+      line-height: 24px;
+      width: 60px;
+      border-radius: 2px;
+      text-align: center;
+      margin-right: 4px;
+    }
+  }
+}
+
+.mch-name {
+  -webkit-text-size-adjust:none;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  p {
+    white-space:nowrap;
+    span {
+      display: inline-block;
+      //font-weight: 800;
       height: 16px;
       line-height: 16px;
       width: 60px;
-      border-radius: 5px;
       text-align: center;
-      margin-right: 2px;
     }
   }
 }

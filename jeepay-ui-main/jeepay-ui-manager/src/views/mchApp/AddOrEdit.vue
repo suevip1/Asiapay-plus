@@ -44,18 +44,18 @@
             <a-input v-model="saveObject.payRules" :placeholder="saveObject.payRules" type="textarea" />
           </a-form-model-item>
         </a-col>
-        <a-col :span="12">
-          <a-form-model-item label="状态" prop="state">
-            <a-radio-group v-model="saveObject.state">
-              <a-radio :value="1">
-                启用
-              </a-radio>
-              <a-radio :value="0">
-                停用
-              </a-radio>
-            </a-radio-group>
-          </a-form-model-item>
-        </a-col>
+<!--        <a-col :span="12">-->
+<!--          <a-form-model-item label="状态" prop="state">-->
+<!--            <a-radio-group v-model="saveObject.state">-->
+<!--              <a-radio :value="1">-->
+<!--                启用-->
+<!--              </a-radio>-->
+<!--              <a-radio :value="0">-->
+<!--                停用-->
+<!--              </a-radio>-->
+<!--            </a-radio-group>-->
+<!--          </a-form-model-item>-->
+<!--        </a-col>-->
         <a-col :span="24">
           <a-form-model-item label="通道费率">
             <a-input prefix="%" v-model="rate" placeholder="请输入" type="number" />
@@ -222,7 +222,7 @@ export default {
             req.updateById(API_URL_MCH_APP, that.saveObject.payPassageId, that.saveObject).then(res => {
               that.$message.success('修改成功')
               that.visible = false
-              that.callbackFunc() // 刷新列表
+              // that.callbackFunc() // 刷新列表
             })
           }
         }
