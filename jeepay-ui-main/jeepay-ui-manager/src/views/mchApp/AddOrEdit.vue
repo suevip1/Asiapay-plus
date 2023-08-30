@@ -10,7 +10,7 @@
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-model-item label="通道名称" prop="payPassageName">
-            <a-input v-model="saveObject.payPassageName" placeholder="请输入" :disabled="!isAdd" />
+            <a-input v-model="saveObject.payPassageName" placeholder="请输入" />
           </a-form-model-item>
         </a-col>
         <a-col :span="24">
@@ -93,7 +93,6 @@ export default {
   props: {
     callbackFunc: { type: Function, default: () => () => ({}) }
   },
-
   data () {
     return {
       isAdd: true, // 新增 or 修改
@@ -222,7 +221,7 @@ export default {
             req.updateById(API_URL_MCH_APP, that.saveObject.payPassageId, that.saveObject).then(res => {
               that.$message.success('修改成功')
               that.visible = false
-              // that.callbackFunc() // 刷新列表
+              that.callbackFunc(true) // 刷新列表
             })
           }
         }

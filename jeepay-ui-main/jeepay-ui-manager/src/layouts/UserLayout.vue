@@ -1,5 +1,4 @@
 <template>
-
   <div id="userLayout" :class="['user-layout-wrapper']">
     <div class="container">
       <div class="user-layout-lang">
@@ -7,17 +6,15 @@
       <div class="user-layout-content">
         <div class="top">
           <div class="header">
-<!--            <img src="~@/assets/logo.svg" class="logo" alt="logo">-->
-            <span class="title">俄罗斯科技</span>
+<!--            <img src="~@/assets/logo-j-old.svg" class="logo" alt="logo">-->
+            <span class="title">{{title}}</span>
           </div>
           <div class="desc">
             <img src="~@/assets/svg/operate.svg" class="logo" alt="logo">
             <span>运营平台</span>
           </div>
         </div>
-
         <router-view />
-
         <div class="footer">
         </div>
       </div>
@@ -29,10 +26,25 @@
 
 export default {
   name: 'UserLayout',
+  data () {
+    return {
+      title: '' // 新增 or 修改
+    }
+  },
   components: {
   },
   mounted () {
+  },
+  created () {
     document.body.classList.add('userLayout')
+    const titleName = localStorage.getItem('platName')
+    if (titleName !== '') {
+      this.title = titleName
+    } else {
+      this.title = '亚洲四方科技'
+    }
+  },
+  methods: {
   },
   beforeDestroy () {
     document.body.classList.remove('userLayout')

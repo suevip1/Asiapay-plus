@@ -30,6 +30,7 @@ import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.core.utils.GoogleAuthUtil;
 import com.jeequan.jeepay.mch.ctrl.CommonCtrl;
 import com.jeequan.jeepay.mch.service.AuthService;
+import com.jeequan.jeepay.service.impl.SysConfigService;
 import com.jeequan.jeepay.service.impl.SysUserAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +59,9 @@ public class AuthController extends CommonCtrl {
 
     @Autowired
     private SysUserAuthService sysUserAuthService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     /**
      * 用户信息认证 获取iToken
@@ -130,5 +134,8 @@ public class AuthController extends CommonCtrl {
 
         return ApiRes.ok(result);
     }
-
+    @RequestMapping(value = "/getTitle", method = RequestMethod.GET)
+    public ApiRes getTitle() throws BizException {
+        return ApiRes.ok(sysConfigService.getDBApplicationConfig().getPlatName());
+    }
 }

@@ -245,8 +245,8 @@
   import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns.vue'
   import JeepayTable from '@/components/JeepayTable/JeepayTable.vue' // 空数据展示的组件，首页自用
   const tableColumns = [
-    { key: 'name', fixed: 'left', width: '300px', title: 'ID/名称', scopedSlots: { customRender: 'nameSlot' } },
-    { key: 'balance', title: '余额(￥)', width: 150, scopedSlots: { customRender: 'balanceSlot' }, fixed: 'left' },
+    { key: 'name', fixed: 'left', width: '350px', title: 'ID/名称', scopedSlots: { customRender: 'nameSlot' } },
+    { key: 'balance', title: '余额(￥)', scopedSlots: { customRender: 'balanceSlot' } },
     { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } }
   ]
   export default {

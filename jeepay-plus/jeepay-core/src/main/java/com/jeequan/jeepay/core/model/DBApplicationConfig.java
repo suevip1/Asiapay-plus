@@ -33,6 +33,11 @@ import java.io.Serializable;
 public class DBApplicationConfig implements Serializable {
 
     /**
+     * 平台名称
+     */
+    private String platName;
+
+    /**
      * 运营系统地址
      */
     private String mgrSiteUrl;

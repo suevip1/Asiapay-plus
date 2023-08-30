@@ -51,12 +51,12 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             }
             boolean isSuccess = update(payPassage, PayPassage.gw().eq(PayPassage::getPayPassageId, payPassage.getPayPassageId()));
             if (!isSuccess) {
-                throw new BizException("修改失败,更新通道失败");
+                throw new BizException("修改失败,更新通道失败,通道名不能重复");
             }
         } catch (Exception e) {
             log.error("数据库异常,更新通道失败");
             log.error(e.getMessage(), e);
-            throw new BizException("修改失败,更新通道失败");
+            throw new BizException("修改失败,更新通道失败,通道名不能重复");
         }
     }
 

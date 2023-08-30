@@ -9,7 +9,7 @@
           <div class="header">
             <a href="/">
 <!--              <img src="~@/assets/logo.svg" class="logo" alt="logo">-->
-              <span class="title">俄罗斯科技</span>
+              <span class="title">{{title}}</span>
             </a>
           </div>
           <div class="desc">
@@ -41,8 +41,19 @@ export default {
   name: 'UserLayout',
   components: {
   },
+  data () {
+    return {
+      title: '' // 新增 or 修改
+    }
+  },
   mounted () {
     document.body.classList.add('userLayout')
+    const titleName = localStorage.getItem('platName')
+    if (titleName !== '') {
+      this.title = titleName
+    } else {
+      this.title = '亚洲四方科技'
+    }
   },
   beforeDestroy () {
     document.body.classList.remove('userLayout')

@@ -10,7 +10,8 @@
 <script>
 import zhCN from 'ant-design-vue/lib/locale-provider/zh_CN'
 import Loading from './components/GlobalLoad/GlobalLoad' // 全局Loading组件
-import { mapState } from 'vuex' // 引入vuex状态管理，mapState管理中存在全局loading
+import { mapState } from 'vuex'
+import { getTitle } from '@/api/login' // 引入vuex状态管理，mapState管理中存在全局loading
 
 export default {
   data () {
@@ -20,6 +21,15 @@ export default {
   },
   components: {
     Loading // 注册全局loading 组件
+  },
+  mounted () {
+    getTitle().then(res => {
+      if (res !== '') {
+        localStorage.setItem('platName', res)
+      } else {
+        localStorage.setItem('platName', res)
+      }
+    })
   },
   computed: {
     // 全局 loading

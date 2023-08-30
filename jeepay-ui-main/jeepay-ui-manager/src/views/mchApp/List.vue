@@ -236,12 +236,12 @@
       </a-modal>
     </template>
     <!-- 新增应用  -->
-    <MchAppAddOrEdit ref="mchAppAddOrEdit" :callbackFunc="searchFunc"/>
+    <MchAppAddOrEdit ref="mchAppAddOrEdit" :callbackFunc="addOrEdit"/>
     <!-- 配置详情页面  -->
     <PayPassageDetail ref="payPassageDetail" />
     <!-- 支付参数配置JSON渲染页面组件  -->
-    <MchPayConfigAddOrEdit ref="mchPayConfigAddOrEdit" :callbackFunc="searchFunc" />
-    <PassageMchBlindEdit ref="passageMchBlindEdit" :callbackFunc="searchFunc" />
+    <MchPayConfigAddOrEdit ref="mchPayConfigAddOrEdit" :callbackFunc="addOrEdit" />
+    <PassageMchBlindEdit ref="passageMchBlindEdit" :callbackFunc="addOrEdit" />
     <PassagePayTest ref="passagePayTest"></PassagePayTest>
   </page-header-wrapper>
 </template>
@@ -344,6 +344,9 @@ export default {
     },
     searchFunc: function () { // 点击【查询】按钮点击事件
       this.$refs.infoTable.refTable(true)
+    },
+    addOrEdit: function () { // 点击【查询】按钮点击事件
+      this.$refs.infoTable.refTable()
     },
     addFunc: function () { // 业务通用【新增】 函数
       this.$refs.mchAppAddOrEdit.show()

@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import { UserLayout } from '@/layouts'
-
 // hack router push callback
 // [解决 vue-router跳转相同路径报错 ]
 const originalPush = Router.prototype.push
@@ -11,7 +10,6 @@ Router.prototype.push = function push (location, onResolve, onReject) {
 }
 
 Vue.use(Router)
-
 // 纯静态路由配置项
 const constantRouterMap = [
   {

@@ -3,7 +3,7 @@
     <template v-slot:links>
     </template>
     <template v-slot:copyright>
-<!--      Copyright <a href="https://t.me/vipdoudou" target="_blank">大白兔四方支付系统</a>© 2023. All rights reserved.-->
+      Copyright <a href="https://t.me/vipdoudou" target="_blank">亚洲四方支付系统</a>© 2023. All rights reserved.
     </template>
   </global-footer>
 </template>

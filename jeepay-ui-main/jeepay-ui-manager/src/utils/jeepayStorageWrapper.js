@@ -29,6 +29,9 @@ const wrapper = {
     if (isSaveStorage) {
       storage.set(appConfig.ACCESS_TOKEN_NAME, tokenVal, 7 * 24 * 60 * 60 * 1000)
     }
+  },
+  setPlatName (name) {
+    localStorage.setItem(appConfig.PLAT_NAME, name)
   }
 }
 export default wrapper

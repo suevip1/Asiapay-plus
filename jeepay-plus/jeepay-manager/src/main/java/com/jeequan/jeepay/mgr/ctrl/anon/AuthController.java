@@ -77,7 +77,7 @@ public class AuthController extends CommonCtrl {
     @Transactional(rollbackFor = Exception.class)
     public ApiRes validate() throws BizException {
         String whiteListStr = sysConfigService.getDBApplicationConfig().getLoginWhiteList();
-        if(StringUtils.isNotEmpty(whiteListStr)){
+        if (StringUtils.isNotEmpty(whiteListStr)) {
             if (!StringKit.checkInWhiteList(getIp(), whiteListStr)) {
                 throw new BizException("登录IP限制，不在白名单内！");
             }
@@ -146,5 +146,10 @@ public class AuthController extends CommonCtrl {
         result.put("expireTime", CS.VERCODE_CACHE_TIME);
 
         return ApiRes.ok(result);
+    }
+
+    @RequestMapping(value = "/getTitle", method = RequestMethod.GET)
+    public ApiRes getTitle() throws BizException {
+        return ApiRes.ok(sysConfigService.getDBApplicationConfig().getPlatName());
     }
 }

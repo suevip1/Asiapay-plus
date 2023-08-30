@@ -21,7 +21,9 @@ export function login ({ username, password, vercode, vercodeToken, googleCode }
 export function vercode () {
   return request.request({ url: '/api/anon/auth/vercode', method: 'get' }, true, true, true)
 }
-
+export function getTitle () {
+  return request.request({ url: '/api/anon/auth/getTitle', method: 'get' }, true, true, true)
+}
 // 获取当前用户信息
 export function getInfo () {
   return request.request({
