@@ -67,7 +67,7 @@
         </template> <!-- 自定义插槽 -->
         <template slot="balanceSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeBalance(record)" >调额</a-button>
-          &nbsp;<b :style="{'color': record.balance >0 ? '#85C52F' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+          &nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#DB4B4B'}" >{{ (record.balance/100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="weightsSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeWeights(record)" >设置</a-button>
@@ -86,7 +86,7 @@
         <template slot="quotaLimitStateSlot" slot-scope="{record}">
            <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeQuota(record)" >设置</a-button>
           &nbsp;<a-badge :status="record.quotaLimitState === 0?'error':'processing'" :text="record.quotaLimitState === 0?'禁用':'启用'" />
-          &nbsp;<b :style="{'color': record.quota >0 ? '#85C52F' : '#EC6B6A' ,'text-decoration': record.quotaLimitState === 0?'line-through':''}" >{{ (record.quota / 100).toFixed(2) }}</b>
+          &nbsp;<b :style="{'color': record.quota >0 ? '#4BD884' : '#DB4B4B' ,'text-decoration': record.quotaLimitState === 0?'line-through':''}" >{{ (record.quota / 100).toFixed(2) }}</b>
         </template>
         <template slot="timeLimitStateSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeTimeLimit(record)" >设置</a-button>

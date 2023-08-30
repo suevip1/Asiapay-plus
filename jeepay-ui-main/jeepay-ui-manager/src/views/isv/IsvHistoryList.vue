@@ -59,7 +59,7 @@
           <b>{{ (record.beforeBalance/100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="amountSlot" slot-scope="{record}">
-          <b :style="{'color': record.amount >0 ? '#85C52F' : '#EC6B6A'}" >{{ record.amount >0 ? '+'+(record.amount/100).toFixed(2) : (record.amount/100).toFixed(2) }}</b>
+          <b :style="{'color': record.amount >0 ? '#4BD884' : '#DB4B4B'}" >{{ record.amount >0 ? '+'+(record.amount/100).toFixed(2) : (record.amount/100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="afterSlot" slot-scope="{record}">
           <b>{{ (record.afterBalance/100).toFixed(2) }}</b>

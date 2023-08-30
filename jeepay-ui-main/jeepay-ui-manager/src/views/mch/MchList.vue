@@ -58,7 +58,7 @@
       <!--    全局金额颜色参考此处    -->
         <template slot="balanceSlot" slot-scope="{record}">
           <a-button size="small" icon="edit" v-if="$access('ENT_MCH_INFO_EDIT')" type="primary" @click="clickChangeBalance(record)" >调额</a-button>
-          &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#85C52F' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+          &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#DB4B4B'}" >{{ (record.balance/100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="agentInfoSlot" slot-scope="{record}"><a-tag v-if="record.agentNo!=''" color="blue">{{record.agentNo}}</a-tag>{{ record.agentName}}</template>
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->

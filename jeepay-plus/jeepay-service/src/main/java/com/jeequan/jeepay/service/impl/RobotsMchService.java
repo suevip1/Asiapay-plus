@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,6 +80,7 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
 
     /**
      * 解绑单个商户
+     *
      * @param chatId
      * @param mchNo
      * @return
@@ -110,6 +112,14 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
     }
 
     public void updateBlindMch(Long chatId, String mchNo) {
+        //查找其他群有没有绑定
+        List<RobotsMch> robotsMchOldList = list(RobotsMch.gw().like(RobotsMch::getMchNo, mchNo));
+        if (robotsMchOldList.size() > 0) {
+            for (int i = 0; i < robotsMchOldList.size(); i++) {
+                unBlindMch(robotsMchOldList.get(i).getChatId(), mchNo);
+            }
+        }
+
         //添加商户
         RobotsMch robotsMch = getById(chatId);
         if (robotsMch != null) {

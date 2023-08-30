@@ -50,7 +50,7 @@
           rowKey="statisticsPassageId"
       >
         <template slot="passageCostSlot" slot-scope="{record}">
-          <b style="color: #85C52F">{{ ((record.totalPassageCost)/ 100).toFixed(2) }}</b>
+          <b style="color: #4BD884">{{ ((record.totalPassageCost)/ 100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="dateSlot" slot-scope="{record}">
           <b>{{ record.createdAt.substring(0, 10)}}</b>

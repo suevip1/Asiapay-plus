@@ -130,7 +130,7 @@
                   </template>
                   <!--    全局金额颜色参考此处    -->
                   <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;<b :style="{'color': record.balance >0 ? '#85C52F' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+                    &nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#DB4B4B'}" >{{ (record.balance/100).toFixed(2) }}</b>
                   </template> <!-- 自定义插槽 -->
                   <template slot="feeSlot" slot-scope="{record}">
                     <b>{{ (record.ext.stat.totalAgentIncome/100).toFixed(2) }}</b>
@@ -174,7 +174,7 @@
                   </template>
                   <!--    全局金额颜色参考此处    -->
                   <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;&nbsp;<b style="color:#85C52F" >{{ record.ext.stat.totalSuccessAmount === undefined ?(0).toFixed(2):(record.ext.stat.totalSuccessAmount/100).toFixed(2) }}</b>
+                    &nbsp;&nbsp;<b style="color:#4BD884" >{{ record.ext.stat.totalSuccessAmount === undefined ?(0).toFixed(2):(record.ext.stat.totalSuccessAmount/100).toFixed(2) }}</b>
                   </template> <!-- 自定义插槽 -->
                   <template slot="feeSlot" slot-scope="{record}">
                     <b>{{ (record.ext.stat.totalAgentIncome/100).toFixed(2) }}</b>

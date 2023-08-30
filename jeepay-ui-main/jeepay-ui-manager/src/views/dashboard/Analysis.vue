@@ -108,6 +108,7 @@
                 <a-card :bordered="false" style="border-radius: 13px;">
                   <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#2F61DC' }" :value="(mainChart.todaySuccessRate*100).toFixed(2)+ '%'" />
                 </a-card>
+                <img src="~@/assets/dashboard/icon_jinrichengg.png" class="right-top-icon">
                 <div class="four-small-title">
                   <span>今日成功率</span>
                 </div>
@@ -120,6 +121,7 @@
                 <a-card :bordered="false" style="border-radius: 13px;">
                   <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#30CC99' }" :value="mainChart.mchNum" />
                 </a-card>
+                <img src="~@/assets/dashboard/icon_shanghushuliang.png" class="right-top-icon">
                 <div class="four-small-title">
                   <span>商户数量</span>
                 </div>
@@ -134,6 +136,7 @@
                 <a-card :bordered="false" style="border-radius: 13px;">
                   <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#DB4B4B' }" :value="(mainChart.yesterdaySuccessRate*100).toFixed(2)+ '%'" />
                 </a-card>
+                <img src="~@/assets/dashboard/icon_zuorichengg.png" class="right-top-icon">
                 <div class="four-small-title">
                   <span>昨日成功率</span>
                 </div>
@@ -146,6 +149,7 @@
                 <a-card :bordered="false" style="border-radius: 13px;">
                   <a-statistic style="margin-top: 10px;font-weight: bold;padding-left:20px;" :value-style="{ color: '#864FE1' }" :value="mainChart.agentNum" />
                 </a-card>
+                <img src="~@/assets/dashboard/icon_dailishuliang.png" class="right-top-icon">
                 <div class="four-small-title">
                   <span>代理数量</span>
                 </div>
@@ -196,7 +200,7 @@
                   </template>
                   <!--    全局金额颜色参考此处    -->
                   <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#EC6B6A'}" >{{ (record.balance/100).toFixed(2) }}</b>
+                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#DB4B4B'}" >{{ (record.balance/100).toFixed(2) }}</b>
                   </template> <!-- 自定义插槽 -->
                 </JeepayTable>
               </div>
@@ -715,6 +719,7 @@
     background-repeat: no-repeat;
   }
   .four-small{
+    position:relative;
     min-height: 75px;
     min-width: 146px;
     background-color: white;
@@ -736,5 +741,10 @@
     color: #333333;
     font-size: 14px;
     font-weight: 400;
+  }
+  .right-top-icon{
+    position: absolute;
+    top:20px;
+    right: 20px;
   }
 </style>

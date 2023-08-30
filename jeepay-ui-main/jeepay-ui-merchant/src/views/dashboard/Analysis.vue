@@ -145,7 +145,7 @@
                   </template>
                   <!--    全局金额颜色参考此处    -->
                   <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;&nbsp;<b style="color:#85C52F" >{{ (record.totalSuccessAmount/100).toFixed(2) }}</b>
+                    &nbsp;&nbsp;<b style="color:#4BD884" >{{ (record.totalSuccessAmount/100).toFixed(2) }}</b>
                   </template> <!-- 自定义插槽 -->
                   <template slot="feeSlot" slot-scope="{record}">
                     <span>{{ (record.totalCost/100).toFixed(2) }}</span>
@@ -190,7 +190,7 @@
                   <a-col :sm="24">
                     <a-descriptions>
                       <a-descriptions-item label="商户密钥">
-<!--                        <span style="color:#85C52F" >{{ (detailData.mchInfo.secret) }}</span>-->
+<!--                        <span style="color:#4BD884" >{{ (detailData.mchInfo.secret) }}</span>-->
                         <a-button icon="eye" size="small" @click="handleView" type="primary" style="margin-left:10px;" >点击查看</a-button>
                       </a-descriptions-item>
                     </a-descriptions>
@@ -198,7 +198,7 @@
                   <a-col :sm="12">
                     <a-descriptions>
                       <a-descriptions-item label="当前余额">
-                        <b style="color:#85C52F" >{{ (detailData.mchInfo.balance/100).toFixed(2) }}</b>
+                        <b style="color:#4BD884" >{{ (detailData.mchInfo.balance/100).toFixed(2) }}</b>
                       </a-descriptions-item>
                     </a-descriptions>
                   </a-col>

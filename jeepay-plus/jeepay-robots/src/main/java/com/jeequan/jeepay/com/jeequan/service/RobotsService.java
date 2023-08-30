@@ -351,6 +351,9 @@ public class RobotsService extends TelegramLongPollingBot {
             return;
         }
 
+        if (!message.hasText()) {
+            return;
+        }
         //==================================匹配文字命令==========================================================
         String text = message.getText().trim();
         //绑定管理群

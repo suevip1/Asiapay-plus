@@ -58,7 +58,7 @@
           <b>{{ (record.beforeBalance / 100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="amountSlot" slot-scope="{record}">
-          <b :style="{'color': record.amount >0 ? '#85C52F' : '#EC6B6A'}">{{
+          <b :style="{'color': record.amount >0 ? '#4BD884' : '#DB4B4B'}">{{
               record.amount > 0 ? '+' + (record.amount / 100).toFixed(2) : (record.amount / 100).toFixed(2)
             }}</b>
         </template> <!-- after插槽 -->
@@ -161,8 +161,8 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="资金变更方向">
-                <a-tag color="#85C52F" v-if="detailData.fundDirection === 1">加款</a-tag>
-                <a-tag color="#EC6B6A" v-else-if="detailData.fundDirection === 2">减款</a-tag>
+                <a-tag color="#4BD884" v-if="detailData.fundDirection === 1">加款</a-tag>
+                <a-tag color="#DB4B4B" v-else-if="detailData.fundDirection === 2">减款</a-tag>
               </a-descriptions-item>
             </a-descriptions>
           </a-col>
@@ -192,7 +192,7 @@
             <a-descriptions>
               <a-descriptions-item label="变更金额">
                 <template>
-                  <b :style="{'color': detailData.amount >0 ? '#85C52F' : '#EC6B6A'}">{{
+                  <b :style="{'color': detailData.amount >0 ? '#4BD884' : '#DB4B4B'}">{{
                       detailData.amount > 0 ? '+' + (detailData.amount / 100).toFixed(2) : (detailData.amount / 100).toFixed(2)
                     }}</b>
                 </template>

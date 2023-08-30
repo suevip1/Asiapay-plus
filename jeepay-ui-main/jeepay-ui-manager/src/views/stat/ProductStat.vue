@@ -52,7 +52,7 @@
           <b style="color: #1A79FF">[{{ record.productId }}]</b>&nbsp;<span>{{record.productName}}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="amountSlot" slot-scope="{record}">
-          <b style="color: #85C52F">{{(record.totalSuccessAmount / 100).toFixed(2)}}</b>
+          <b style="color: #4BD884">{{(record.totalSuccessAmount / 100).toFixed(2)}}</b>
         </template> <!-- after插槽 -->
         <template slot="successRateSlot" slot-scope="{record}">
           <b>{{ (record.orderSuccessCount / record.totalOrderCount *100).toFixed(2) }}%</b>

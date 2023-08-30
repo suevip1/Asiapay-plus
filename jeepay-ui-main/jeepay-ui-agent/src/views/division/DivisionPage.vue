@@ -94,7 +94,7 @@
           <b style="color: #1b8fcd">{{(record.amount / 100).toFixed(2)}}</b>
         </template>
         <template slot="divisionAmountCount" slot-scope="{record}">
-          <b style="color: #85C52F">{{(record.divisionAmount / 100).toFixed(2)}}</b>
+          <b style="color: #4BD884">{{(record.divisionAmount / 100).toFixed(2)}}</b>
         </template>
         <template slot="feeSlot" slot-scope="{record}">
           <span >{{(record.divisionFeeRate / 100).toFixed(2)}}</span>

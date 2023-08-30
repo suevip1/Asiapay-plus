@@ -47,7 +47,7 @@
           <b>{{ ((record.totalSuccessAmount - record.totalCost)/ 100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="mchCostSlot" slot-scope="{record}">
-          <b style="color: #85C52F">{{ ((record.totalCost)/ 100).toFixed(2) }}</b>
+          <b style="color: #4BD884">{{ ((record.totalCost)/ 100).toFixed(2) }}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="dateSlot" slot-scope="{record}">
           <b>{{ record.createdAt.substring(0, 10)}}</b>
