@@ -16,7 +16,9 @@ import java.util.regex.Pattern;
 public class TestClass {
 
     public static void main(String[] args) {
-        Map<String,Object> parameters = new LinkedHashMap<String,Object>();
+        Pattern regex = Pattern.compile("[Zz]{2}\\s.*");
+        Matcher matcher = regex.matcher("ZZ测试加急");
+        log.info(matcher.matches() + "");
 
     }
 

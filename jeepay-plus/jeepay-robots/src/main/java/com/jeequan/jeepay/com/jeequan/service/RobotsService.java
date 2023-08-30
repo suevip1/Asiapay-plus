@@ -16,7 +16,6 @@ import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -38,9 +37,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
-import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
-import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButton;
-import org.telegram.telegrambots.meta.api.objects.menubutton.MenuButtonCommands;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -60,6 +56,11 @@ public class RobotsService extends TelegramLongPollingBot {
 
     private static final String LOG_TAG = "ROBOTS_ERROR";
     private static final String REDIS_SOURCE_SUFFIX = "REDIS_SOURCE_";
+
+    /**
+     * 商户群的消息
+     */
+    private static final String REDIS_MCH_SOURCE_SUFFIX = "REDIS_MCH_SOURCE_";
     private static final String GROUP_ID = "\\b频道(?:id|ID)\\b";
 
     /**
@@ -86,6 +87,8 @@ public class RobotsService extends TelegramLongPollingBot {
     private static final String YESTERDAY_BILL = "昨日跑量";
 
     private static final String QUERY_BALANCE = "查询余额";
+
+    private static final String FORWARD_QUERY = "[Zz]{2}\\s.*";
 
 
     /**
@@ -175,7 +178,6 @@ public class RobotsService extends TelegramLongPollingBot {
      * @param update
      */
     private void handlePrivateCommand(Update update) {
-
     }
 
     /**
@@ -204,6 +206,7 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("<b>商户功能</b>:（需先绑定商户才能使用）" + System.lineSeparator());
             stringBuffer.append("查询余额 -- 查询商户或通道的余额" + System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
+            stringBuffer.append("zz xxx-- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日完整跑量统计" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
@@ -255,9 +258,22 @@ public class RobotsService extends TelegramLongPollingBot {
 
         if (messageReply != null) {
             //检测是否查单转发信息
+            //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
-            if (messageSource != null) {
+            if (messageSource != null && !messageReply.getFrom().getIsBot()) {
                 sendQueryMessage(message, messageSource);
+            }
+            //检测是否催单信息  FORWARD_QUERY
+            //REDIS_MCH_SOURCE_SUFFIX 存储的是 商户群suffix+id 通道群message
+            Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
+            //&& messageReply.hasText() && !messageReply.getFrom().getIsBot()
+            if (messageForwardSource != null && message.hasText()) {
+                Pattern regex = Pattern.compile(FORWARD_QUERY);
+                Matcher matcher = regex.matcher(message.getText());
+                if (matcher.matches()) {
+                    String forwardText = message.getText().substring(3);
+                    sendReplyMessage(messageForwardSource.getChatId(), messageForwardSource.getMessageId(), forwardText);
+                }
             }
         }
         if (message.hasPhoto() || message.hasVideo()) {
@@ -314,6 +330,7 @@ public class RobotsService extends TelegramLongPollingBot {
                             Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, stringBuffer.toString());
                             if (messageTemp != null) {
                                 //保持2小时缓存
+                                RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
                                 RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
                                 sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
                             } else {
@@ -363,11 +380,11 @@ public class RobotsService extends TelegramLongPollingBot {
                 //不是商户群就覆盖  chatId下有商户号
                 RobotsMch robotsMch = robotsMchService.getMch(chatId);
                 if (checkIsMchChat(robotsMch)) {
-                    sendSingleMessage(chatId, "当前群已绑定为商户群,不可绑定为四方群!");
+                    sendSingleMessage(chatId, "当前群已绑定为商户群,不可绑定为四方管理群!");
                     return;
                 }
                 if (checkIsPassageChat(chatId)) {
-                    sendSingleMessage(chatId, "当前群已绑定为通道群,不可绑定为四方群!");
+                    sendSingleMessage(chatId, "当前群已绑定为通道群,不可绑定为四方管理群!");
                     return;
                 }
                 robotsMchService.updateManageMch(chatId);
@@ -451,6 +468,11 @@ public class RobotsService extends TelegramLongPollingBot {
         if (text.trim().equals(BLIND_DEL_MCH)) {
 //          是否admin
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
+                if (robotsMchAdmin != null && robotsMchAdmin.getChatId().longValue() == chatId.longValue()) {
+                    sendSingleMessage(chatId, "当前群已绑定为四方管理群，不可重复绑定商户");
+                    return;
+                }
                 //是否已绑定商户
                 if (robotsMchService.unBlindAllMch(chatId)) {
                     sendSingleMessage(chatId, "全部商户解绑成功!");
@@ -1297,7 +1319,7 @@ public class RobotsService extends TelegramLongPollingBot {
      * @return
      */
     private boolean checkIsMchChat(RobotsMch robotsMch) {
-        return robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo()) && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
+        return robotsMch != null  && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
     }
 
     /**

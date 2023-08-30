@@ -35,19 +35,16 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
     }
 
     public void updateManageMch(Long chatId) {
+        //原来的群置空
         RobotsMch robotsAdmin = getManageMch();
-        if (robotsAdmin == null) {
-            robotsAdmin = new RobotsMch();
-            robotsAdmin.setMchNo(CS.ROBOTS_MGR_MCH);
-            robotsAdmin.setChatId(chatId);
-            save(robotsAdmin);
-        } else {
-            removeById(robotsAdmin);
-            robotsAdmin = new RobotsMch();
-            robotsAdmin.setMchNo(CS.ROBOTS_MGR_MCH);
-            robotsAdmin.setChatId(chatId);
-            save(robotsAdmin);
+        if (robotsAdmin != null) {
+            robotsAdmin.setMchNo("");
+            updateById(robotsAdmin);
         }
+        RobotsMch robots = new RobotsMch();
+        robots.setMchNo(CS.ROBOTS_MGR_MCH);
+        robots.setChatId(chatId);
+        saveOrUpdate(robots);
     }
 
 
@@ -58,8 +55,8 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
      * @return
      */
     public RobotsMch getMch(Long chatId) {
-        RobotsMch robotsMch = getOne(RobotsMch.gw().eq(RobotsMch::getChatId, chatId).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
-        if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
+        RobotsMch robotsMch = getById(chatId);
+        if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo()) && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH)) {
             return robotsMch;
         }
         return null;
@@ -72,6 +69,10 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
      * @return
      */
     public boolean unBlindAllMch(Long chatId) {
+        RobotsMch robotsAdmin = getMch(chatId);
+        if (robotsAdmin != null && robotsAdmin.getMchNo().equals(CS.ROBOTS_MGR_MCH)) {
+            return false;
+        }
         RobotsMch robotsMch = new RobotsMch();
         robotsMch.setChatId(chatId);
         robotsMch.setMchNo("");
