@@ -55,24 +55,35 @@
         </a-form>
       </div>
       <!-- 统计部分 -->
-      <div v-if="realTimeStatOpen" style="background-color: #fafafa;padding-left: 20px;padding-top: 10px;padding-bottom: 10px;">
-        <a-row>
-          <a-col :span="3">
-            <span>成交金额:</span>&nbsp;<a-tag color="#1a53ff">{{ (realTimeStatData.successAmount/100).toFixed(2) }}</a-tag>
+      <div v-if="realTimeStatOpen" style="background-color: #fafafa;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid rgba(179,179,179,0.4)">
+        <a-row style="padding-left: 15px;padding-right: 15px;">
+          <a-col class="stat-col bg-color-1" :span="4">
+            <span class="title">成交金额</span>
+            <b style="color: #DB4B4B;">{{ (realTimeStatData.successAmount/100).toFixed(2) }}</b>
+            <img src="~@/assets/dashboard/icon_zuorichengg.png">
           </a-col>
-          <a-col :span="3">
-            <span>成交订单数:</span>&nbsp;<a-tag color="blue">{{ realTimeStatData.successCount }}</a-tag>
+          <a-col class="stat-col bg-color-2" :span="4" :offset="1">
+            <span class="title">成交订单数</span>
+            <b style="color: #FA9D2A;">{{ realTimeStatData.successCount }}</b>
+            <img src="~@/assets/dashboard/orange-icon.png">
           </a-col>
-          <a-col :span="3">
-            <span>总订单金额:</span>&nbsp;<a-tag color="blue">{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</a-tag>
+          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
+            <span class="title">总订单金额</span>
+            <b style="color: #2F61DC;">{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</b>
+            <img src="~@/assets/dashboard/icon_jinrichengg.png">
           </a-col>
-          <a-col :span="3">
-            <span>总订单数:</span>&nbsp;<a-tag color="blue">{{ realTimeStatData.totalCount }}</a-tag>
+          <a-col class="stat-col bg-color-4" :span="4" :offset="1">
+            <span class="title">总订单数</span>
+            <b style="color: #864FE1;">{{ realTimeStatData.totalCount }}</b>
+            <img src="~@/assets/dashboard/icon_dailishuliang.png">
           </a-col>
-          <a-col :span="3">
-            <span>成功率:</span>&nbsp;<a-tag color="#1a53ff">{{ (realTimeStatData.successCount===0?0:(realTimeStatData.successCount / realTimeStatData.totalCount * 100)).toFixed(2) }}%</a-tag>
+          <a-col class="stat-col bg-color-5" :span="4" :offset="1">
+            <span class="title">成功率</span>
+            <b style="color: #4BD884;">{{ (realTimeStatData.successCount===0?0:(realTimeStatData.successCount / realTimeStatData.totalCount * 100)).toFixed(2) }}%</b>
+            <img src="~@/assets/dashboard/icon_shanghushuliang.png">
           </a-col>
         </a-row>
+<!--        <a-divider></a-divider>-->
       </div>
 
       <!-- 列表渲染 -->
@@ -89,8 +100,8 @@
         <template slot="mchSlot" slot-scope="{record}">
 <!--          <span style="color: #1A79FF">{{ record.mchNo }}</span>-->
 <!--          <p>{{ record.mchName }}</p>-->
-          <div class="order-list">
-            <p><span style="color: #1A79FF;font-size: 14px">{{ record.mchNo }}</span></p>
+          <div class="mch-name">
+            <p><span style="color: #007EFF;font-size: 14px">{{ record.mchNo }}</span></p>
             <p style="margin-bottom: 0"><span style="font-size: 16px;text-align: left">{{ record.mchName }}</span></p>
           </div>
         </template> <!-- 商户信息插槽 -->
@@ -98,13 +109,13 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
             :key="record.state"
-            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'green':record.state === 6?'':'volcano'"
+            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
           >
             {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
           </a-tag>
         </template>
         <template slot="forceChangeStateSlot" slot-scope="{record}">
-          <a-tag :color="record.forceChangeState != undefined && record.forceChangeState === 1?'blue':''">
+          <a-tag :color="record.forceChangeState != undefined && record.forceChangeState === 1?'#007EFF':''">
             {{ record.forceChangeState != undefined && record.forceChangeState === 1?'是':'否'}}
           </a-tag>
         </template>
@@ -112,16 +123,16 @@
           <a-badge :status="record.notifyState === 1?'processing':'error'" :text="record.notifyState === 1?'已发送':'未发送'" />
         </template>
         <template slot="productSlot" slot-scope="{record}">
-          <span style="color: #1A79FF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
+          <span style="color: #007EFF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
         </template>
         <template slot="passageSlot" slot-scope="{record}">
-          <span style="color: #1A79FF;">[{{ record.passageId }}]</span><span>{{ record.passageName }}</span>
+          <span style="color: #007EFF;">[{{ record.passageId }}]</span><span>{{ record.passageName }}</span>
         </template> <!-- 商户信息插槽 -->
         <template slot="orderSlot" slot-scope="{record}">
           <div class="order-list">
-            <p><span style="color:#729ED5;background:#e7f5f7">支付单号</span><b>{{ record.payOrderId }}</b></p>
+            <p><span style="color:#007EFF;background:#DFEFFF">支付单号</span><b>{{ record.payOrderId }}</b></p>
             <p style="margin-bottom: 0">
-              <span style="color:#56cf56;background:#d8eadf">商户单号</span>
+              <span style="color:#FA9D2A;background:#FFEDD6">商户单号</span>
               <a-tooltip placement="bottom" style="font-weight: normal;" v-if="record.mchOrderNo.length > record.payOrderId.length">
                 <template slot="title">
                   <span>{{ record.mchOrderNo }}</span>
@@ -199,7 +210,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'green':detailData.state === 6?'':'volcano'">
+                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
                   {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':detailData.state === 7?'出码失败':'未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -208,7 +219,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="回调状态">
-                <a-tag :color="detailData.notifyState === 1?'green':'volcano'">
+                <a-tag :color="detailData.notifyState === 1?'#4BD884':'#F03B44'">
                   {{ detailData.notifyState === 0?'未发送':detailData.notifyState === 1?'已发送':'未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -372,15 +383,15 @@ import moment from 'moment'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchNo', title: '商户', ellipsis: true, width: 200, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
+  { key: 'mchNo', title: '商户号/商户', ellipsis: true, width: 200, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
 // { key: 'mchFeeAmount', dataIndex: 'mchFeeAmount', title: '手续费', customRender: (text) => '￥' + (text / 100).toFixed(2), width: 100 },
   { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, fixed: 'left', width: 300 },
-  { key: 'wayName', title: '产品(快照)', width: 180, scopedSlots: { customRender: 'productSlot' } },
+  { key: 'wayName', title: '产品(快照)', scopedSlots: { customRender: 'productSlot' } },
   { key: 'amount', title: '支付金额', ellipsis: true, width: 100, scopedSlots: { customRender: 'amountSlot' } },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
-  { key: 'createdAt', dataIndex: 'createdAt', width: 180, title: '创建日期' },
+  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期' },
   { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' } },
   { key: 'op', title: '操作', width: 250, fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
@@ -523,14 +534,78 @@ export default {
     white-space:nowrap;
     span {
       display: inline-block;
-      font-weight: 800;
+      height: 24px;
+      line-height: 24px;
+      width: 60px;
+      border-radius: 2px;
+      text-align: center;
+      margin-right: 4px;
+    }
+  }
+}
+
+.mch-name {
+  -webkit-text-size-adjust:none;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  p {
+    white-space:nowrap;
+    span {
+      display: inline-block;
+      //font-weight: 800;
       height: 16px;
       line-height: 16px;
       width: 60px;
-      border-radius: 5px;
       text-align: center;
-      margin-right: 2px;
     }
   }
+}
+.stat-col{
+  position: relative;
+  //background-color: gray;
+  height: 100px;
+  border-radius: 13px;
+}
+
+.stat-col b{
+  position: absolute;
+  font-size: 30px;
+  top: 10px;
+  left: 20px;
+}
+
+.stat-col img{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.stat-col .title{
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #717579;
+}
+
+.stat-col .num{
+  position: absolute;
+  border-radius: 13px;
+}
+
+.bg-color-1{
+  background-color: #FFDADA;
+}
+.bg-color-2{
+  background-color: #FFEAD1;
+}
+.bg-color-3{
+  background-color: #DFEFFF;
+}
+.bg-color-4{
+  background-color: #EFE1FF;
+}
+.bg-color-5{
+  background-color: #E4FFEF;
 }
 </style>

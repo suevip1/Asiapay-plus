@@ -50,7 +50,7 @@
 
         <!-- 渠道类型 -->
         <template slot="ifCodeSlot" slot-scope="{record}">
-          <template v-if="record.ifCode === 'wxpay'" ><span style="color: green"><a-icon type="wechat" /> 微信</span></template>
+          <template v-if="record.ifCode === 'wxpay'" ><span style="color: #4BD884"><a-icon type="wechat" /> 微信</span></template>
           <template v-else-if="record.ifCode == 'alipay'" ><span style="color: dodgerblue"><a-icon type="alipay-circle" /> 支付宝</span></template>
           <template v-else >{{record.ifCode}}</template>
         </template>

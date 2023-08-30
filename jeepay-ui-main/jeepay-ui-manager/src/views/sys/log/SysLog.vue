@@ -45,7 +45,7 @@
       >
         <template slot="userNameSlot" slot-scope="{record}"><b>{{ record.loginUsername }}</b></template> <!-- 自定义插槽 -->
         <template slot="sysTypeSlot" slot-scope="{record}">
-          <a-tag :key="record.sysType" :color="record.sysType === 'MGR'?'green':record.sysType === 'MCH'?'geekblue':record.sysType === 'AGENT'?'orange':'loser'">
+          <a-tag :key="record.sysType" :color="record.sysType === 'MGR'?'#4BD884':record.sysType === 'MCH'?'geekblue':record.sysType === 'AGENT'?'orange':'loser'">
             {{ record.sysType === 'MGR'?'运营平台':record.sysType === 'MCH'?'商户系统':record.sysType === 'AGENT'?'代理系统':'其他' }}
           </a-tag>
         </template>
@@ -84,7 +84,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="所属系统">
-                <a-tag :key="detailData.sysType" :color="detailData.sysType === 'MGR'?'green':detailData.sysType === 'MCH'?'geekblue':detailData.sysType === 'AGENT'?'orange':'loser'">
+                <a-tag :key="detailData.sysType" :color="detailData.sysType === 'MGR'?'#4BD884':detailData.sysType === 'MCH'?'geekblue':detailData.sysType === 'AGENT'?'orange':'loser'">
                   {{ detailData.sysType === 'MGR'?'运营平台':detailData.sysType === 'MCH'?'商户系统':detailData.sysType === 'AGENT'?'代理系统':'其他' }}
                 </a-tag>
               </a-descriptions-item>

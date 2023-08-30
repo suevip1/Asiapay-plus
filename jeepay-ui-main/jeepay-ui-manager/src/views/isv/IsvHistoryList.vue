@@ -72,7 +72,7 @@
           <a-tag color="red" v-else-if="record.bizType === 4">
             提现驳回
           </a-tag>
-          <a-tag color="volcano" v-else-if="record.bizType === 6">
+          <a-tag color="#F03B44" v-else-if="record.bizType === 6">
             测试冲正
           </a-tag>
           <span v-else>未知</span>

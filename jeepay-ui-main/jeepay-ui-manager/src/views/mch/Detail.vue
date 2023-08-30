@@ -40,7 +40,7 @@
       <a-col :sm="12">
         <a-descriptions>
           <a-descriptions-item label="状态">
-            <a-tag :color="detailData.state === 1?'green':'volcano'">
+            <a-tag :color="detailData.state === 1?'#4BD884':'#F03B44'">
               {{ detailData.state === 0?'禁用':detailData.state === 1?'启用':'未知' }}
             </a-tag>
           </a-descriptions-item>

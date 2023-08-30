@@ -21,7 +21,7 @@
         <a-col :sm="24">
           <a-descriptions>
             <a-descriptions-item label="支付金额">
-              <a-tag color="green">
+              <a-tag color="#4BD884">
                 {{ detailData.amount/100 }}
               </a-tag>
             </a-descriptions-item>

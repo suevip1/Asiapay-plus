@@ -53,7 +53,7 @@
 
           <a-tag v-if="record.state === 0" :key="record.state" color="orange">分账中</a-tag>
           <a-tag v-if="record.state === 1" :key="record.state" color="blue">分账成功</a-tag>
-          <a-tag v-if="record.state === 2" :key="record.state" color="volcano">分账失败</a-tag>
+          <a-tag v-if="record.state === 2" :key="record.state" color="#F03B44">分账失败</a-tag>
           <a-tag v-if="record.state === 3" :key="record.state" color="purple">已受理</a-tag>
 
         </template>

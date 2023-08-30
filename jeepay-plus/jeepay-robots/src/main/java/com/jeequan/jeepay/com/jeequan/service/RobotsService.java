@@ -260,7 +260,7 @@ public class RobotsService extends TelegramLongPollingBot {
             //检测是否查单转发信息
             //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
-            if (messageSource != null && !messageReply.getFrom().getIsBot()) {
+            if (messageSource != null && !message.getFrom().getIsBot()) {
                 sendQueryMessage(message, messageSource);
             }
             //检测是否催单信息  FORWARD_QUERY

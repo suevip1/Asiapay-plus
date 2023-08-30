@@ -77,14 +77,14 @@
         <template slot="bizTypeSlot" slot-scope="{record}">
           <span v-if="record.bizType === 0"> - </span><!-- 业务类型,1-分润,2-提现,3-调账 orange -->
           <a-tag color="blue" v-else-if="record.bizType === 1">分润</a-tag>
-          <a-tag color="green" v-else-if="record.bizType === 2">提现</a-tag>
+          <a-tag color="#4BD884" v-else-if="record.bizType === 2">提现</a-tag>
           <a-tag color="orange" v-else-if="record.bizType === 3">
             调账(ID:{{ record.createdUid }}--{{ record.createdLoginName }})
           </a-tag>
           <a-tag color="red" v-else-if="record.bizType === 4">
             提现驳回
           </a-tag>
-          <a-tag color="volcano" v-else-if="record.bizType === 6">
+          <a-tag color="#F03B44" v-else-if="record.bizType === 6">
             测试冲正
           </a-tag>
           <span v-else>未知</span>

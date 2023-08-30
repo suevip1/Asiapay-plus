@@ -22,7 +22,7 @@
 
         <a-tag v-if="detailData.state === 0" :key="detailData.state" color="orange">分账中</a-tag>
         <a-tag v-if="detailData.state === 1" :key="detailData.state" color="blue">分账成功</a-tag>
-        <a-tag v-if="detailData.state === 2" :key="detailData.state" color="volcano">分账失败</a-tag>
+        <a-tag v-if="detailData.state === 2" :key="detailData.state" color="#F03B44">分账失败</a-tag>
         <a-tag v-if="detailData.state === 3" :key="detailData.state" color="purple">已受理</a-tag>
 
       </a-descriptions-item></a-descriptions></a-col>

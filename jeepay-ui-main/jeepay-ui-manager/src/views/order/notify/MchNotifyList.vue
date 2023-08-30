@@ -56,7 +56,7 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
             :key="record.state"
-            :color="record.state === 1?'orange':record.state === 2?'green':'volcano'"
+            :color="record.state === 1?'orange':record.state === 2?'#4BD884':'#F03B44'"
           >
             {{ record.state === 1?'通知中':record.state === 2?'通知成功':record.state === 3?'通知失败':'未知' }}
           </a-tag>
@@ -67,7 +67,7 @@
         <template slot="orderTypeSlot" slot-scope="{record}">
           <a-tag
             :key="record.orderType"
-            :color="record.orderType === 1?'green':record.orderType === 2?'volcano': record.orderType === 3? 'blue': 'orange'"
+            :color="record.orderType === 1?'#4BD884':record.orderType === 2?'#F03B44': record.orderType === 3? 'blue': 'orange'"
           >
             {{ record.orderType === 1?'支付':record.orderType === 2?'代付':record.orderType === 3? '提现':'未知' }}
           </a-tag>
@@ -124,7 +124,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单类型">
-                <a-tag :color="detailData.orderType === 1?'green':detailData.orderType === 2?'volcano': detailData.orderType === 3? 'blue' : 'orange'">
+                <a-tag :color="detailData.orderType === 1?'#4BD884':detailData.orderType === 2?'#F03B44': detailData.orderType === 3? 'blue' : 'orange'">
                   {{ detailData.orderType === 1?'支付':detailData.orderType === 2?'代付':detailData.orderType === 3 ? '提现': '未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -133,7 +133,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="通知状态">
-                <a-tag :color="detailData.state === 1?'orange':detailData.state === 2?'green':'volcano'">
+                <a-tag :color="detailData.state === 1?'orange':detailData.state === 2?'#4BD884':'#F03B44'">
                   {{ detailData.state === 1?'通知中':detailData.state === 2?'通知成功':detailData.state === 3?'通知失败':'未知' }}
                 </a-tag>
               </a-descriptions-item>

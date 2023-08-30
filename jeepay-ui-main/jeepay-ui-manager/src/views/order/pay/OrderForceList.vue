@@ -46,7 +46,7 @@
         <template slot="beforeStateSlot" slot-scope="{record}">
           <a-tag
               :key="record.forceChangeBeforeState"
-              :color="record.forceChangeBeforeState === 0?'blue':record.forceChangeBeforeState === 1?'orange':record.forceChangeBeforeState === 2?'green':record.forceChangeBeforeState === 6?'':'volcano'"
+              :color="record.forceChangeBeforeState === 0?'blue':record.forceChangeBeforeState === 1?'orange':record.forceChangeBeforeState === 2?'#4BD884':record.forceChangeBeforeState === 6?'':'#F03B44'"
           >
             {{ record.forceChangeBeforeState === 0?'订单生成':record.forceChangeBeforeState === 1?'支付中':record.forceChangeBeforeState === 2?'支付成功':record.forceChangeBeforeState === 3?'支付失败':record.forceChangeBeforeState === 4?'已撤销':record.forceChangeBeforeState === 5?'测试冲正':record.forceChangeBeforeState === 6?'订单关闭':'未知' }}
           </a-tag>
@@ -54,7 +54,7 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
               :key="record.state"
-              :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'green':record.state === 6?'':'volcano'"
+              :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
           >
             {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':'未知' }}
           </a-tag>
@@ -154,7 +154,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'green':detailData.state === 6?'':'volcano'">
+                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
                   {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':'未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -163,7 +163,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="回调状态">
-                <a-tag :color="detailData.notifyState === 1?'green':'volcano'">
+                <a-tag :color="detailData.notifyState === 1?'#4BD884':'#F03B44'">
                   {{ detailData.notifyState === 0?'未发送':detailData.notifyState === 1?'已发送':'未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -257,7 +257,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="补单前状态">
-                <a-tag :color="detailData.forceChangeBeforeState === 0?'blue':detailData.forceChangeBeforeState === 1?'orange':detailData.forceChangeBeforeState === 2?'green':detailData.forceChangeBeforeState === 6?'':'volcano'">
+                <a-tag :color="detailData.forceChangeBeforeState === 0?'blue':detailData.forceChangeBeforeState === 1?'orange':detailData.forceChangeBeforeState === 2?'#4BD884':detailData.forceChangeBeforeState === 6?'':'#F03B44'">
                   {{ detailData.forceChangeBeforeState === 0?'订单生成':detailData.forceChangeBeforeState === 1?'支付中':detailData.forceChangeBeforeState === 2?'支付成功':detailData.forceChangeBeforeState === 3?'支付失败':detailData.forceChangeBeforeState === 4?'已撤销':detailData.forceChangeBeforeState === 5?'测试冲正':detailData.forceChangeBeforeState === 6?'订单关闭':'未知' }}
                 </a-tag>
               </a-descriptions-item>

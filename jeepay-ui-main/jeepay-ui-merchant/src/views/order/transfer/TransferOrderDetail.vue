@@ -36,7 +36,7 @@
       <a-col :sm="12">
         <a-descriptions>
           <a-descriptions-item label="金额">
-            <a-tag color="green">{{ detailData.amount/100 }}</a-tag>
+            <a-tag color="#4BD884">{{ detailData.amount/100 }}</a-tag>
           </a-descriptions-item>
         </a-descriptions>
       </a-col>
@@ -48,7 +48,7 @@
       <a-col :sm="12">
         <a-descriptions>
           <a-descriptions-item label="收款账号">
-            <a-tag color="green">{{ detailData.accountNo }}</a-tag>
+            <a-tag color="#4BD884">{{ detailData.accountNo }}</a-tag>
           </a-descriptions-item>
         </a-descriptions>
       </a-col>
@@ -65,7 +65,7 @@
       <a-col :sm="12">
         <a-descriptions>
           <a-descriptions-item label="订单状态">
-            <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'green':'volcano'">
+            <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':'#F03B44'">
               {{ detailData.state === 0?'订单生成':detailData.state === 1?'转账中':detailData.state === 2?'转账成功':detailData.state === 3?'转账失败':detailData.state === 4?'任务关闭':'未知' }}
             </a-tag>
           </a-descriptions-item>

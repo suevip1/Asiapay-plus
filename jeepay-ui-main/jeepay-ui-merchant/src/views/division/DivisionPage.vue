@@ -101,7 +101,7 @@
         </template>
         <template slot="stateSlot" slot-scope="{record}">
           <!-- 1-待结算 2-结算成功, 3-结算失败(取消),4-超时关闭 -->
-          <a-tag :key="record.state" :color="record.state === 1?'blue':record.state === 2?'green':record.state === 3?'volcano':''">
+          <a-tag :key="record.state" :color="record.state === 1?'blue':record.state === 2?'#4BD884':record.state === 3?'#F03B44':''">
             {{ record.state === 1?'待结算':record.state === 2?'结算成功':record.state === 3?'结算失败':'超时关闭'}}
           </a-tag>
         </template>

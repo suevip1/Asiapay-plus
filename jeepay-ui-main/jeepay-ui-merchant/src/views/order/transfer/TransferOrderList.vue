@@ -50,7 +50,7 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
             :key="record.state"
-            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'green':'volcano'"
+            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':'#F03B44'"
           >
             {{ record.state === 0?'订单生成':record.state === 1?'转账中':record.state === 2?'转账成功':record.state === 3?'转账失败':record.state === 4?'任务关闭':'未知' }}
           </a-tag>

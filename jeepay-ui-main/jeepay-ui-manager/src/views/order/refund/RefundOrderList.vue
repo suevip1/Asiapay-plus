@@ -61,7 +61,7 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
             :key="record.state"
-            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'green':'volcano'"
+            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':'#F03B44'"
           >
             {{ record.state === 0?'订单生成':record.state === 1?'退款中':record.state === 2?'退款成功':record.state === 3?'退款失败':record.state === 4?'任务关闭':'未知' }}
           </a-tag>
@@ -195,7 +195,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'green':'volcano'">
+                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':'#F03B44'">
                   {{ detailData.state === 0?'订单生成':detailData.state === 1?'退款中':detailData.state === 2?'退款成功':detailData.state === 3?'退款失败':detailData.state === 4?'任务关闭':'未知' }}
                 </a-tag>
               </a-descriptions-item>

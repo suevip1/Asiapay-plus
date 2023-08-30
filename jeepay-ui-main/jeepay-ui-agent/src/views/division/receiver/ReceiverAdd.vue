@@ -25,7 +25,7 @@
 
     <a-card title="微信账号" v-show="appSupportIfCodes.indexOf('wxpay') >= 0">
       <a slot="extra" href="#">
-        <a-button style="background: green; color: white" icon="wechat" @click="addReceiverRow('wxpay')">添加【微信官方】分账接收账号</a-button>
+        <a-button style="background: #4BD884; color: white" icon="wechat" @click="addReceiverRow('wxpay')">添加【微信官方】分账接收账号</a-button>
       </a>
       <a-table :columns="accTableColumns" :data-source="receiverTableData.filter((item) => item.ifCode == 'wxpay')" :pagination="false" rowKey="rowKey">
 
@@ -34,7 +34,7 @@
           <div style="color: salmon " v-show="record.reqBindState == 0">
             <a-icon type="info-circle" /> 待绑定
           </div>
-          <div style="color: green; " v-show="record.reqBindState == 1">
+          <div style="color: #4BD884; " v-show="record.reqBindState == 1">
             <a-icon type="check-circle" /> 绑定成功
           </div>
           <div style="color: red; " v-show="record.reqBindState == 2">
@@ -111,7 +111,7 @@
           <div style="color: salmon " v-show="record.reqBindState == 0">
             <a-icon type="info-circle" /> 待绑定
           </div>
-          <div style="color: green; " v-show="record.reqBindState == 1">
+          <div style="color: #4BD884; " v-show="record.reqBindState == 1">
             <a-icon type="check-circle" /> 绑定成功
           </div>
           <div style="color: red; " v-show="record.reqBindState == 2">

@@ -64,7 +64,7 @@
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
               :key="record.state"
-              :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'green':record.state === 6?'':'volcano'"
+              :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
           >
             {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
           </a-tag>
@@ -146,7 +146,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="支付金额">
-                <a-tag color="green">
+                <a-tag color="#4BD884">
                   {{ detailData.amount/100 }}
                 </a-tag>
               </a-descriptions-item>
@@ -156,7 +156,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'green':detailData.state === 6?'':'volcano'">
+                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
                   {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':detailData.state === 7?'出码失败':'未知' }}
                 </a-tag>
               </a-descriptions-item>
@@ -165,7 +165,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="回调状态">
-                <a-tag :color="detailData.notifyState === 1?'green':'volcano'">
+                <a-tag :color="detailData.notifyState === 1?'#4BD884':'#F03B44'">
                   {{ detailData.notifyState === 0?'未发送':detailData.notifyState === 1?'已发送':'未知' }}
                 </a-tag>
               </a-descriptions-item>
