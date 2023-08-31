@@ -66,7 +66,7 @@ public class MchAppController extends CommonCtrl {
             QueryWrapper<PayPassage> wrapper = new QueryWrapper<>();
 
             if (StringUtils.isNotEmpty(payPassage.getPayPassageName())) {
-                wrapper.like("pay_passage_name", payPassage.getPayPassageName());
+                wrapper.like("pay_passage_name", payPassage.getPayPassageName().trim());
             }
 
             if (payPassage.getPayPassageId() != null) {
