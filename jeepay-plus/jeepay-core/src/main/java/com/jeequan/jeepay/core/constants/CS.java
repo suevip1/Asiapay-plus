@@ -333,6 +333,8 @@ public class CS {
         String KAMIPAY = "kamipay";
 
         String DAFU = "dafu";
+
+        String YONGHANG = "yonghang";
     }
 
 
