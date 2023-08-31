@@ -99,15 +99,15 @@
         </template>
         <template slot="configStrSlot" slot-scope="{record}"> <!-- 通道名插槽 -->
 <!--          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>-->
-          <a-tooltip placement="bottom" style="font-size: 13px;color: #1E2229" v-if="JSON.parse(record.payInterfaceConfig).mchNo.length > 14">
+          <a-tooltip placement="bottom" style="font-size: 13px;color: #1E2229" v-if="record.payInterfaceConfig!=undefined && JSON.parse(record.payInterfaceConfig).mchNo.length > 14">
             <template slot="title">
-              <span>{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>
+              <span>{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).mchNo:''}}</span>
             </template>
-            {{ changeStr2ellipsis(JSON.parse(record.payInterfaceConfig).mchNo, 14) }}
+            {{ record.payInterfaceConfig!=undefined?changeStr2ellipsis(JSON.parse(record.payInterfaceConfig).mchNo, 14):'' }}
           </a-tooltip>
-          <span style="font-size: 13px;color: #1E2229" v-else>{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>
+          <span style="font-size: 13px;color: #1E2229" v-else>{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).mchNo:'' }}</span>
           <br/>
-          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).payType}}</span>
+          <span style="font-size: 13px;color: #1E2229">{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).payType:''}}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>

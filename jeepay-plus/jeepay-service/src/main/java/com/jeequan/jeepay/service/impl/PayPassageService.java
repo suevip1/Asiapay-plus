@@ -7,6 +7,7 @@ import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.PayPassageMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,9 +46,11 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     public void updatePassageInfo(PayPassage payPassage) {
         try {
             PayPassage passageOld = getById(payPassage.getPayPassageId());
-            if (!passageOld.getPayInterfaceConfig().equals(payPassage.getPayInterfaceConfig())) {
-                RedisUtil.addToQueue(REDIS_SUFFIX, passageOld);
-                log.info("通道三方配置被修改,[{}]{}", payPassage.getPayPassageId(), payPassage.getPayPassageName());
+            if(StringUtils.isNotEmpty(passageOld.getPayInterfaceConfig())){
+                if (!passageOld.getPayInterfaceConfig().equals(payPassage.getPayInterfaceConfig())) {
+                    RedisUtil.addToQueue(REDIS_SUFFIX, passageOld);
+                    log.info("通道三方配置被修改,[{}]{}", payPassage.getPayPassageId(), payPassage.getPayPassageName());
+                }
             }
             boolean isSuccess = update(payPassage, PayPassage.gw().eq(PayPassage::getPayPassageId, payPassage.getPayPassageId()));
             if (!isSuccess) {
