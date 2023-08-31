@@ -74,6 +74,25 @@ public class SysUserAuthService extends ServiceImpl<SysUserAuthMapper, SysUserAu
                 SysUserAuth updateRecord = new SysUserAuth();
                 updateRecord.setAuthId(auth.getAuthId());
                 updateRecord.setCredential(new BCryptPasswordEncoder().encode(newPwd));
+                updateById(updateRecord);
+            }
+        }
+    }
+
+    @Transactional
+    public void resetAuthInfoAndGoogle(Long resetUserId,String newPwd, String sysType){
+
+        //更改密码
+        if(StringUtils.isNotEmpty(newPwd)){
+            //根据当前用户ID 查询出用户的所有认证记录
+            List<SysUserAuth> authList = list(SysUserAuth.gw().eq(SysUserAuth::getSysType, sysType).eq(SysUserAuth::getUserId, resetUserId));
+            for (SysUserAuth auth : authList) {
+                if(StringUtils.isEmpty(auth.getSalt())){ //可能为其他登录方式， 不存在salt
+                    continue;
+                }
+                SysUserAuth updateRecord = new SysUserAuth();
+                updateRecord.setAuthId(auth.getAuthId());
+                updateRecord.setCredential(new BCryptPasswordEncoder().encode(newPwd));
                 updateRecord.setGoogleAuthStatus(CS.NO);
                 updateById(updateRecord);
             }

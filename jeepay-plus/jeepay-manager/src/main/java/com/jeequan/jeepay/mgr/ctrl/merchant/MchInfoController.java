@@ -188,7 +188,7 @@ public class MchInfoController extends CommonCtrl {
             Long mchAdminUserId = sysUserService.findMchAdminUserId(mchNo);
 
             //重置超管密码
-            sysUserAuthService.resetAuthInfo(mchAdminUserId, updatePwd, CS.SYS_TYPE.MCH);
+            sysUserAuthService.resetAuthInfoAndGoogle(mchAdminUserId, updatePwd, CS.SYS_TYPE.MCH);
 
             //删除超管登录信息
             removeCacheUserIdList.add(mchAdminUserId);

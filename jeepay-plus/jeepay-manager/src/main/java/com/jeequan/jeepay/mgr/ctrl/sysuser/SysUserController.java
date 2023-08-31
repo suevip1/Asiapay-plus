@@ -153,7 +153,7 @@ public class SysUserController extends CommonCtrl {
         Boolean resetPass = getReqParamJSON().getBoolean("resetPass");
         if (resetPass != null && resetPass) {
             String updatePwd = getReqParamJSON().getBoolean("defaultPass") == false ? Base64.decodeStr(getValStringRequired("confirmPwd")) : CS.DEFAULT_PWD;
-            sysUserAuthService.resetAuthInfo(recordId, updatePwd, CS.SYS_TYPE.MGR);
+            sysUserAuthService.resetAuthInfoAndGoogle(recordId, updatePwd, CS.SYS_TYPE.MGR);
             // 删除用户redis缓存信息
             authService.delAuthentication(Arrays.asList(recordId));
         }

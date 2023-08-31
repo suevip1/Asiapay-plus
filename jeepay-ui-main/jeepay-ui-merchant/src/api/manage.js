@@ -64,13 +64,6 @@ export const reqLoad = {
     return request.request({ url: url + '/' + bizId, method: 'DELETE' }, true, true, true)
   }
 }
-
-/** 角色管理页面 **/
-export const API_URL_ENT_LIST = '/api/sysEnts'
-export const API_URL_ROLE_LIST = '/api/sysRoles'
-export const API_URL_ROLE_ENT_RELA_LIST = '/api/sysRoleEntRelas'
-export const API_URL_SYS_USER_LIST = '/api/sysUsers'
-export const API_URL_USER_ROLE_RELA_LIST = '/api/sysUserRoleRelas'
 /** 首页统计 **/
 export const API_URL_MAIN_STATISTIC = 'api/mainChart'
 
@@ -80,12 +73,6 @@ export const API_URL_MCH_APP = '/api/mchApps'
 export const API_URL_PAY_ORDER_LIST = '/api/payOrder'
 /** 退款订单管理 **/
 export const API_URL_REFUND_ORDER_LIST = '/api/refundOrder'
-/** 支付方式列表 **/
-export const API_URL_PAYWAYS_LIST = '/api/payWays'
-/** 商户支付参数配置 **/
-export const API_URL_MCH_PAYCONFIGS_LIST = '/api/mch/payConfigs'
-/** 商户支付通道配置 **/
-export const API_URL_MCH_PAYPASSAGE_LIST = '/api/mch/payPassages'
 /** 转账订单管理 **/
 export const API_URL_TRANSFER_ORDER_LIST = '/api/transferOrders'
 

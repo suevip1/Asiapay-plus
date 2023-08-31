@@ -149,7 +149,7 @@ public class AgentInfoController extends CommonCtrl {
             Long mchAdminUserId = sysUserService.findAgentAdminUserId(agentNo);
 
             //重置超管密码
-            sysUserAuthService.resetAuthInfo(mchAdminUserId, updatePwd, CS.SYS_TYPE.AGENT);
+            sysUserAuthService.resetAuthInfoAndGoogle(mchAdminUserId, updatePwd, CS.SYS_TYPE.AGENT);
 
             //删除超管登录信息
             removeCacheUserIdList.add(mchAdminUserId);
