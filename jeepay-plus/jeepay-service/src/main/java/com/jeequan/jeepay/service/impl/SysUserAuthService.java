@@ -74,6 +74,7 @@ public class SysUserAuthService extends ServiceImpl<SysUserAuthMapper, SysUserAu
                 SysUserAuth updateRecord = new SysUserAuth();
                 updateRecord.setAuthId(auth.getAuthId());
                 updateRecord.setCredential(new BCryptPasswordEncoder().encode(newPwd));
+                updateRecord.setGoogleAuthStatus(CS.NO);
                 updateById(updateRecord);
             }
         }

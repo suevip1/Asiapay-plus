@@ -84,7 +84,7 @@
         <a-row justify="space-between" type="flex">
           <a-col :span="10">
             <a-form-model-item label="" v-if="resetIsShow" >
-              重置密码：<a-checkbox v-model="sysPassword.resetPass"></a-checkbox>
+              重置密码并解绑谷歌验证：<a-checkbox v-model="sysPassword.resetPass"></a-checkbox>
             </a-form-model-item>
           </a-col>
           <a-col :span="10">

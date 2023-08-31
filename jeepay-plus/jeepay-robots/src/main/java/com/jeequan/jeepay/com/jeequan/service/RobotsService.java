@@ -277,7 +277,7 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         }
         if (message.hasPhoto() || message.hasVideo()) {
-
+            //todo 查询多个单号
             //查单必须带图或者视频
             if (StringUtils.isNotEmpty(message.getCaption())) {
                 String unionOrderId = message.getCaption();
@@ -1319,7 +1319,7 @@ public class RobotsService extends TelegramLongPollingBot {
      * @return
      */
     private boolean checkIsMchChat(RobotsMch robotsMch) {
-        return robotsMch != null  && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
+        return robotsMch != null && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
     }
 
     /**
@@ -1485,6 +1485,107 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送单条订单消息
+     *
+     * @param unionOrderId
+     * @param message
+     */
+    public void sendSingleQuery(String unionOrderId, Message message) {
+        if (StringUtils.isNotEmpty(unionOrderId)) {
+            Long chatId = message.getChatId();
+            RobotsMch robotsMch = robotsMchService.getMch(chatId);
+
+            String regex = "^[a-zA-Z0-9]{6,}$";
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(unionOrderId);
+
+            if (!matcher.matches()) {
+                return;
+            }
+            //不是通道群
+            if (robotsPassageService.count(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId)) > 0) {
+                return;
+            }
+            //是否已绑定商户
+            if (robotsMch != null) {
+                String mchStr = robotsMch.getMchNo();
+                if (StringUtils.isEmpty(mchStr)) {
+                    return;
+                }
+
+                LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
+                wrapper.and(wr -> {
+                    wr.eq(PayOrder::getPayOrderId, unionOrderId).or().eq(PayOrder::getMchOrderNo, unionOrderId);
+                });
+
+                PayOrder payOrder = null;
+                try {
+                    payOrder = payOrderService.getOne(wrapper);
+                } catch (Exception e) {
+                    log.error("机器人查单异常:" + unionOrderId);
+                    log.error(e.getMessage(), e);
+                    sendSingleMessage(chatId, "未查询到该群所有绑定商户下，订单号为[" + unionOrderId + "]的记录");
+                    return;
+                }
+                if (payOrder == null) {
+                    sendSingleMessage(chatId, "未查询到该群所有绑定商户下，订单号为[" + unionOrderId + "]的记录");
+                } else {
+                    if (mchStr.indexOf(payOrder.getMchNo()) == -1) {
+                        sendSingleMessage(chatId, "未查询到该群所有绑定商户下，订单号为[" + unionOrderId + "]的记录");
+                        return;
+                    }
+                    //1、将这条消息转发到通道群,带图或视频
+                    Long passageId = payOrder.getPassageId();
+                    RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
+                    if (robotsPassage != null) {
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
+                        stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
+                        }
+
+                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, stringBuffer.toString());
+                        if (messageTemp != null) {
+                            //保持2小时缓存
+                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
+                            sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
+                        } else {
+                            sendReplyMessage(chatId, message.getMessageId(), "该订单对应通道群已失效,请联系四方工作人员检查");
+                        }
+                    } else {
+                        Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                        PayPassage passage = payPassageMap.get(passageId);
+
+                        //发送到管理群并提醒
+                        RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
+                        if (robotsMchAdmin != null) {
+                            StringBuffer stringBuffer = new StringBuffer();
+                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
+                            stringBuffer.append("通道信息：[ " + passage.getPayPassageId() + " ] " + passage.getPayPassageName() + System.lineSeparator());
+                            sendSingleMessage(robotsMchAdmin.getChatId(), stringBuffer.toString());
+                        } else {
+                            StringBuffer stringBuffer = new StringBuffer();
+                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
+                            stringBuffer.append("该订单未查询到已绑定的通道群,请通知四方工作人员先绑定通道群!" + System.lineSeparator());
+                            sendSingleMessage(chatId, stringBuffer.toString());
+                        }
+                    }
+                }
+            } else {
+                sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
+            }
         }
     }
 
