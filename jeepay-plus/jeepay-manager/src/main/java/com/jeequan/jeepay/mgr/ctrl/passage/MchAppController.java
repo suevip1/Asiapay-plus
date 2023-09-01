@@ -40,9 +40,6 @@ public class MchAppController extends CommonCtrl {
     private ProductService productService;
 
     @Autowired
-    private PassageTransactionHistoryService passageTransactionHistoryService;
-
-    @Autowired
     private PayOrderService payOrderService;
 
     @Autowired

@@ -1040,22 +1040,22 @@ public class RobotsService extends TelegramLongPollingBot {
     protected Message sendQueryOrderMessage(Long chatId, Message sourceMessage, String addOn) {
         try {
             if (sourceMessage.hasPhoto()) {
-//                SendPhoto sendPhoto = new SendPhoto();
-//                sendPhoto.setCaption(addOn);
-//                sendPhoto.setChatId(chatId);
-//                sendPhoto.setPhoto(new InputFile(sourceMessage.getPhoto().get(0).getFileId()));
-//                return execute(sendPhoto);
+                SendPhoto sendPhoto = new SendPhoto();
+                sendPhoto.setCaption(addOn);
+                sendPhoto.setChatId(chatId);
+                sendPhoto.setPhoto(new InputFile(sourceMessage.getPhoto().get(0).getFileId()));
+                return execute(sendPhoto);
 
-                CopyMessage copyMessage = new CopyMessage(chatId + "", sourceMessage.getChatId() + "", sourceMessage.getMessageId());
-                copyMessage.setCaption(addOn);
-                MessageId messageId = execute(copyMessage);
-
-                Message message = new Message();
-                message.setMessageId(messageId.getMessageId().intValue());
-                Chat chat = new Chat();
-                chat.setId(chatId);
-                message.setChat(chat);
-                return message;
+//                CopyMessage copyMessage = new CopyMessage(chatId + "", sourceMessage.getChatId() + "", sourceMessage.getMessageId());
+//                copyMessage.setCaption(addOn);
+//                MessageId messageId = execute(copyMessage);
+//
+//                Message message = new Message();
+//                message.setMessageId(messageId.getMessageId().intValue());
+//                Chat chat = new Chat();
+//                chat.setId(chatId);
+//                message.setChat(chat);
+//                return message;
             } else if (sourceMessage.hasVideo()) {
                 SendVideo sendVideo = new SendVideo();
                 sendVideo.setChatId(chatId);

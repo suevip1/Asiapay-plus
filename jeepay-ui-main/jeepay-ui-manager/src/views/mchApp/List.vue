@@ -335,8 +335,12 @@ export default {
   },
   methods: {
     queryFunc () {
+      const that = this
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
+      req.postDataNormal('/api/passageRealTimeStat', '', that.searchData).then(res => { // 产品下拉列表
+        that.totalPassageInfo = res
+      })
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
