@@ -71,9 +71,8 @@ public class HongyunPaymentService extends AbstractPaymentService {
             map.put("time", time);
             map.put("clientType", clientType);
 
-
             String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
-            String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
+            String sign = SignatureUtils.md5(signContent + "&key=" + key).toLowerCase();
             map.put("_sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
@@ -111,34 +110,31 @@ public class HongyunPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "CJY391J4HTSNQTS873UC4G5R39VT8N6JOXSE2Z6XFMQ8RXNU54Z9OD0W0WTLNP9FBQEVR0PGMLPXQF6KIKUOPBLA1DUBME4I17HG5S2ZVCZARK7D7I8IHWC1FWD5HYG0";
+        String key = "WnxglAjxfYHtx31ooWW5TSFuvogCIST1";
 
-        String mchId = "1024";
-        String productId = "8009";
-        String mchOrderNo = RandomStringUtils.random(15, true, true);
-        String currency = "cny";
+        String appId = "N4TW3b";
+        String thirdOrderNo = RandomStringUtils.random(15, true, true);
+        String payType = "2";
 
-        String subject = "goods";
-        String body = "desc";
+        String time = (Long.valueOf(System.currentTimeMillis() / 1000L)) + "";
+        int amount = (int) (3000L / 100);
 
-        Long amount = 10000L;
-        String notifyUrl = "https://www.test.com";
+        String realIp = "127.0.0.1";
+        String clientType = "1";
 
-        map.put("mchId", mchId);
-        map.put("productId", productId);
+        map.put("appId", appId);
+        map.put("thirdOrderNo", thirdOrderNo);
+        map.put("payType", payType);
+        map.put("realIp", realIp);
         map.put("amount", amount);
-        map.put("mchOrderNo", mchOrderNo);
-
-        map.put("currency", currency);
-        map.put("subject", subject);
-        map.put("body", body);
-        map.put("notifyUrl", notifyUrl);
+        map.put("time", time);
+        map.put("clientType", clientType);
 
         String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
-        String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
-        map.put("sign", sign);
+        String sign = SignatureUtils.md5(signContent + "&key=" + key).toLowerCase();
+        map.put("_sign", sign);
 
-        String payGateway = "http://api.daodao.one/index/pay";
+        String payGateway = "http://120.79.51.114:81/down/order/api/createOrder";
 
 //        // 发送POST请求并指定JSON数据
 //        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
@@ -147,6 +143,6 @@ public class HongyunPaymentService extends AbstractPaymentService {
 //        raw = response.body();
 
         raw = HttpUtil.post(payGateway, map);
-        log.info("[{}]请求响应:{}", LOG_TAG, raw);
+        log.info("[{}]请求响应:{}", LOG_TAG, JSONObject.toJSONString(raw));
     }
 }

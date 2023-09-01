@@ -276,6 +276,7 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         }
         if (message.hasPhoto() || message.hasVideo()) {
+
             //todo 查询多个单号
 //            try {
 //                CopyMessage copyMessage = new CopyMessage(robotsMchService.getManageMch().getChatId() + "", message.getChatId() + "", message.getMessageId());

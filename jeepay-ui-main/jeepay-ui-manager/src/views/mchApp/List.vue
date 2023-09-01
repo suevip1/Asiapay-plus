@@ -107,7 +107,7 @@
           </a-tooltip>
           <span style="font-size: 13px;color: #1E2229" v-else>{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).mchNo:'' }}</span>
           <br/>
-          <span style="font-size: 13px;color: #1E2229">{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).payType:''}}</span>
+          <span style="font-size: 13px;color: #1E2229">{{ record.payInterfaceConfig!=undefined && JSON.parse(record.payInterfaceConfig).payType!=undefined?JSON.parse(record.payInterfaceConfig).payType:''}}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
