@@ -335,6 +335,14 @@ public class CS {
         String DAFU = "dafu";
 
         String YONGHANG = "yonghang";
+
+        String WANGTING = "wangting";
+
+        String HONGYUN = "hongyun";
+
+        String YEZIPAY = "yezipay";
+
+        String STARPAY = "starpay";
     }
 
 
