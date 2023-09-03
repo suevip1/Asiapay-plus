@@ -69,26 +69,7 @@ public class ChannelNoticeController extends AbstractCtrl {
     @Autowired
     private ConfigContextQueryService configContextQueryService;
     @Autowired
-    private PayMchNotifyService payMchNotifyService;
-    @Autowired
     private PayOrderProcessService payOrderProcessService;
-
-
-    @Autowired
-    private MchHistoryService mchHistoryService;
-
-    @Autowired
-    private MchInfoService mchInfoService;
-
-    @Autowired
-    private AgentAccountHistoryService agentAccountHistoryService;
-
-    @Autowired
-    private AgentAccountInfoService agentAccountInfoService;
-
-    @Autowired
-    private PayPassageService payPassageService;
-
     @Autowired
     private IMQSender mqSender;
 

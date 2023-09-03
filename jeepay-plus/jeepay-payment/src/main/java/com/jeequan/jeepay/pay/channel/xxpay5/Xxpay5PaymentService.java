@@ -113,34 +113,33 @@ public class Xxpay5PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "CJY391J4HTSNQTS873UC4G5R39VT8N6JOXSE2Z6XFMQ8RXNU54Z9OD0W0WTLNP9FBQEVR0PGMLPXQF6KIKUOPBLA1DUBME4I17HG5S2ZVCZARK7D7I8IHWC1FWD5HYG0";
+        String key = "Ajq6jXsbJIX90mYlWqAeM490rtoznIAbcnT6ehhSp8lT4qXLYz2gCCPzosQGd2ImcxMokHgi6NMuChgRP7ApEESagkIHGtG0Gb3reSGf6VVPCqK0NZARz8gDb618G77F";
 
-        String mchId = "1024";
-        String productId = "8006";
-        String mchOrderNo = RandomStringUtils.random(15, true, true);
+        String mchNo = "M1693679302";
+        String amount = "10000";
+        String payOrderId = "P1698200219212664833";
+        String mchOrderNo = "PS01202309031304174270000";
 
-        Long amount = 10000L;
-        String notifyUrl = "https://www.test.com";
+        String state = "2";
+        String ifCode = "yezipay";
+        String createdAt = "1693717457952";
+        String clientIp = "216.158.66.138";
+        String reqTime = "1693717573946";
 
-        map.put("mchId", mchId);
-        map.put("productId", productId);
+        map.put("mchNo", mchNo);
         map.put("amount", amount);
+        map.put("payOrderId", payOrderId);
         map.put("mchOrderNo", mchOrderNo);
-        map.put("notifyUrl", notifyUrl);
+        map.put("state", state);
+        map.put("ifCode", ifCode);
+        map.put("createdAt", createdAt);
+        map.put("clientIp", clientIp);
+        map.put("reqTime", reqTime);
 
         String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
         String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "http://api.daodao.one/index/pay";
-
-//        // 发送POST请求并指定JSON数据
-//        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
-//                .execute();
-//        // 处理响应
-//        raw = response.body();
-
-        raw = HttpUtil.post(payGateway, map);
-        log.info("[{}]请求响应:{}", LOG_TAG, raw);
+        log.info("[{}]请求响应:{}", LOG_TAG, sign);
     }
 }

@@ -38,7 +38,6 @@ import org.springframework.stereotype.Service;
 public class PayOrderProcessService {
     @Autowired private PayOrderService payOrderService;
     @Autowired private PayMchNotifyService payMchNotifyService;
-    @Autowired private IMQSender mqSender;
 
     /** 明确成功的处理逻辑（除更新订单其他业务） **/
     public void confirmSuccess(PayOrder payOrder){

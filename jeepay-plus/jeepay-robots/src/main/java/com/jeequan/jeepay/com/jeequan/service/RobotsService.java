@@ -285,7 +285,16 @@ public class RobotsService extends TelegramLongPollingBot {
 //            } catch (Exception e) {
 //                log.error(e.getMessage(), e);
 //            }
-            sendSingleQuery(message.getCaption(), message);
+            String text = message.getCaption();
+            log.info(text);
+            if (text.contains("\n")) {
+                String[] texts = text.split("\n");
+                for (int i = 0; i < texts.length; i++) {
+                    sendSingleQuery(texts[i].trim(), message);
+                }
+            } else {
+                sendSingleQuery(text, message);
+            }
             return;
         }
 
@@ -1305,7 +1314,9 @@ public class RobotsService extends TelegramLongPollingBot {
         if (StringUtils.isNotEmpty(botUserName) && StringUtils.isNotEmpty(botToken)) {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(this);
+            log.info("==========================================");
             log.info("========RobotsService Initializing========");
+            log.info("==========================================");
         }
     }
 
@@ -1319,10 +1330,10 @@ public class RobotsService extends TelegramLongPollingBot {
         SetMyCommands setMyCommands = new SetMyCommands();
         setMyCommands.setCommands(commands);
 
-        RobotsMch robotsAdmin = robotsMchService.getManageMch();
-        if (robotsAdmin != null) {
-            sendSingleMessage(robotsAdmin.getChatId(), "四方机器人初始化成功");
-        }
+//        RobotsMch robotsAdmin = robotsMchService.getManageMch();
+//        if (robotsAdmin != null) {
+//            sendSingleMessage(robotsAdmin.getChatId(), "四方机器人初始化成功");
+//        }
 
         try {
             execute(setMyCommands);
