@@ -205,6 +205,7 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("<b>商户功能</b>:（需先绑定商户才能使用）" + System.lineSeparator());
             stringBuffer.append("查询余额 -- 查询商户或通道的余额" + System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
+            stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("zz xxx-- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日完整跑量统计" + System.lineSeparator());

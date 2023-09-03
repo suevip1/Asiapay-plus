@@ -12,6 +12,9 @@
           <a-row>
             <a-col :span="23" :offset="1"><b style="color: black">优先绑定管理群，管理群用于接收预警、提示等！管路群、商户群、通道群每个群只能同时绑定一种类型，管理群唯一</b></a-col>
           </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1"><b style="color: black">后台只包含四方工作人员部分命令,其他命令直接拉机器人进去/help实时查看</b></a-col>
+          </a-row>
           <br/>
           <a-row>
             <a-col :span="23" :offset="1">1. 先将机器人添加到群组内，然后给机器人管理员权限。</a-col>
