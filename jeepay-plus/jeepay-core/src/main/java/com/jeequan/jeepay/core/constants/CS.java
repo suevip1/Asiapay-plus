@@ -295,6 +295,8 @@ public class CS {
 
         String RIXINPAY2 = "rixinpay2";
 
+        String RIXINPAY3= "rixinpay3";
+
         String XXPAY = "xxpay";
 
         String SHAYUPAY = "shayupay";

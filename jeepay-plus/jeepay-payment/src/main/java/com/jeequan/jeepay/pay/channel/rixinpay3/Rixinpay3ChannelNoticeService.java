@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.yonghang;
+package com.jeequan.jeepay.pay.channel.rixinpay3;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -20,20 +20,19 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Map;
 
-
 @Slf4j
 @Service
-public class YonghangChannelNoticeService extends AbstractChannelNoticeService {
+public class Rixinpay3ChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[永航支付]";
+    private static final String LOG_TAG = "[日鑫3支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "success";
+    private static final String ON_SUCCESS = "OK";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.YONGHANG;
+        return CS.IF_CODE.RIXINPAY3;
     }
 
     @Override
@@ -67,11 +66,11 @@ public class YonghangChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //订单状态 成功 success  用于支付判断，不成功不回调
-            String status = jsonParams.getString("status");
+            //支付状态,-2:订单已关闭,0-订单生成,1-支付中,2-支付成功,3-业务处理完成,4-已退款
+            String returncode = jsonParams.getString("returncode");
 
-            if (!status.equals("success")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
+            if (!returncode.equals("00")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
                 //验签成功后判断上游订单状态
@@ -93,8 +92,8 @@ public class YonghangChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("order_no");        // 商户订单号
-        String txnAmt = jsonParams.getString("submit_amount");        // 支付金额
+        String orderNo = jsonParams.getString("orderid");        // 商户订单号
+        String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
@@ -115,8 +114,8 @@ public class YonghangChannelNoticeService extends AbstractChannelNoticeService {
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
-            final String signStr = SignatureUtils.md5(signContentStr.toUpperCase()).toUpperCase();
+            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"attach"}) + "&key=" + secret;
+            final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
