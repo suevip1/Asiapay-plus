@@ -154,11 +154,11 @@ public class SysUserController extends CommonCtrl {
         if (resetPass != null && resetPass) {
             String updatePwd = getReqParamJSON().getBoolean("defaultPass") == false ? Base64.decodeStr(getValStringRequired("confirmPwd")) : CS.DEFAULT_PWD;
             sysUserAuthService.resetAuthInfoAndGoogle(recordId, updatePwd, CS.SYS_TYPE.MGR);
-            // 删除用户redis缓存信息
-            authService.delAuthentication(Arrays.asList(recordId));
         }
 
         sysUserService.updateSysUser(sysUser);
+        // 删除用户redis缓存信息
+        authService.delAuthentication(Arrays.asList(recordId));
 
         //如果用户被禁用，需要更新redis数据
         if (sysUser.getState() != null && sysUser.getState() == CS.PUB_DISABLE) {

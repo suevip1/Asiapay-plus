@@ -484,8 +484,9 @@ public class RobotsService extends TelegramLongPollingBot {
         //今日跑量
         if (text.equals(TODAY_BILL)) {
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
-            //是否已绑定商户
-            if (robotsMch != null) {
+            List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
+            //是否已绑定商户或通道
+            if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
                 String mchNoStr = robotsMch.getMchNo();
                 JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
 
@@ -507,31 +508,62 @@ public class RobotsService extends TelegramLongPollingBot {
                         sendDayStat(todayStatisticsMch, chatId, mchInfoStr + " ");
                     }
                 }
-
-            } else {
-                sendSingleMessage(chatId, "未绑定商户或没有记录");
+                return;
             }
+            if (robotsPassageList.size() > 0) {
+                Date today = DateUtil.parse(DateUtil.today());
+
+                List<PayPassage> passageList = new ArrayList<>();
+                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                for (int i = 0; i < robotsPassageList.size(); i++) {
+                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
+                }
+                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+
+                StringBuffer stringBuffer = new StringBuffer();
+                Long totalBalance = 0L;
+                stringBuffer.append("统计日期：<b>" + DateUtil.today() + "</b>" + System.lineSeparator());
+                for (int i = 0; i < passageList.size(); i++) {
+                    PayPassage payPassage = passageList.get(i);
+                    StatisticsPassage statisticsPassage = statisticsService.QueryStatisticsPassageByDate(payPassage.getPayPassageId(), today);
+                    String passageInfoStr = "通道：[" + payPassage.getPayPassageId() + "] <b>" + payPassage.getPayPassageName() + "</b>";
+                    if (statisticsPassage == null) {
+                        stringBuffer.append(passageInfoStr + " 没有今日跑量记录" + System.lineSeparator());
+                    } else {
+                        stringBuffer.append(passageInfoStr + " 今日统计：" + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + System.lineSeparator());
+                        totalBalance += statisticsPassage.getTotalSuccessAmount();
+                    }
+                }
+                stringBuffer.append("跑量汇总：" + AmountUtil.convertCent2Dollar(totalBalance) + System.lineSeparator());
+                sendSingleMessage(chatId, stringBuffer.toString());
+                return;
+            }
+            sendSingleMessage(chatId, "未绑定商户或通道");
             return;
         }
 
         //昨日跑量
         if (text.equals(YESTERDAY_BILL)) {
-
-            Date today = DateUtil.parse(DateUtil.today());
-            DateTime yesterday = DateUtil.offsetDay(today, -1);
-
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
-            //是否已绑定商户
-            if (robotsMch != null) {
+            List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
+
+            Date todayTemp = DateUtil.parse(DateUtil.today());
+            DateTime yesterday = DateUtil.offsetDay(todayTemp, -1);
+
+            //是否已绑定商户或通道
+            if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
                 String mchNoStr = robotsMch.getMchNo();
                 JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
+
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
                     MchInfo mchInfo = mchInfoService.getById(mchNo);
+                    String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+
                     StatisticsMch todayStatisticsMch = statisticsService.QueryStatisticsMchByDate(mchNo, yesterday);
                     List<StatisticsMchProduct> statisticsMchProductList = statisticsService.QueryStatMchProduct(mchNo, yesterday);
-                    String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+
                     if (todayStatisticsMch == null) {
                         sendSingleMessage(chatId, mchInfoStr + " 没有昨日跑量记录");
                     } else {
@@ -539,18 +571,47 @@ public class RobotsService extends TelegramLongPollingBot {
                         sendDayStat(todayStatisticsMch, chatId, mchInfoStr + " ");
                     }
                 }
-            } else {
-                sendSingleMessage(chatId, "未绑定商户或没有记录");
+                return;
             }
+            if (robotsPassageList.size() > 0) {
 
+                List<PayPassage> passageList = new ArrayList<>();
+                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                for (int i = 0; i < robotsPassageList.size(); i++) {
+                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
+                }
+                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+
+                StringBuffer stringBuffer = new StringBuffer();
+                Long totalBalance = 0L;
+                stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday,"yyyy-MM-dd") + "</b>" + System.lineSeparator());
+                for (int i = 0; i < passageList.size(); i++) {
+                    PayPassage payPassage = passageList.get(i);
+                    StatisticsPassage statisticsPassage = statisticsService.QueryStatisticsPassageByDate(payPassage.getPayPassageId(), yesterday);
+                    String passageInfoStr = "通道：[" + payPassage.getPayPassageId() + "] <b>" + payPassage.getPayPassageName() + "</b>";
+                    if (statisticsPassage == null) {
+                        stringBuffer.append(passageInfoStr + " 没有昨日跑量记录" + System.lineSeparator());
+                    } else {
+                        stringBuffer.append(passageInfoStr + " 昨日统计：" + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + System.lineSeparator());
+                        totalBalance += statisticsPassage.getTotalSuccessAmount();
+                    }
+                }
+                stringBuffer.append("跑量汇总：" + AmountUtil.convertCent2Dollar(totalBalance) + System.lineSeparator());
+                sendSingleMessage(chatId, stringBuffer.toString());
+                return;
+            }
+            sendSingleMessage(chatId, "未绑定商户或通道");
             return;
         }
 
         //查询余额
         if (text.equals(QUERY_BALANCE)) {
+            //查询是商户群还是通道群
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
+            List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
+
             //是否已绑定商户
-            if (robotsMch != null) {
+            if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
                 String mchStr = robotsMch.getMchNo();
                 if (StringUtils.isEmpty(mchStr)) {
                     sendSingleMessage(chatId, "未绑定商户或没有记录");
@@ -558,22 +619,43 @@ public class RobotsService extends TelegramLongPollingBot {
                 }
 
                 JSONArray jsonArray = JSONArray.parseArray(mchStr);
+                Long totalBalance = 0L;
+                StringBuffer stringBuffer = new StringBuffer();
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i);
                     MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
                     if (mchInfo == null) {
-                        sendSingleMessage(chatId, "没有该商户 [" + mchNo + "] 的记录");
+                        stringBuffer.append("没有查询到商户 [" + mchNo + "] 的记录");
                     } else {
-                        StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("[ " + mchNo + " ] <b>" + mchInfo.getMchName() + "</b>" + System.lineSeparator());
-                        stringBuffer.append("当前账户余额为:" + System.lineSeparator());
-                        stringBuffer.append(AmountUtil.convertCent2Dollar(mchInfo.getBalance()) + System.lineSeparator());
-                        sendSingleMessage(chatId, stringBuffer.toString());
+                        totalBalance += mchInfo.getBalance();
+                        stringBuffer.append("[ " + mchNo + " ] <b>" + mchInfo.getMchName() + "</b> -- 余额为：" + AmountUtil.convertCent2Dollar(mchInfo.getBalance()) + System.lineSeparator());
                     }
                 }
-            } else {
-                sendSingleMessage(chatId, "未绑定商户或没有记录");
+                stringBuffer.append("余额汇总：" + AmountUtil.convertCent2Dollar(totalBalance) + System.lineSeparator());
+                sendSingleMessage(chatId, stringBuffer.toString());
+                return;
             }
+            if (robotsPassageList.size() > 0) {
+                List<PayPassage> passageList = new ArrayList<>();
+                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                for (int i = 0; i < robotsPassageList.size(); i++) {
+                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
+                }
+                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+                //根据名字排序
+                StringBuffer stringBuffer = new StringBuffer();
+                stringBuffer.append("当前群已绑定通道列表：" + System.lineSeparator());
+                Long totalBalance = 0L;
+                for (int i = 0; i < passageList.size(); i++) {
+                    PayPassage payPassage = passageList.get(i);
+                    stringBuffer.append("通道：[" + payPassage.getPayPassageId() + "] <b>" + payPassage.getPayPassageName() + "</b> -- 余额为：" + AmountUtil.convertCent2Dollar(payPassage.getBalance()) + System.lineSeparator());
+                    totalBalance += payPassage.getBalance();
+                }
+                stringBuffer.append("余额汇总：" + AmountUtil.convertCent2Dollar(totalBalance) + System.lineSeparator());
+                sendSingleMessage(chatId, stringBuffer.toString());
+                return;
+            }
+            sendSingleMessage(chatId, "未绑定商户或通道");
             return;
         }
 

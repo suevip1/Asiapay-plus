@@ -156,9 +156,8 @@ export default {
       this.isAdd = !recordId
       // 数据恢复为默认数据
       this.saveObject = {
-        isAdmin: 1,
-        state: 1,
-        sex: 1
+        isAdmin: 0,
+        state: 1
       }
       this.rules.loginUsername = []
       this.confirmLoading = false // 关闭loading

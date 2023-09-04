@@ -44,6 +44,9 @@ public class StatisticsService {
     private StatisticsMchService statisticsMchService;
 
     @Autowired
+    private StatisticsPassageService statisticsPassageService;
+
+    @Autowired
     private StatisticsMchProductService statisticsMchProductService;
 
     @Autowired
@@ -59,6 +62,10 @@ public class StatisticsService {
 
     public StatisticsMch QueryStatisticsMchByDate(String mchNO, Date date) {
         return statisticsMchService.getOne(StatisticsMch.gw().eq(StatisticsMch::getMchNo, mchNO).eq(StatisticsMch::getStatisticsDate, date));
+    }
+
+    public StatisticsPassage QueryStatisticsPassageByDate(Long passageId, Date date) {
+        return statisticsPassageService.getOne(StatisticsPassage.gw().eq(StatisticsPassage::getPayPassageId, passageId).eq(StatisticsPassage::getStatisticsDate, date));
     }
 
     public List<StatisticsMchProduct> QueryStatMchProduct(String mchNo, Date date) {

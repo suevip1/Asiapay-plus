@@ -28,6 +28,7 @@
         <template slot="wayCodeSlot" slot-scope="{record}"><b>{{ record.productId }}</b></template> <!-- 自定义插槽 -->
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
+            <a v-if="$access('ENT_PC_WAY_EDIT')" @click="editFunc(record.productId)">修改</a>
             <a v-if="$access('ENT_PC_WAY_EDIT')" @click="editMchRateFunc(record)">费率配置</a>
             <a style="color: red" v-if="$access('ENT_PC_WAY_DEL')" @click="delFunc(record.productId)">删除</a>
           </JeepayTableColumns>
@@ -106,7 +107,6 @@ export default {
     addFunc: function () { // 业务通用【新增】 函数
       this.$refs.infoAddOrEdit.show()
     },
-
     editFunc: function (wayCode) { // 业务通用【修改】 函数
       this.$refs.infoAddOrEdit.show(wayCode)
     },

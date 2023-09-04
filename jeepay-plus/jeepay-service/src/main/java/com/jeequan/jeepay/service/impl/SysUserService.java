@@ -90,36 +90,8 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUser> {
     //修改用户信息
     @Transactional
     public void updateSysUser(SysUser sysUser) {
-        //todo updateSysUser
-//        Long sysUserId = sysUser.getSysUserId();
-//        SysUser dbRecord = getById(sysUserId);
-//
-//        if (dbRecord == null) {
-//            throw new BizException("该用户不存在");
-//        }
-//
-//        //修改了手机号， 需要修改auth表信息
-//        if(!dbRecord.getTelphone().equals(sysUser.getTelphone())){
-//
-//            if(count(SysUser.gw().eq(SysUser::getSysType, dbRecord.getSysType()).eq(SysUser::getTelphone, sysUser.getTelphone())) > 0){
-//                throw new BizException("该手机号已关联其他用户！");
-//            }
-//
-//            sysUserAuthService.resetAuthInfo(sysUserId, null, sysUser.getTelphone(), null, dbRecord.getSysType());
-//        }
-//
-//        //修改了手机号， 需要修改auth表信息
-//        if(!dbRecord.getLoginUsername().equals(sysUser.getLoginUsername())){
-//
-//            if(count(SysUser.gw().eq(SysUser::getSysType, dbRecord.getSysType()).eq(SysUser::getLoginUsername, sysUser.getLoginUsername())) > 0){
-//                throw new BizException("该登录用户名已关联其他用户！");
-//            }
-//
-//            sysUserAuthService.resetAuthInfo(sysUserId, sysUser.getLoginUsername(), null, null, dbRecord.getSysType());
-//        }
-//
-//        //修改用户主表
-//        baseMapper.updateById(sysUser);
+        //修改用户主表
+        baseMapper.updateById(sysUser);
     }
 
 
@@ -170,6 +142,7 @@ public class SysUserService extends ServiceImpl<SysUserMapper, SysUser> {
 
     /**
      * 获取到代理商的超管用户ID
+     *
      * @param mchNo
      * @return
      */
