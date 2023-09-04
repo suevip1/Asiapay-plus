@@ -262,7 +262,9 @@ public class RobotsService extends TelegramLongPollingBot {
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
             if (messageSource != null && !message.getFrom().getIsBot()) {
                 sendQueryMessage(message, messageSource);
+                return;
             }
+
             //检测是否催单信息  FORWARD_QUERY
             //REDIS_MCH_SOURCE_SUFFIX 存储的是 商户群suffix+id 通道群message
             Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
@@ -274,20 +276,11 @@ public class RobotsService extends TelegramLongPollingBot {
                     String forwardText = message.getText().substring(3);
                     sendReplyMessage(messageForwardSource.getChatId(), messageForwardSource.getMessageId(), forwardText);
                 }
+                return;
             }
         }
         if (message.hasPhoto() || message.hasVideo()) {
-
-            //todo 查询多个单号
-//            try {
-//                CopyMessage copyMessage = new CopyMessage(robotsMchService.getManageMch().getChatId() + "", message.getChatId() + "", message.getMessageId());
-//                copyMessage.setCaption("测试下多个图");
-//                execute(copyMessage);
-//            } catch (Exception e) {
-//                log.error(e.getMessage(), e);
-//            }
             String text = message.getCaption();
-            log.info(text);
             if (text.contains("\n")) {
                 String[] texts = text.split("\n");
                 for (int i = 0; i < texts.length; i++) {
@@ -584,7 +577,7 @@ public class RobotsService extends TelegramLongPollingBot {
 
                 StringBuffer stringBuffer = new StringBuffer();
                 Long totalBalance = 0L;
-                stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday,"yyyy-MM-dd") + "</b>" + System.lineSeparator());
+                stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
                 for (int i = 0; i < passageList.size(); i++) {
                     PayPassage payPassage = passageList.get(i);
                     StatisticsPassage statisticsPassage = statisticsService.QueryStatisticsPassageByDate(payPassage.getPayPassageId(), yesterday);
@@ -1043,23 +1036,35 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * 转发到商户群
+     *
+     * @param message       本条消息
+     * @param sourceMessage 商户群消息
+     */
     private void sendQueryMessage(Message message, Message sourceMessage) {
         try {
             Long chatId = sourceMessage.getChatId();
 
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append(message.getCaption() + System.lineSeparator());
+            stringBuffer.append(System.lineSeparator());
+            stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
             if (message.isReply()) {
                 if (message.hasPhoto()) {
                     SendPhoto sendPhoto = new SendPhoto();
                     sendPhoto.setChatId(chatId); // Replace with the destination chat ID
                     sendPhoto.setPhoto(new InputFile(message.getPhoto().get(0).getFileId()));
-                    sendPhoto.setCaption(message.getCaption());
+                    sendPhoto.setCaption(stringBuffer.toString());
                     sendPhoto.setReplyToMessageId(sourceMessage.getMessageId());
+                    sendPhoto.setParseMode(ParseMode.HTML);
                     execute(sendPhoto);
                 } else if (message.hasText()) {
                     SendMessage sendMessage = new SendMessage();
                     sendMessage.setChatId(chatId);
-                    sendMessage.setText(message.getText());
+                    sendMessage.setText(stringBuffer.toString());
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
+                    sendMessage.setParseMode(ParseMode.HTML);
                     execute(sendMessage);
                 }
             }
@@ -1568,7 +1573,7 @@ public class RobotsService extends TelegramLongPollingBot {
                     if (robotsPassage != null) {
                         StringBuffer stringBuffer = new StringBuffer();
                         stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
-                        stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                        stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                         if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
                             stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
                         }
@@ -1577,6 +1582,11 @@ public class RobotsService extends TelegramLongPollingBot {
                         if (messageTemp != null) {
                             //保持2小时缓存
                             RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
+                            StringBuffer stringBufferOrderInfo = new StringBuffer();
+                            stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
+                            stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            stringBufferOrderInfo.append(" [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
+                            message.setText(stringBufferOrderInfo.toString());
                             RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
                             sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
                         } else {
@@ -1591,16 +1601,16 @@ public class RobotsService extends TelegramLongPollingBot {
                         if (robotsMchAdmin != null) {
                             StringBuffer stringBuffer = new StringBuffer();
                             stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
-                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
-                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            stringBuffer.append("商户订单号 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                            stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
                             stringBuffer.append("通道信息：[ " + passage.getPayPassageId() + " ] " + passage.getPayPassageName() + System.lineSeparator());
                             sendSingleMessage(robotsMchAdmin.getChatId(), stringBuffer.toString());
                         } else {
                             StringBuffer stringBuffer = new StringBuffer();
                             stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
-                            stringBuffer.append("商户订单号为 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
-                            stringBuffer.append("支付订单号为 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+                            stringBuffer.append("商户订单号 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
+                            stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
                             stringBuffer.append("该订单未查询到已绑定的通道群,请通知四方工作人员先绑定通道群!" + System.lineSeparator());
                             sendSingleMessage(chatId, stringBuffer.toString());
