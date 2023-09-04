@@ -115,15 +115,15 @@ public class QipayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "0c55fd07b4ff486c9c9bd0636d5af3aa";
+        String key = "70775a3bad1e4d6a93d644f46b134337";
 
-        String mchId = "M1690135329";
-        String wayCode = "901";
+        String mchId = "M1692020617";
+        String wayCode = "9002";
         String subject = "俄罗斯";
         String body = "俄罗斯";
 
         String outTradeNo = RandomStringUtils.random(15, true, true);
-        long amount = 10000;
+        long amount = 20000;
         String clientIp = "127.0.0.1";
         long reqTime = System.currentTimeMillis();
 
@@ -141,7 +141,7 @@ public class QipayPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "https://qipay7o1ped6el4b.szzzv.xyz/api/pay/unifiedorder";
+        String payGateway = "https://yangfanpayjm944i.zzbbm.xyz/api/pay/unifiedorder";
 
 //        raw = HttpUtil.post(payGateway, map);
         // 发送POST请求并指定JSON数据
