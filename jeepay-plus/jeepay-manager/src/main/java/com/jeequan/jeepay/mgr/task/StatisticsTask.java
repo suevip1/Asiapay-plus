@@ -49,7 +49,7 @@ public class StatisticsTask {
     private boolean isTest = false;
 
 
-    @Scheduled(fixedRate = 10000) // 每10秒执行一次
+    @Scheduled(fixedRate = 5000) // 每5秒执行一次
     public void start() {
         //入库订单统计
         UpdateRecord(statisticsService.PopPayOrderListFromCache());

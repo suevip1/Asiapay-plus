@@ -274,6 +274,8 @@ public class CS {
     //接口类型
     public interface IF_CODE {
         String TESTPAY = "testpay";
+
+        String ASIAPAY="asiapay";
         /**
          * 卡密
          */
