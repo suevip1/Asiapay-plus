@@ -118,6 +118,8 @@ public class RobotsService extends TelegramLongPollingBot {
 
     private static final String ROBOT_QUIT = "机器人退群";
 
+    private static final String GET_USDT_TEXT = "[Zz]{1}0";
+
     private static final String GET_USDT = "/usdt";
 
     /**
@@ -207,10 +209,10 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("zz xxx-- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
-            stringBuffer.append("今日跑量 -- 查看今日完整跑量统计" + System.lineSeparator());
-            stringBuffer.append("昨日跑量 -- 查看昨日完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("今日跑量 -- 查看今日商户或通道完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
-
+            stringBuffer.append("z0 -- 查询今日U价" + System.lineSeparator());
 
             sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
 
@@ -219,27 +221,7 @@ public class RobotsService extends TelegramLongPollingBot {
 
 
         if (update.getMessage().getText().startsWith(GET_USDT)) {
-            String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
-            //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
-            String raw = HttpUtil.get(url);
-            JSONObject result = JSONObject.parseObject(raw);
-            if (result.getString("code").equals("0")) {
-                JSONArray buys = result.getJSONObject("data").getJSONArray("buy");
-                String price = buys.getJSONObject(0).getString("price");
-                StringBuffer stringBuffer = new StringBuffer();
-                stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
-                for (int i = 0; i < buys.size(); i++) {
-                    if (i < 4) {
-                        stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
-                    } else {
-                        break;
-                    }
-                }
-                sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
-            } else {
-                sendSingleMessage(update.getMessage().getChatId(), "网络异常，请稍后再试");
-                log.error(raw);
-            }
+            sendUSDT(update.getMessage().getChatId());
             return;
         }
     }
@@ -334,6 +316,13 @@ public class RobotsService extends TelegramLongPollingBot {
             return;
         }
 
+        //GET_USDT_TEXT
+        Pattern patternUSDT = Pattern.compile(GET_USDT_TEXT);
+        Matcher matcherUSDT = patternUSDT.matcher(text);
+        if (matcherUSDT.matches()) {
+            sendUSDT(chatId);
+            return;
+        }
 
         //绑定商户-管理员
         Pattern patternBlindMch = Pattern.compile(BLIND_MCH);
@@ -1181,6 +1170,30 @@ public class RobotsService extends TelegramLongPollingBot {
         sendMessage.setChatId(chatId);
         sendMessage.setText(messageStr);
         return sendSingleMessage(sendMessage);
+    }
+
+    private void sendUSDT(Long chatId) {
+        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
+        //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
+        String raw = HttpUtil.get(url);
+        JSONObject result = JSONObject.parseObject(raw);
+        if (result.getString("code").equals("0")) {
+            JSONArray buys = result.getJSONObject("data").getJSONArray("buy");
+            String price = buys.getJSONObject(0).getString("price");
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
+            for (int i = 0; i < buys.size(); i++) {
+                if (i < 4) {
+                    stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
+                } else {
+                    break;
+                }
+            }
+            sendSingleMessage(chatId, stringBuffer.toString());
+        } else {
+            sendSingleMessage(chatId, "网络异常，请稍后再试");
+            log.error(raw);
+        }
     }
 
 
