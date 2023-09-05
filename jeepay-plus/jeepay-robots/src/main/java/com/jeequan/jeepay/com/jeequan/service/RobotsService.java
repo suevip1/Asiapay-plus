@@ -1068,6 +1068,19 @@ public class RobotsService extends TelegramLongPollingBot {
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
                     sendMessage.setParseMode(ParseMode.HTML);
                     execute(sendMessage);
+                } else if (message.hasVideo()) {
+                    SendVideo sendVideo = new SendVideo();
+
+                    stringBuffer.append(message.getCaption() + System.lineSeparator());
+                    stringBuffer.append(System.lineSeparator());
+                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+
+                    sendVideo.setChatId(chatId); // Replace with the destination chat ID
+                    sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
+                    sendVideo.setCaption(stringBuffer.toString());
+                    sendVideo.setReplyToMessageId(sourceMessage.getMessageId());
+                    sendVideo.setParseMode(ParseMode.HTML);
+                    execute(sendVideo);
                 }
             }
         } catch (Exception e) {
