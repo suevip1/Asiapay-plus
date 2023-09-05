@@ -278,7 +278,8 @@
         tableChannel: '1', // tab选择
         tableColumns: tableColumns,
         passageData: [],
-        chartPassage: null
+        chartPassage: null,
+        timer: null
       }
     },
     components: { JeepayTable, JeepayTableColumns, empty },
@@ -378,7 +379,7 @@
         }).catch((err) => {
           console.error(err)
         })
-        setInterval(function () {
+        this.timer = setInterval(function () {
           that.updatePassageData()
         }, 30000)
       },
@@ -460,6 +461,14 @@
       // 用户名信息以及时间问候语句。由于退出登陆才让他更改成功，所以这里的数据先从 vuex中获取
       this.mainTips.helloTitle = `${timeFix()}，` + this.$store.state.user.loginUsername
       this.init()
+    },
+    beforeRouteLeave (to, from, next) {
+      // 在离开前执行一些操作，例如提示用户保存数据
+      // ...
+      // 执行next()，表示继续进行路由切换
+      console.log('test')
+      clearInterval(this.timer)
+      next()
     }
   }
 </script>

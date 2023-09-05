@@ -6,6 +6,20 @@
           <div class="table-layer">
             <jeepay-text-up :placeholder="'产品代码'" :msg="searchData.productId" v-model="searchData.productId" />
             <jeepay-text-up :placeholder="'产品名称'" :msg="searchData.productName" v-model="searchData.productName" />
+            <a-form-item label="" class="table-head-layout">
+              <a-select v-model="searchData.state" placeholder="产品状态" default-value="">
+                <a-select-option value="">全部</a-select-option>
+                <a-select-option value="0">禁用</a-select-option>
+                <a-select-option value="1">启用</a-select-option>
+              </a-select>
+            </a-form-item>
+            <a-form-item label="" class="table-head-layout">
+              <a-select v-model="searchData.limitState" placeholder="成本限制状态" default-value="">
+                <a-select-option value="">全部</a-select-option>
+                <a-select-option value="0">禁用</a-select-option>
+                <a-select-option value="1">启用</a-select-option>
+              </a-select>
+            </a-form-item>
             <span class="table-page-search-submitButtons">
               <a-button type="primary" @click="searchFunc(true)" icon="search" :loading="btnLoading">查询</a-button>
               <a-button style="margin-left: 8px;" @click="() => this.searchData = {}" icon="reload">重置</a-button>
@@ -26,6 +40,12 @@
         rowKey="productId"
       >
         <template slot="wayCodeSlot" slot-scope="{record}"><b>{{ record.productId }}</b></template> <!-- 自定义插槽 -->
+        <template slot="stateSlot" slot-scope="{record}">
+          <JeepayTableColState :state="record.state" :showSwitchType="true" :onChange="(state) => { return onStateSwitchChange(record.productId, state)}"/>
+        </template>
+        <template slot="limitStateSlot" slot-scope="{record}">
+          <JeepayTableColState :state="record.limitState" :showSwitchType="true" :onChange="(state) => { return onLimitStateSwitchChange(record.productId, state)}"/>
+        </template>
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
             <a v-if="$access('ENT_PC_WAY_EDIT')" @click="editFunc(record.productId)">修改</a>
@@ -48,13 +68,15 @@ import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import { API_URL_PAYWAYS_LIST, req } from '@/api/manage'
 import InfoAddOrEdit from './AddOrEdit'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp'
-import ProductMchEdit from '@/views/payconfig/payWay/ProductMchEdit.vue' // 文字上移组件
+import ProductMchEdit from '@/views/payconfig/payWay/ProductMchEdit.vue'
+import JeepayTableColState from '@/components/JeepayTable/JeepayTableColState.vue' // 文字上移组件
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
   {
     key: 'productId', // key为必填项，用于标志该列的唯一
     fixed: 'left',
     title: '产品代码',
+    width: '120px',
     scopedSlots: { customRender: 'wayCodeSlot' }
   },
   {
@@ -63,14 +85,19 @@ const tableColumns = [
     dataIndex: 'productName'
   },
   {
+    key: 'state', // key为必填项，用于标志该列的唯一
+    title: '产品状态',
+    scopedSlots: { customRender: 'stateSlot' }
+  },
+  {
+    key: 'limitState', // key为必填项，用于标志该列的唯一
+    title: '高于成本拉起',
+    scopedSlots: { customRender: 'limitStateSlot' }
+  },
+  {
     key: 'createdAt',
     title: '创建时间',
     dataIndex: 'createdAt'
-  },
-  {
-    key: 'updatedAt',
-    title: '更新时间',
-    dataIndex: 'updatedAt'
   },
   {
     key: 'op',
@@ -84,7 +111,7 @@ const tableColumns = [
 
 export default {
   name: 'PayWayPage',
-  components: { JeepayTable, JeepayTableColumns, InfoAddOrEdit, JeepayTextUp, ProductMchEdit },
+  components: { JeepayTableColState, JeepayTable, JeepayTableColumns, InfoAddOrEdit, JeepayTextUp, ProductMchEdit },
   data () {
     return {
       tableColumns: tableColumns,
@@ -120,6 +147,46 @@ export default {
           that.$message.success('删除成功！')
           that.$refs.infoTable.refTable(false)
         })
+      })
+    },
+    onStateSwitchChange (recordId, state) {
+      const that = this
+      const title = state === 1 ? '确认[启用]该产品？' : '确认[停用]该产品？'
+      const content = state === 1 ? '' : ''
+      const param = {
+        state: state
+      }
+      return new Promise((resolve, reject) => {
+        that.$infoBox.confirmDanger(title, content, () => {
+              return req.updateById(API_URL_PAYWAYS_LIST, recordId, param).then(res => {
+                that.$message.success('修改成功')
+                that.searchFunc()
+                resolve()
+              }).catch(err => reject(err))
+            },
+            () => {
+              reject(new Error())
+            })
+      })
+    },
+    onLimitStateSwitchChange (recordId, state) {
+      const that = this
+      const title = state === 1 ? '确认[启用]高于成本拉起？' : '确认[停用]高于成本拉起？'
+      const content = state === 1 ? '此设置为防止费率配置错误，启用后允许拉起成本价高于收益的产品下通道，打开限制需谨慎！' : '停用后无法拉起成本价高于收益的产品下通道'
+      const param = {
+        limitState: state
+      }
+      return new Promise((resolve, reject) => {
+        that.$infoBox.confirmDanger(title, content, () => {
+              return req.updateById(API_URL_PAYWAYS_LIST, recordId, param).then(res => {
+                that.$message.success('修改成功')
+                that.searchFunc()
+                resolve()
+              }).catch(err => reject(err))
+            },
+            () => {
+              reject(new Error())
+            })
       })
     }
   }

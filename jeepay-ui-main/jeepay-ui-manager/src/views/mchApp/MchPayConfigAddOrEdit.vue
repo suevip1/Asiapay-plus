@@ -82,6 +82,8 @@ export default {
       req.getById(API_URL_IFDEFINES_LIST, record.ifCode).then(res => {
         if (record.payInterfaceConfig !== undefined) {
           that.ifParams = JSON.parse(record.payInterfaceConfig)
+        } else {
+          that.ifParams = {}
         }
         const newItems = [] // 重新加载支付接口配置定义描述json
         let radioItems = [] // 存放单选框value title

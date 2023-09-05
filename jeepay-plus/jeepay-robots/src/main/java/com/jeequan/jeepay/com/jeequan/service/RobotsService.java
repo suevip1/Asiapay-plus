@@ -173,6 +173,7 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
+
     /**
      * 私聊命令
      *
@@ -262,14 +263,17 @@ public class RobotsService extends TelegramLongPollingBot {
             }
         }
         if (message.hasPhoto() || message.hasVideo()) {
+            //todo 通过mediaGroupId 判断是否同一条group消息
             String text = message.getCaption();
-            if (text.contains("\n")) {
-                String[] texts = text.split("\n");
-                for (int i = 0; i < texts.length; i++) {
-                    sendSingleQuery(texts[i].trim(), message);
+            if (StringUtils.isNotEmpty(text)) {
+                if (text.contains("\n")) {
+                    String[] texts = text.split("\n");
+                    for (int i = 0; i < texts.length; i++) {
+                        sendSingleQuery(texts[i].trim(), message);
+                    }
+                } else {
+                    sendSingleQuery(text, message);
                 }
-            } else {
-                sendSingleQuery(text, message);
             }
             return;
         }
@@ -1036,12 +1040,16 @@ public class RobotsService extends TelegramLongPollingBot {
             Long chatId = sourceMessage.getChatId();
 
             StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append(message.getCaption() + System.lineSeparator());
-            stringBuffer.append(System.lineSeparator());
-            stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+
+
             if (message.isReply()) {
                 if (message.hasPhoto()) {
                     SendPhoto sendPhoto = new SendPhoto();
+
+                    stringBuffer.append(message.getCaption() + System.lineSeparator());
+                    stringBuffer.append(System.lineSeparator());
+                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+
                     sendPhoto.setChatId(chatId); // Replace with the destination chat ID
                     sendPhoto.setPhoto(new InputFile(message.getPhoto().get(0).getFileId()));
                     sendPhoto.setCaption(stringBuffer.toString());
@@ -1050,6 +1058,11 @@ public class RobotsService extends TelegramLongPollingBot {
                     execute(sendPhoto);
                 } else if (message.hasText()) {
                     SendMessage sendMessage = new SendMessage();
+
+                    stringBuffer.append(message.getText() + System.lineSeparator());
+                    stringBuffer.append(System.lineSeparator());
+                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+
                     sendMessage.setChatId(chatId);
                     sendMessage.setText(stringBuffer.toString());
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
@@ -1456,7 +1469,6 @@ public class RobotsService extends TelegramLongPollingBot {
         return sysConfigService.getRobotsConfig().getRobotsToken();
     }
 
-    private static final int WARNING_COUNT = 5;
 
     /**
      * 强制补单查询
@@ -1598,7 +1610,7 @@ public class RobotsService extends TelegramLongPollingBot {
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
                             stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-                            stringBufferOrderInfo.append(" [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
+                            stringBufferOrderInfo.append("商户订单号 [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
                             message.setText(stringBufferOrderInfo.toString());
                             RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
                             sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");

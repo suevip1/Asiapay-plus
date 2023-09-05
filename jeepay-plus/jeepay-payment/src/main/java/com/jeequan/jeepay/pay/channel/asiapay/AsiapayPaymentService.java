@@ -95,4 +95,26 @@ public class AsiapayPaymentService extends AbstractPaymentService {
         return res;
     }
 
+    public static void main(String[] args) {
+        Map<String, Object> map = new HashMap<>();
+        String key = "JGdYUTMu7jDkavYeFe0VgM8jo8fAGu656ymQvErvqua9PL3KmOHglNx2xSUAKXiRrcLIioEHQ2GIxgIOpeJ4yanVMlcGoXM1fqhfAEzGixp6fGmKEPpKiT8w92KVz1es";
+        String mchNo = "M1693765855";
+
+
+        map.put("mchNo", mchNo);
+        map.put("mchOrderNo", "AT12023090521025312632");
+        map.put("amount", 5000L);
+        map.put("productId", "8089");
+        map.put("reqTime", "1693918973130");
+        map.put("clientIp", "127.0.0.1");
+        map.put("notifyUrl", "http://107.148.198.70:8403/api/klnzfbjw/notify");
+        String sign = JeepayKit.getSign(map, key).toLowerCase();
+        map.put("sign", sign);
+
+        String  raw = HttpUtil.post("http://pay.kulinan-pay.com/api/pay/unifiedOrder", map);
+        log.info("[{}]请求响应:{}", LOG_TAG, raw);
+
+
+    }
+
 }

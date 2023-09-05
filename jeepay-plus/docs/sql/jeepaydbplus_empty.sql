@@ -554,6 +554,8 @@ CREATE TABLE `t_product` (
   `product_name` varchar(64) NOT NULL COMMENT '产品名称',
   `created_at` timestamp(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '创建时间',
   `updated_at` timestamp(6) NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '更新时间',
+  `limit_state` tinyint(6) NOT NULL DEFAULT 0 COMMENT '允许低于成本价格拉起状态 0-停用, 1-启用',
+  `state` tinyint(6) NOT NULL DEFAULT 1 COMMENT '状态 0-停用, 1-启用',
   PRIMARY KEY (`product_id`) USING BTREE,
   UNIQUE KEY `id` (`product_id`) USING BTREE,
   KEY `index` (`product_name`,`created_at`) USING BTREE

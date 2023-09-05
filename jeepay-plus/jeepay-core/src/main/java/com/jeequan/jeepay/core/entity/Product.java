@@ -54,5 +54,13 @@ public class Product extends BaseModel {
     @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private Date updatedAt;
 
+    /**
+     * 状态: 0-停用, 1-正常
+     */
+    private Byte state;
 
+    /**
+     * 允许低于成本价格拉起状态 0-停用, 1-启用
+     */
+    private Byte limitState;
 }

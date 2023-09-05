@@ -72,6 +72,12 @@ public class PayWayController extends CommonCtrl {
             if (StringUtils.isNotEmpty(queryObject.getProductName())) {
                 condition.like(Product::getProductName, queryObject.getProductName());
             }
+            if (queryObject.getState() != null) {
+                condition.like(Product::getState, queryObject.getState());
+            }
+            if (queryObject.getLimitState() != null) {
+                condition.like(Product::getLimitState, queryObject.getLimitState());
+            }
             condition.orderByAsc(Product::getProductId);
 
             IPage<Product> pages = productService.page(getIPage(true), condition);

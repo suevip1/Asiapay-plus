@@ -113,13 +113,19 @@ public abstract class AbstractPayOrderController extends ApiController {
                 throw new BizException("异步通知地址协议仅支持http:// 或 https:// !");
             }
 
-            PayConfigContext payConfigContext = configContextQueryService.queryAndCheckPayConfig(mchNo, bizRQ.getProductId(), bizRQ.getAmount());
+            Product product = configContextQueryService.queryProduct(bizRQ.getProductId());
+            if (product == null) {
+                throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品不存在");
+            }
+            if (product.getState() == CS.NO) {
+                throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品状态不可用");
+            }
+            PayConfigContext payConfigContext = configContextQueryService.queryAndCheckPayConfig(mchNo, product, bizRQ.getAmount());
 
             if (payConfigContext == null || payConfigContext.getPayPassage() == null || payConfigContext.getMchPayPassage() == null) {
                 log.error("{}没有可用的通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
                 throw new BizException("没有可用的通道");
             }
-            Product product = configContextQueryService.queryProduct(bizRQ.getProductId());
             payConfigContext.setProduct(product);
             MchInfo mchInfo = payConfigContext.getMchInfo();
 

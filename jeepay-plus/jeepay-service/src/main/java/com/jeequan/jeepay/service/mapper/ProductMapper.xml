@@ -8,6 +8,8 @@
         <result column="product_name" property="productName" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
+        <result column="state" property="state" />
+        <result column="limit_state" property="limitState" />
     </resultMap>
 
 </mapper>

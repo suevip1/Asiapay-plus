@@ -73,10 +73,12 @@ public class ConfigContextQueryService {
      *
      * @return
      */
-    public PayConfigContext queryAndCheckPayConfig(String mchNo, Long productId, Long orderAmount) {
-        PayConfigContext payConfigContext = null;
+    public PayConfigContext queryAndCheckPayConfig(String mchNo, Product product, Long orderAmount) {
 
-        List<PayConfigContext> payConfigContextList = getAvailablePassage(mchNo, productId);
+        PayConfigContext payConfigContext = null;
+        Long productId = product.getProductId();
+
+        List<PayConfigContext> payConfigContextList = getAvailablePassage(mchNo, product.getProductId());
 
         if (!CollUtil.isNotEmpty(payConfigContextList)) {
             throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId, mchNo));
@@ -172,14 +174,17 @@ public class ConfigContextQueryService {
                 }
             }
             BigDecimal totalCostRate = passageRate.add(agentRate).add(agentMchRate);
-            //todo 检测费率问题，暂时屏蔽
-//            if (mchRate.compareTo(totalCostRate) > 0) {
-//                payConfigFilter.setMchInfo(mchInfo);
-//                rateFilterList.add(payConfigFilter);
-//            }
 
-            payConfigFilter.setMchInfo(mchInfo);
-            rateFilterList.add(payConfigFilter);
+            //是否允许低于成本拉起
+            if (product.getLimitState() == CS.YES) {
+                payConfigFilter.setMchInfo(mchInfo);
+                rateFilterList.add(payConfigFilter);
+            } else {
+                if (mchRate.compareTo(totalCostRate) > 0) {
+                    payConfigFilter.setMchInfo(mchInfo);
+                    rateFilterList.add(payConfigFilter);
+                }
+            }
         }
 
         if (!CollUtil.isNotEmpty(rateFilterList)) {

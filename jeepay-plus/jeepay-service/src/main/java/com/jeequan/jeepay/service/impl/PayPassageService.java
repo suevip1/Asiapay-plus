@@ -46,8 +46,11 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     public void updatePassageInfo(PayPassage payPassage) {
         try {
             PayPassage passageOld = getById(payPassage.getPayPassageId());
-            if(StringUtils.isNotEmpty(passageOld.getPayInterfaceConfig())){
-                if (!passageOld.getPayInterfaceConfig().equals(payPassage.getPayInterfaceConfig())) {
+            String oldConfig = passageOld.getPayInterfaceConfig();
+            String newConfig = payPassage.getPayInterfaceConfig();
+
+            if(StringUtils.isNotEmpty(oldConfig) && StringUtils.isNotEmpty(newConfig)){
+                if (!oldConfig.equals(newConfig)) {
                     RedisUtil.addToQueue(REDIS_SUFFIX, passageOld);
                     log.info("通道三方配置被修改,[{}]{}", payPassage.getPayPassageId(), payPassage.getPayPassageName());
                 }

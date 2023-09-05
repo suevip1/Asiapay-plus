@@ -68,7 +68,7 @@ public class AsiapayChannelNoticeService extends AbstractChannelNoticeService {
             result.setResponseEntity(okResponse);
 
             //	支付订单状态 0-订单生成 1-支付中 2-支付成功 3-支付失败 6-订单关闭 7-出码失败
-            int status = jsonParams.getInteger("status");
+            int status = jsonParams.getInteger("state");
 
             if (status != 2) {
                 log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
