@@ -68,6 +68,18 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
+            <a-form-model-item label='测试订单入库（开启此选项订单入库并自动挂到测试商户下）用于测试回调：'>
+              <a-radio-group v-model="testOrderIn">
+                <a-radio :value="1">
+                  启用
+                </a-radio>
+                <a-radio :value="0">
+                  禁用
+                </a-radio>
+              </a-radio-group>
+            </a-form-model-item>
+          </a-col>
+          <a-col :span="24">
             <a-button type="primary" @click="onSubmit" icon="check" >下单测试</a-button>
           </a-col>
         </a-row>
@@ -76,13 +88,14 @@
     <a-divider/>
     <a-row justify="start" type="flex">
       <a-col :sm="24">
-        <a-form-model-item label="测试订单号">
+        <a-form-model-item label="测试商户订单号">
           <a-input
               type="text"
               disabled="disabled"
               style="color: black"
               v-model="testPayOrderId"
           />
+          <a-button v-if="isShowReturnUrl" type="danger" @click="goOrderList" icon="double-right" >去订单页查看</a-button>
         </a-form-model-item>
       </a-col>
     </a-row>
@@ -131,7 +144,8 @@ export default {
       respParams: '',
       testPayOrderId: '',
       isShowReturnUrl: false,
-      returnUrl: ''
+      returnUrl: '',
+      testOrderIn: 0
     }
   },
   methods: {
@@ -148,8 +162,9 @@ export default {
       this.testPayOrderId = ''
       this.isShowReturnUrl = false
       this.returnUrl = ''
+      this.testOrderIn = 0
     },
-    // 表单提交
+    // todo 表单提交 先检测是否设置了对应产品的费率
     onSubmit () {
       if (this.payTestAmount === '' || this.payTestAmount === 0) {
         this.$message.error('金额不能为空')
@@ -161,6 +176,8 @@ export default {
       params.testOrderNo = testOrderNo
       params.passageId = this.passage.payPassageId
       params.amount = this.payTestAmount
+      params.testOrderIn = this.testOrderIn
+      params.productId = this.passage.productId
       that.$store.commit('showLoading') // 关闭全局刷新 API_URL_PASSAGE_TEST
       passageTestOrder(params).then(res => {
         that.$store.commit('hideLoading') // 关闭全局刷新
@@ -188,6 +205,13 @@ export default {
     },
     onCopy () {
       this.$message.success('复制成功')
+    },
+    goOrderList: function () { // 应用配置
+      this.$router.push({
+        path: '/pay',
+        query: { unionOrderId: this.testPayOrderId }
+      })
+      this.visible = false
     }
   }
 }

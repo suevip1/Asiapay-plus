@@ -54,6 +54,12 @@ public class CS {
     }
 
     /**
+     * 测试商户商户号
+     */
+    public static final String TEST_MCH_NO = "M1691231056";
+
+
+    /**
      * yes or no
      **/
     public static final byte NO = 0;
@@ -275,7 +281,7 @@ public class CS {
     public interface IF_CODE {
         String TESTPAY = "testpay";
 
-        String ASIAPAY="asiapay";
+        String ASIAPAY = "asiapay";
         /**
          * 卡密
          */
@@ -297,7 +303,7 @@ public class CS {
 
         String RIXINPAY2 = "rixinpay2";
 
-        String RIXINPAY3= "rixinpay3";
+        String RIXINPAY3 = "rixinpay3";
 
         String XXPAY = "xxpay";
 

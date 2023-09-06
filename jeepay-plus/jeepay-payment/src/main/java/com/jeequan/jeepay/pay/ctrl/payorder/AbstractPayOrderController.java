@@ -60,9 +60,14 @@ public abstract class AbstractPayOrderController extends ApiController {
     @Autowired
     private AgentAccountInfoService agentAccountInfoService;
     @Autowired
+    private SysConfigService sysConfigService;
+
+    @Autowired
     private IMQSender mqSender;
 
     private static final String ORDER_TAG = "[下单校验]";
+
+    private static final String TEST_ORDER_TAG = "[测试入库下单校验]";
 
     /**
      * 统一下单 (新建订单模式)
@@ -185,6 +190,86 @@ public abstract class AbstractPayOrderController extends ApiController {
         }
     }
 
+    /**
+     * 统一下单
+     **/
+    protected ApiRes unifiedTestInOrder(PayOrder payOrderParams) {
+
+        // 响应数据
+
+        PayOrder payOrder = null;
+        UnifiedOrderRS bizRS = null;
+
+        Long productId = payOrderParams.getProductId();
+        Long passageId = payOrderParams.getPassageId();
+        Long amount = payOrderParams.getAmount();
+        String mchOrderNo = payOrderParams.getMchOrderNo();
+        String mchNo = CS.TEST_MCH_NO;
+        String notifyUrl = sysConfigService.getDBApplicationConfig().getMchSiteUrl() + "/api/anon/paytestNotify/payOrder";
+
+        UnifiedOrderRQ bizRQ = new UnifiedOrderRQ();
+        bizRQ.setMchOrderNo(mchOrderNo);
+        bizRQ.setAmount(amount);
+        bizRQ.setMchNo(mchNo);
+        bizRQ.setProductId(productId);
+        bizRQ.setNotifyUrl(notifyUrl);
+        try {
+
+            PayConfigContext payConfigContext = new PayConfigContext();
+
+            Product product = configContextQueryService.queryProduct(productId);
+            MchInfo mchInfo = configContextQueryService.queryMchInfo(mchNo);
+            PayPassage payPassage = configContextQueryService.queryPayPassage(passageId);
+
+            payConfigContext.setMchInfo(mchInfo);
+            payConfigContext.setPayPassage(payPassage);
+            payConfigContext.setProduct(product);
+
+
+            //获取支付接口
+            IPaymentService paymentService = getService(payConfigContext.getPayPassage().getIfCode());
+
+            //生成订单
+            payOrder = genTestInPayOrder(bizRQ, payConfigContext);
+
+            //预先校验
+            String errMsg = paymentService.preCheck(null, payOrder);
+            if (StringUtils.isNotEmpty(errMsg)) {
+                log.error("{} - preCheck失败 [{}] [{}]", TEST_ORDER_TAG, JSONObject.toJSONString(payOrder), errMsg);
+                throw new BizException(errMsg);
+            }
+
+            //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
+            payOrderService.save(payOrder);
+            log.info("{}-订单入库 [{}]", TEST_ORDER_TAG, JSONObject.toJSONString(payOrder));
+
+            //调起上游支付接口
+            bizRS = (UnifiedOrderRS) paymentService.pay(null, payOrder, payConfigContext);
+            log.info("{}-调起[{}]三方接口返回:{}", TEST_ORDER_TAG, payOrder.getIfCode(), JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
+            //保存响应
+            //处理上游返回数据 此处待修改,状态只到支付中  这里的CONFIRM_SUCCESS 也只修改订单状态为支付中
+            byte orderState = this.processOrderChannelMsg(bizRS.getChannelRetMsg(), payOrder);
+            //返回的最新订单状态
+            payOrder.setState(orderState);
+            //订单入库,更新统计订单表使用 mq
+            mqSender.send(StatisticsOrderMQ.build(payOrder.getPayOrderId(), payOrder));
+            return packageApiResByPayOrder(bizRQ, bizRS, payOrder);
+
+        } catch (BizException e) {
+            return ApiRes.customFail(e.getMessage());
+        } catch (ChannelException e) {
+            //处理上游返回数据
+            this.processOrderChannelMsg(bizRS.getChannelRetMsg(), payOrder);
+            if (e.getChannelRetMsg().getChannelState() == ChannelRetMsg.ChannelState.SYS_ERROR) {
+                return ApiRes.customFail(e.getMessage());
+            }
+            return this.packageApiResByPayOrder(bizRQ, bizRS, payOrder);
+        } catch (Exception e) {
+            log.error("系统异常：{}", e);
+            return ApiRes.customFail("系统异常");
+        }
+    }
+
 
     /**
      * 生成新订单
@@ -255,6 +340,65 @@ public abstract class AbstractPayOrderController extends ApiController {
 
         payOrder.setState(PayOrder.STATE_INIT); //订单状态, 默认订单生成状态
         payOrder.setClientIp(StringUtils.defaultIfEmpty(rq.getClientIp(), getClientIp())); //客户端IP
+        payOrder.setNotifyUrl(rq.getNotifyUrl()); //异步通知地址
+
+        Date nowDate = new Date();
+
+        //订单过期时间 单位： 秒
+        payOrder.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间 默认60min
+
+        payOrder.setCreatedAt(nowDate); //订单创建时间
+
+        //支付渠道信息
+        payOrder.setPassageId(payConfigContext.getPayPassage().getPayPassageId());
+        payOrder.setIfCode(payConfigContext.getPayPassage().getIfCode());
+
+        return payOrder;
+    }
+
+    /**
+     * 生成需要入库的测试订单
+     *
+     * @param rq
+     * @param payConfigContext
+     * @return
+     */
+    private PayOrder genTestInPayOrder(UnifiedOrderRQ rq, PayConfigContext payConfigContext) {
+
+        PayOrder payOrder = new PayOrder();
+
+        payOrder.setPayOrderId(SeqKit.genPayOrderId()); //生成订单ID
+        payOrder.setMchNo(payConfigContext.getMchInfo().getMchNo()); //商户号
+        payOrder.setMchName(payConfigContext.getMchInfo().getMchName()); //商户名称
+
+        payOrder.setMchOrderNo(rq.getMchOrderNo()); //商户订单号
+        payOrder.setAmount(rq.getAmount()); //订单金额
+
+        payOrder.setIfCode(payConfigContext.getPayPassage().getIfCode()); //接口代码
+        payOrder.setProductId(payConfigContext.getProduct().getProductId()); //支付方式
+        payOrder.setProductName(payConfigContext.getProduct().getProductName());
+
+        //通道手续费费率快照
+        Long passageFeeAmount = AmountUtil.calPercentageFee(rq.getAmount(), payConfigContext.getPayPassage().getRate());
+        payOrder.setPassageRate(payConfigContext.getPayPassage().getRate());
+        payOrder.setPassageFeeAmount(passageFeeAmount);
+
+        //商户手续费 费率快照-总收费
+        payOrder.setMchFeeRate(payConfigContext.getPayPassage().getRate());
+        payOrder.setMchFeeAmount(passageFeeAmount);
+
+        //代理-商户手续费 - 代理状态是否可用
+        payOrder.setAgentRate(BigDecimal.ZERO);
+        payOrder.setAgentNo("");
+        payOrder.setAgentFeeAmount(0L);
+
+        //代理-通道手续费快照 - 代理状态是否可用
+        payOrder.setAgentPassageRate(BigDecimal.ZERO);
+        payOrder.setAgentNoPassage("");
+        payOrder.setAgentPassageFee(0L);
+
+        payOrder.setState(PayOrder.STATE_INIT); //订单状态, 默认订单生成状态
+        payOrder.setClientIp(getClientIp()); //客户端IP
         payOrder.setNotifyUrl(rq.getNotifyUrl()); //异步通知地址
 
         Date nowDate = new Date();

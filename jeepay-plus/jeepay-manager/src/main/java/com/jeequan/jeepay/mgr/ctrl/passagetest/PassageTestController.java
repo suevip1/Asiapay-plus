@@ -2,6 +2,7 @@ package com.jeequan.jeepay.mgr.ctrl.passagetest;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.core.model.DBApplicationConfig;
@@ -36,6 +37,10 @@ public class PassageTestController extends CommonCtrl {
         String testOrderNo = getValStringRequired("testOrderNo");
         //通道号
         Long passageId = getValLongRequired("passageId");
+        //产品号
+        Long productId = getValLongRequired("productId");
+        //订单是否入库并挂在测试商户下
+        Byte testOrderIn = getValByte("testOrderIn");
 
         DBApplicationConfig dbApplicationConfig = sysConfigService.getDBApplicationConfig();
 
@@ -47,13 +52,22 @@ public class PassageTestController extends CommonCtrl {
         String notifyUrl = dbApplicationConfig.getMgrSiteUrl() + "/api/anon/passageTestNotify/payOrder";
 
         map.put("payOrderId", testOrderNo);
+        map.put("mchOrderNo", testOrderNo);
         map.put("amount", amount);
         map.put("passageId", passageId);
+        map.put("productId", productId);
         map.put("reqTime", reqTime);
         map.put("clientIp", getClientIp());
         map.put("notifyUrl", notifyUrl);
 
-        String raw = HttpUtil.post(dbApplicationConfig.getPaySiteUrl() + "/api/pay/unifiedOrderPassageTest", map);
+        String payGateWay = "";
+        if (testOrderIn != null && testOrderIn == CS.YES) {
+            payGateWay = dbApplicationConfig.getPaySiteUrl() + "/api/pay/unifiedOrderInTest";
+        } else {
+            payGateWay = dbApplicationConfig.getPaySiteUrl() + "/api/pay/unifiedOrderPassageTest";
+        }
+
+        String raw = HttpUtil.post(payGateWay, map);
         JSONObject jsonObject = JSONObject.parseObject(raw);
         return ApiRes.ok(jsonObject);
     }

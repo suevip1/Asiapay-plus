@@ -74,7 +74,7 @@ public class UnifiedOrderController extends AbstractPayOrderController {
     public ApiRes unifiedOrderPassageTest() {
         try {
             PayOrder payOrderParams = getObject(PayOrder.class);
-            log.info(JSONObject.toJSONString(payOrderParams));
+            log.info("通道拉起测试: " + JSONObject.toJSONString(payOrderParams));
 
             //只做拉起通道测试，不走订单流程，主要校验通道代码以及配置等是否正常
             PayPassage payPassage = configContextQueryService.queryPayPassage(payOrderParams.getPassageId());
@@ -83,13 +83,44 @@ public class UnifiedOrderController extends AbstractPayOrderController {
             }
             //支付接口service
             IPaymentService paymentService = getService(payPassage.getIfCode());
-            log.info("支付接口:" + paymentService.toString());
+            log.info("通道拉起测试-支付接口:" + paymentService.toString());
             PayConfigContext payConfigContext = new PayConfigContext();
             payConfigContext.setPayPassage(payPassage);
 
             // 响应数据
             UnifiedOrderRS bizRS = (UnifiedOrderRS) paymentService.pay(null, payOrderParams, payConfigContext);
-            log.info("订单号-[{}] 接口响应数据:{}", payOrderParams.getPayOrderId(), JSONObject.toJSONString(bizRS.getChannelRetMsg()));
+            log.info("通道拉起测试-订单号-[{}] 接口响应数据:{}", payOrderParams.getPayOrderId(), JSONObject.toJSONString(bizRS.getChannelRetMsg()));
+            if (StringUtils.isEmpty(bizRS.getPayData())) {
+                bizRS.setErrMsg(bizRS.getChannelRetMsg().getChannelOriginResponse());
+                return ApiRes.customFail(bizRS.getChannelRetMsg().getChannelOriginResponse());
+            }
+            return ApiRes.ok(bizRS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ApiRes.customFail(e.getMessage());
+        }
+    }
+
+    /**
+     * 需要入库的订单
+     *
+     * @return
+     */
+    @PostMapping("/api/pay/unifiedOrderInTest")
+    public ApiRes unifiedOrderInTest() {
+        try {
+            String TAG = "入库订单测试: ";
+            //todo 设置测试商户并走正常流程,测试商户不校验绑定等
+            PayOrder payOrderParams = getObject(PayOrder.class);
+            log.info(TAG + JSONObject.toJSONString(payOrderParams));
+
+            ApiRes apiRes = unifiedTestInOrder(payOrderParams);
+            if (apiRes.getData() == null) {
+                return apiRes;
+            }
+            UnifiedOrderRS bizRS = (UnifiedOrderRS) apiRes.getData();
+
+            log.info("{} 订单号-[{}] 接口响应数据:{}", TAG, payOrderParams.getPayOrderId(), JSONObject.toJSONString(bizRS.getChannelRetMsg()));
             if (StringUtils.isEmpty(bizRS.getPayData())) {
                 bizRS.setErrMsg(bizRS.getChannelRetMsg().getChannelOriginResponse());
                 return ApiRes.customFail(bizRS.getChannelRetMsg().getChannelOriginResponse());

@@ -66,7 +66,7 @@
             <a-button type="link" v-if="$access('ENT_MCH_INFO_EDIT')" @click="editFunc(record.mchNo)">修改</a-button>
             <a-button type="link" v-if="$access('ENT_MCH_APP_CONFIG')" @click="mchAppConfig(record)">支付配置</a-button>
             <a-button type="link" v-if="$access('ENT_MCH_APP_CONFIG')" @click="mchPassageConfig(record)">通道绑定</a-button>
-            <a-button type="link" v-if="$access('ENT_MCH_INFO_DEL')" style="color: red" @click="delFunc(record.mchNo)">删除</a-button>
+            <a-button type="link" v-if="$access('ENT_MCH_INFO_DEL') && record.mchNo!=='M1691231056'" style="color: red" @click="delFunc(record.mchNo)">删除</a-button>
           </JeepayTableColumns>
         </template>
       </JeepayTable>

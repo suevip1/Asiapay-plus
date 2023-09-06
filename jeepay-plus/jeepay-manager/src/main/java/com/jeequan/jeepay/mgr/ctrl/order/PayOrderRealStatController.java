@@ -31,20 +31,24 @@ public class PayOrderRealStatController extends CommonCtrl {
         JSONObject paramJSON = getReqParamJSON();
         PayOrder payOrder = getObject(PayOrder.class);
         LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
-        List<PayOrder> payOrderList  = payOrderService.listByQuery(payOrder, paramJSON, wrapper);
-
+//        long test1 = System.currentTimeMillis();
+        List<PayOrder> payOrderList = payOrderService.listByQuery(payOrder, paramJSON, wrapper);
+//        long test2 = System.currentTimeMillis();
+//        log.error("================= " + ((test2 - test1) / 1000f) + " ============");
         //统计数据 成交金额,利润,订单总数,成交订单数,订单总金额，平台成本，成功率，代理收入
         int successCount = 0;
         int totalCount = payOrderList.size();//订单总数
         Long totalAmount = 0L;//订单总金额
         Long successAmount = 0L;//成交金额
         Long totalIncome = 0L;//利润
+        Long totalMchIncome = 0L;//商户入账
         for (int i = 0; i < payOrderList.size(); i++) {
             PayOrder payOrderItem = payOrderList.get(i);
             if (payOrderItem.getState() == PayOrder.STATE_SUCCESS) {
                 successCount++;
                 successAmount += payOrderItem.getAmount();
                 totalIncome += CalPlatProfit(payOrderItem);
+                totalMchIncome += CalMchIncome(payOrderItem);
             }
             totalAmount += payOrderItem.getAmount();
         }
@@ -54,10 +58,15 @@ public class PayOrderRealStatController extends CommonCtrl {
         result.put("totalAmount", totalAmount);
         result.put("successAmount", successAmount);
         result.put("totalIncome", totalIncome);
+        result.put("totalMchIncome", totalMchIncome);
         return ApiRes.ok(result);
     }
 
     private Long CalPlatProfit(PayOrder payOrder) {
         return payOrder.getMchFeeAmount() - payOrder.getPassageFeeAmount() - payOrder.getAgentFeeAmount() - payOrder.getAgentPassageFee();
+    }
+
+    private Long CalMchIncome(PayOrder payOrder) {
+        return payOrder.getAmount() - payOrder.getMchFeeAmount();
     }
 }

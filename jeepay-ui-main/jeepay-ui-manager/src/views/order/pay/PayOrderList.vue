@@ -59,23 +59,25 @@
       <div v-if="realTimeStatOpen" style="background-color: #fafafa;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid rgba(179,179,179,0.4)">
         <a-row style="padding-left: 15px;padding-right: 15px;">
           <a-col class="stat-col bg-color-1" :span="4">
-            <span class="title">成交金额</span>
+            <span class="title">订单金额</span>
             <b style="color: #DB4B4B;">{{ (realTimeStatData.successAmount/100).toFixed(2) }}</b>
+            <span class="sub-content">总：{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</span>
             <img src="~@/assets/dashboard/icon_zuorichengg.png">
           </a-col>
           <a-col class="stat-col bg-color-2" :span="4" :offset="1">
-            <span class="title">成交订单数</span>
+            <span class="title">订单数</span>
             <b style="color: #FA9D2A;">{{ realTimeStatData.successCount }}</b>
+            <span class="sub-content">总：{{ realTimeStatData.totalCount }}</span>
             <img src="~@/assets/dashboard/orange-icon.png">
           </a-col>
           <a-col class="stat-col bg-color-3" :span="4" :offset="1">
-            <span class="title">总订单金额</span>
-            <b style="color: #2F61DC;">{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</b>
+            <span class="title">商户入账</span>
+            <b style="color: #2F61DC;">{{ (realTimeStatData.totalMchIncome/100).toFixed(2) }}</b>
             <img src="~@/assets/dashboard/icon_jinrichengg.png">
           </a-col>
           <a-col class="stat-col bg-color-4" :span="4" :offset="1">
-            <span class="title">总订单数</span>
-            <b style="color: #864FE1;">{{ realTimeStatData.totalCount }}</b>
+            <span class="title">平台利润</span>
+            <b style="color: #864FE1;">{{ (realTimeStatData.totalIncome/100).toFixed(2) }}</b>
             <img src="~@/assets/dashboard/icon_dailishuliang.png">
           </a-col>
           <a-col class="stat-col bg-color-5" :span="4" :offset="1">
@@ -438,7 +440,9 @@ export default {
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
-    this.$refs.infoTable.refTable(true)
+    // this.$refs.infoTable.refTable(true)
+    this.searchData.unionOrderId = this.$route.query.unionOrderId
+    this.queryFunc()
   },
   methods: {
     queryFunc () {
@@ -571,6 +575,18 @@ export default {
   font-size: 30px;
   top: 10px;
   left: 20px;
+}
+
+.stat-col .sub-content{
+  //font-weight: bold;
+  position: absolute;
+  font-size: 15px;
+  line-height: 20px;
+  height: 20px;
+  text-align: right;
+  bottom: 20px;
+  right: 20px;
+  color: #717579;
 }
 
 .stat-col img{

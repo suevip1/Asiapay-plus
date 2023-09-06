@@ -16,6 +16,7 @@
             <a-input
               placeholder="请输入商户名称"
               v-model="saveObject.mchName"
+              :disabled="saveObject.mchName === '测试商户'"
             />
           </a-form-model-item>
         </a-col>
