@@ -96,7 +96,7 @@
               style="color: black"
               v-model="testPayOrderId"
           />
-          <a-button v-if="isShowReturnUrl" type="danger" @click="goOrderList" icon="double-right" >去订单页查看</a-button>
+          <a-button v-if="isShowReturnUrl && testOrderIn===1" type="danger" @click="goOrderList" icon="double-right" >去订单页查看</a-button>
         </a-form-model-item>
       </a-col>
     </a-row>
