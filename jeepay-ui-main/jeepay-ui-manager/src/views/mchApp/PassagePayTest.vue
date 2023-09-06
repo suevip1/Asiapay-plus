@@ -68,7 +68,8 @@
             </a-form-model-item>
           </a-col>
           <a-col :span="24">
-            <a-form-model-item label='测试订单入库（开启此选项订单入库并自动挂到测试商户下）用于测试回调：'>
+            <a-form-model-item label='测试订单入库：'>
+              <p style="font-size: 13px;color: #8C8C8C">[启用] 此选项自动挂到测试商户下，用于测试下单完整流程包含回调<br>[禁用] 不进入订单库，仅用于测试三方通道是否能正常拉起</p>
               <a-radio-group v-model="testOrderIn">
                 <a-radio :value="1">
                   启用
