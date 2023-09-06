@@ -37,7 +37,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/anon/paytestNotify")
 public class PaytestNotifyController extends CommonCtrl {
-    // todo PaytestNotifyController
+
     @Autowired private MchInfoService mchInfoService;
 
     @RequestMapping("/payOrder")
@@ -53,6 +53,7 @@ public class PaytestNotifyController extends CommonCtrl {
             response.getWriter().print("商户不存在");
             return;
         }
+
         params.remove("sign");
         if(!JeepayKit.getSign(params, mchInfo.getSecret()).equalsIgnoreCase(sign)){
             response.getWriter().print("签名验证失败");
