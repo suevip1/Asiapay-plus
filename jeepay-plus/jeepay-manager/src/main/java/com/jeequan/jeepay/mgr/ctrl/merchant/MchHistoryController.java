@@ -139,7 +139,7 @@ public class MchHistoryController extends CommonCtrl {
             throw new BizException("导出最大数据不能超过65535行！");
         } else {
             List<List> excelData = new ArrayList();
-            List<String> header = Arrays.asList("记录ID", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "商户订单号", "订单金额", "时间");
+            List<String> header = Arrays.asList("记录ID", "商户号","商户名", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "商户订单号", "订单金额", "时间");
             excelData.add(header);
             Iterator iteratorRecord = records.iterator();
 
@@ -148,6 +148,10 @@ public class MchHistoryController extends CommonCtrl {
                 List<String> rowData = new ArrayList();
                 //id
                 rowData.add(String.valueOf(record.getMchHistoryId()));
+                //商户号
+                rowData.add(String.valueOf(record.getMchNo()));
+                //商户名
+                rowData.add(String.valueOf(record.getMchName()));
                 //变更前余额
                 rowData.add(AmountUtil.convertCent2Dollar(record.getBeforeBalance() + ""));
                 //变更金额
