@@ -25,14 +25,17 @@
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
         <a-row>
-          <a-col :span="3">
-            <span>代理总数:</span>&nbsp;<a-tag color="blue">{{this.totalAgentInfo.agentNum}}</a-tag>
+          <a-col class="stat-col bg-color-1" :span="4">
+            <span class="title">代理总数</span>
+            <b style="color: #DB4B4B;">{{this.totalAgentInfo.agentNum}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>代理总余额:</span>&nbsp;<a-tag color="blue">{{(this.totalAgentInfo.totalBalance/100).toFixed(2)}}</a-tag>
+          <a-col class="stat-col bg-color-2" :span="4" :offset="1">
+            <span class="title">代理总余额</span>
+            <b style="color: #FA9D2A;">{{(this.totalAgentInfo.totalBalance/100).toFixed(2)}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>冻结金额汇总:</span>&nbsp;<a-tag color="blue">{{(this.totalAgentInfo.freezeBalance/100).toFixed(2)}}</a-tag>
+          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
+            <span class="title">冻结金额汇总</span>
+            <b style="color: #2F61DC;">{{(this.totalAgentInfo.freezeBalance/100/100).toFixed(2)}}</b>
           </a-col>
         </a-row>
       </div>
@@ -202,3 +205,60 @@ export default {
   }
 }
 </script>
+
+<style lang="less" scoped>
+.stat-col{
+  position: relative;
+  //background-color: gray;
+  height: 100px;
+  border-radius: 13px;
+}
+
+.stat-col b{
+  position: absolute;
+  font-size: 30px;
+  top: 10px;
+  left: 20px;
+}
+.stat-content{
+  position: absolute;
+  //font-size: 30px;
+  top: 20px;
+  left: 20px;
+  font-weight: bold;
+}
+
+.stat-col img{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.stat-col .title{
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #717579;
+}
+
+.stat-col .num{
+  position: absolute;
+  border-radius: 13px;
+}
+
+.bg-color-1{
+  background-color: #FFDADA;
+}
+.bg-color-2{
+  background-color: #FFEAD1;
+}
+.bg-color-3{
+  background-color: #DFEFFF;
+}
+.bg-color-4{
+  background-color: #EFE1FF;
+}
+.bg-color-5{
+  background-color: #E4FFEF;
+}
+</style>

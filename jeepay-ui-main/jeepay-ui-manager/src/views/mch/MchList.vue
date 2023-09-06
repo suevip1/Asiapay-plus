@@ -26,14 +26,17 @@
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
         <a-row>
-          <a-col :span="3">
-            <span>商户总数:</span>&nbsp;<a-tag color="blue">{{this.totalMchInfo.mchNum}}</a-tag>
+          <a-col class="stat-col bg-color-1" :span="4">
+            <span class="title">商户总数</span>
+            <b style="color: #DB4B4B;">{{this.totalMchInfo.mchNum}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>商户总余额:</span>&nbsp;<a-tag color="blue">{{(this.totalMchInfo.totalBalance/100).toFixed(2)}}</a-tag>
+          <a-col class="stat-col bg-color-2" :span="4" :offset="1">
+            <span class="title">商户总余额</span>
+            <b style="color: #FA9D2A;">{{(this.totalMchInfo.totalBalance/100).toFixed(2)}}</b>
           </a-col>
-          <a-col :span="4">
-            <span>冻结金额汇总:</span>&nbsp;<a-tag color="blue">{{(this.totalMchInfo.freezeBalance/100).toFixed(2)}}</a-tag>
+          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
+            <span class="title">冻结金额汇总</span>
+            <b style="color: #2F61DC;">{{(this.totalMchInfo.freezeBalance/100).toFixed(2)}}</b>
           </a-col>
         </a-row>
       </div>
@@ -112,13 +115,13 @@ import MchPassageEdit from '@/views/mch/MchPassageEdit.vue'
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
   { key: 'mchName', fixed: 'left', width: '150px', title: '商户名称', scopedSlots: { customRender: 'mchNameSlot' } },
-  { key: 'mchNo', title: '商户号', dataIndex: 'mchNo', width: '100px' },
+  { key: 'mchNo', title: '商户号', dataIndex: 'mchNo', width: '130px' },
   { key: 'agentNo', title: '代理商', width: '260px', scopedSlots: { customRender: 'agentInfoSlot' } },
-  { key: 'balance', title: '商户余额(￥)', width: 260, scopedSlots: { customRender: 'balanceSlot' } },
-  { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: '120px' },
-  // { key: 'updatedAt', dataIndex: 'updatedAt', title: '修改日期', width: '120px' },
-  { key: 'op', title: '操作', width: '260px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
+  { key: 'balance', title: '商户余额(￥)', width: '300px', scopedSlots: { customRender: 'balanceSlot' } },
+  { key: 'state', title: '状态', width: '80px', scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: '250px' },
+  { key: 'remark', dataIndex: 'remark', title: '备注', width: '120px' },
+  { key: 'op', title: '操作', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
 
 export default {
@@ -220,3 +223,60 @@ export default {
   }
 }
 </script>
+
+<style lang="less" scoped>
+.stat-col{
+  position: relative;
+  //background-color: gray;
+  height: 100px;
+  border-radius: 13px;
+}
+
+.stat-col b{
+  position: absolute;
+  font-size: 30px;
+  top: 10px;
+  left: 20px;
+}
+.stat-content{
+  position: absolute;
+  //font-size: 30px;
+  top: 20px;
+  left: 20px;
+  font-weight: bold;
+}
+
+.stat-col img{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.stat-col .title{
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #717579;
+}
+
+.stat-col .num{
+  position: absolute;
+  border-radius: 13px;
+}
+
+.bg-color-1{
+  background-color: #FFDADA;
+}
+.bg-color-2{
+  background-color: #FFEAD1;
+}
+.bg-color-3{
+  background-color: #DFEFFF;
+}
+.bg-color-4{
+  background-color: #EFE1FF;
+}
+.bg-color-5{
+  background-color: #E4FFEF;
+}
+</style>

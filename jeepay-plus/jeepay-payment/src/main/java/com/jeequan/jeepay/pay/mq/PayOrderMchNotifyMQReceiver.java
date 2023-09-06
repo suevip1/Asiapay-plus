@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 /**
  * 接收MQ消息
  * 业务： 支付订单商户通知
+ *
  * @author terrfly
  * @site https://www.jeequan.com
  * @date 2021/7/27 9:23
@@ -54,11 +55,11 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
 
             Long notifyId = payload.getNotifyId();
             MchNotifyRecord record = mchNotifyRecordService.getById(notifyId);
-            if(record == null || record.getState() != MchNotifyRecord.STATE_ING){
+            if (record == null || record.getState() != MchNotifyRecord.STATE_ING) {
                 log.info("查询通知记录不存在或状态不是通知中");
                 return;
             }
-            if( record.getNotifyCount() >= record.getNotifyCountLimit() ){
+            if (record.getNotifyCount() >= record.getNotifyCountLimit()) {
                 log.info("已达到最大发送次数");
                 return;
             }
@@ -78,22 +79,22 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
                 res = HttpUtil.post(StrUtil.subPre(notifyUrl, pathEndPos), StrUtil.subSuf(notifyUrl, pathEndPos + 1), 20000);
             } catch (Exception e) {
                 log.error("http error", e);
-                res = "连接["+ UrlBuilder.of(notifyUrl).getHost() +"]异常:【" + e.getMessage() + "】";
+                res = "连接[" + UrlBuilder.of(notifyUrl).getHost() + "]异常:【" + e.getMessage() + "】";
             }
 
             //支付订单 & 第一次通知: 更新为已通知
-            if(currentCount == 1 && MchNotifyRecord.TYPE_PAY_ORDER == record.getOrderType()){
+            if (currentCount == 1 && MchNotifyRecord.TYPE_PAY_ORDER == record.getOrderType()) {
                 payOrderService.updateNotifySent(record.getOrderId());
             }
 
             //通知成功
-            if("SUCCESS".equalsIgnoreCase(res)){
+            if ("SUCCESS".equalsIgnoreCase(res)) {
                 mchNotifyRecordService.updateNotifyResult(notifyId, MchNotifyRecord.STATE_SUCCESS, res);
                 return;
             }
 
             //通知次数 >= 最大通知次数时， 更新响应结果为异常， 不在继续延迟发送消息
-            if( currentCount >= record.getNotifyCountLimit() ){
+            if (currentCount >= record.getNotifyCountLimit()) {
                 mchNotifyRecordService.updateNotifyResult(notifyId, MchNotifyRecord.STATE_FAIL, res);
                 return;
             }
@@ -106,7 +107,7 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
             mqSender.send(PayOrderMchNotifyMQ.build(notifyId), currentCount * 30);
 
             return;
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return;
         }

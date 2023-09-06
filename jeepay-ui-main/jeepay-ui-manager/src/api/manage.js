@@ -318,3 +318,12 @@ export function passageTestOrder (parameter) {
     data: parameter
   })
 }
+
+export function exportExcel (url, parameter) {
+  return request.request({
+    url: url,
+    method: 'POST',
+    data: parameter,
+    responseType: 'arraybuffer'
+  }, true, false, true)
+}

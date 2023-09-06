@@ -65,7 +65,8 @@ public class DataClearTask {
     @Autowired
     private DivisionRecordService divisionRecordService;
 
-
+    @Autowired
+    private SysLogService sysLogService;
     @Async
     @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
     public void start() {
@@ -89,6 +90,8 @@ public class DataClearTask {
         passageTransactionHistoryService.ClearPassageTransactionHistory(offsetDate, QUERY_PAGE_SIZE);
         //过期分账记录删除
         divisionRecordService.ClearDivisionRecordHistory(offsetDate, QUERY_PAGE_SIZE);
+        //系统操作日志清理
+        sysLogService.ClearSysLog(offsetDate, QUERY_PAGE_SIZE);
     }
 
 }

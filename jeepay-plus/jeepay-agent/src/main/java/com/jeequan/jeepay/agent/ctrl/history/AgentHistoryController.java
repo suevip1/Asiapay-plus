@@ -115,16 +115,16 @@ public class AgentHistoryController extends CommonCtrl {
         }
         wrapper.orderByDesc(AgentAccountHistory::getCreatedAt);
 
-        IPage<AgentAccountHistory> pages = agentAccountHistoryService.page(getIPage(true), wrapper);
+        List<AgentAccountHistory> pages = agentAccountHistoryService.list(wrapper);
 
-        int count = pages.getRecords().size();
+        int count = pages.size();
         if (count > 65535) {
             throw new BizException("导出最大数据不能超过65535行！");
         } else {
             List<List> excelData = new ArrayList();
             List<String> header = Arrays.asList("记录ID", "代理商户号", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "订单金额", "时间");
             excelData.add(header);
-            Iterator iteratorRecord = pages.getRecords().iterator();
+            Iterator iteratorRecord = pages.iterator();
 
             while (iteratorRecord.hasNext()) {
                 AgentAccountHistory record = (AgentAccountHistory) iteratorRecord.next();

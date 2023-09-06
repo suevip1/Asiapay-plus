@@ -1181,6 +1181,44 @@ INSERT INTO `t_sys_user_role_rela` VALUES (801,'ROLE_ADMIN'),(100022,'ROLE_OP'),
 /*!40000 ALTER TABLE `t_sys_user_role_rela` ENABLE KEYS */;
 UNLOCK TABLES;
 
+-- ----------------------------
+-- Table structure for t_trans_order
+-- ----------------------------
+DROP TABLE IF EXISTS `t_trans_order`;
+CREATE TABLE `t_trans_order`  (
+  `trans_order_id` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '转账订单号',
+  `user_no` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '商户号/代理商号',
+  `user_type` tinyint(6) NOT NULL COMMENT '商户类型:1-商户,2-代理',
+  `passage_id` bigint(20) NULL DEFAULT NULL COMMENT '通道ID',
+  `if_code` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '通道账户ID',
+  `amount` bigint(20) NOT NULL COMMENT '转账金额,单位分',
+  `state` tinyint(6) NOT NULL DEFAULT 0 COMMENT '转账状态:0-订单生成,1-转账中,2-转账成功,3-转账失败,4-业务处理完成',
+  `result` tinyint(6) NOT NULL DEFAULT 0 COMMENT '转账结果:0-不确认结果,1-等待手动处理,2-确认成功,3-确认失败',
+  `remark` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '备注',
+  `account_attr` tinyint(6) NULL DEFAULT 0 COMMENT '账户属性:0-对私,1-对公,2-USDT',
+  `account_type` tinyint(6) NULL DEFAULT NULL COMMENT '账户类型:1-银行卡转账,2-微信转账,3-支付宝转账',
+  `account_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '账户名',
+  `account_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '账户号',
+  `bank_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '开户行名称',
+  `channel_mch_id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '渠道商户ID',
+  `channel_rate` decimal(20, 6) NULL DEFAULT NULL COMMENT '渠道费率',
+  `channel_fee` bigint(20) NULL DEFAULT NULL COMMENT '渠道成本,单位分',
+  `channel_order_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '渠道订单号',
+  `channel_error_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '渠道错误码',
+  `channel_error_msg` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '渠道错误描述',
+  `extra` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '特定渠道发起时额外参数',
+  `param1` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '扩展参数1',
+  `expireTime` datetime NULL DEFAULT NULL COMMENT '订单失效时间',
+  `success_time` datetime NULL DEFAULT NULL COMMENT '订单转账成功时间',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`trans_order_id`) USING BTREE,
+  UNIQUE INDEX `id`(`trans_order_id`) USING BTREE,
+  INDEX `index`(`user_no`, `user_type`, `passage_id`, `if_code`, `state`, `result`, `success_time`, `created_at`, `updated_at`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '转账代付订单表' ROW_FORMAT = DYNAMIC;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
 --
 -- Dumping events for database 'jeepaydbplus'
 --

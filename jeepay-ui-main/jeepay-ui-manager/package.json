@@ -20,6 +20,7 @@
     "core-js": "^3.1.2",
     "echarts": "^5.4.2",
     "enquire.js": "^2.1.6",
+    "file-saver": "^2.0.5",
     "js-base64": "^2.5.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
