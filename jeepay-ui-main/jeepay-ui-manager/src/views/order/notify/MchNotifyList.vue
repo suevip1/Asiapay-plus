@@ -205,8 +205,8 @@
     { key: 'passageOrderNo', title: '通道订单号', dataIndex: 'passageOrderNo' },
     { key: 'state', title: '通知状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
     { key: 'orderType', title: '订单类型', width: '100px', scopedSlots: { customRender: 'orderTypeSlot' } },
+    { key: 'mchNo', dataIndex: 'mchNo', title: '商户号' },
     { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 250 },
-    { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期' },
     { key: 'updatedAt', dataIndex: 'updatedAt', title: '更新日期' },
     { key: 'op', title: '操作', width: '150px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
   ]
