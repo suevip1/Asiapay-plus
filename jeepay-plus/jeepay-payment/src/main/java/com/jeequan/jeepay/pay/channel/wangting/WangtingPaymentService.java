@@ -61,7 +61,7 @@ public class WangtingPaymentService extends AbstractPaymentService {
 
             String appKey = wangTingParamsModel.getMchNo();
             String orderId = payOrder.getPayOrderId();
-            String channelId = wangTingParamsModel.getPayType();
+            String channelId = wangTingParamsModel.getChannelId();
             String type = wangTingParamsModel.getPayType();
             long amount = payOrder.getAmount();
             String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());

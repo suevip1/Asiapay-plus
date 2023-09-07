@@ -122,14 +122,14 @@ public class NaichaPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "w8ajxz2x9q36s9bj7ybahdf9e80lhleu";
+        String key = "soiv9zy3weregiyr0bxmyxr8u1rd28ag";
 
-        String pay_memberid = "230807724";
+        String pay_memberid = "230997534";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
 
 
-        String pay_bankcode = "972";
+        String pay_bankcode = "8084";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
 
@@ -152,7 +152,7 @@ public class NaichaPaymentService extends AbstractPaymentService {
         map.put("pay_user_ip", pay_user_ip);
         map.put("pay_productname", "下单");
 
-        String payGateway = "http://aabb.rixin.threegf.com/Pay_Index.html";
+        String payGateway = "http://tue.kgpay100.top/Pay_Index.html";
 
         raw = HttpUtil.post(payGateway, map);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

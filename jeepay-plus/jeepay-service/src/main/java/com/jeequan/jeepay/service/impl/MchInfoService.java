@@ -117,7 +117,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
         SysUser sysUser = new SysUser();
         sysUser.setLoginUsername(loginUserName);
         sysUser.setBelongInfoId(mchInfo.getMchNo());
-        //todo 检查这里的超管字段有什么作用
         sysUser.setIsAdmin(CS.YES);
         sysUser.setState(mchInfo.getState());
         sysUserService.addSysUser(sysUser, CS.SYS_TYPE.MCH);

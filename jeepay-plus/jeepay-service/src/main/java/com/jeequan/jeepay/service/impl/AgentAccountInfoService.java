@@ -98,7 +98,6 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
         SysUser sysUser = new SysUser();
         sysUser.setLoginUsername(loginUserName);
         sysUser.setBelongInfoId(agentAccountInfo.getAgentNo());
-        //todo 检查这里的超管字段有什么作用
         sysUser.setIsAdmin(CS.YES);
         sysUser.setState(agentAccountInfo.getState());
         sysUserService.addSysUser(sysUser, CS.SYS_TYPE.AGENT);
