@@ -353,6 +353,8 @@ public class CS {
         String YEZIPAY = "yezipay";
 
         String STARPAY = "starpay";
+
+        String JIUYIPAY = "jiuyipay";
     }
 
 
