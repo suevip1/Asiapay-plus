@@ -83,7 +83,6 @@ public class JeeUserDetailsServiceImpl implements UserDetailsService {
         if (mchInfo == null) {
             throw JeepayAuthenticationException.build("商户用户状态不可登录，请联系管理员！");
         }
-
         if (CS.PUB_USABLE != mchInfo.getState()) { //状态不合法
             throw JeepayAuthenticationException.build("用户状态不可登录，请联系管理员！");
         }
