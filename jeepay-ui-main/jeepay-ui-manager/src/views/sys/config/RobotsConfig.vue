@@ -74,7 +74,16 @@
           <a-row>
             <a-col :span="23" :offset="1"><b>解绑全部通道</b>--格式[解绑全部通道] 管理员发送，解绑当前群绑定的所有通道</a-col>
           </a-row>
-
+          <br/>
+          <a-row>
+            <a-col :span="23" :offset="1"><b>群发全部</b>--格式[群发全部] 管理员/操作员发送，私发机器人内容，再回复该内容：群发全部</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1"><b>群发商户</b>--格式[群发商户] 管理员/操作员发送，私发机器人内容，再回复该内容：群发商户</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1"><b>群发通道</b>--格式[群发通道] 管理员/操作员发送，私发机器人内容，再回复该内容：群发通道</a-col>
+          </a-row>
           <br/>
           <a-form-model
               ref="configFormModel"

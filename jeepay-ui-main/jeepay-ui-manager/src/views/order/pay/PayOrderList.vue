@@ -21,7 +21,7 @@
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />
             <a-form-model-item label="" class="table-head-layout">
-              <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">getProductId
+              <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
                   {{ d.productName + " [ ID: " + d.productId + " ]" }}
                 </a-select-option>

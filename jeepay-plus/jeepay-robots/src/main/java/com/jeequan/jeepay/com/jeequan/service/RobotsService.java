@@ -7,6 +7,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
@@ -122,6 +123,12 @@ public class RobotsService extends TelegramLongPollingBot {
 
     private static final String GET_USDT = "/usdt";
 
+    //    群发全部 -- 私发机器人内容，再回复该内容：群发全部
+//    群发商户 -- 私发机器人内容，再回复该内容：群发商户
+//    群发通道 -- 私发机器人内容，再回复该内容：群发通道
+    private static final String SEND_ALL = "群发全部";
+    private static final String SEND_ALL_MCH = "群发商户";
+    private static final String SEND_ALL_PASSAGE = "群发通道";
     /**
      * 绑定管理群
      */
@@ -156,7 +163,7 @@ public class RobotsService extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        //if (update.hasMessage() && update.getMessage().hasText()) {
+
         if (update.hasMessage() && !update.getMessage().getFrom().getIsBot()) {
             //检测权限，命令
             if (update.getMessage().isCommand()) {
@@ -180,6 +187,56 @@ public class RobotsService extends TelegramLongPollingBot {
      * @param update
      */
     private void handlePrivateCommand(Update update) {
+
+        if (update.hasMessage() && update.getMessage().getReplyToMessage() != null && update.getMessage().getReplyToMessage().hasText()) {
+            String userName = update.getMessage().getFrom().getUserName();
+
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                String replyText = update.getMessage().getReplyToMessage().getText();
+
+
+                //群发全部
+                if (replyText.equals(SEND_ALL)) {
+                    //获取全部
+                    List<RobotsMch> list = findNonMchDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage());
+                    }
+                    List<RobotsPassage> listPassage = findNonPassageDuplicateChatIds();
+                    for (int i = 0; i < listPassage.size(); i++) {
+                        sendForward(listPassage.get(i).getChatId(), update.getMessage());
+                    }
+                    return;
+                }
+                //群发商户
+                if (replyText.equals(SEND_ALL_MCH)) {
+                    List<RobotsMch> list = findNonMchDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage());
+                    }
+                    return;
+                }
+                //群发通道
+                if (replyText.equals(SEND_ALL_PASSAGE)) {
+                    List<RobotsPassage> list = findNonPassageDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage());
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    public List<RobotsPassage> findNonPassageDuplicateChatIds() {
+        QueryWrapper<RobotsPassage> wrapper = new QueryWrapper<>();
+        // 使用GROUP BY查询chat_id并且HAVING COUNT(chat_id) = 1来找到不重复的chat_id
+        wrapper.select("chat_id").groupBy("chat_id").having("COUNT(chat_id) != 0");
+        return robotsPassageService.list(wrapper);
+    }
+
+    public List<RobotsMch> findNonMchDuplicateChatIds() {
+        return robotsMchService.list(RobotsMch.gw().ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
     }
 
     /**
@@ -1020,10 +1077,10 @@ public class RobotsService extends TelegramLongPollingBot {
         return null;
     }
 
-    private void sendForwardAndReply(ForwardMessage forwardMessage, Message replyMessage) {
+    private void sendForward(Long chatId, Message message) {
         try {
-            Message message = execute(forwardMessage);
-            message.setReplyToMessage(replyMessage);
+            ForwardMessage forwardMessage = new ForwardMessage(chatId + "", message.getChatId() + "", message.getMessageId());
+            execute(forwardMessage);
         } catch (TelegramApiException e) {
             log.error("{} {}", LOG_TAG, e);
         }
