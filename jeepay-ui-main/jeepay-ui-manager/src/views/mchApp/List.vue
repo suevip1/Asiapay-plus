@@ -28,8 +28,10 @@
         </a-form>
         <div>
           <a-button v-if="$access('ENT_MCH_APP_ADD')" type="primary" icon="plus" @click="addFunc" class="mg-b-30">新建</a-button>
-          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="minus-circle" @click="setAllBalanceZero">余额一键清空</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="minus-circle" @click="setAllBalanceZero">余额清空</a-button>
           <a-button style="margin-left: 8px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="setting" @click="setAutoClean">通道自动日切设置</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="exclamation-circle" @click="setCloseAll">关闭全部通道</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="issues-close" @click="setOpenRecently">打开最近启用通道</a-button>
         </div>
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
@@ -215,6 +217,30 @@
         </a-form-model>
       </a-modal>
     </template>
+    <!-- 一键关闭谷歌验证弹窗 -->
+    <template>
+      <a-modal v-model="isShowCloseAllModal" title="关闭全部通道" @ok="handleCloseAllOkFunc">
+        <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
+          <b style="color: gray">此操作将停止所有通道的定时任务!!</b><br/><br/>
+          <b style="color: gray">可通过<span style="color: #007eff">[打开最近启用通道]</span>恢复到一键关闭前的通道状态</b><br/><br/>
+          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为两个小时</b><br/>
+          <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
+          <a-form-model-item label="请输入谷歌验证码：">
+            <a-input v-model="setCloseAllGoogleCode" />
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
+    <template>
+      <a-modal v-model="isShowOpenRecentlyModal" title="打开最近启用通道" @ok="handleOpenRecentlyOkFunc">
+        <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
+          <b style="color: gray">此操作会将所有通道状态恢复到<span style="color: #FF4D4F">[关闭全部通道]</span>操作前的状态</b><br/><br/>
+          <b style="color: gray">包含通道状态、定时任务开启状态</b><br/><br/>
+          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为两个小时</b><br/>
+          <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
+        </a-form-model>
+      </a-modal>
+    </template>
     <template>
       <a-modal v-model="isShowSetAutoCleanModal" title="设置通道自动日切清零" @ok="handleSetAutoCleanOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
@@ -252,7 +278,7 @@ import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上�
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
   API_URL_MCH_APP,
-  API_URL_MCH_APP_BALANCE,
+  API_URL_MCH_APP_BALANCE, API_URL_MCH_APP_MULTIPLE_SET,
   API_URL_MCH_APP_RESET_BALANCE, API_URL_PASSAGE_STAT_LIST,
   API_URL_PAYWAYS_LIST,
   req, reqLoad
@@ -295,6 +321,8 @@ export default {
       isShowCopyAndNewModal: false, // 一键复制通道改名提示的弹窗
       isShowSetZeroModal: false, // 一键清零
       isShowSetAutoCleanModal: false, // 自动日切
+      isShowCloseAllModal: false, // 关闭全部
+      isShowOpenRecentlyModal: false, // 最近启用
       newPassageName: '', // 新通道名称
       copiedPassage: {}, // 复制的通道obj
       selectPayPassage: {}, // 当前选择通道
@@ -304,6 +332,7 @@ export default {
       changeQuotaObject: {},
       changeQuotaNum: 0,
       setZeroGoogleCode: '',
+      setCloseAllGoogleCode: '',
       setAutoCleanGoogleCode: '',
       changeQuotaLimitState: false,
       changeTimeLimitState: false,
@@ -520,6 +549,13 @@ export default {
       this.isShowSetZeroModal = true
       this.setZeroGoogleCode = ''
     },
+    setCloseAll: function () { // 一键全关
+      this.isShowCloseAllModal = true
+      this.setCloseAllGoogleCode = ''
+    },
+    setOpenRecently: function () { // 打开最近启用
+      this.isShowOpenRecentlyModal = true
+    },
     setAutoClean: function () { // 自动清零
       this.isShowSetAutoCleanModal = true
       this.setAutoCleanGoogleCode = ''
@@ -550,6 +586,26 @@ export default {
       req.postDataNormal(API_URL_MCH_APP_RESET_BALANCE, 'resetAll/', param).then(res => {
         this.$refs.infoTable.refTable()
         this.$message.success('通道清空成功')
+      })
+    },
+    handleCloseAllOkFunc: function () {
+      const param = {}
+      param.googleCode = this.setCloseAllGoogleCode
+      if (this.setCloseAllGoogleCode === undefined || this.setCloseAllGoogleCode === '') {
+        this.$message.error('请输入谷歌验证码')
+        return
+      }
+      this.isShowCloseAllModal = false
+      req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'closeAll/', param).then(res => {
+        this.$refs.infoTable.refTable()
+        this.$message.success('关闭全部通道成功')
+      })
+    },
+    handleOpenRecentlyOkFunc: function () {
+      this.isShowOpenRecentlyModal = false
+      req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'openRecently/', '').then(res => {
+        this.$refs.infoTable.refTable()
+        this.$message.success('恢复最近关闭通道状态成功')
       })
     },
     getPassageStatInfo: function () {

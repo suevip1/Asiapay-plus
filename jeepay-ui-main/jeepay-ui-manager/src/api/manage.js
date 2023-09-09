@@ -140,6 +140,9 @@ export const API_URL_MCH_APP_HISTORY_LIST = '/api/passageHistory'
 export const API_URL_MCH_APP_BALANCE = '/api/mchAppsBalance'
 
 export const API_URL_MCH_APP_RESET_BALANCE = '/api/mchAppsBalanceReset'
+
+export const API_URL_MCH_APP_MULTIPLE_SET = '/api/mchAppsMultipleSet'
+
 /** 支付订单管理 **/
 export const API_URL_PAY_ORDER_LIST = '/api/payOrder'
 
