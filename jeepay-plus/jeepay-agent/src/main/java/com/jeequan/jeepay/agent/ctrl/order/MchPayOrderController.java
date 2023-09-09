@@ -8,6 +8,7 @@ import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.service.impl.PayOrderService;
+import com.jeequan.jeepay.service.impl.PayPassageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/payOrder")
 public class MchPayOrderController extends CommonCtrl {
-    //todo PayOrderController
+
     @Autowired
     private PayOrderService payOrderService;
+
+    @Autowired
+    private PayPassageService payPassageService;
 
     /**
      * @Author: ZhuXiao

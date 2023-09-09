@@ -17,8 +17,15 @@
               </a-range-picker>
             </a-form-item>
             <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.passageId" v-model="searchData.passageId" />
-<!--            <jeepay-text-up :placeholder="'通道名'" :msg="searchData.payPassageName" v-model="searchData.payPassageName" />-->
-            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'通道名'" :msg="searchData.payPassageName" v-model="searchData.payPassageName" />
+            <jeepay-text-up :placeholder="'支付/通道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+            <a-form-model-item label="" class="table-head-layout">
+              <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
+                <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
+                  {{ d.productName + " [ ID: " + d.productId + " ]" }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.state" placeholder="支付状态" default-value="">
                 <a-select-option value="">全部</a-select-option>
@@ -69,12 +76,24 @@
         <template slot="productSlot" slot-scope="{record}">
           <span style="color: #1A79FF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
         </template> <!-- 商户信息插槽 -->
-        <template slot="orderSlot" slot-scope="{record}">
-          <b>{{ record.payOrderId }}</b>
-        </template>
         <template slot="passageOrderNoSlot" slot-scope="{record}">
           <b>{{ record.passageOrderNo }}</b>
-        </template>passageOrderNo
+        </template>
+        <template slot="orderSlot" slot-scope="{record}">
+          <div class="order-list">
+            <p><span style="color:#007EFF;background:#DFEFFF">支付单号</span><b>{{ record.payOrderId }}</b></p>
+            <p style="margin-bottom: 0">
+              <span style="color:#FA9D2A;background:#FFEDD6">通道单号</span>
+              <a-tooltip placement="bottom" style="font-weight: normal;" v-if="record.passageOrderNo.length > record.payOrderId.length">
+                <template slot="title">
+                  <span>{{ record.passageOrderNo }}</span>
+                </template>
+                {{ changeStr2ellipsis(record.passageOrderNo, record.payOrderId.length) }}
+              </a-tooltip>
+              <span style="font-weight: normal;" v-else>{{ record.passageOrderNo }}</span>
+            </p>
+          </div>
+        </template>
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
             <a-button type="link" @click="detailFunc(record.payOrderId)">查看详情</a-button>
@@ -206,20 +225,21 @@ import { saveAs } from 'file-saver'
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
-  API_URL_PASSAGE_PAY_ORDER_LIST, exportExcel,
+  API_URL_PASSAGE_PAY_ORDER_LIST, API_URL_PAYWAYS_LIST, exportExcel,
   req
 } from '@/api/manage'
 import moment from 'moment'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchNo', title: '通道', ellipsis: true, width: 260, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
+  { key: 'mchNo', title: '通道信息', ellipsis: true, width: 260, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
   { key: 'orderNo', title: '平台订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300, fixed: 'left' },
-  { key: 'passageOrderNo', title: '通道订单号', scopedSlots: { customRender: 'passageOrderNoSlot' }, width: 300, fixed: 'left' },
-  { key: 'amount', title: '支付金额', ellipsis: true, width: 100, scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'amount', title: '支付金额', ellipsis: true, width: 150, scopedSlots: { customRender: 'amountSlot' } },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 130 },
+  { key: 'wayName', title: '产品(快照)', scopedSlots: { customRender: 'productSlot' } },
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
   { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 200 },
+  { key: 'successTime', dataIndex: 'successTime', title: '成功日期' },
   { key: 'op', title: '操作', width: 180, fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
 
@@ -236,6 +256,7 @@ export default {
       visible: false,
       detailData: {},
       selectedRange: null,
+      productList: [],
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -249,10 +270,14 @@ export default {
   computed: {
   },
   mounted () {
+    const that = this
+    req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+      that.productList = res.records
+    })
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
-    this.$refs.infoTable.refTable(true)
+    this.queryFunc()
   },
   methods: {
     queryFunc () {
@@ -313,13 +338,12 @@ export default {
     white-space:nowrap;
     span {
       display: inline-block;
-      font-weight: 800;
-      height: 16px;
-      line-height: 16px;
+      height: 24px;
+      line-height: 24px;
       width: 60px;
-      border-radius: 5px;
+      border-radius: 2px;
       text-align: center;
-      margin-right: 2px;
+      margin-right: 4px;
     }
   }
 }

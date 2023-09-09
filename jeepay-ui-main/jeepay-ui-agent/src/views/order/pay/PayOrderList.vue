@@ -18,7 +18,14 @@
             </a-form-item>
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'商户名称'" :msg="searchData.mchName" v-model="searchData.mchName" />
-            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'支付/商户订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+            <a-form-model-item label="" class="table-head-layout">
+              <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
+                <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
+                  {{ d.productName + " [ ID: " + d.productId + " ]" }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.state" placeholder="支付状态" default-value="">
                 <a-select-option value="">全部</a-select-option>
@@ -63,14 +70,26 @@
             {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
           </a-tag>
         </template>
+        <template slot="productSlot" slot-scope="{record}">
+          <span style="color: #007EFF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
+        </template>
+        <template slot="orderSlot" slot-scope="{record}">
+          <div class="order-list">
+            <p><span style="color:#007EFF;background:#DFEFFF">支付单号</span><b>{{ record.payOrderId }}</b></p>
+            <p style="margin-bottom: 0">
+              <span style="color:#FA9D2A;background:#FFEDD6">商户单号</span>
+              <a-tooltip placement="bottom" style="font-weight: normal;" v-if="record.mchOrderNo.length > record.payOrderId.length">
+                <template slot="title">
+                  <span>{{ record.mchOrderNo }}</span>
+                </template>
+                {{ changeStr2ellipsis(record.mchOrderNo, record.payOrderId.length) }}
+              </a-tooltip>
+              <span style="font-weight: normal;" v-else>{{ record.mchOrderNo }}</span>
+            </p>
+          </div>
+        </template>
         <template slot="notifySlot" slot-scope="{record}">
           <a-badge :status="record.notifyState === 1?'processing':'error'" :text="record.notifyState === 1?'已发送':'未发送'" />
-        </template>
-        <template slot="productSlot" slot-scope="{record}">
-          <span>{{record.mchOrderNo}}</span>
-        </template> <!-- 商户信息插槽 -->
-        <template slot="orderSlot" slot-scope="{record}">
-          <b>{{ record.payOrderId }}</b>
         </template>
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
@@ -203,7 +222,7 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import { saveAs } from 'file-saver'
 import {
-  API_URL_PAY_ORDER_LIST, exportExcel,
+  API_URL_PAY_ORDER_LIST, API_URL_PAYWAYS_LIST, exportExcel,
   req
 } from '@/api/manage'
 import moment from 'moment'
@@ -212,10 +231,10 @@ import moment from 'moment'
 const tableColumns = [
   { key: 'mchNo', title: '商户号', ellipsis: true, width: 150, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
   { key: 'mchName', title: '商户名称', ellipsis: true, width: 180, fixed: 'left', dataIndex: 'mchName' },
-  { key: 'amount', title: '支付金额', ellipsis: true, width: 100, fixed: 'left', scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'amount', title: '支付金额', ellipsis: true, width: 150, fixed: 'left', scopedSlots: { customRender: 'amountSlot' } },
   // { key: 'mchFeeAmount', dataIndex: 'mchFeeAmount', title: '手续费', customRender: (text) => '￥' + (text / 100).toFixed(2), width: 100 },
-  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 200 },
-  { key: 'wayName', title: '商户订单号', width: 200, scopedSlots: { customRender: 'productSlot' } },
+  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300 },
+  { key: 'wayName', title: '产品(快照)', scopedSlots: { customRender: 'productSlot' } },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 130 },
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
   { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 200 },
@@ -235,6 +254,7 @@ export default {
       createdEnd: '', // 选择结束时间
       visible: false,
       detailData: {},
+      productList: [],
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -248,10 +268,14 @@ export default {
   computed: {
   },
   mounted () {
+    const that = this
+    req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+      that.productList = res.records
+    })
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
-    this.$refs.infoTable.refTable(true)
+    this.queryFunc()
   },
   methods: {
     queryFunc () {
@@ -297,6 +321,10 @@ export default {
         // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件
         saveAs(blob, moment().format('YYYY-MM-DD') + '-商户代理订单流水.xlsx')
       })
+    },
+    changeStr2ellipsis (orderNo, baseLength) {
+      const halfLengh = parseInt(baseLength / 2)
+      return orderNo.substring(0, halfLengh - 1) + '...' + orderNo.substring(orderNo.length - halfLengh, orderNo.length)
     }
   }
 }
@@ -312,13 +340,12 @@ export default {
     white-space:nowrap;
     span {
       display: inline-block;
-      font-weight: 800;
-      height: 16px;
-      line-height: 16px;
+      height: 24px;
+      line-height: 24px;
       width: 60px;
-      border-radius: 5px;
+      border-radius: 2px;
       text-align: center;
-      margin-right: 2px;
+      margin-right: 4px;
     }
   }
 }
