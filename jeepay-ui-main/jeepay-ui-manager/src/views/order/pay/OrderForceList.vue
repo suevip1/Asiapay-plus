@@ -26,6 +26,38 @@
           </div>
         </a-form>
       </div>
+      <!-- 统计部分 -->
+      <div style="background-color: #fafafa;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid rgba(179,179,179,0.4)">
+        <a-row style="padding-left: 15px;padding-right: 15px;">
+          <a-col class="stat-col bg-color-1" :span="4">
+            <span class="title">订单金额</span>
+            <b style="color: #DB4B4B;">{{ (realTimeStatData.successAmount/100).toFixed(2) }}</b>
+            <span class="sub-content">总：{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</span>
+            <img src="~@/assets/dashboard/icon_zuorichengg.png">
+          </a-col>
+          <a-col class="stat-col bg-color-2" :span="4" :offset="1">
+            <span class="title">订单数</span>
+            <b style="color: #FA9D2A;">{{ realTimeStatData.successCount }}</b>
+            <span class="sub-content">总：{{ realTimeStatData.totalCount }}</span>
+            <img src="~@/assets/dashboard/orange-icon.png">
+          </a-col>
+          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
+            <span class="title">商户入账</span>
+            <b style="color: #2F61DC;">{{ (realTimeStatData.totalMchIncome/100).toFixed(2) }}</b>
+            <img src="~@/assets/dashboard/icon_jinrichengg.png">
+          </a-col>
+          <a-col class="stat-col bg-color-4" :span="4" :offset="1">
+            <span class="title">平台利润</span>
+            <b style="color: #864FE1;">{{ (realTimeStatData.totalIncome/100).toFixed(2) }}</b>
+            <img src="~@/assets/dashboard/icon_dailishuliang.png">
+          </a-col>
+          <a-col class="stat-col bg-color-5" :span="4" :offset="1">
+            <span class="title">成功率</span>
+            <b style="color: #4BD884;">{{ (realTimeStatData.successCount===0?0:(realTimeStatData.successCount / realTimeStatData.totalCount * 100)).toFixed(2) }}%</b>
+            <img src="~@/assets/dashboard/icon_shanghushuliang.png">
+          </a-col>
+        </a-row>
+      </div>
 
       <!-- 列表渲染 -->
       <JeepayTable
@@ -349,7 +381,6 @@ const tableColumns = [
   { key: 'mchNo', title: '商户号', ellipsis: true, width: 200, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
   { key: 'amount', title: '支付金额', ellipsis: true, width: 100, fixed: 'left', scopedSlots: { customRender: 'amountSlot' } },
   { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300, fixed: 'left' },
-  // { key: 'wayName', title: '产品类型', width: 200, scopedSlots: { customRender: 'productSlot' } },
   { key: 'beforeState', title: '补单前状态', scopedSlots: { customRender: 'beforeStateSlot' }, width: 100 },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
@@ -367,13 +398,21 @@ export default {
     return {
       btnLoading: false,
       tableColumns: tableColumns,
-      searchData: { forceChangeState: 1 },
+      searchData: { forceChangeState: 1, state: 2 },
       createdStart: '', // 选择开始时间
       createdEnd: '', // 选择结束时间
       visible: false,
       detailData: {},
       productList: [],
       selectedRange: [],
+      realTimeStatData: {
+        'totalAmount': 0,
+        'totalIncome': 0,
+        'successCount': 0,
+        'totalCount': 0,
+        'successAmount': 0,
+        'totalMchIncome': 0
+      },
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -391,13 +430,16 @@ export default {
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
     this.searchData.forceChangeState = 1
+    this.searchData.state = 2
     this.$refs.infoTable.refTable(true)
+    this.$message.info('此页订单时间查询以订单成功日期为准，请知悉')
   },
   methods: {
     queryFunc () {
       this.searchData.forceChangeState = 1
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
+      this.getStatData()
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
@@ -439,6 +481,14 @@ export default {
     resetSearch () {
       this.searchData = { forceChangeState: 1 }
       this.selectedRange = []
+    },
+    getStatData () {
+      const that = this
+      that.statLoading = true
+      req.postDataNormal('/api/payRealTimeStatOrder', '', this.searchData).then(res => { // 产品下拉列表
+        that.realTimeStatData = res
+        that.statLoading = false
+      })
     }
   }
 }
@@ -480,5 +530,64 @@ export default {
       text-align: center;
     }
   }
+}
+.stat-col{
+  position: relative;
+  //background-color: gray;
+  height: 100px;
+  border-radius: 13px;
+}
+
+.stat-col b{
+  position: absolute;
+  font-size: 30px;
+  top: 10px;
+  left: 20px;
+}
+
+.stat-col .sub-content{
+  //font-weight: bold;
+  position: absolute;
+  font-size: 15px;
+  line-height: 20px;
+  height: 20px;
+  text-align: right;
+  bottom: 20px;
+  right: 20px;
+  color: #717579;
+}
+
+.stat-col img{
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.stat-col .title{
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #717579;
+}
+
+.stat-col .num{
+  position: absolute;
+  border-radius: 13px;
+}
+
+.bg-color-1{
+  background-color: #FFDADA;
+}
+.bg-color-2{
+  background-color: #FFEAD1;
+}
+.bg-color-3{
+  background-color: #DFEFFF;
+}
+.bg-color-4{
+  background-color: #EFE1FF;
+}
+.bg-color-5{
+  background-color: #E4FFEF;
 }
 </style>

@@ -310,10 +310,10 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 
         if (paramJSON != null) {
             if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
-                wrapper.ge(PayOrder::getCreatedAt, paramJSON.getString("createdStart"));
+                wrapper.ge(PayOrder::getUpdatedAt, paramJSON.getString("createdStart"));
             }
             if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
-                wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
+                wrapper.le(PayOrder::getUpdatedAt, paramJSON.getString("createdEnd"));
             }
         }
         // 三合一订单

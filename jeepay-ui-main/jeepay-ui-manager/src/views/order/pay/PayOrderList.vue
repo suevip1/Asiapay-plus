@@ -423,7 +423,8 @@ export default {
         'totalIncome': 0,
         'successCount': 0,
         'totalCount': 0,
-        'successAmount': 0
+        'successAmount': 0,
+        'totalMchIncome': 0
       },
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
