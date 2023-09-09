@@ -432,7 +432,7 @@ export default {
     this.searchData.forceChangeState = 1
     this.searchData.state = 2
     this.$refs.infoTable.refTable(true)
-    this.$message.info('此页订单时间查询以订单成功日期为准，请知悉')
+    this.$message.info('此页订单时间查询以订单更新日期为准，请知悉')
   },
   methods: {
     queryFunc () {
