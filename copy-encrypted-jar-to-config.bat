@@ -11,4 +11,6 @@ java -jar classfinal-fatjar.jar -file D:\Develop\PayCompany\SourceCode\Aisapay-p
 xcopy /y D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\jeepay-merchant\target\jeepay-merchant-encrypted.jar D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\conf\merchant\jeepay-merchant.jar
 
 xcopy /y D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\jeepay-payment\target\jeepay-payment.jar D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\conf\payment
-xcopy /y D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\jeepay-robots\target\jeepay-robots.jar D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\conf\robots
+
+java -jar classfinal-fatjar.jar -file D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\jeepay-robots\target\jeepay-robots.jar -packages com.jeequan.jeepay.com.jeequan -exclude com.jeequan.jeepay.com.jeequan.bootstrap.JeepayRobotsApplication -pwd abcd1234 -Y
+xcopy /y D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\jeepay-robots\target\jeepay-robots-encrypted.jar D:\Develop\PayCompany\SourceCode\Aisapay-plus\jeepay-plus\conf\robots

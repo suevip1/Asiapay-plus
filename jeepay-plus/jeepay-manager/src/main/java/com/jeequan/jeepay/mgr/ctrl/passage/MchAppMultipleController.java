@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RestController
@@ -64,7 +65,7 @@ public class MchAppMultipleController extends CommonCtrl {
         }
         try {
             List<PayPassage> passageList = payPassageService.list(PayPassage.gw().select(PayPassage::getPayPassageId, PayPassage::getState, PayPassage::getTimeLimit));
-            RedisUtil.set(RECENTLY_OPEN, JSONObject.toJSONString(passageList), 7200);
+            RedisUtil.set(RECENTLY_OPEN, JSONObject.toJSONString(passageList), 3, TimeUnit.HOURS);
             List<PayPassage> updatePassageList = new ArrayList<>();
             for (int i = 0; i < passageList.size(); i++) {
                 PayPassage passage = passageList.get(i);
@@ -90,7 +91,7 @@ public class MchAppMultipleController extends CommonCtrl {
         try {
             JSONArray jsonArray = JSONArray.parseArray(RedisUtil.getObject(RECENTLY_OPEN, String.class));
             if (jsonArray == null || jsonArray.size() == 0) {
-                return ApiRes.customFail("没有最近关闭全部通道的记录或距离上次操作已超过两小时!");
+                return ApiRes.customFail("没有最近关闭全部通道的记录或距离上次操作已超过三小时!");
             }
             List<PayPassage> updatePassageList = new ArrayList<>();
             for (int i = 0; i < jsonArray.size(); i++) {

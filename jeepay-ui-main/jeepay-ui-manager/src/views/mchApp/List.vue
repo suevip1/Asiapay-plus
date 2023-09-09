@@ -223,7 +223,7 @@
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
           <b style="color: gray">此操作将停止所有通道的定时任务!!</b><br/><br/>
           <b style="color: gray">可通过<span style="color: #007eff">[打开最近启用通道]</span>恢复到一键关闭前的通道状态</b><br/><br/>
-          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为两个小时</b><br/>
+          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
           <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
           <a-form-model-item label="请输入谷歌验证码：">
             <a-input v-model="setCloseAllGoogleCode" />
@@ -236,7 +236,7 @@
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
           <b style="color: gray">此操作会将所有通道状态恢复到<span style="color: #FF4D4F">[关闭全部通道]</span>操作前的状态</b><br/><br/>
           <b style="color: gray">包含通道状态、定时任务开启状态</b><br/><br/>
-          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为两个小时</b><br/>
+          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
           <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
         </a-form-model>
       </a-modal>

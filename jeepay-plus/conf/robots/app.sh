@@ -45,7 +45,8 @@ function start(){
 		return 0
 	fi
 
-    nohup java -jar $APP_NAME >/dev/null 2>start.log &
+#    nohup java -jar $APP_NAME >/dev/null 2>start.log &
+  nohup java -javaagent:$APP_NAME='-pwd abcd1234' -jar $APP_NAME >/dev/null 2>start.log &
 	# tail -200f start.log
 
 	echo " [$APP_NAME] App starting ... "

@@ -13,23 +13,23 @@
             <a-col :span="23" :offset="1"><b style="color: black">优先绑定管理群，管理群用于接收预警、提示等！管路群、商户群、通道群每个群只能同时绑定一种类型，管理群唯一</b></a-col>
           </a-row>
           <a-row>
-            <a-col :span="23" :offset="1"><b style="color: black">后台只包含四方工作人员部分命令,其他命令直接拉机器人进去/help实时查看</b></a-col>
+            <a-col :span="23" :offset="1"><b style="color: black">后台只包含四方工作人员部分命令,其他命令直接拉机器人进去 /help 实时查看</b></a-col>
           </a-row>
           <br/>
           <a-row>
-            <a-col :span="23" :offset="1">1. 先将机器人添加到群组内，然后给机器人管理员权限。</a-col>
+            <a-col :span="23" :offset="1">1. 先将机器人添加到群组内，然后给机器人<b>管理员</b>权限。</a-col>
           </a-row>
           <a-row>
             <a-col :span="23" :offset="1">2. 管理员在系统后台配置，管理员可以设置其他账号成为操作员，机器人只会执行管理员和操作员发送的下发、记账等敏感指令。</a-col>
           </a-row>
           <a-row>
-            <a-col :span="23" :offset="1">3. 下发数据按天统计，数据只保留昨日和今日两天的数据。</a-col>
+            <a-col :span="23" :offset="1">3. 下发数据按天统计，数据只保留<b>昨日</b>和<b>今日</b>两天的数据。</a-col>
           </a-row>
           <a-row>
             <a-col :span="23" :offset="1">4. 查单功能需要先绑定好商户群以及通道群后才能正确识别、转发</a-col>
           </a-row>
           <a-row>
-            <a-col :span="23" :offset="1">5. 补单预警以及异常订单预警均为每分钟检测一次，可在下方自由设置预警阈值</a-col>
+            <a-col :span="23" :offset="1">5. 补单预警以及异常订单预警均为<b>每分钟</b>检测一次，可在下方自由设置预警阈值</a-col>
           </a-row>
           <br/>
           <a-row>
