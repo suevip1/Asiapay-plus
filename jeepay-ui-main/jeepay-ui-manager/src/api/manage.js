@@ -142,6 +142,8 @@ export const API_URL_MCH_APP_BALANCE = '/api/mchAppsBalance'
 export const API_URL_MCH_APP_RESET_BALANCE = '/api/mchAppsBalanceReset'
 /** 支付订单管理 **/
 export const API_URL_PAY_ORDER_LIST = '/api/payOrder'
+
+export const API_URL_PAY_ORDER_FORCE_LIST = '/api/payOrderForceList'
 /** 退款订单管理 **/
 export const API_URL_REFUND_ORDER_LIST = '/api/refundOrder'
 /** 商户通知管理 **/

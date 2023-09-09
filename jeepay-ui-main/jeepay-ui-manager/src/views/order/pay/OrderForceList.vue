@@ -18,7 +18,7 @@
             </a-form-item>
             <jeepay-text-up :placeholder="'支付订单号/商户订单号/渠道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
-<!--            <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />-->
+            <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.passageId" v-model="searchData.passageId" />
             <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
@@ -315,6 +315,18 @@
             </a-form-model-item>
           </a-col>
         </a-row>
+        <a-row justify="start" type="flex">
+          <a-col :sm="24">
+            <a-form-model-item label="回调通知参数">
+              <a-input
+                  type="textarea"
+                  disabled="disabled"
+                  style="height: 100px;color: black"
+                  v-model="detailData.notifyParams"
+              />
+            </a-form-model-item>
+          </a-col>
+        </a-row>
       </a-drawer>
     </template>
   </page-header-wrapper>
@@ -325,8 +337,8 @@ import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上�
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
+  API_URL_PAY_ORDER_FORCE_LIST,
   API_URL_PAY_ORDER_LIST,
-  API_URL_PAYWAYS_LIST,
   PAY_ORDER_FORCE_SUCCESS,
   req
 } from '@/api/manage'
@@ -389,7 +401,7 @@ export default {
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
-      return req.list(API_URL_PAY_ORDER_LIST, params)
+      return req.list(API_URL_PAY_ORDER_FORCE_LIST, params)
     },
     searchFunc: function () { // 点击【查询】按钮点击事件
       this.$refs.infoTable.refTable(false)
@@ -419,12 +431,6 @@ export default {
     },
     onClose () {
       this.visible = false
-    },
-    initPayWay: function () {
-      const that = this
-      req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉列表
-        that.payWayList = res.records
-      })
     },
     changeStr2ellipsis (orderNo, baseLength) {
       const halfLengh = parseInt(baseLength / 2)

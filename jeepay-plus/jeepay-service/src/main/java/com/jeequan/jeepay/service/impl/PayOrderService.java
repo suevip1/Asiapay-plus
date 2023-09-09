@@ -49,21 +49,6 @@ import java.util.*;
 @Service
 public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 
-    @Autowired
-    private MchHistoryService mchHistoryService;
-
-    @Autowired
-    private MchInfoService mchInfoService;
-
-    @Autowired
-    private AgentAccountHistoryService agentAccountHistoryService;
-
-    @Autowired
-    private AgentAccountInfoService agentAccountInfoService;
-
-    @Autowired
-    private PayPassageService payPassageService;
-
     /**
      * 更新订单状态  【订单生成】 --》 【支付中】
      **/
@@ -276,6 +261,71 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
 
         wrapper.orderByDesc(PayOrder::getCreatedAt);
+
+        return page(iPage, wrapper);
+    }
+
+    public IPage<PayOrder> listByPageUpdatedAt(IPage iPage, PayOrder payOrder, JSONObject paramJSON, LambdaQueryWrapper<PayOrder> wrapper) {
+
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId().trim());
+        }
+        //商户号
+        if (StringUtils.isNotEmpty(payOrder.getMchNo())) {
+            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo().trim());
+        }
+        //商户名
+        if (StringUtils.isNotEmpty(payOrder.getMchName())) {
+            wrapper.like(PayOrder::getMchName, payOrder.getMchName().trim());
+        }
+        //商户代理
+        if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
+            wrapper.eq(PayOrder::getAgentNo, payOrder.getAgentNo().trim());
+        }
+        //通道代理
+        if (StringUtils.isNotEmpty(payOrder.getAgentNoPassage())) {
+            wrapper.eq(PayOrder::getAgentNoPassage, payOrder.getAgentNoPassage().trim());
+        }
+        //通道ID
+        if (payOrder.getPassageId() != null) {
+            wrapper.eq(PayOrder::getPassageId, payOrder.getPassageId());
+        }
+        //商户订单号
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo().trim());
+        }
+        if (payOrder.getState() != null) {
+            wrapper.eq(PayOrder::getState, payOrder.getState());
+        }
+        if (payOrder.getNotifyState() != null) {
+            wrapper.eq(PayOrder::getNotifyState, payOrder.getNotifyState());
+        }
+        if (payOrder.getProductId() != null) {
+            wrapper.eq(PayOrder::getProductId, payOrder.getProductId());
+        }
+
+        if (payOrder.getForceChangeState() != null) {
+            wrapper.eq(PayOrder::getForceChangeState, payOrder.getForceChangeState());
+        }
+
+        if (paramJSON != null) {
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
+                wrapper.ge(PayOrder::getCreatedAt, paramJSON.getString("createdStart"));
+            }
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
+                wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
+            }
+        }
+        // 三合一订单
+        if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
+            wrapper.and(wr -> {
+                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId").trim())
+                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId").trim())
+                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId").trim());
+            });
+        }
+
+        wrapper.orderByDesc(PayOrder::getUpdatedAt);
 
         return page(iPage, wrapper);
     }

@@ -47,6 +47,13 @@
                 <a-select-option value="1">已发送</a-select-option>
               </a-select>
             </a-form-item>
+            <a-form-item label="" class="table-head-layout">
+              <a-select v-model="searchData.forceChangeState" placeholder="手动补单" default-value="">
+                <a-select-option value="">全部</a-select-option>
+                <a-select-option value="0">否</a-select-option>
+                <a-select-option value="1">是</a-select-option>
+              </a-select>
+            </a-form-item>
             <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>

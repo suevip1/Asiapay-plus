@@ -88,7 +88,7 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
             }
 
             //通知成功
-            if ("SUCCESS".equalsIgnoreCase(res)) {
+            if ("SUCCESS".equalsIgnoreCase(res.trim())) {
                 mchNotifyRecordService.updateNotifyResult(notifyId, MchNotifyRecord.STATE_SUCCESS, res);
                 return;
             }
