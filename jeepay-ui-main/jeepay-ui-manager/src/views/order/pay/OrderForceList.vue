@@ -431,15 +431,16 @@ export default {
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
     this.searchData.forceChangeState = 1
     this.searchData.state = 2
-    this.$refs.infoTable.refTable(true)
+    this.queryFunc()
     this.$message.info('此页订单时间查询以订单更新日期为准，请知悉')
   },
   methods: {
     queryFunc () {
       this.searchData.forceChangeState = 1
+      this.searchData.state = 2
       this.btnLoading = true
-      this.$refs.infoTable.refTable(true)
       this.getStatData()
+      this.$refs.infoTable.refTable(true)
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
@@ -485,7 +486,7 @@ export default {
     getStatData () {
       const that = this
       that.statLoading = true
-      req.postDataNormal('/api/payRealTimeStatOrder', '', this.searchData).then(res => { // 产品下拉列表
+      req.postDataNormal('/api/payRealTimeStatOrder', 'countRealForceOrder', this.searchData).then(res => { // 产品下拉列表
         that.realTimeStatData = res
         that.statLoading = false
       })
