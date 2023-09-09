@@ -21,14 +21,12 @@ APP_PID=''
 
 # 重新获取APPID
 function refAppPID(){
-
 	APP_PID=`ps -ef|grep $APP_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
 }
 
 
 # 获取运行程序的pid 进程号
 function getAppPID(){
-
 	if [ ! $APP_PID ]; then #未获取过
 		refAppPID
 	fi
