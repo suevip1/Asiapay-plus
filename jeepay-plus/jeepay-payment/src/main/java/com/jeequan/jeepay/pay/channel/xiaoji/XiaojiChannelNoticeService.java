@@ -75,7 +75,7 @@ public class XiaojiChannelNoticeService extends AbstractChannelNoticeService {
             map.put("out_trade_no", payOrder.getPayOrderId());
             String queryGateway = normalMchParams.getQueryUrl();
 
-            String rawQuery = HttpUtil.get(queryGateway, map);
+            String rawQuery = HttpUtil.get(queryGateway, map,10000);
             log.info("[{}]查单返回:{}", LOG_TAG, rawQuery);
 
             //支付状态,200 成功

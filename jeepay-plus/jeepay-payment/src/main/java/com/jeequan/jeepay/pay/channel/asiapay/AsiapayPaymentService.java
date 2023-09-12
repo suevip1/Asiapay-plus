@@ -65,7 +65,7 @@ public class AsiapayPaymentService extends AbstractPaymentService {
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
 
-            raw = HttpUtil.post(normalMchParams.getPayGateway(), map);
+            raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);

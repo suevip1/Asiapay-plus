@@ -84,7 +84,7 @@ public class KamipayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -147,7 +147,7 @@ public class KamipayPaymentService extends AbstractPaymentService {
         String payGateway = "http://162.216.240.188/api/pay";
         log.info("[{}]请求:{}", LOG_TAG, map);
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 

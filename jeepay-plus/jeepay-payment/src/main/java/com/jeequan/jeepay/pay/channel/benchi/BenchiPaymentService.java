@@ -148,7 +148,7 @@ public class BenchiPaymentService extends AbstractPaymentService {
         // 处理响应
         raw = response.body();
 
-//        raw = HttpUtil.post(payGateway, map);
+//        raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

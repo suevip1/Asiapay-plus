@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 @Service
 @Slf4j
 public class Xxpay3PaymentService extends AbstractPaymentService {
@@ -82,7 +81,7 @@ public class Xxpay3PaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -149,7 +148,7 @@ public class Xxpay3PaymentService extends AbstractPaymentService {
 //        // 处理响应
 //        raw = response.body();
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

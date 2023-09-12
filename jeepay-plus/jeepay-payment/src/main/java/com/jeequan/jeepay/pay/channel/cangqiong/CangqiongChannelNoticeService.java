@@ -1,6 +1,6 @@
-package com.jeequan.jeepay.pay.channel.wangting;
+package com.jeequan.jeepay.pay.channel.cangqiong;
 
-import cn.hutool.http.HttpUtil;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -10,6 +10,7 @@ import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
+import com.jeequan.jeepay.pay.channel.IChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,27 +20,24 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
-
 
 @Slf4j
 @Service
-public class WangtingChannelNoticeService extends AbstractChannelNoticeService {
-
-    private static final String LOG_TAG = "[三网网厅支付]";
+public class CangqiongChannelNoticeService extends AbstractChannelNoticeService {
+    private static final String LOG_TAG = "[苍穹支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "{\"code\":\"success\",\"message\":\"成功\"}";
+    private static final String ON_SUCCESS = "OK";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.WANGTING;
+        return CS.IF_CODE.CANGQIONG;
     }
 
     @Override
-    public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, NoticeTypeEnum noticeTypeEnum) {
+    public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, IChannelNoticeService.NoticeTypeEnum noticeTypeEnum) {
         try {
             JSONObject params = getReqParamJSON();
             return MutablePair.of(urlOrderId, params);
@@ -50,7 +48,7 @@ public class WangtingChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     @Override
-    public ChannelRetMsg doNotice(HttpServletRequest request, Object params, PayOrder payOrder, PayPassage payPassage, NoticeTypeEnum noticeTypeEnum) {
+    public ChannelRetMsg doNotice(HttpServletRequest request, Object params, PayOrder payOrder, PayPassage payPassage, IChannelNoticeService.NoticeTypeEnum noticeTypeEnum) {
         ChannelRetMsg result = ChannelRetMsg.confirmSuccess(null);
         try {
             // 获取请求参数
@@ -69,22 +67,15 @@ public class WangtingChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            Map<String, Object> map = new HashMap<>();
-            String orderId = jsonParams.getString("orderId");
-            WangTingParamsModel resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), WangTingParamsModel.class);
-            map.put("orderId", orderId);
-            map.put("appKey", resultsParam.getMchNo());
+            //支付状态：“00” 为成功
+            String returncode = jsonParams.getString("returncode");
 
-            String raw = HttpUtil.get(resultsParam.getQueryUrl(), map, 10000);
-            log.info("{} 查单请求响应:{}", resultsParam, raw);
-            JSONObject queryJson = JSON.parseObject(raw, JSONObject.class);
-
-            if (queryJson.getString("code").equals("success") && queryJson.getJSONObject("data").getString("status").equals("1")) {
+            if (!returncode.equals("00")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
+                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
+            } else {
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-            } else {
-                log.info("[{}]回调通知订单状态错误:{}", resultsParam, queryJson.getJSONObject("data").getString("status"));
-                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             }
             return result;
         } catch (Exception e) {
@@ -102,7 +93,7 @@ public class WangtingChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderId");        // 商户订单号
+        String orderNo = jsonParams.getString("orderid");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -115,16 +106,16 @@ public class WangtingChannelNoticeService extends AbstractChannelNoticeService {
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
 
-        WangTingParamsModel resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), WangTingParamsModel.class);
+        NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
         String sign = jsonParams.getString("sign");
         Map map = JSON.parseObject(jsonParams.toJSONString());
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&appSecret=" + secret;
+            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"attach"}) + "&key=" + secret;
             final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;

@@ -85,7 +85,7 @@ public class Xxpay2PaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -148,7 +148,7 @@ public class Xxpay2PaymentService extends AbstractPaymentService {
 
         String payGateway = "http://103.13.230.213:2088/api/pay/create_order";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
         JSONObject result = JSON.parseObject(raw, JSONObject.class);
         log.info("[{}]请求响应:{}", LOG_TAG, result.toJSONString());

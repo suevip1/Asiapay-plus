@@ -192,6 +192,45 @@ public class RobotsService extends TelegramLongPollingBot {
      */
     private void handlePrivateCommand(Update update) {
 
+        if (update.hasMessage() && update.getMessage().getReplyToMessage() != null && update.getMessage().hasText()) {
+            String userName = update.getMessage().getFrom().getUserName();
+
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                String text = update.getMessage().getText();
+
+                //群发全部
+                if (text.equals(SEND_ALL)) {
+                    //获取全部
+                    List<RobotsMch> list = findNonMchDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage().getReplyToMessage());
+                    }
+                    List<RobotsPassage> listPassage = findNonPassageDuplicateChatIds();
+                    for (int i = 0; i < listPassage.size(); i++) {
+                        sendForward(listPassage.get(i).getChatId(), update.getMessage().getReplyToMessage());
+                    }
+                    return;
+                }
+                //群发商户
+                if (text.equals(SEND_ALL_MCH)) {
+                    List<RobotsMch> list = findNonMchDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage().getReplyToMessage());
+                    }
+                    return;
+                }
+                //群发通道
+                if (text.equals(SEND_ALL_PASSAGE)) {
+                    List<RobotsPassage> list = findNonPassageDuplicateChatIds();
+                    for (int i = 0; i < list.size(); i++) {
+                        sendForward(list.get(i).getChatId(), update.getMessage().getReplyToMessage());
+                    }
+                    return;
+                }
+            }
+        }
+
+
         if (update.hasMessage() && update.getMessage().getReplyToMessage() != null && update.getMessage().getReplyToMessage().hasText()) {
             String userName = update.getMessage().getFrom().getUserName();
 
@@ -228,6 +267,37 @@ public class RobotsService extends TelegramLongPollingBot {
                     return;
                 }
             }
+        }
+
+        if (update.getMessage().hasText() && update.getMessage().getText().equals("test123")) {
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("\uD83D\uDCE2\uD83D\uDCE2\uD83D\uDCE2\uD83D\uDCE2<b>亚洲科技四方系统出租</b>\uD83D\uDCE2\uD83D\uDCE2\uD83D\uDCE2\uD83D\uDCE2" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDD38<b>优点</b>：独立海外服务器，极速响应，后台丝滑不卡顿，实测每分钟15000+订单依然流畅，UI简洁美观，精细化的权限管理，严谨的细节设计防止误操作，技术客服24小时在线" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDD38<b>独家特色功能</b>：通道配置修改警报，手动补单数过多警报，订单异常警报，一键日切，一键复制通道，通道定时开关等等..及全功能机器人\uD83E\uDD16免费送。" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDCCC<b>我方系统问题导致被撸回调，我方全额赔付！！</b>" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDD38平台技术熟练对接MG,JDB,BBIN,FG,KY,Leg,VG,MT,FG,PG,AG,OB,DG GPK GT等各大包网" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDD38同一支付通道对接后，仅需更换下单网关 回调IP  通道编码等 即可使用其同系统其余通道" + System.lineSeparator());
+            stringBuffer.append("\uD83D\uDD38费用：" + System.lineSeparator());
+            stringBuffer.append("搭建费免费最低需首充3000（费用充值到四方后台余额，系统跑量费用）" + System.lineSeparator());
+            stringBuffer.append("系统跑量费率万5\uFE0F⃣" + System.lineSeparator());
+            stringBuffer.append("对接通道限时免费" + System.lineSeparator());
+            stringBuffer.append("预充值模式，充值赠送活动" + System.lineSeparator());
+            stringBuffer.append("充值10000   赠送1188" + System.lineSeparator());
+            stringBuffer.append("充值20000   赠送2288" + System.lineSeparator());
+            stringBuffer.append("充值30000   赠送3388" + System.lineSeparator());
+            stringBuffer.append("充值40000   赠送5588" + System.lineSeparator());
+            stringBuffer.append("充值50000   赠送8888" + System.lineSeparator());
+            stringBuffer.append("推出<b>系统包月服务</b>、<b>防御攻击服务</b>，详情可咨询系统客服，欢迎各位老板莅临光临！" + System.lineSeparator());
+            stringBuffer.append("❤\uFE0F❤\uFE0F本系统❤\uFE0F❤\uFE0F" + System.lineSeparator());
+            stringBuffer.append("基于springboot+mysql开发，集成activeMQ、redis、zookeeper等最大限度保证高性能、抗高并发" + System.lineSeparator());
+            stringBuffer.append("技术团队全新开发，从根本上杜绝了市面上流传源码的漏洞，功能俱全、服务优质、行业顶流" + System.lineSeparator());
+            stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("<b>四方管理后台演示</b>" + System.lineSeparator());
+            stringBuffer.append("账号：master" + System.lineSeparator());
+            stringBuffer.append("密码：123456" + System.lineSeparator());
+            stringBuffer.append("唯一联系人：@D999999" + System.lineSeparator());
+            sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
+            return;
         }
     }
 

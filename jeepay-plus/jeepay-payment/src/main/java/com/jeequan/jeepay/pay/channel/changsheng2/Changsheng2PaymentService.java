@@ -77,7 +77,7 @@ public class Changsheng2PaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
 
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
@@ -134,7 +134,7 @@ public class Changsheng2PaymentService extends AbstractPaymentService {
 
         String payGateway = "http://ds5.qq08.win:36789/web/api/dsorder.ashx";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
 
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
         JSONObject result = JSON.parseObject(raw, JSONObject.class);

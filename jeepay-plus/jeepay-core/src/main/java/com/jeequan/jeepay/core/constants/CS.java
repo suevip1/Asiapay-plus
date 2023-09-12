@@ -315,8 +315,6 @@ public class CS {
 
         String XXPAY4 = "xxpay4";
 
-        String XXPAY5 = "xxpay5";
-
         String CHANGSHENG = "changsheng";
         String CHANGSHENG2 = "changsheng2";
 
@@ -355,6 +353,9 @@ public class CS {
         String STARPAY = "starpay";
 
         String JIUYIPAY = "jiuyipay";
+
+        String CANGQIONG = "cangqiong";
+        String MUFENG = "mufeng";
         
     }
 

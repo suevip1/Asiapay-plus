@@ -67,7 +67,6 @@ public class ShayupayPaymentService extends AbstractPaymentService {
 
             String orderAmount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
 
-
             map.put("merchantId", merchantId);
             map.put("orderId", orderId);
             map.put("channelType", channelType);
@@ -79,7 +78,7 @@ public class ShayupayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
 
@@ -135,7 +134,7 @@ public class ShayupayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://taoyuan.joy999.shop/api/newOrder";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

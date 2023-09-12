@@ -89,7 +89,7 @@ public class Rixinpay2PaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
 
@@ -154,7 +154,7 @@ public class Rixinpay2PaymentService extends AbstractPaymentService {
 
         String payGateway = "https://zzjijipay.eazyzhi.com/Pay_index.html";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

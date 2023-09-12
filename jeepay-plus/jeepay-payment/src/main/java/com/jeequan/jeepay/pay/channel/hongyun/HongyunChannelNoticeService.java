@@ -63,8 +63,10 @@ public class HongyunChannelNoticeService extends AbstractChannelNoticeService {
                 throw ResponseException.buildText(ON_FAIL);
             }
             log.info("{}验证支付通知数据及签名通过", LOG_TAG);
-
-            ResponseEntity okResponse = textResp(ON_SUCCESS);
+            JSONObject jsonObjectSuccess = new JSONObject();
+            jsonObjectSuccess.put("msg", "");
+            jsonObjectSuccess.put("code", "200");
+            ResponseEntity okResponse = textResp(jsonObjectSuccess.toJSONString());
             result.setResponseEntity(okResponse);
 
             // 3支付成功，4支付失败，5订单超时，6订单取消

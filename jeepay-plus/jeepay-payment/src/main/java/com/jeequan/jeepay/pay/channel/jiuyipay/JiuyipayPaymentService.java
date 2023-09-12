@@ -82,7 +82,7 @@ public class JiuyipayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map,10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -142,7 +142,7 @@ public class JiuyipayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://jiuyi.8456852.com/Pay";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

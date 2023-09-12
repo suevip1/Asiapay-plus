@@ -80,7 +80,7 @@ public class Pay731PaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
 
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
@@ -139,7 +139,7 @@ public class Pay731PaymentService extends AbstractPaymentService {
 
         String payGateway = "https://z9r2nkmrucf1z9ckghhpoc3wbys32gwtgc9cx7tnthx-w4.ttp887.xyz/gogogo";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
 
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
         JSONObject result = JSON.parseObject(raw, JSONObject.class);

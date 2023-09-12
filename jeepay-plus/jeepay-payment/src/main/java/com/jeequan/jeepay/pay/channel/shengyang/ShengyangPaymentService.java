@@ -80,7 +80,7 @@ public class ShengyangPaymentService extends AbstractPaymentService {
             map.put("pay_md5sign", sign);
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -136,7 +136,7 @@ public class ShengyangPaymentService extends AbstractPaymentService {
 
         String payGateway = "https://sy001.top/Pay";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

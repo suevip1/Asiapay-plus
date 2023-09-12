@@ -88,7 +88,7 @@ public class RixinpayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
 
@@ -153,7 +153,7 @@ public class RixinpayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://aabb.rixin.threegf.com/Pay_Index.html";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

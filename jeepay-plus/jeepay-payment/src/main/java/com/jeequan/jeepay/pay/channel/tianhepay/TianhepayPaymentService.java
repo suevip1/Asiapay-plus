@@ -80,7 +80,7 @@ public class TianhepayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
             log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -140,7 +140,7 @@ public class TianhepayPaymentService extends AbstractPaymentService {
 
         String payGateway = "https://zhifupayy.com/interface_payment/interfacePayOrder";
         log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
         JSONObject result = JSON.parseObject(raw, JSONObject.class);
         log.info("[{}]请求响应:{}", LOG_TAG, result.toJSONString());

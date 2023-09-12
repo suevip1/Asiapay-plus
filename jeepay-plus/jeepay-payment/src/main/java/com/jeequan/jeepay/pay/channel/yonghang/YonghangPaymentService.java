@@ -80,7 +80,7 @@ public class YonghangPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
+            HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                     .execute();
             // 处理响应
             raw = response.body();
@@ -145,7 +145,7 @@ public class YonghangPaymentService extends AbstractPaymentService {
         // 处理响应
         raw = response.body();
 
-//        raw = HttpUtil.post(payGateway, map);
+//        raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

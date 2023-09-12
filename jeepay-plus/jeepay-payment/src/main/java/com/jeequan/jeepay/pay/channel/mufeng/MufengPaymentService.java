@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.rixinpay3;
+package com.jeequan.jeepay.pay.channel.mufeng;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
@@ -24,19 +24,17 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
- * 日鑫支付
+ * 沐风支付
  */
 @Service
 @Slf4j
-public class Rixinpay3PaymentService extends AbstractPaymentService {
-
-    private static final String LOG_TAG = "[日鑫3支付]";
+public class MufengPaymentService extends AbstractPaymentService {
+    private static final String LOG_TAG = "[沐风支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.RIXINPAY3;
+        return CS.IF_CODE.MUFENG;
     }
 
     @Override
@@ -70,7 +68,7 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
 
 
             String pay_amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-            String pay_user_ip = payOrder.getClientIp();
+            String pay_ip = payOrder.getClientIp();
 
 
             map.put("pay_memberid", pay_memberid);
@@ -84,7 +82,7 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
             map.put("pay_amount", pay_amount);
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("pay_md5sign", sign);
-            map.put("pay_user_ip", pay_user_ip);
+            map.put("pay_ip", pay_ip);
             map.put("pay_productname", "下单");
 
             String payGateway = normalMchParams.getPayGateway();
@@ -95,9 +93,9 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
 
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("code").equals("200")) {
+            if (result.getString("status").equals("1")) {
 
-                String payUrl = result.getString("payurl");
+                String payUrl = result.getString("pay_url");
                 String passageOrderId = "";
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
@@ -122,22 +120,22 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "qq0io7vrgbu7774xfwvq4bolkizmvt1t";
+        String key = "36hcbl8yy6c6t9isltaahs4hwtnndiwn";
 
-        String pay_memberid = "230869685";
+        String pay_memberid = "230945194";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
 
 
-        String pay_bankcode = "106";
+        String pay_bankcode = "8014";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
 
 
-        String pay_amount = AmountUtil.convertCent2Dollar(39900L);
-        String pay_user_ip = "127.0.0.1";
+        String pay_amount = AmountUtil.convertCent2Dollar(10000L);
+        String pay_ip = "127.0.0.1";
 
-        log.info("[{}]请求响应:{}", LOG_TAG, pay_applydate);
+
         map.put("pay_memberid", pay_memberid);
         map.put("pay_orderid", pay_orderid);
         map.put("pay_applydate", pay_applydate);
@@ -149,12 +147,18 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
         map.put("pay_amount", pay_amount);
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("pay_md5sign", sign);
-//        map.put("pay_user_ip", pay_user_ip);
         map.put("pay_productname", "下单");
+        map.put("pay_ip", pay_ip);
+        System.out.println(JSONObject.toJSON(map));
 
-        String payGateway = "https://zzjijipay.eazyzhi.com/Pay_index.html";
+        String payGateway = "http://www.mufeng.threegf.com/Pay_Index.html";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
+
+        JSONObject result = JSON.parseObject(raw, JSONObject.class);
+        if (result.getString("status").equals("1")) {
+            log.info("[{}]请求成功", LOG_TAG);
+        }
     }
 }

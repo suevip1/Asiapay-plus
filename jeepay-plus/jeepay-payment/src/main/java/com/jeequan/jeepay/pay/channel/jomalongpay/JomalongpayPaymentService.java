@@ -73,7 +73,7 @@ public class JomalongpayPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map);
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -124,7 +124,7 @@ public class JomalongpayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://pay.jomalong.click/api/pay/create_order";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         // 发送POST请求并指定JSON数据
 //        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON.execute();
         // 处理响应
