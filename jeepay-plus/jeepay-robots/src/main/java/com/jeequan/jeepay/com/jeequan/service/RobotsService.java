@@ -43,6 +43,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.annotation.PostConstruct;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -129,6 +131,8 @@ public class RobotsService extends TelegramLongPollingBot {
     private static final String SEND_ALL = "群发全部";
     private static final String SEND_ALL_MCH = "群发商户";
     private static final String SEND_ALL_PASSAGE = "群发通道";
+
+    private static final String CAL = "计算.*";
     /**
      * 绑定管理群
      */
@@ -193,7 +197,6 @@ public class RobotsService extends TelegramLongPollingBot {
 
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 String replyText = update.getMessage().getReplyToMessage().getText();
-
 
                 //群发全部
                 if (replyText.equals(SEND_ALL)) {
@@ -270,7 +273,9 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("今日跑量 -- 查看今日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
+            stringBuffer.append("<b>通用功能</b>:" + System.lineSeparator());
             stringBuffer.append("z0 -- 查询今日U价" + System.lineSeparator());
+            stringBuffer.append("计算 -- 进行四则运算，例如：计算 (1+2)*3" + System.lineSeparator());
 
             sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
 
@@ -373,6 +378,29 @@ public class RobotsService extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
                 }
+            }
+            return;
+        }
+
+        //计算
+        Pattern patternCal = Pattern.compile(CAL);
+        Matcher matcherCal = patternCal.matcher(text);
+        if (matcherCal.matches()) {
+            log.error("匹配到计算");
+            try {
+                ScriptEngineManager mgr = new ScriptEngineManager();
+                ScriptEngine engine = mgr.getEngineByName("JavaScript");
+                String temp = text.replaceAll("计算", "").trim();
+                // 计算结果
+                Object result = engine.eval(temp);
+
+                // 格式化结果为三位小数
+                DecimalFormat df = new DecimalFormat("#.###");
+                String formattedResult = df.format(result);
+
+                sendReplyMessage(chatId, message.getMessageId(), formattedResult);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
             return;
         }
