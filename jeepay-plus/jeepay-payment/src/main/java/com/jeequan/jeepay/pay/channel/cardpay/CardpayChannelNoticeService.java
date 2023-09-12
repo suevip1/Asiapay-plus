@@ -28,7 +28,7 @@ public class CardpayChannelNoticeService extends AbstractChannelNoticeService {
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "ok";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {

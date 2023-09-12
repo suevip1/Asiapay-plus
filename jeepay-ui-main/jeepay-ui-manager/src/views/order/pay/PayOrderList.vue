@@ -58,6 +58,8 @@
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
               <a-switch style="margin-left: 8px" checked-children="统计开" un-checked-children="统计关" @change="onSwitchChange" :loading="statLoading"  />
+              <a-switch style="margin-left: 8px" checked-children="自动刷新开" un-checked-children="自动刷新关" @change="onAutoRefreshSwitchChange" />
+              <a-tag style="margin-left: 8px" :color="autoRefresh?'#1890ff':''">{{autoRefreshCoolDown}}s</a-tag>
             </span>
           </div>
         </a-form>
@@ -426,6 +428,9 @@ export default {
         'successAmount': 0,
         'totalMchIncome': 0
       },
+      autoRefresh: false,
+      timer: null,
+      autoRefreshCoolDown: 120,
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -450,7 +455,16 @@ export default {
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
     // this.$refs.infoTable.refTable(true)
     this.searchData.unionOrderId = this.$route.query.unionOrderId
+    this.autoRefreshCoolDown = 120
     this.queryFunc()
+  },
+  beforeRouteLeave (to, from, next) {
+    // 在离开前执行一些操作，例如提示用户保存数据
+    // ...
+    // 执行next()，表示继续进行路由切换
+    console.log('test11')
+    clearInterval(this.timer)
+    next()
   },
   methods: {
     queryFunc () {
@@ -515,6 +529,22 @@ export default {
     },
     onSwitchChange (isOn) {
       this.getStatData(isOn)
+    },
+    onAutoRefreshSwitchChange (isOn) {
+      this.autoRefresh = isOn
+      const that = this
+      if (isOn) {
+        this.timer = setInterval(function () {
+          that.autoRefreshCoolDown -= 1
+          if (that.autoRefreshCoolDown <= 0) {
+            that.autoRefreshCoolDown = 120
+            that.queryFunc()
+          }
+        }, 1000)
+      } else {
+        clearInterval(this.timer)
+        this.autoRefreshCoolDown = 120
+      }
     },
     getStatData (isOn) {
       const that = this
