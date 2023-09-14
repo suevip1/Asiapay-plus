@@ -44,7 +44,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
 
     @Resource
     private AgentAccountInfoMapper agentAccountInfoMapper;
-    
+
 
     /**
      * 通过代理商号获取
@@ -194,12 +194,25 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
-    public int updateBalance(String agentNo, Long changeAmount) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("changeAmount", changeAmount);
-        map.put("agentNo", agentNo);
-        return agentAccountInfoMapper.updateBalance(map);
+//    @Transactional(rollbackFor = Exception.class)
+    public boolean updateBalance(String agentNo, Long changeAmount) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("changeAmount", changeAmount);
+//        map.put("agentNo", agentNo);
+//        return agentAccountInfoMapper.updateBalance(map);
+
+        try {
+            AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);
+            agentAccountInfo.setBalance(agentAccountInfo.getBalance() + changeAmount);
+            boolean isSuccess = updateById(agentAccountInfo);
+            if (!isSuccess) {
+                log.error("更新余额不成功 [" + agentAccountInfo.getAgentNo() + "] " + changeAmount);
+            }
+            return isSuccess;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
     public JSONObject sumAgentInfo() {

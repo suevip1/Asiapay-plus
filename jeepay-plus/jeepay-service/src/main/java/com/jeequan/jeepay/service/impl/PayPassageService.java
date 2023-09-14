@@ -2,6 +2,7 @@ package com.jeequan.jeepay.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.cache.RedisUtil;
+import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.PayPassageMapper;
@@ -49,7 +50,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             String oldConfig = passageOld.getPayInterfaceConfig();
             String newConfig = payPassage.getPayInterfaceConfig();
 
-            if(StringUtils.isNotEmpty(oldConfig) && StringUtils.isNotEmpty(newConfig)){
+            if (StringUtils.isNotEmpty(oldConfig) && StringUtils.isNotEmpty(newConfig)) {
                 if (!oldConfig.equals(newConfig)) {
                     RedisUtil.addToQueue(REDIS_SUFFIX, passageOld);
                     log.info("通道三方配置被修改,[{}]{}", payPassage.getPayPassageId(), payPassage.getPayPassageName());
@@ -91,12 +92,25 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
-    public int updateBalance(Long payPassageId, Long changeAmount) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("changeAmount", changeAmount);
-        map.put("payPassageId", payPassageId);
-        return payPassageMapper.updateBalance(map);
+
+    public boolean updateBalance(Long payPassageId, Long changeAmount) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("changeAmount", changeAmount);
+//        map.put("payPassageId", payPassageId);
+//        return payPassageMapper.updateBalance(map);
+
+        try {
+            PayPassage payPassage = queryPassageInfo(payPassageId);
+            payPassage.setBalance(payPassage.getBalance() + changeAmount);
+            boolean isSuccess = updateById(payPassage);
+            if (!isSuccess) {
+                log.error("更新余额不成功 [" + payPassage.getPayPassageId() + "] " + changeAmount);
+            }
+            return isSuccess;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
     /**
@@ -106,12 +120,24 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
-    public int updateQuota(Long payPassageId, Long changeAmount) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("changeAmount", changeAmount);
-        map.put("payPassageId", payPassageId);
-        return payPassageMapper.updateQuota(map);
+//    @Transactional(rollbackFor = Exception.class)
+    public boolean updateQuota(Long payPassageId, Long changeAmount) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("changeAmount", changeAmount);
+//        map.put("payPassageId", payPassageId);
+//        return payPassageMapper.updateQuota(map);
+        try {
+            PayPassage payPassage = queryPassageInfo(payPassageId);
+            payPassage.setQuota(payPassage.getQuota() + changeAmount);
+            boolean isSuccess = updateById(payPassage);
+            if (!isSuccess) {
+                log.error("更新授信不成功 [" + payPassage.getPayPassageId() + "] " + changeAmount);
+            }
+            return isSuccess;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
     public JSONObject sumPassageInfo() {

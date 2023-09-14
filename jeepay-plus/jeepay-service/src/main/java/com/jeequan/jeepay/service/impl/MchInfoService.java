@@ -195,12 +195,23 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
-    public int updateBalance(String mchNo, Long changeAmount) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("changeAmount", changeAmount);
-        map.put("mchNo", mchNo);
-        return mchInfoMapper.updateBalance(map);
+    public boolean updateBalance(String mchNo, Long changeAmount) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("changeAmount", changeAmount);
+//        map.put("mchNo", mchNo);
+//        return mchInfoMapper.updateBalance(map);
+        try {
+            MchInfo mchInfo = queryMchInfo(mchNo);
+            mchInfo.setBalance(mchInfo.getBalance() + changeAmount);
+            boolean isSuccess = updateById(mchInfo);
+            if (!isSuccess) {
+                log.error("更新余额不成功 [" + mchInfo.getMchNo() + "] " + changeAmount);
+            }
+            return isSuccess;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
     }
 
     public JSONObject sumMchInfo() {

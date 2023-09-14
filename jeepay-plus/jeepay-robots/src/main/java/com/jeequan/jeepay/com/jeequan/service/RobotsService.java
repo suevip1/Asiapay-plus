@@ -291,8 +291,8 @@ public class RobotsService extends TelegramLongPollingBot {
             stringBuffer.append("❤\uFE0F❤\uFE0F本系统❤\uFE0F❤\uFE0F" + System.lineSeparator());
             stringBuffer.append("基于springboot+mysql开发，集成activeMQ、redis、zookeeper等最大限度保证高性能、抗高并发" + System.lineSeparator());
             stringBuffer.append("技术团队全新开发，从根本上杜绝了市面上流传源码的漏洞，功能俱全、服务优质、行业顶流" + System.lineSeparator());
-            stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("<b>四方管理后台演示</b>" + System.lineSeparator());
+            stringBuffer.append("地址：http://mgr.ausapay.com" + System.lineSeparator());
             stringBuffer.append("账号：master" + System.lineSeparator());
             stringBuffer.append("密码：123456" + System.lineSeparator());
             stringBuffer.append("唯一联系人：@D999999" + System.lineSeparator());
