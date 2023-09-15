@@ -16,6 +16,7 @@
                   <a-icon slot="suffixIcon" type="sync"/>
                 </a-range-picker>
               </a-form-item>
+              <jeepay-text-up :placeholder="'商户名称'" :msg="searchData.mchName" v-model="searchData.mchName"/>
               <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo"/>
               <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>

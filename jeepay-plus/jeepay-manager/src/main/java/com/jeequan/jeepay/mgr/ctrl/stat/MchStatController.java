@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,17 @@ public class MchStatController extends CommonCtrl {
             }
             if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
                 wrapper.le(StatisticsMch::getStatisticsDate, paramJSON.getString("createdEnd"));
+            }
+            String mchName = paramJSON.getString("mchName");
+            if (StringUtils.isNotEmpty(mchName)) {
+                //查询对应的id
+                List<String> mchNos = new ArrayList<>();
+                mchMap.forEach((key, value) -> {
+                    if (value.getMchName().indexOf(mchName.trim()) != -1) {
+                        mchNos.add(key);
+                    }
+                });
+                wrapper.in(StatisticsMch::getMchNo, mchNos);
             }
         }
 

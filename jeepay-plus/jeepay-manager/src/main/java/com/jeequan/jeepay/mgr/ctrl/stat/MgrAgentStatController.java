@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.StatisticsAgent;
+import com.jeequan.jeepay.core.entity.StatisticsMch;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +50,17 @@ public class MgrAgentStatController extends CommonCtrl {
             }
             if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
                 wrapper.le(StatisticsAgent::getStatisticsDate, paramJSON.getString("createdEnd"));
+            }
+            String agentName = paramJSON.getString("agentName");
+            if (StringUtils.isNotEmpty(agentName)) {
+                //查询对应的id
+                List<String> agentNos = new ArrayList<>();
+                agentAccountInfoMap.forEach((key, value) -> {
+                    if (value.getAgentName().indexOf(agentName.trim()) != -1) {
+                        agentNos.add(key);
+                    }
+                });
+                wrapper.in(StatisticsAgent::getAgentNo, agentNos);
             }
         }
 

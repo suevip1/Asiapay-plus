@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.MchInfo;
 import com.jeequan.jeepay.core.entity.Product;
+import com.jeequan.jeepay.core.entity.StatisticsMch;
 import com.jeequan.jeepay.core.entity.StatisticsMchProduct;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +64,29 @@ public class MchProductStatController extends CommonCtrl {
                 }
                 if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
                     wrapper.le(StatisticsMchProduct::getStatisticsDate, paramJSON.getString("createdEnd"));
+                }
+                String mchName = paramJSON.getString("mchName");
+                if (StringUtils.isNotEmpty(mchName)) {
+                    //查询对应的id
+                    List<String> mchNos = new ArrayList<>();
+                    mchMap.forEach((key, value) -> {
+                        if (value.getMchName().indexOf(mchName.trim()) != -1) {
+                            mchNos.add(key);
+                        }
+                    });
+                    wrapper.in(StatisticsMchProduct::getMchNo, mchNos);
+                }
+
+                String productName = paramJSON.getString("productName");
+                if (StringUtils.isNotEmpty(productName)) {
+                    //查询对应的id
+                    List<Long> productIds = new ArrayList<>();
+                    productMap.forEach((key, value) -> {
+                        if (value.getProductName().indexOf(productName.trim()) != -1) {
+                            productIds.add(key);
+                        }
+                    });
+                    wrapper.in(StatisticsMchProduct::getProductId, productIds);
                 }
             }
 
