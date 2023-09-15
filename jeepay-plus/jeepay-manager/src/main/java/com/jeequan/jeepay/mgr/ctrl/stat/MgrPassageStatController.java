@@ -56,6 +56,18 @@ public class MgrPassageStatController extends CommonCtrl {
                 wrapper.le(StatisticsPassage::getStatisticsDate, paramJSON.getString("createdEnd"));
             }
             productId = paramJSON.getLong("productId");
+
+            String payPassageName = paramJSON.getString("payPassageName");
+            if (StringUtils.isNotEmpty(payPassageName)) {
+                //查询对应的id
+                List<Long> passageIds = new ArrayList<>();
+                payPassageMap.forEach((key, value) -> {
+                    if (value.getPayPassageName().indexOf(payPassageName.trim()) != -1) {
+                        passageIds.add(key);
+                    }
+                });
+                wrapper.in(StatisticsPassage::getPayPassageId, passageIds);
+            }
         }
 
         wrapper.orderByDesc(StatisticsPassage::getStatisticsDate);
@@ -83,7 +95,5 @@ public class MgrPassageStatController extends CommonCtrl {
         pages.setTotal(records.size());
         pages.setRecords(result);
         return ApiRes.ok(pages);
-
-
     }
 }

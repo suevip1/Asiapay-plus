@@ -16,15 +16,17 @@
                 <a-icon slot="suffixIcon" type="sync"/>
               </a-range-picker>
             </a-form-item>
+            <jeepay-text-up :placeholder="'通道名'" :msg="searchData.payPassageName" v-model="searchData.payPassageName"/>
+<!--            <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.payPassageId" v-model="searchData.payPassageId"/>-->
             <a-form-model-item label="" class="table-head-layout">
-              <a-select v-model="searchData.payPassageId" :allowClear="true" placeholder="通道">
+              <a-select v-model="searchData.payPassageId" :allowClear="true" placeholder="对应通道" show-search option-filter-prop="children">
                 <a-select-option v-for="d in payPassageList" :value="d.payPassageId" :key="d.payPassageId">
                   {{ d.payPassageName + " [ ID: " + d.payPassageId + " ]" }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
             <a-form-model-item label="" class="table-head-layout">
-              <a-select v-model="searchData.productId" :allowClear="true" placeholder="对应产品">
+              <a-select v-model="searchData.productId" :allowClear="true" placeholder="对应产品" show-search option-filter-prop="children">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
                   {{ d.productName + " [ ID: " + d.productId + " ]" }}
                 </a-select-option>
@@ -82,6 +84,7 @@
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
+// import { SelectTypes } from 'ant-design-vue/es/select'
 import { API_URL_MCH_APP, API_URL_MGR_PASSAGE_STAT, API_URL_PAYWAYS_LIST, req } from '@/api/manage'
 import moment from 'moment'
 
@@ -132,6 +135,7 @@ export default {
       selectedRange: [],
       productList: [],
       payPassageList: [],
+      productListOptions: null,
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],

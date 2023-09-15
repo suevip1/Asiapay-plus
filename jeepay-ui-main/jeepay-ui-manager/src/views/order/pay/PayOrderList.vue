@@ -21,13 +21,19 @@
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />
             <a-form-model-item label="" class="table-head-layout">
-              <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
+              <a-select v-model="searchData.passageId" :allowClear="true" placeholder="对应通道" show-search option-filter-prop="children">
+                <a-select-option v-for="d in payPassageList" :value="d.payPassageId" :key="d.payPassageId">
+                  {{ d.payPassageName + " [ ID: " + d.payPassageId + " ]" }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+            <a-form-model-item label="" class="table-head-layout">
+              <a-select v-model="searchData.productId" :allowClear="true" placeholder="对应产品" show-search option-filter-prop="children">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
                   {{ d.productName + " [ ID: " + d.productId + " ]" }}
                 </a-select-option>
               </a-select>
             </a-form-model-item>
-            <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.passageId" v-model="searchData.passageId" />
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.state" placeholder="支付状态" default-value="">
                 <a-select-option value="">全部</a-select-option>
@@ -383,6 +389,7 @@ import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上�
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
+  API_URL_MCH_APP,
   API_URL_PAY_ORDER_LIST,
   API_URL_PAYWAYS_LIST,
   PAY_ORDER_FORCE_SUCCESS,
@@ -418,6 +425,7 @@ export default {
       visible: false,
       detailData: {},
       productList: [],
+      payPassageList: [],
       realTimeStatOpen: false,
       statLoading: false,
       realTimeStatData: {
@@ -448,6 +456,9 @@ export default {
     const that = this
     req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
       that.productList = res.records
+    })
+    req.list(API_URL_MCH_APP, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+      that.payPassageList = res.records
     })
     // 默认今天
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间

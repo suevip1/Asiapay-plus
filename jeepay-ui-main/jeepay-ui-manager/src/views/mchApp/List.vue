@@ -7,7 +7,7 @@
             <jeepay-text-up :placeholder="'通道名称'" :msg="searchData.payPassageName" v-model="searchData.payPassageName"/>
             <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.payPassageId" v-model="searchData.payPassageId"/>
             <a-form-model-item label="" class="table-head-layout">
-              <a-select v-model="searchData.productId" placeholder="对应产品">getProductId
+              <a-select v-model="searchData.productId" :allowClear="true" placeholder="对应产品" show-search option-filter-prop="children">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
                   {{ d.productName + " [ ID: " + d.productId + " ]" }}
                 </a-select-option>

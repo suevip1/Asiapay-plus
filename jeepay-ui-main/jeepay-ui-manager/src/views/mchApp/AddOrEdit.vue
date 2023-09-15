@@ -14,8 +14,8 @@
           </a-form-model-item>
         </a-col>
         <a-col :span="24">
-          <a-form-model-item label="所属支付产品" prop="productId">
-            <a-select v-model="saveObject.productId" placeholder="请选择对应产品">
+          <a-form-model-item label="" class="table-head-layout">
+            <a-select v-model="saveObject.productId" :allowClear="true" placeholder="对应产品" show-search option-filter-prop="children">
               <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">
                 {{ d.productName + " [ ID: " + d.productId + " ]" }}
               </a-select-option>
@@ -24,7 +24,7 @@
         </a-col>
         <a-col :span="24">
           <a-form-model-item label="所属支付接口" prop="ifCode">
-            <a-select v-model="saveObject.ifCode" placeholder="请选择对应支付接口">
+            <a-select v-model="saveObject.ifCode" placeholder="请选择对应支付接口" :allowClear="true" show-search option-filter-prop="children">
               <a-select-option v-for="d in payDefines" :value="d.ifCode" :key="d.ifCode">
                 {{ d.ifName + " [ 接口代码: " + d.ifCode + " ]" }}
               </a-select-option>
