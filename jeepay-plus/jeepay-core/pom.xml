@@ -92,7 +92,23 @@
       <version>1.5.0</version>
     </dependency>
 
+<!--    &lt;!&ndash; redis &ndash;&gt;-->
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.boot</groupId>-->
+<!--      <artifactId>spring-boot-starter-data-redis</artifactId>-->
+<!--      <exclusions>-->
+<!--        &lt;!&ndash; 过滤lettuce，使用jedis作为redis客户端 &ndash;&gt;-->
+<!--        <exclusion>-->
+<!--          <groupId>io.lettuce</groupId>-->
+<!--          <artifactId>lettuce-core</artifactId>-->
+<!--        </exclusion>-->
+<!--      </exclusions>-->
+<!--    </dependency>-->
 
+<!--    <dependency>-->
+<!--      <groupId>redis.clients</groupId>-->
+<!--      <artifactId>jedis</artifactId>-->
+<!--    </dependency>-->
   </dependencies>
 
   <build>

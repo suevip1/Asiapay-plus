@@ -58,7 +58,7 @@ public class RedisConfig {
         jedisConnectionFactory.setHostName(host);
         jedisConnectionFactory.setPort(port);
         jedisConnectionFactory.setTimeout(timeout);
-
+        jedisConnectionFactory.setValidateConnection(true); // 启用连接验证
         if (!StringUtils.isEmpty(password)) {
             jedisConnectionFactory.setPassword(password);
         }
