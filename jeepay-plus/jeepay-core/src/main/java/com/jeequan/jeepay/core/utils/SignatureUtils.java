@@ -143,6 +143,46 @@ public class SignatureUtils {
         return joiner.toString();
     }
 
+    /** RSA SHA1算法使用私钥对数据生成数字签名【私钥签名】
+     * @param data 待加密数据
+     * @param privKey  私钥
+     * @return String 加密数据
+     * @throws Exception
+     */
+    public static String buildRSASHA1SignByPrivateKey(String data, String privKey) {
+        try {
+            PrivateKey privateKey = (PrivateKey) KeyFactory.getInstance("RSA")
+                    .generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privKey)));
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initSign(privateKey);
+            signature.update(data.getBytes());
+            return Base64.getEncoder().encodeToString(signature.sign());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    /** RSA SHA1算法使用公钥校验数字签名【公钥验证】
+     * @param data 待加密数据
+     * @param rsaData  待验签的加密数据
+     * @param pubKey  公钥
+     * @return boolean 验签是否成功一致
+     * @throws Exception
+     */
+    public static boolean buildRSASHA1VerifyByPublicKey(String data, String rsaData, String pubKey) {
+        try {
+            PublicKey publicKey = (PublicKey) KeyFactory.getInstance("RSA")
+                    .generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(pubKey)));
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initVerify(publicKey);
+            signature.update(data.getBytes());
+            return signature.verify(Base64.getDecoder().decode(rsaData));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * RSA算法使用私钥对数据生成数字签名

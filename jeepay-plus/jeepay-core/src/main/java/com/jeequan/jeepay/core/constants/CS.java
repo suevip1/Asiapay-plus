@@ -355,8 +355,17 @@ public class CS {
         String JIUYIPAY = "jiuyipay";
 
         String CANGQIONG = "cangqiong";
+
         String MUFENG = "mufeng";
-        
+
+        String BAIHUI = "baihui";
+
+        String DINGXIN = "dingxin";
+
+        String CHAOREN = "chaoren";
+
+        String YICHUANG = "yichuang";
+
     }
 
 

@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.xxpay;
+package com.jeequan.jeepay.pay.channel.yichuang;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -18,29 +18,26 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 
 /**
- * xxpay支付
+ * 艺创支付
  */
 @Service
 @Slf4j
-public class XxpayPaymentService extends AbstractPaymentService {
+public class YichuangPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "[xxpay支付]";
+    private static final String LOG_TAG = "[艺创支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.XXPAY;
+        return CS.IF_CODE.YICHUANG;
     }
 
     @Override
@@ -63,56 +60,39 @@ public class XxpayPaymentService extends AbstractPaymentService {
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
 
-            String mchId = normalMchParams.getMchNo();
-            String productId = normalMchParams.getPayType();
-            String mchOrderNo = payOrder.getPayOrderId();
-
-            String currency = "cny";
-            String subject = "subject";
-            String body = "body";
-            String version = "1.0";
-
-            long amount = payOrder.getAmount();
-            String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());
+            String pay_memberid = normalMchParams.getMchNo();
+            String pay_orderid = payOrder.getPayOrderId();
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-            String reqTime = dateFormat.format(new Date());
+            String pay_applydate = dateFormat.format(new Date());
+            String pay_bankcode = normalMchParams.getPayType();
 
-            map.put("mchId", mchId);
-            map.put("productId", productId);
-            map.put("amount", amount);
-            map.put("mchOrderNo", mchOrderNo);
+            String pay_notifyurl = getNotifyUrl(payOrder.getPayOrderId());
+            String pay_callbackurl = pay_notifyurl;
 
-            map.put("currency", currency);
-            map.put("subject", subject);
-            map.put("body", body);
 
-            map.put("notifyUrl", notifyUrl);
-            map.put("version", version);
-            map.put("reqTime", reqTime);
-            String sign = JeepayKit.getSign(map, key).toLowerCase();
-            map.put("sign", sign);
+            map.put("pay_memberid", pay_memberid);
+            map.put("pay_orderid", pay_orderid);
+
+            map.put("pay_applydate", pay_applydate);
+            map.put("pay_bankcode", pay_bankcode);
+            map.put("pay_amount", payOrder.getAmount());
+
+            map.put("pay_notifyurl", pay_notifyurl);
+            map.put("pay_callbackurl", pay_callbackurl);
+            String pay_md5sign = JeepayKit.getSign(map, key);
+            map.put("pay_md5sign", pay_md5sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
             raw = HttpUtil.post(payGateway, map, 10000);
-            log.info("[{}]请求响应:{}", LOG_TAG, raw);
+
             channelRetMsg.setChannelOriginResponse(raw);
+            log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("retCode").equals("0") || result.getString("retCode").equals("SUCCESS")) {
-
+            if (result.getString("status").equals("1")) {
                 String payUrl = result.getString("payUrl");
-                String payJumpUrl = result.getString("payJumpUrl");
-
-                //不为空且有值
-                if (StringUtils.isNotEmpty(payUrl) && isHttpLink(payUrl)) {
-                    payUrl = result.getString("payUrl");
-                }
-
-                if (StringUtils.isNotEmpty(payJumpUrl) && isHttpLink(payJumpUrl)) {
-                    payUrl = payJumpUrl;
-                }
                 String passageOrderId = "";
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
@@ -132,44 +112,36 @@ public class XxpayPaymentService extends AbstractPaymentService {
         return res;
     }
 
+
     public static void main(String[] args) {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "9ZXE7EYBMYPWX1DWUQSOPQQCHJ7L3LQF4M2GRC0E4PTPE9QHR7UAAM6MEGJP2HZGINXPSADOPSEGS1PDQSZQSOFTOVP9H1DC1ODWF4BQLB1X48TJIZS4EZT5QHIDT1IK";
+        String key = "F3F760905A435B3DE1FE009B6DF494FF";
 
-        String mchId = "20000028";
-        String productId = "8034";
-        String mchOrderNo = RandomStringUtils.random(15, true, true);
-        long amount = 10000;
-        String currency = "cny";
+        String pay_memberid = "10002";
+        String pay_orderid = RandomStringUtils.random(15, true, true);
 
-        String notifyUrl = "https://www.test.com";
-
-        String subject = "subject";
-        String body = "body";
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String reqTime = dateFormat.format(new Date());
-        String version = "1.0";
+        String pay_applydate = dateFormat.format(new Date());
+        String pay_bankcode = "1";
+        String pay_amount = "3000";
+        String pay_notifyurl = "https://www.test.com";
+        String pay_callbackurl = pay_notifyurl;
 
-        map.put("mchId", mchId);
-        map.put("productId", productId);
-        map.put("amount", amount);
-        map.put("mchOrderNo", mchOrderNo);
+        map.put("pay_memberid", pay_memberid);
+        map.put("pay_orderid", pay_orderid);
+        map.put("pay_applydate", pay_applydate);
+        map.put("pay_bankcode", pay_bankcode);
+        map.put("pay_amount", pay_amount);
+        map.put("pay_notifyurl", pay_notifyurl);
+        map.put("pay_callbackurl", pay_callbackurl);
+        String pay_md5sign = JeepayKit.getSign(map, key);
+        map.put("pay_md5sign", pay_md5sign);
 
-        map.put("currency", currency);
-        map.put("notifyUrl", notifyUrl);
-        map.put("subject", subject);
-        map.put("body", body);
+        String payGateway = "https://yc.lijianke.com/order/create/";
 
-        map.put("reqTime", reqTime);
-        map.put("version", version);
-        String sign = JeepayKit.getSign(map, key).toLowerCase();
-        map.put("sign", sign);
-
-        String payGateway = "http://103.231.172.18:56700/api/pay/create_order";
-
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }
