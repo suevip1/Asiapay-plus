@@ -23,6 +23,7 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.MchInfoMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,7 @@ import java.util.*;
  * @author [mybatis plus generator]
  * @since 2021-04-27
  */
+@Slf4j
 @Service
 public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
 
@@ -195,11 +197,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param changeAmount
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateBalance(String mchNo, Long changeAmount) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("changeAmount", changeAmount);
-//        map.put("mchNo", mchNo);
-//        return mchInfoMapper.updateBalance(map);
         try {
             MchInfo mchInfo = queryMchInfo(mchNo);
             mchInfo.setBalance(mchInfo.getBalance() + changeAmount);
@@ -210,8 +209,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
             return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            throw new BizException("数据更新异常");
         }
-        return false;
     }
 
     public JSONObject sumMchInfo() {

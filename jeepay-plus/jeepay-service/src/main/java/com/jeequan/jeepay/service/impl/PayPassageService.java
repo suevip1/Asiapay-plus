@@ -92,13 +92,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateBalance(Long payPassageId, Long changeAmount) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("changeAmount", changeAmount);
-//        map.put("payPassageId", payPassageId);
-//        return payPassageMapper.updateBalance(map);
-
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);
             payPassage.setBalance(payPassage.getBalance() + changeAmount);
@@ -109,8 +104,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            throw new BizException("数据更新异常");
         }
-        return false;
     }
 
     /**

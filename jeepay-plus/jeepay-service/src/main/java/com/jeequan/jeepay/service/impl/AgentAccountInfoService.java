@@ -194,13 +194,8 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param changeAmount
      * @return
      */
-//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateBalance(String agentNo, Long changeAmount) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("changeAmount", changeAmount);
-//        map.put("agentNo", agentNo);
-//        return agentAccountInfoMapper.updateBalance(map);
-
         try {
             AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);
             agentAccountInfo.setBalance(agentAccountInfo.getBalance() + changeAmount);
@@ -211,8 +206,8 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
             return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            throw new BizException("数据更新异常");
         }
-        return false;
     }
 
     public JSONObject sumAgentInfo() {
