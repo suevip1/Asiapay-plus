@@ -264,7 +264,6 @@ public class BalanceTask {
         agentAccountHistory.setBizType(CS.BIZ_TYPE_PAY_OR_INCOME);
         agentAccountHistory.setPayOrderId(payOrder.getPayOrderId());
         agentAccountHistory.setPayOrderAmount(payOrder.getAmount());
-
         agentAccountHistoryService.save(agentAccountHistory);
     }
 

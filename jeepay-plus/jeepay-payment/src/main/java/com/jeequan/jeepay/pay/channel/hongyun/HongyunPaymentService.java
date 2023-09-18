@@ -77,7 +77,7 @@ public class HongyunPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map, 10000);
+            raw = HttpUtil.post(payGateway, map, 30000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
