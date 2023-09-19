@@ -44,10 +44,13 @@ spring:
       # 配置监控统计拦截的filters，去掉后监控界面sql无法统计 通过connectProperties属性来打开mergeSql功能；慢SQL记录
       filters: stat,wall
       connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
-#  transaction:
-#    # 配置事务管理器类型，使用JpaTransactionManager
-#    management:
-#      default-name: jpaTransactionManager
+  # 配置事务管理器
+  tx:
+    annotation:
+      driven: true
+    transaction-manager: transactionManager
+  aop:
+    proxy-target-class: true
   cache:
     type: redis
   redis:

@@ -8,14 +8,17 @@ import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
@@ -44,13 +47,19 @@ public class BalanceTask {
      * 每5秒监控redis中是否有新的需要处理的余额操作
      */
     @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
+    @Transactional
+    @Async
     public void start() {
         List<PayOrder> list = PopDataListFromCache();
         if (list.size() != 0) {
-            Map<String, Long> mchBalanceChange = new HashMap<>();
-            Map<String, Long> agentBalanceChange = new HashMap<>();
-            Map<Long, Long> payPassageBalanceChange = new HashMap<>();
-            Map<Long, Long> payPassageQuotaChange = new HashMap<>();
+            Map<String, Long> mchBalanceChange = new ConcurrentHashMap<>();
+            Map<String, Long> agentBalanceChange = new ConcurrentHashMap<>();
+            Map<Long, Long> payPassageBalanceChange = new ConcurrentHashMap<>();
+            Map<Long, Long> payPassageQuotaChange = new ConcurrentHashMap<>();
+
+            List<MchHistory> mchHistoryList = new ArrayList<>();
+            List<AgentAccountHistory> agentAccountHistoryList = new ArrayList<>();
+            List<PassageTransactionHistory> passageTransactionHistoryList = new ArrayList<>();
 
             //通道余额更新-检查授信
             for (int i = 0; i < list.size(); i++) {
@@ -75,8 +84,7 @@ public class BalanceTask {
                         mchBalanceChange.put(mchNo, mchChangAmount);
                     }
                     Long mchAfterBalance = mchBeforeBalance + mchChangAmount;
-                    AddMchOrderSuccessHistory(payOrder, mchInfo, mchBeforeBalance, mchAfterBalance, mchChangAmount);
-
+                    mchHistoryList.add(AddMchOrderSuccessHistory(payOrder, mchInfo, mchBeforeBalance, mchAfterBalance, mchChangAmount));
                     //代理资金流水、余额
                     //区分商户代理、通道代理
 
@@ -99,7 +107,7 @@ public class BalanceTask {
                             agentBalanceChange.put(agentNo, changeAgentAmount);
                         }
                         Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
-                        AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount);
+                        agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
                     } else {
                         //商户代理
                         if (StringUtils.isNotEmpty(agentNo)) {
@@ -118,7 +126,7 @@ public class BalanceTask {
                                 agentBalanceChange.put(agentNo, changeAgentAmount);
                             }
                             Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
-                            AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount);
+                            agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
                         }
 
                         //通道代理
@@ -137,7 +145,8 @@ public class BalanceTask {
                                 agentBalanceChange.put(agentNoPassage, changeAgentAmount);
                             }
                             Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
-                            AddAgentOrderSuccessHistory(payOrder, agentPassageInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount);
+//                            AddAgentOrderSuccessHistory(payOrder, agentPassageInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount);
+                            agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentPassageInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
                         }
                     }
 
@@ -176,7 +185,7 @@ public class BalanceTask {
                     Long passageAfterBalance = passageBeforeBalance + passageChangeAmount;
                     //保存流水入通道流水记录
                     //插入通道流水记录
-                    AddPassageOrderSuccessHistory(payOrder, payPassage, passageBeforeBalance, passageAfterBalance, passageChangeAmount);
+                    passageTransactionHistoryList.add(AddPassageOrderSuccessHistory(payOrder, payPassage, passageBeforeBalance, passageAfterBalance, passageChangeAmount));
                 } else {
                     log.error("BalanceTask 余额统计订单状态错误 订单号[{}] , {}", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
                 }
@@ -198,6 +207,11 @@ public class BalanceTask {
             payPassageQuotaChange.forEach((payPassageId, newValue) -> {
                 payPassageService.updateQuota(payPassageId, newValue);
             });
+
+            //统一更新流水
+            mchHistoryService.saveBatch(mchHistoryList);
+            agentAccountHistoryService.saveBatch(agentAccountHistoryList);
+            passageTransactionHistoryService.saveBatch(passageTransactionHistoryList);
         }
     }
 
@@ -210,7 +224,7 @@ public class BalanceTask {
      * @param mchAfterBalance
      * @param mchChangAmount
      */
-    private void AddMchOrderSuccessHistory(PayOrder payOrder, MchInfo mchInfo, Long mchBeforeBalance, Long mchAfterBalance, Long mchChangAmount) {
+    private MchHistory AddMchOrderSuccessHistory(PayOrder payOrder, MchInfo mchInfo, Long mchBeforeBalance, Long mchAfterBalance, Long mchChangAmount) {
         //是否有代理
         String agentNo = payOrder.getAgentNo();
         AgentAccountInfo agentMchInfo = new AgentAccountInfo();
@@ -239,7 +253,8 @@ public class BalanceTask {
         mchHistory.setAgentName(agentMchInfo.getAgentName());
         mchHistory.setAgentIncome(payOrder.getAgentFeeAmount());
         mchHistory.setMchOrderNo(payOrder.getMchOrderNo());
-        mchHistoryService.save(mchHistory);
+//        mchHistoryService.save(mchHistory);
+        return mchHistory;
     }
 
     /**
@@ -251,7 +266,7 @@ public class BalanceTask {
      * @param afterBalance
      * @param changeAgentAmount
      */
-    private void AddAgentOrderSuccessHistory(PayOrder payOrder, AgentAccountInfo agentInfo, Long beforeBalance, Long afterBalance, Long changeAgentAmount) {
+    private AgentAccountHistory AddAgentOrderSuccessHistory(PayOrder payOrder, AgentAccountInfo agentInfo, Long beforeBalance, Long afterBalance, Long changeAgentAmount) {
         //代理资金流水、余额
         //区分商户代理、通道代理
         AgentAccountHistory agentAccountHistory = new AgentAccountHistory();
@@ -264,10 +279,11 @@ public class BalanceTask {
         agentAccountHistory.setBizType(CS.BIZ_TYPE_PAY_OR_INCOME);
         agentAccountHistory.setPayOrderId(payOrder.getPayOrderId());
         agentAccountHistory.setPayOrderAmount(payOrder.getAmount());
-        agentAccountHistoryService.save(agentAccountHistory);
+//        agentAccountHistoryService.save(agentAccountHistory);
+        return agentAccountHistory;
     }
 
-    private void AddPassageOrderSuccessHistory(PayOrder payOrder, PayPassage payPassage, Long beforeBalance, Long afterBalance, Long passageChangeAmount) {
+    private PassageTransactionHistory AddPassageOrderSuccessHistory(PayOrder payOrder, PayPassage payPassage, Long beforeBalance, Long afterBalance, Long passageChangeAmount) {
         //通道资金流水
         PassageTransactionHistory passageTransactionHistory = new PassageTransactionHistory();
         passageTransactionHistory.setAmount(passageChangeAmount);
@@ -282,7 +298,8 @@ public class BalanceTask {
         passageTransactionHistory.setBizType(PassageTransactionHistory.BIZ_TYPE_ORDER);
         passageTransactionHistory.setRemark("");
 
-        passageTransactionHistoryService.save(passageTransactionHistory);
+//        passageTransactionHistoryService.save(passageTransactionHistory);
+        return passageTransactionHistory;
     }
 
     /**

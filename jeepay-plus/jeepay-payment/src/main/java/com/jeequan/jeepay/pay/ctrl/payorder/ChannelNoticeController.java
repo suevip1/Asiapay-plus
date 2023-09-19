@@ -126,6 +126,12 @@ public class ChannelNoticeController extends AbstractCtrl {
                 return payNotifyService.doNotifyOrderNotExists(request);
             }
 
+            //订单已是关闭状态，此时是重复的订单
+            if (payOrder.getState() == PayOrder.STATE_CLOSED) {
+                log.error("{}, 订单已是关闭状态. payOrderId={} ", logPrefix, payOrderId);
+                throw new BizException("订单已关闭,无效的回调！");
+            }
+
             //订单已是成功状态，此时是重复的订单
             if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
                 log.error("{}, 订单已是成功状态. payOrderId={} ", logPrefix, payOrderId);

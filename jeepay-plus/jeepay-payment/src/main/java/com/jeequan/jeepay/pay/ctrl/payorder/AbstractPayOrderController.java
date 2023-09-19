@@ -345,7 +345,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         Date nowDate = new Date();
 
         //订单过期时间 单位： 秒
-        payOrder.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间 默认60min
+        payOrder.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间 默认120min
 
         payOrder.setCreatedAt(nowDate); //订单创建时间
 
@@ -404,7 +404,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         Date nowDate = new Date();
 
         //订单过期时间 单位： 秒
-        payOrder.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间 默认60min
+        payOrder.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间 默认120min
 
         payOrder.setCreatedAt(nowDate); //订单创建时间
 

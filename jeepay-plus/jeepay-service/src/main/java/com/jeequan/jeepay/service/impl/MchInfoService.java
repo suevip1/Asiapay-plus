@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -197,7 +198,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateBalance(String mchNo, Long changeAmount) {
         try {
             MchInfo mchInfo = queryMchInfo(mchNo);

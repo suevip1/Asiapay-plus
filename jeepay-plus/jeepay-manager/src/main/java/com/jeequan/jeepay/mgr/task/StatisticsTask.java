@@ -9,8 +9,10 @@ import com.jeequan.jeepay.service.CommonService.StatisticsService;
 import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -46,10 +48,10 @@ public class StatisticsTask {
     @Autowired
     private StatisticsService statisticsService;
 
-    private boolean isTest = false;
 
-
-    @Scheduled(fixedRate = 5000) // 每5秒执行一次
+    @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
+    @Transactional
+    @Async
     public void start() {
         //入库订单统计
         UpdateRecord(statisticsService.PopPayOrderListFromCache());
