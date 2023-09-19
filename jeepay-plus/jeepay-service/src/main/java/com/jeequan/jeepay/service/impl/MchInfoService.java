@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -71,6 +72,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param mchNo
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public MchInfo queryMchInfo(String mchNo) {
         //查询缓存中是否有
         MchInfo mchInfo = getById(mchNo);
@@ -198,7 +200,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param changeAmount
      * @return
      */
-//    @Transactional(rollbackFor = Exception.class)
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateBalance(String mchNo, Long changeAmount) {
         try {
@@ -225,6 +226,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      *
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, MchInfo> getMchInfoMap() {
         List<MchInfo> mchInfoList = list();
         Map<String, MchInfo> productMap = new HashMap<>();

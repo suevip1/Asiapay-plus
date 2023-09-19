@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -34,6 +35,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
         PayPassage payPassage = getById(payPassageId);
@@ -66,7 +68,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             throw new BizException("修改失败,更新通道失败,通道名不能重复");
         }
     }
-
+    @Transactional
     public boolean removePayPassage(Long payPassageId) {
         boolean removePayPassage = removeById(payPassageId);
         if (!removePayPassage) {
@@ -74,7 +76,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         }
         return true;
     }
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<Long, PayPassage> getPayPassageMap() {
         List<PayPassage> passageList = list();
         Map<Long, PayPassage> payPassageMap = new HashMap<>();
@@ -115,12 +117,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-//    @Transactional(rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateQuota(Long payPassageId, Long changeAmount) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("changeAmount", changeAmount);
-//        map.put("payPassageId", payPassageId);
-//        return payPassageMapper.updateQuota(map);
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);
             payPassage.setQuota(payPassage.getQuota() + changeAmount);

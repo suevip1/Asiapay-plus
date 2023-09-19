@@ -10,6 +10,7 @@ import com.jeequan.jeepay.service.mapper.AgentAccountInfoMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -52,6 +53,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param agentNo
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public AgentAccountInfo queryAgentInfo(String agentNo) {
         AgentAccountInfo agentAccountInfo = getById(agentNo);
         if (agentAccountInfo == null) {
@@ -175,7 +177,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
             throw new BizException(e.getMessage());
         }
     }
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, AgentAccountInfo> getAgentInfoMap() {
         List<AgentAccountInfo> agentAccountInfos = list();
         Map<String, AgentAccountInfo> agentAccountInfoMap = new HashMap<>();

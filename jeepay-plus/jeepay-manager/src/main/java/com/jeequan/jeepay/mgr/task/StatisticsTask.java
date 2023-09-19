@@ -47,16 +47,18 @@ public class StatisticsTask {
 
     @Autowired
     private StatisticsService statisticsService;
-
+    private final Object lock = new Object();
 
     @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
     @Transactional
     @Async
     public void start() {
-        //入库订单统计
-        UpdateRecord(statisticsService.PopPayOrderListFromCache());
-        //成功的订单统计
-        UpdateSuccessRecord(statisticsService.PopSuccessPayOrderListFromCache());
+        synchronized (lock) {
+            //入库订单统计
+            UpdateRecord(statisticsService.PopPayOrderListFromCache());
+            //成功的订单统计
+            UpdateSuccessRecord(statisticsService.PopSuccessPayOrderListFromCache());
+        }
     }
 
     private void UpdateRecord(List<PayOrder> payOrderList) {
