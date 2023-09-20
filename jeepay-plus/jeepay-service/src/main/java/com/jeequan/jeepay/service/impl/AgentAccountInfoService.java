@@ -47,8 +47,6 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Resource
     private AgentAccountInfoMapper agentAccountInfoMapper;
 
-    private final Object lock = new Object();
-
     /**
      * 通过代理商号获取
      *
@@ -64,17 +62,6 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
         return agentAccountInfo;
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
-    public AgentAccountInfo queryAgentInfoByLock(String agentNo) {
-        synchronized (lock) {
-            AgentAccountInfo agentAccountInfo = getById(agentNo);
-            if (agentAccountInfo == null) {
-                throw new BizException("没有查询到代理商户");
-            }
-            return agentAccountInfo;
-        }
-    }
-
     /**
      * 更新代理信息
      *
@@ -83,6 +70,10 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public void updateAgentInfo(AgentAccountInfo agentAccountInfo) {
         try {
+            AgentAccountInfo oldAgent = getById(agentAccountInfo.getAgentNo());
+            //同步最新余额
+            agentAccountInfo.setBalance(oldAgent.getBalance());
+
             boolean isSuccess = update(agentAccountInfo, AgentAccountInfo.gw().eq(AgentAccountInfo::getAgentNo, agentAccountInfo.getAgentNo()));
             if (!isSuccess) {
                 throw new BizException("修改失败,更新代理失败");
@@ -213,7 +204,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(String agentNo, Long changeAmount) {
         try {
-            AgentAccountInfo agentAccountInfo = queryAgentInfoByLock(agentNo);
+            AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);
             agentAccountInfo.setBalance(agentAccountInfo.getBalance() + changeAmount);
             boolean isSuccess = updateById(agentAccountInfo);
             if (!isSuccess) {

@@ -66,8 +66,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Resource
     private MchInfoMapper mchInfoMapper;
 
-    private final Object lock = new Object();
-
     /**
      * 查询商户信息
      *
@@ -84,17 +82,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
         return mchInfo;
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
-    public MchInfo queryMchInfoByLock(String mchNo) {
-        synchronized (lock) {
-            //查询缓存中是否有
-            MchInfo mchInfo = getById(mchNo);
-            if (mchInfo == null) {
-                throw new BizException("没有查询到商户");
-            }
-            return mchInfo;
-        }
-    }
 
     /**
      * 更新商户信息
@@ -104,6 +91,10 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public void updateMchInfo(MchInfo mchInfo) {
         try {
+            MchInfo oldMchInfo = getById(mchInfo.getMchNo());
+            //同步最新余额
+            mchInfo.setBalance(oldMchInfo.getBalance());
+
             boolean isSuccess = update(mchInfo, MchInfo.gw().eq(MchInfo::getMchNo, mchInfo.getMchNo()));
             if (!isSuccess) {
                 throw new BizException("修改失败,更新商户失败");
@@ -217,7 +208,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(String mchNo, Long changeAmount) {
         try {
-            MchInfo mchInfo = queryMchInfoByLock(mchNo);
+            MchInfo mchInfo = queryMchInfo(mchNo);
             mchInfo.setBalance(mchInfo.getBalance() + changeAmount);
             boolean isSuccess = updateById(mchInfo);
             if (!isSuccess) {

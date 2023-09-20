@@ -43,7 +43,6 @@ public class BalanceTask {
     @Autowired
     private PassageTransactionHistoryService passageTransactionHistoryService;
 
-    private final Object lock = new Object();
     /**
      * 每5秒监控redis中是否有新的需要处理的余额操作
      */
@@ -51,53 +50,71 @@ public class BalanceTask {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Async
     public void start() {
-        synchronized (lock) {
-            List<PayOrder> list = PopDataListFromCache();
-            if (list.size() != 0) {
-                Map<String, Long> mchBalanceChange = new ConcurrentHashMap<>();
-                Map<String, Long> agentBalanceChange = new ConcurrentHashMap<>();
-                Map<Long, Long> payPassageBalanceChange = new ConcurrentHashMap<>();
-                Map<Long, Long> payPassageQuotaChange = new ConcurrentHashMap<>();
+        List<PayOrder> list = PopDataListFromCache();
+        if (list.size() != 0) {
+            Map<String, Long> mchBalanceChange = new ConcurrentHashMap<>();
+            Map<String, Long> agentBalanceChange = new ConcurrentHashMap<>();
+            Map<Long, Long> payPassageBalanceChange = new ConcurrentHashMap<>();
+            Map<Long, Long> payPassageQuotaChange = new ConcurrentHashMap<>();
 
-                List<MchHistory> mchHistoryList = new ArrayList<>();
-                List<AgentAccountHistory> agentAccountHistoryList = new ArrayList<>();
-                List<PassageTransactionHistory> passageTransactionHistoryList = new ArrayList<>();
+            List<MchHistory> mchHistoryList = new ArrayList<>();
+            List<AgentAccountHistory> agentAccountHistoryList = new ArrayList<>();
+            List<PassageTransactionHistory> passageTransactionHistoryList = new ArrayList<>();
 
-                //通道余额更新-检查授信
-                for (int i = 0; i < list.size(); i++) {
-                    PayOrder payOrder = list.get(i);
-                    String mchNo = payOrder.getMchNo();
-                    MchInfo mchInfo = mchInfoService.queryMchInfoByLock(mchNo);
+            //通道余额更新-检查授信
+            for (int i = 0; i < list.size(); i++) {
+                PayOrder payOrder = list.get(i);
+                String mchNo = payOrder.getMchNo();
+                MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
 
-                    if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
-                        //正常回调订单
-                        //商户资金流水、余额
-                        Long mchChangAmount = payOrder.getAmount() - payOrder.getMchFeeAmount();
-                        Long mchBeforeBalance = mchInfo.getBalance();
+                if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
+                    //正常回调订单
+                    //商户资金流水、余额
+                    Long mchChangAmount = payOrder.getAmount() - payOrder.getMchFeeAmount();
+                    Long mchBeforeBalance = mchInfo.getBalance();
 
-                        //计算并存储商户余额变动 是否有余额变动缓存
-                        if (mchBalanceChange.containsKey(mchNo)) {
-                            //加上之前变动的金额
-                            mchBeforeBalance += mchBalanceChange.get(mchNo);
+                    //计算并存储商户余额变动 是否有余额变动缓存
+                    if (mchBalanceChange.containsKey(mchNo)) {
+                        //加上之前变动的金额
+                        mchBeforeBalance += mchBalanceChange.get(mchNo);
 
-                            Long tempMchAmount = mchBalanceChange.get(mchNo) + mchChangAmount;
-                            mchBalanceChange.replace(mchNo, tempMchAmount);
+                        Long tempMchAmount = mchBalanceChange.get(mchNo) + mchChangAmount;
+                        mchBalanceChange.replace(mchNo, tempMchAmount);
+                    } else {
+                        mchBalanceChange.put(mchNo, mchChangAmount);
+                    }
+                    Long mchAfterBalance = mchBeforeBalance + mchChangAmount;
+                    mchHistoryList.add(AddMchOrderSuccessHistory(payOrder, mchInfo, mchBeforeBalance, mchAfterBalance, mchChangAmount));
+                    //代理资金流水、余额
+                    //区分商户代理、通道代理
+
+                    String agentNoPassage = payOrder.getAgentNoPassage();
+                    String agentNo = payOrder.getAgentNo();
+                    //相同,合并
+                    if (StringUtils.isNotEmpty(agentNoPassage) && StringUtils.isNotEmpty(agentNo) && agentNoPassage.equals(agentNo)) {
+                        AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
+
+                        Long changeAgentAmount = payOrder.getAgentPassageFee() + payOrder.getAgentFeeAmount();
+                        Long agentBeforeBalance = agentMchInfo.getBalance();
+
+                        //计算并存储代理余额变动
+                        if (agentBalanceChange.containsKey(agentNo)) {
+                            agentBeforeBalance += agentBalanceChange.get(agentNo);
+
+                            Long tempAgentAmount = agentBalanceChange.get(agentNo) + changeAgentAmount;
+                            agentBalanceChange.replace(agentNo, tempAgentAmount);
                         } else {
-                            mchBalanceChange.put(mchNo, mchChangAmount);
+                            agentBalanceChange.put(agentNo, changeAgentAmount);
                         }
-                        Long mchAfterBalance = mchBeforeBalance + mchChangAmount;
-                        mchHistoryList.add(AddMchOrderSuccessHistory(payOrder, mchInfo, mchBeforeBalance, mchAfterBalance, mchChangAmount));
-                        //代理资金流水、余额
-                        //区分商户代理、通道代理
+                        Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
+                        agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
+                    } else {
+                        //商户代理
+                        if (StringUtils.isNotEmpty(agentNo)) {
+                            AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
 
-                        String agentNoPassage = payOrder.getAgentNoPassage();
-                        String agentNo = payOrder.getAgentNo();
-                        //相同,合并
-                        if (StringUtils.isNotEmpty(agentNoPassage) && StringUtils.isNotEmpty(agentNo) && agentNoPassage.equals(agentNo)) {
-                            AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
-
-                            Long changeAgentAmount = payOrder.getAgentPassageFee() + payOrder.getAgentFeeAmount();
                             Long agentBeforeBalance = agentMchInfo.getBalance();
+                            Long changeAgentAmount = payOrder.getAgentFeeAmount();
 
                             //计算并存储代理余额变动
                             if (agentBalanceChange.containsKey(agentNo)) {
@@ -110,112 +127,93 @@ public class BalanceTask {
                             }
                             Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
                             agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
-                        } else {
-                            //商户代理
-                            if (StringUtils.isNotEmpty(agentNo)) {
-                                AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
-
-                                Long agentBeforeBalance = agentMchInfo.getBalance();
-                                Long changeAgentAmount = payOrder.getAgentFeeAmount();
-
-                                //计算并存储代理余额变动
-                                if (agentBalanceChange.containsKey(agentNo)) {
-                                    agentBeforeBalance += agentBalanceChange.get(agentNo);
-
-                                    Long tempAgentAmount = agentBalanceChange.get(agentNo) + changeAgentAmount;
-                                    agentBalanceChange.replace(agentNo, tempAgentAmount);
-                                } else {
-                                    agentBalanceChange.put(agentNo, changeAgentAmount);
-                                }
-                                Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
-                                agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentMchInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
-                            }
-
-                            //通道代理
-                            if (StringUtils.isNotEmpty(agentNoPassage)) {
-                                AgentAccountInfo agentPassageInfo = agentAccountInfoService.queryAgentInfoByLock(agentNoPassage);
-                                Long changeAgentAmount = payOrder.getAgentPassageFee();
-
-                                Long agentBeforeBalance = agentPassageInfo.getBalance();
-
-                                //计算并存储代理余额变动
-                                if (agentBalanceChange.containsKey(agentNoPassage)) {
-                                    agentBeforeBalance += agentBalanceChange.get(agentNoPassage);
-                                    Long tempAgentAmount = agentBalanceChange.get(agentNoPassage) + changeAgentAmount;
-                                    agentBalanceChange.replace(agentNoPassage, tempAgentAmount);
-                                } else {
-                                    agentBalanceChange.put(agentNoPassage, changeAgentAmount);
-                                }
-                                Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
-                                agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentPassageInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
-                            }
                         }
 
-                        //通道余额、授信
-                        //通道入账余额= 订单金额-通道成本-通道代理成本
-                        Long passageChangeAmount = payOrder.getAmount() - payOrder.getPassageFeeAmount() - payOrder.getAgentPassageFee();
-                        PayPassage payPassage = payPassageService.queryPassageInfoByLock(payOrder.getPassageId());
+                        //通道代理
+                        if (StringUtils.isNotEmpty(agentNoPassage)) {
+                            AgentAccountInfo agentPassageInfo = agentAccountInfoService.queryAgentInfo(agentNoPassage);
+                            Long changeAgentAmount = payOrder.getAgentPassageFee();
 
-                        //额度限制打开的情况
-                        if (payPassage.getQuotaLimitState() == CS.YES) {
-                            if (payPassageQuotaChange.containsKey(payOrder.getPassageId())) {
-                                Long tempPassageAmount = payPassageQuotaChange.get(payOrder.getPassageId()) - passageChangeAmount;
-                                payPassageQuotaChange.replace(payOrder.getPassageId(), tempPassageAmount);
+                            Long agentBeforeBalance = agentPassageInfo.getBalance();
+
+                            //计算并存储代理余额变动
+                            if (agentBalanceChange.containsKey(agentNoPassage)) {
+                                agentBeforeBalance += agentBalanceChange.get(agentNoPassage);
+                                Long tempAgentAmount = agentBalanceChange.get(agentNoPassage) + changeAgentAmount;
+                                agentBalanceChange.replace(agentNoPassage, tempAgentAmount);
                             } else {
-                                payPassageQuotaChange.put(payOrder.getPassageId(), -passageChangeAmount);
+                                agentBalanceChange.put(agentNoPassage, changeAgentAmount);
                             }
-                            //授信是否小于change
-                            Long afterQuota = payPassage.getQuota() + payPassageQuotaChange.get(payOrder.getPassageId());
-                            if (afterQuota.longValue() <= 0) {
-                                payPassage.setState(CS.NO);
-                                payPassageService.updatePassageInfo(payPassage);
-                            }
+                            Long agentAfterBalance = agentBeforeBalance + changeAgentAmount;
+                            agentAccountHistoryList.add(AddAgentOrderSuccessHistory(payOrder, agentPassageInfo, agentBeforeBalance, agentAfterBalance, changeAgentAmount));
                         }
-
-                        //通道余额处理
-                        Long passageBeforeBalance = payPassage.getBalance();
-
-                        if (payPassageBalanceChange.containsKey(payOrder.getPassageId())) {
-                            passageBeforeBalance += payPassageBalanceChange.get(payOrder.getPassageId());
-
-                            Long tempPassageAmount = payPassageBalanceChange.get(payOrder.getPassageId()) + passageChangeAmount;
-                            payPassageBalanceChange.replace(payOrder.getPassageId(), tempPassageAmount);
-                        } else {
-                            payPassageBalanceChange.put(payOrder.getPassageId(), passageChangeAmount);
-                        }
-                        Long passageAfterBalance = passageBeforeBalance + passageChangeAmount;
-                        //保存流水入通道流水记录
-                        //插入通道流水记录
-                        passageTransactionHistoryList.add(AddPassageOrderSuccessHistory(payOrder, payPassage, passageBeforeBalance, passageAfterBalance, passageChangeAmount));
-                    } else {
-                        log.error("BalanceTask 余额统计订单状态错误 订单号[{}] , {}", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
                     }
-                }
-                //统一更新余额
-                //商户
-                mchBalanceChange.forEach((mchNo, newValue) -> {
-                    mchInfoService.updateBalance(mchNo, newValue);
-                });
-                //代理
-                agentBalanceChange.forEach((agentNo, newValue) -> {
-                    agentAccountInfoService.updateBalance(agentNo, newValue);
-                });
-                //通道余额
-                payPassageBalanceChange.forEach((payPassageId, newValue) -> {
-                    payPassageService.updateBalance(payPassageId, newValue);
-                });
-                //通道授信
-                payPassageQuotaChange.forEach((payPassageId, newValue) -> {
-                    payPassageService.updateQuota(payPassageId, newValue);
-                });
 
-                //统一更新流水
-                mchHistoryService.saveBatch(mchHistoryList);
-                agentAccountHistoryService.saveBatch(agentAccountHistoryList);
-                passageTransactionHistoryService.saveBatch(passageTransactionHistoryList);
-                log.info("流水、入账处理完毕,处理数量{}", list.size());
+                    //通道余额、授信
+                    //通道入账余额= 订单金额-通道成本-通道代理成本
+                    Long passageChangeAmount = payOrder.getAmount() - payOrder.getPassageFeeAmount() - payOrder.getAgentPassageFee();
+                    PayPassage payPassage = payPassageService.queryPassageInfo(payOrder.getPassageId());
+
+                    //额度限制打开的情况
+                    if (payPassage.getQuotaLimitState() == CS.YES) {
+                        if (payPassageQuotaChange.containsKey(payOrder.getPassageId())) {
+                            Long tempPassageAmount = payPassageQuotaChange.get(payOrder.getPassageId()) - passageChangeAmount;
+                            payPassageQuotaChange.replace(payOrder.getPassageId(), tempPassageAmount);
+                        } else {
+                            payPassageQuotaChange.put(payOrder.getPassageId(), -passageChangeAmount);
+                        }
+                        //授信是否小于change
+                        Long afterQuota = payPassage.getQuota() + payPassageQuotaChange.get(payOrder.getPassageId());
+                        if (afterQuota.longValue() <= 0) {
+                            payPassage.setState(CS.NO);
+                            payPassageService.updatePassageInfo(payPassage);
+                        }
+                    }
+
+                    //通道余额处理
+                    Long passageBeforeBalance = payPassage.getBalance();
+
+                    if (payPassageBalanceChange.containsKey(payOrder.getPassageId())) {
+                        passageBeforeBalance += payPassageBalanceChange.get(payOrder.getPassageId());
+
+                        Long tempPassageAmount = payPassageBalanceChange.get(payOrder.getPassageId()) + passageChangeAmount;
+                        payPassageBalanceChange.replace(payOrder.getPassageId(), tempPassageAmount);
+                    } else {
+                        payPassageBalanceChange.put(payOrder.getPassageId(), passageChangeAmount);
+                    }
+                    Long passageAfterBalance = passageBeforeBalance + passageChangeAmount;
+                    //保存流水入通道流水记录
+                    //插入通道流水记录
+                    passageTransactionHistoryList.add(AddPassageOrderSuccessHistory(payOrder, payPassage, passageBeforeBalance, passageAfterBalance, passageChangeAmount));
+                } else {
+                    log.error("BalanceTask 余额统计订单状态错误 订单号[{}] , {}", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
+                }
             }
+            //统一更新余额
+            //商户
+            mchBalanceChange.forEach((mchNo, newValue) -> {
+                mchInfoService.updateBalance(mchNo, newValue);
+            });
+            //代理
+            agentBalanceChange.forEach((agentNo, newValue) -> {
+                agentAccountInfoService.updateBalance(agentNo, newValue);
+            });
+            //通道余额
+            payPassageBalanceChange.forEach((payPassageId, newValue) -> {
+                payPassageService.updateBalance(payPassageId, newValue);
+            });
+            //通道授信
+            payPassageQuotaChange.forEach((payPassageId, newValue) -> {
+                payPassageService.updateQuota(payPassageId, newValue);
+            });
+
+            //统一更新流水
+            mchHistoryService.saveBatch(mchHistoryList);
+            agentAccountHistoryService.saveBatch(agentAccountHistoryList);
+            passageTransactionHistoryService.saveBatch(passageTransactionHistoryList);
+            log.info("流水、入账处理完毕,处理数量{}", list.size());
         }
+
     }
 
     /**
@@ -234,7 +232,7 @@ public class BalanceTask {
         agentMchInfo.setAgentName("");
         agentMchInfo.setAgentNo(agentNo);
         if (StringUtils.isNotEmpty(agentNo)) {
-            agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
+            agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
         }
 
         MchHistory mchHistory = new MchHistory();
