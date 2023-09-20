@@ -47,7 +47,7 @@ public class BalanceTask {
     /**
      * 每5秒监控redis中是否有新的需要处理的余额操作
      */
-    @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
+    @Scheduled(fixedRate = 6000) // 每6秒执行一次 6000
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Async
     public void start() {

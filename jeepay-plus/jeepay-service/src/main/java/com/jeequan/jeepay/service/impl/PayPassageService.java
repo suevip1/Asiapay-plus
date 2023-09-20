@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
         PayPassage payPassage = getById(payPassageId);
@@ -45,7 +46,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         return payPassage;
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public void updatePassageInfo(PayPassage payPassage) {
         try {
             PayPassage passageOld = getById(payPassage.getPayPassageId());
@@ -68,7 +69,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             throw new BizException("修改失败,更新通道失败,通道名不能重复");
         }
     }
-    @Transactional
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean removePayPassage(Long payPassageId) {
         boolean removePayPassage = removeById(payPassageId);
         if (!removePayPassage) {
@@ -76,7 +78,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         }
         return true;
     }
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public Map<Long, PayPassage> getPayPassageMap() {
         List<PayPassage> passageList = list();
         Map<Long, PayPassage> payPassageMap = new HashMap<>();
@@ -94,7 +97,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(Long payPassageId, Long changeAmount) {
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);
@@ -117,7 +120,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateQuota(Long payPassageId, Long changeAmount) {
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);

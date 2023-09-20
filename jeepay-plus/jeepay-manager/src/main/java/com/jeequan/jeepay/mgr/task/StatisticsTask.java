@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
@@ -50,7 +51,7 @@ public class StatisticsTask {
     private final Object lock = new Object();
 
     @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Async
     public void start() {
         synchronized (lock) {
