@@ -36,6 +36,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
+    private final Object lock = new Object();
+
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
@@ -44,6 +46,18 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             throw new BizException("没有查询到通道");
         }
         return payPassage;
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    public PayPassage queryPassageInfoByLock(Long payPassageId) {
+        synchronized (lock) {
+            //查询缓存中是否有
+            PayPassage payPassage = getById(payPassageId);
+            if (payPassage == null) {
+                throw new BizException("没有查询到通道");
+            }
+            return payPassage;
+        }
     }
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
@@ -100,7 +114,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(Long payPassageId, Long changeAmount) {
         try {
-            PayPassage payPassage = queryPassageInfo(payPassageId);
+            PayPassage payPassage = queryPassageInfoByLock(payPassageId);
             payPassage.setBalance(payPassage.getBalance() + changeAmount);
             boolean isSuccess = updateById(payPassage);
             if (!isSuccess) {
@@ -123,7 +137,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateQuota(Long payPassageId, Long changeAmount) {
         try {
-            PayPassage payPassage = queryPassageInfo(payPassageId);
+            PayPassage payPassage = queryPassageInfoByLock(payPassageId);
             payPassage.setQuota(payPassage.getQuota() + changeAmount);
             boolean isSuccess = updateById(payPassage);
             if (!isSuccess) {

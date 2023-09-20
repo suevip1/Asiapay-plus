@@ -67,7 +67,7 @@ public class BalanceTask {
                 for (int i = 0; i < list.size(); i++) {
                     PayOrder payOrder = list.get(i);
                     String mchNo = payOrder.getMchNo();
-                    MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
+                    MchInfo mchInfo = mchInfoService.queryMchInfoByLock(mchNo);
 
                     if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
                         //正常回调订单
@@ -94,7 +94,7 @@ public class BalanceTask {
                         String agentNo = payOrder.getAgentNo();
                         //相同,合并
                         if (StringUtils.isNotEmpty(agentNoPassage) && StringUtils.isNotEmpty(agentNo) && agentNoPassage.equals(agentNo)) {
-                            AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
+                            AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
 
                             Long changeAgentAmount = payOrder.getAgentPassageFee() + payOrder.getAgentFeeAmount();
                             Long agentBeforeBalance = agentMchInfo.getBalance();
@@ -113,7 +113,7 @@ public class BalanceTask {
                         } else {
                             //商户代理
                             if (StringUtils.isNotEmpty(agentNo)) {
-                                AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
+                                AgentAccountInfo agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
 
                                 Long agentBeforeBalance = agentMchInfo.getBalance();
                                 Long changeAgentAmount = payOrder.getAgentFeeAmount();
@@ -133,7 +133,7 @@ public class BalanceTask {
 
                             //通道代理
                             if (StringUtils.isNotEmpty(agentNoPassage)) {
-                                AgentAccountInfo agentPassageInfo = agentAccountInfoService.queryAgentInfo(agentNoPassage);
+                                AgentAccountInfo agentPassageInfo = agentAccountInfoService.queryAgentInfoByLock(agentNoPassage);
                                 Long changeAgentAmount = payOrder.getAgentPassageFee();
 
                                 Long agentBeforeBalance = agentPassageInfo.getBalance();
@@ -154,7 +154,7 @@ public class BalanceTask {
                         //通道余额、授信
                         //通道入账余额= 订单金额-通道成本-通道代理成本
                         Long passageChangeAmount = payOrder.getAmount() - payOrder.getPassageFeeAmount() - payOrder.getAgentPassageFee();
-                        PayPassage payPassage = payPassageService.queryPassageInfo(payOrder.getPassageId());
+                        PayPassage payPassage = payPassageService.queryPassageInfoByLock(payOrder.getPassageId());
 
                         //额度限制打开的情况
                         if (payPassage.getQuotaLimitState() == CS.YES) {
@@ -234,7 +234,7 @@ public class BalanceTask {
         agentMchInfo.setAgentName("");
         agentMchInfo.setAgentNo(agentNo);
         if (StringUtils.isNotEmpty(agentNo)) {
-            agentMchInfo = agentAccountInfoService.queryAgentInfo(agentNo);
+            agentMchInfo = agentAccountInfoService.queryAgentInfoByLock(agentNo);
         }
 
         MchHistory mchHistory = new MchHistory();

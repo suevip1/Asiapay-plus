@@ -66,6 +66,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Resource
     private MchInfoMapper mchInfoMapper;
 
+    private final Object lock = new Object();
+
     /**
      * 查询商户信息
      *
@@ -80,6 +82,18 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
             throw new BizException("没有查询到商户");
         }
         return mchInfo;
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    public MchInfo queryMchInfoByLock(String mchNo) {
+        synchronized (lock) {
+            //查询缓存中是否有
+            MchInfo mchInfo = getById(mchNo);
+            if (mchInfo == null) {
+                throw new BizException("没有查询到商户");
+            }
+            return mchInfo;
+        }
     }
 
     /**
@@ -203,7 +217,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(String mchNo, Long changeAmount) {
         try {
-            MchInfo mchInfo = queryMchInfo(mchNo);
+            MchInfo mchInfo = queryMchInfoByLock(mchNo);
             mchInfo.setBalance(mchInfo.getBalance() + changeAmount);
             boolean isSuccess = updateById(mchInfo);
             if (!isSuccess) {

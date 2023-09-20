@@ -47,6 +47,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Resource
     private AgentAccountInfoMapper agentAccountInfoMapper;
 
+    private final Object lock = new Object();
 
     /**
      * 通过代理商号获取
@@ -61,6 +62,17 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
             throw new BizException("没有查询到代理商户");
         }
         return agentAccountInfo;
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    public AgentAccountInfo queryAgentInfoByLock(String agentNo) {
+        synchronized (lock) {
+            AgentAccountInfo agentAccountInfo = getById(agentNo);
+            if (agentAccountInfo == null) {
+                throw new BizException("没有查询到代理商户");
+            }
+            return agentAccountInfo;
+        }
     }
 
     /**
@@ -201,7 +213,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public boolean updateBalance(String agentNo, Long changeAmount) {
         try {
-            AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);
+            AgentAccountInfo agentAccountInfo = queryAgentInfoByLock(agentNo);
             agentAccountInfo.setBalance(agentAccountInfo.getBalance() + changeAmount);
             boolean isSuccess = updateById(agentAccountInfo);
             if (!isSuccess) {
