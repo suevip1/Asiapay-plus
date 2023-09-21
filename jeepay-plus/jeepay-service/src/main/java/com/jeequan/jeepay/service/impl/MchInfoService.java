@@ -72,7 +72,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param mchNo
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public MchInfo queryMchInfo(String mchNo) {
         //查询缓存中是否有
         MchInfo mchInfo = getById(mchNo);
@@ -88,7 +87,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      *
      * @param mchInfo
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updateMchInfo(MchInfo mchInfo) {
         try {
             MchInfo oldMchInfo = getById(mchInfo.getMchNo());
@@ -106,7 +105,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
         }
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void addMch(MchInfo mchInfo, String loginUserName) {
         // 校验特邀商户信息
         if (StringUtils.isNotEmpty(mchInfo.getAgentNo())) {
@@ -145,7 +144,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     /**
      * 删除商户
      **/
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public List<Long> removeByMchNo(String mchNo) {
         try {
             // 0.当前商户是否存在
@@ -205,7 +204,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param changeAmount
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateBalance(String mchNo, Long changeAmount) {
         try {
             MchInfo mchInfo = queryMchInfo(mchNo);
@@ -231,7 +230,6 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      *
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public Map<String, MchInfo> getMchInfoMap() {
         List<MchInfo> mchInfoList = list();
         Map<String, MchInfo> productMap = new HashMap<>();

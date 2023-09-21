@@ -53,7 +53,6 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param agentNo
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public AgentAccountInfo queryAgentInfo(String agentNo) {
         AgentAccountInfo agentAccountInfo = getById(agentNo);
         if (agentAccountInfo == null) {
@@ -67,7 +66,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      *
      * @param agentAccountInfo
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updateAgentInfo(AgentAccountInfo agentAccountInfo) {
         try {
             AgentAccountInfo oldAgent = getById(agentAccountInfo.getAgentNo());
@@ -91,7 +90,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param agentAccountInfo
      * @param loginUserName
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void addAgent(AgentAccountInfo agentAccountInfo, String loginUserName) {
 
         // 插入商户基本信息
@@ -120,7 +119,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
 
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public List<Long> removeByAgentNo(String agentNo) {
         try {
             // 0.当前代理是否存在
@@ -182,7 +181,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
         }
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+
     public Map<String, AgentAccountInfo> getAgentInfoMap() {
         List<AgentAccountInfo> agentAccountInfos = list();
         Map<String, AgentAccountInfo> agentAccountInfoMap = new HashMap<>();
@@ -201,7 +200,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param changeAmount
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateBalance(String agentNo, Long changeAmount) {
         try {
             AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);

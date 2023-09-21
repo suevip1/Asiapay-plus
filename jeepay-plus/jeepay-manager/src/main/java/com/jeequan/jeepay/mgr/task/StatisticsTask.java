@@ -51,7 +51,6 @@ public class StatisticsTask {
     private final Object lock = new Object();
 
     @Scheduled(fixedRate = 5000) // 每5秒执行一次 5000
-    @Transactional(isolation = Isolation.SERIALIZABLE)
     @Async
     public void start() {
         synchronized (lock) {

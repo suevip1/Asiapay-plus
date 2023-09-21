@@ -36,7 +36,6 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
         PayPassage payPassage = getById(payPassageId);
@@ -46,7 +45,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         return payPassage;
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updatePassageInfo(PayPassage payPassage) {
         try {
             PayPassage passageOld = getById(payPassage.getPayPassageId());
@@ -72,7 +71,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         }
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean removePayPassage(Long payPassageId) {
         boolean removePayPassage = removeById(payPassageId);
         if (!removePayPassage) {
@@ -81,7 +80,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         return true;
     }
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+
     public Map<Long, PayPassage> getPayPassageMap() {
         List<PayPassage> passageList = list();
         Map<Long, PayPassage> payPassageMap = new HashMap<>();
@@ -99,7 +98,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateBalance(Long payPassageId, Long changeAmount) {
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);
@@ -122,7 +121,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @param changeAmount
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public boolean updateQuota(Long payPassageId, Long changeAmount) {
         try {
             PayPassage payPassage = queryPassageInfo(payPassageId);
