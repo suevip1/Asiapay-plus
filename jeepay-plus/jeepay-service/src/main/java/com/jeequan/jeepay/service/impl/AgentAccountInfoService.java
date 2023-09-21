@@ -53,7 +53,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param agentNo
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public AgentAccountInfo queryAgentInfo(String agentNo) {
         AgentAccountInfo agentAccountInfo = getById(agentNo);
         if (agentAccountInfo == null) {

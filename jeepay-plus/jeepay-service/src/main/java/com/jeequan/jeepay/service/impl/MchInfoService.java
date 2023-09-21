@@ -72,7 +72,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param mchNo
      * @return
      */
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public MchInfo queryMchInfo(String mchNo) {
         //查询缓存中是否有
         MchInfo mchInfo = getById(mchNo);

@@ -35,7 +35,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
-    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
         PayPassage payPassage = getById(payPassageId);
