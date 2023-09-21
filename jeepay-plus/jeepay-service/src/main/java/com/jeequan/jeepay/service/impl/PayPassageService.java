@@ -2,7 +2,6 @@ package com.jeequan.jeepay.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.cache.RedisUtil;
-import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.PayPassageMapper;
@@ -36,6 +35,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Resource
     private PayPassageMapper payPassageMapper;
 
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
     public PayPassage queryPassageInfo(Long payPassageId) {
         //查询缓存中是否有
         PayPassage payPassage = getById(payPassageId);
@@ -51,8 +51,8 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             PayPassage passageOld = getById(payPassage.getPayPassageId());
             String oldConfig = passageOld.getPayInterfaceConfig();
             String newConfig = payPassage.getPayInterfaceConfig();
-            //同步最新余额
-            payPassage.setBalance(passageOld.getBalance());
+            //更新信息不修改余额
+            payPassage.setBalance(null);
 
             if (StringUtils.isNotEmpty(oldConfig) && StringUtils.isNotEmpty(newConfig)) {
                 if (!oldConfig.equals(newConfig)) {
@@ -99,15 +99,15 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @return
      */
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
-    public boolean updateBalance(Long payPassageId, Long changeAmount) {
+    public void updateBalance(Long payPassageId, Long changeAmount) {
         try {
-            PayPassage payPassage = queryPassageInfo(payPassageId);
-            payPassage.setBalance(payPassage.getBalance() + changeAmount);
-            boolean isSuccess = updateById(payPassage);
-            if (!isSuccess) {
-                log.error("更新余额不成功 [" + payPassage.getPayPassageId() + "] " + changeAmount);
+            Map params = new HashMap();
+            params.put("payPassageId", payPassageId);
+            params.put("changeAmount", changeAmount);
+            int isSuccess = payPassageMapper.updateBalance(params);
+            if (isSuccess == 0) {
+                log.error("更新余额不成功 [" + payPassageId + "] " + changeAmount);
             }
-            return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BizException("数据更新异常");
@@ -122,19 +122,19 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
      * @return
      */
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
-    public boolean updateQuota(Long payPassageId, Long changeAmount) {
+    public void updateQuota(Long payPassageId, Long changeAmount) {
         try {
-            PayPassage payPassage = queryPassageInfo(payPassageId);
-            payPassage.setQuota(payPassage.getQuota() + changeAmount);
-            boolean isSuccess = updateById(payPassage);
-            if (!isSuccess) {
-                log.error("更新授信不成功 [" + payPassage.getPayPassageId() + "] " + changeAmount);
+            Map params = new HashMap();
+            params.put("payPassageId", payPassageId);
+            params.put("changeAmount", changeAmount);
+            int isSuccess = payPassageMapper.updateQuota(params);
+            if (isSuccess == 0) {
+                log.error("更新授信不成功 [" + payPassageId + "] " + changeAmount);
             }
-            return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            throw new BizException("数据更新异常");
         }
-        return false;
     }
 
     public JSONObject sumPassageInfo() {

@@ -89,14 +89,11 @@ public class AgentDivisionController extends CommonCtrl {
         }
         boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT);
         if (isSuccess) {
-            agentAccountInfo.setFreezeBalance(agentAccountInfo.getFreezeBalance() + divisionRecord.getAmount());
-            agentAccountInfo.setBalance(agentAccountInfo.getBalance() - divisionRecord.getAmount());
-            agentAccountInfoService.updateAgentInfo(agentAccountInfo);
-
             //增加代理资金流水记录
+            agentAccountInfo = agentAccountInfoService.queryAgentInfo(getCurrentAgentNo());
             Long amount = divisionRecord.getAmount();
-            Long beforeBalance = agentAccountInfo.getBalance() + amount;
-            Long afterBalance = agentAccountInfo.getBalance();
+            Long beforeBalance = agentAccountInfo.getBalance();
+            Long afterBalance = agentAccountInfo.getBalance() - amount;
 
             //插入更新记录
             AgentAccountHistory agentAccountHistory = new AgentAccountHistory();
@@ -110,6 +107,9 @@ public class AgentDivisionController extends CommonCtrl {
             agentAccountHistory.setBizType(CS.BIZ_TYPE_WITHDRAW);
             agentAccountHistoryService.save(agentAccountHistory);
 
+            agentAccountInfo.setFreezeBalance(agentAccountInfo.getFreezeBalance() + divisionRecord.getAmount());
+            agentAccountInfoService.updateBalance(agentAccountInfo.getAgentNo(), -divisionRecord.getAmount());
+            agentAccountInfoService.updateAgentInfo(agentAccountInfo);
 
             return ApiRes.ok();
         }

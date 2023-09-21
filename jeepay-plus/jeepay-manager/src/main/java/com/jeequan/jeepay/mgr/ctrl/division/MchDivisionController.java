@@ -88,6 +88,7 @@ public class MchDivisionController extends CommonCtrl {
 
             mchInfo.setFreezeBalance(mchInfo.getFreezeBalance() - divisionRecord.getAmount());
             mchInfo.setUpdatedAt(new Date());
+
             mchInfoService.updateMchInfo(mchInfo);
         } else {
             return ApiRes.customFail("系统异常");
@@ -139,9 +140,9 @@ public class MchDivisionController extends CommonCtrl {
             mchHistory.setBizType(CS.BIZ_TYPE_UNFREEZE);
             mchHistoryService.save(mchHistory);
 
-            mchInfo.setBalance(mchInfo.getBalance() + divisionRecord.getAmount());
             mchInfo.setFreezeBalance(mchInfo.getFreezeBalance() - divisionRecord.getAmount());
             mchInfo.setUpdatedAt(new Date());
+            mchInfoService.updateBalance(mchInfo.getMchNo(), divisionRecord.getAmount());
             mchInfoService.updateMchInfo(mchInfo);
         } else {
             return ApiRes.customFail("系统异常");

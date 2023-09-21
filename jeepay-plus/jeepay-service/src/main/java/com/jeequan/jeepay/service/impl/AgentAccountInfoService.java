@@ -53,6 +53,7 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @param agentNo
      * @return
      */
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
     public AgentAccountInfo queryAgentInfo(String agentNo) {
         AgentAccountInfo agentAccountInfo = getById(agentNo);
         if (agentAccountInfo == null) {
@@ -69,9 +70,8 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updateAgentInfo(AgentAccountInfo agentAccountInfo) {
         try {
-            AgentAccountInfo oldAgent = getById(agentAccountInfo.getAgentNo());
-            //同步最新余额
-            agentAccountInfo.setBalance(oldAgent.getBalance());
+            //更新不处理余额
+            agentAccountInfo.setBalance(null);
 
             boolean isSuccess = update(agentAccountInfo, AgentAccountInfo.gw().eq(AgentAccountInfo::getAgentNo, agentAccountInfo.getAgentNo()));
             if (!isSuccess) {
@@ -201,15 +201,15 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
      * @return
      */
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
-    public boolean updateBalance(String agentNo, Long changeAmount) {
+    public void updateBalance(String agentNo, Long changeAmount) {
         try {
-            AgentAccountInfo agentAccountInfo = queryAgentInfo(agentNo);
-            agentAccountInfo.setBalance(agentAccountInfo.getBalance() + changeAmount);
-            boolean isSuccess = updateById(agentAccountInfo);
-            if (!isSuccess) {
-                log.error("更新余额不成功 [" + agentAccountInfo.getAgentNo() + "] " + changeAmount);
+            Map params = new HashMap();
+            params.put("agentNo", agentNo);
+            params.put("changeAmount", changeAmount);
+            int isSuccess = agentAccountInfoMapper.updateBalance(params);
+            if (isSuccess == 0) {
+                log.error("更新代理余额不成功 [" + agentNo + "] " + changeAmount);
             }
-            return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BizException("数据更新异常");

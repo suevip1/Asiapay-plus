@@ -75,7 +75,6 @@ public class MchDivisionController extends CommonCtrl {
     @MethodLog(remark = "商户结算申请")
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ApiRes add() {
-        //todo 检测提现限额
         DivisionRecord divisionRecord = getObject(DivisionRecord.class);
         MchInfo mchInfo = mchInfoService.queryMchInfo(getCurrentMchNo());
 
@@ -88,15 +87,11 @@ public class MchDivisionController extends CommonCtrl {
         }
         boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH);
         if (isSuccess) {
-
-            mchInfo.setFreezeBalance(mchInfo.getFreezeBalance() + divisionRecord.getAmount());
-            mchInfo.setBalance(mchInfo.getBalance() - divisionRecord.getAmount());
-            mchInfoService.updateMchInfo(mchInfo);
-
             //增加商户资金流水记录
+            mchInfo = mchInfoService.queryMchInfo(getCurrentMchNo());
             Long amount = divisionRecord.getAmount();
-            Long beforeBalance = mchInfo.getBalance() + amount;
-            Long afterBalance = mchInfo.getBalance();
+            Long beforeBalance = mchInfo.getBalance();
+            Long afterBalance = mchInfo.getBalance() - amount;
 
             //插入更新记录
             MchHistory mchHistory = new MchHistory();
@@ -109,6 +104,10 @@ public class MchDivisionController extends CommonCtrl {
             mchHistory.setFundDirection(CS.FUND_DIRECTION_REDUCE);
             mchHistory.setBizType(CS.BIZ_TYPE_WITHDRAW);
             mchHistoryService.save(mchHistory);
+
+            mchInfo.setFreezeBalance(mchInfo.getFreezeBalance() + divisionRecord.getAmount());
+            mchInfoService.updateBalance(mchInfo.getMchNo(), -divisionRecord.getAmount());
+            mchInfoService.updateMchInfo(mchInfo);
 
             return ApiRes.ok();
         }

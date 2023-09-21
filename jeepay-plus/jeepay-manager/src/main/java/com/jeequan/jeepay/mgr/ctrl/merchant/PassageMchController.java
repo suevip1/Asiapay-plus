@@ -145,12 +145,10 @@ public class PassageMchController extends CommonCtrl {
                     item.setPayPassageId(payPassageId);
                     item.setState(CS.YES);
                     item.setMchNo(mchList.get(i).getMchNo());
-                    boolean isSuccess = mchPayPassageService.save(item);
-                    logger.info("执行save " + isSuccess);
+                    mchPayPassageService.save(item);
                 } else {
                     item.setState(CS.YES);
-                    boolean isSuccess = mchPayPassageService.updateById(item);
-                    logger.info("执行updateById " + isSuccess);
+                    mchPayPassageService.updateById(item);
                 }
 
             }

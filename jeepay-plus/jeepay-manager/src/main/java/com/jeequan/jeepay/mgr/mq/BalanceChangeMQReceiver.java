@@ -215,7 +215,6 @@ public class BalanceChangeMQReceiver implements BalanceChangeMQ.IMQReceiver {
 
         //通道余额变动
         payPassageService.updateBalance(payOrder.getPassageId(), passageChangeAmount);
-
         //额度限制打开的情况
         if (payPassage.getQuotaLimitState() == CS.YES) {
             payPassageService.updateQuota(payOrder.getPassageId(), passageChangeAmount);

@@ -139,9 +139,9 @@ public class AgentDivisionController extends CommonCtrl {
             divisionRecord.setState(DivisionRecord.STATE_FAIL);
             divisionRecordService.update(divisionRecord, DivisionRecord.gw().eq(DivisionRecord::getRecordId, divisionRecord.getRecordId()));
 
-            agentAccountInfo.setBalance(agentAccountInfo.getBalance() + divisionRecord.getAmount());
             agentAccountInfo.setFreezeBalance(agentAccountInfo.getFreezeBalance() - divisionRecord.getAmount());
             agentAccountInfo.setUpdatedAt(new Date());
+            agentAccountInfoService.updateBalance(agentAccountInfo.getAgentNo(), divisionRecord.getAmount());
             agentAccountInfoService.updateAgentInfo(agentAccountInfo);
         } else {
             return ApiRes.customFail("系统异常，商户不存在");

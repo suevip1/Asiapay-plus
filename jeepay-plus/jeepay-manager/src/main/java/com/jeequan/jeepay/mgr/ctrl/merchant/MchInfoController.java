@@ -199,10 +199,6 @@ public class MchInfoController extends CommonCtrl {
             mqSender.send(CleanMchLoginAuthCacheMQ.build(new ArrayList<>(removeCacheUserIdList)));
         }
 
-//        //更新商户信息
-//        if (!mchInfoService.updateById(mchInfo)) {
-//            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_UPDATE);
-//        }
         mchInfoService.updateMchInfo(mchInfo);
         return ApiRes.ok();
     }

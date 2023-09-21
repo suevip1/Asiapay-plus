@@ -72,6 +72,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @param mchNo
      * @return
      */
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, propagation = Propagation.REQUIRES_NEW)
     public MchInfo queryMchInfo(String mchNo) {
         //查询缓存中是否有
         MchInfo mchInfo = getById(mchNo);
@@ -90,9 +91,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updateMchInfo(MchInfo mchInfo) {
         try {
-            MchInfo oldMchInfo = getById(mchInfo.getMchNo());
-            //同步最新余额
-            mchInfo.setBalance(oldMchInfo.getBalance());
+            //此处不更新余额
+            mchInfo.setBalance(null);
 
             boolean isSuccess = update(mchInfo, MchInfo.gw().eq(MchInfo::getMchNo, mchInfo.getMchNo()));
             if (!isSuccess) {
@@ -205,15 +205,15 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
      * @return
      */
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
-    public boolean updateBalance(String mchNo, Long changeAmount) {
+    public void updateBalance(String mchNo, Long changeAmount) {
         try {
-            MchInfo mchInfo = queryMchInfo(mchNo);
-            mchInfo.setBalance(mchInfo.getBalance() + changeAmount);
-            boolean isSuccess = updateById(mchInfo);
-            if (!isSuccess) {
-                log.error("更新余额不成功 [" + mchInfo.getMchNo() + "] " + changeAmount);
+            Map params = new HashMap();
+            params.put("mchNo", mchNo);
+            params.put("changeAmount", changeAmount);
+            int isSuccess = mchInfoMapper.updateBalance(params);
+            if (isSuccess == 0) {
+                log.error("更新商户余额不成功 [" + mchNo + "] " + changeAmount);
             }
-            return isSuccess;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BizException("数据更新异常");
