@@ -16,7 +16,9 @@
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
-            <jeepay-text-up :placeholder="'支付订单号/商户订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+<!--            <jeepay-text-up :placeholder="'支付订单号/商户订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
+            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
             <a-form-model-item label="" class="table-head-layout">
               <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">getProductId
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">

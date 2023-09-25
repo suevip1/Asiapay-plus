@@ -16,7 +16,10 @@
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
-            <jeepay-text-up :placeholder="'支付订单号/商户订单号/渠道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+<!--            <jeepay-text-up :placeholder="'支付订单号/商户订单号/渠道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
+            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
+            <jeepay-text-up :placeholder="'通道订单号'" :msg="searchData.passageOrderNo" v-model="searchData.passageOrderNo" />
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.passageId" v-model="searchData.passageId" />
             <span class="table-page-search-submitButtons">

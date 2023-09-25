@@ -18,7 +18,9 @@
             </a-form-item>
             <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.passageId" v-model="searchData.passageId" />
             <jeepay-text-up :placeholder="'通道名'" :msg="searchData.payPassageName" v-model="searchData.payPassageName" />
-            <jeepay-text-up :placeholder="'支付/通道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+<!--            <jeepay-text-up :placeholder="'支付/通道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
+            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'通道订单号'" :msg="searchData.passageOrderNo" v-model="searchData.passageOrderNo" />
             <a-form-model-item label="" class="table-head-layout">
               <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">

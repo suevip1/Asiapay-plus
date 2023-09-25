@@ -18,7 +18,9 @@
             </a-form-item>
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'商户名称'" :msg="searchData.mchName" v-model="searchData.mchName" />
-            <jeepay-text-up :placeholder="'支付/商户订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+<!--            <jeepay-text-up :placeholder="'支付/商户订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
+            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
             <a-form-model-item label="" class="table-head-layout">
               <a-select v-model="searchData.productId" placeholder="对应产品" :allowClear="true">
                 <a-select-option v-for="d in productList" :value="d.productId" :key="d.productId">

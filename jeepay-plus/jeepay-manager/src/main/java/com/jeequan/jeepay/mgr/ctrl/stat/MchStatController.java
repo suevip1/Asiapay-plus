@@ -59,10 +59,13 @@ public class MchStatController extends CommonCtrl {
                         mchNos.add(key);
                     }
                 });
-                wrapper.in(StatisticsMch::getMchNo, mchNos);
+                if (mchNos.size() > 0) {
+                    wrapper.in(StatisticsMch::getMchNo, mchNos);
+                }else{
+                    wrapper.eq(StatisticsMch::getMchNo, "");
+                }
             }
         }
-
 
         wrapper.orderByDesc(StatisticsMch::getStatisticsDate);
         wrapper.orderByDesc(StatisticsMch::getTotalSuccessAmount);

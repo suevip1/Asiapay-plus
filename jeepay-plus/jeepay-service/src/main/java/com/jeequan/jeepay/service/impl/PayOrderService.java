@@ -251,13 +251,15 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
             }
         }
-        // 三合一订单
-        if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
-            wrapper.and(wr -> {
-                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId").trim());
-            });
+        //三种单号区分
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+            wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
 
         wrapper.orderByDesc(PayOrder::getCreatedAt);
@@ -316,13 +318,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 wrapper.le(PayOrder::getUpdatedAt, paramJSON.getString("createdEnd"));
             }
         }
-        // 三合一订单
-        if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
-            wrapper.and(wr -> {
-                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId").trim());
-            });
+
+        //三种单号区分
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+            wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
 
         wrapper.orderByDesc(PayOrder::getUpdatedAt);
@@ -381,13 +386,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 wrapper.le(PayOrder::getUpdatedAt, paramJSON.getString("createdEnd"));
             }
         }
-        // 三合一订单
-        if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
-            wrapper.and(wr -> {
-                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId").trim())
-                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId").trim());
-            });
+
+        //三种单号区分
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+            wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
 
         wrapper.orderByDesc(PayOrder::getUpdatedAt);
@@ -446,13 +454,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
             }
         }
-        // 三合一订单
-        if (paramJSON != null && StringUtils.isNotEmpty(paramJSON.getString("unionOrderId"))) {
-            wrapper.and(wr -> {
-                wr.eq(PayOrder::getPayOrderId, paramJSON.getString("unionOrderId"))
-                        .or().eq(PayOrder::getMchOrderNo, paramJSON.getString("unionOrderId"))
-                        .or().eq(PayOrder::getPassageOrderNo, paramJSON.getString("unionOrderId"));
-            });
+
+        //三种单号区分
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+            wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
 
         wrapper.orderByDesc(PayOrder::getCreatedAt);

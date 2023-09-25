@@ -16,7 +16,10 @@
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
-            <jeepay-text-up :placeholder="'支付/商户/通道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />
+<!--            <jeepay-text-up :placeholder="'支付/商户/通道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
+            <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
+            <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
+            <jeepay-text-up :placeholder="'通道订单号'" :msg="searchData.passageOrderNo" v-model="searchData.passageOrderNo" />
             <jeepay-text-up :placeholder="'商户名'" :msg="searchData.mchName" v-model="searchData.mchName" />
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
             <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />
@@ -464,8 +467,7 @@ export default {
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
-    // this.$refs.infoTable.refTable(true)
-    this.searchData.unionOrderId = this.$route.query.unionOrderId
+    this.searchData.mchOrderNo = this.$route.query.unionOrderId
     this.autoRefreshCoolDown = 120
     this.queryFunc()
   },
