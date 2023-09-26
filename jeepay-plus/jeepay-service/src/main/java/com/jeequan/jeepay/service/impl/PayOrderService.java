@@ -472,6 +472,83 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
     }
 
     /**
+     * 实时统计专用
+     * @param payOrder
+     * @param paramJSON
+     * @param wrapper
+     * @return
+     */
+    public List<PayOrder> listByQueryStatTotal(PayOrder payOrder, JSONObject paramJSON, LambdaQueryWrapper<PayOrder> wrapper) {
+
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        //商户号
+        if (StringUtils.isNotEmpty(payOrder.getMchNo())) {
+            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo());
+        }
+        //商户名
+        if (StringUtils.isNotEmpty(payOrder.getMchName())) {
+            wrapper.like(PayOrder::getMchName, payOrder.getMchName());
+        }
+        //商户代理
+        if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
+            wrapper.eq(PayOrder::getAgentNo, payOrder.getAgentNo());
+        }
+        //通道代理
+        if (StringUtils.isNotEmpty(payOrder.getAgentNoPassage())) {
+            wrapper.eq(PayOrder::getAgentNoPassage, payOrder.getAgentNoPassage());
+        }
+        //通道ID
+        if (payOrder.getPassageId() != null) {
+            wrapper.eq(PayOrder::getPassageId, payOrder.getPassageId());
+        }
+        //商户订单号
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (payOrder.getState() != null) {
+            wrapper.eq(PayOrder::getState, payOrder.getState());
+        }
+        if (payOrder.getNotifyState() != null) {
+            wrapper.eq(PayOrder::getNotifyState, payOrder.getNotifyState());
+        }
+        if (payOrder.getProductId() != null) {
+            wrapper.eq(PayOrder::getProductId, payOrder.getProductId());
+        }
+
+        if (payOrder.getForceChangeState() != null) {
+            wrapper.eq(PayOrder::getForceChangeState, payOrder.getForceChangeState());
+        }
+
+        if (paramJSON != null) {
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
+                wrapper.ge(PayOrder::getCreatedAt, paramJSON.getString("createdStart"));
+            }
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
+                wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
+            }
+        }
+
+        //三种单号区分
+        if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
+            wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getMchOrderNo())) {
+            wrapper.eq(PayOrder::getMchOrderNo, payOrder.getMchOrderNo());
+        }
+        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+            wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
+        }
+
+        wrapper.orderByDesc(PayOrder::getCreatedAt);
+        wrapper.select(PayOrder::getAmount, PayOrder::getState, PayOrder::getPassageFeeAmount, PayOrder::getAgentFeeAmount, PayOrder::getAgentPassageFee, PayOrder::getMchFeeAmount);
+
+
+        return list(wrapper);
+    }
+
+    /**
      * 过期订单清理
      *
      * @param offsetDate

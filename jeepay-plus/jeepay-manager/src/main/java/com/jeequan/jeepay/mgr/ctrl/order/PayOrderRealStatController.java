@@ -27,12 +27,11 @@ public class PayOrderRealStatController extends CommonCtrl {
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ApiRes countReal() {
-        //todo 优化此处操作,节约性能
         JSONObject paramJSON = getReqParamJSON();
         PayOrder payOrder = getObject(PayOrder.class);
         LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
 //        long test1 = System.currentTimeMillis();
-        List<PayOrder> payOrderList = payOrderService.listByQuery(payOrder, paramJSON, wrapper);
+        List<PayOrder> payOrderList = payOrderService.listByQueryStatTotal(payOrder, paramJSON, wrapper);
 //        long test2 = System.currentTimeMillis();
 //        log.error("================= " + ((test2 - test1) / 1000f) + " ============");
         return ApiRes.ok(genReturnJson(payOrderList));
