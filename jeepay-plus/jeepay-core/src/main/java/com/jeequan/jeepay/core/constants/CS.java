@@ -366,6 +366,10 @@ public class CS {
 
         String YICHUANG = "yichuang";
 
+        String BOXIN = "boxin";
+
+        String SHUNXIN = "shunxin";
+
     }
 
 
