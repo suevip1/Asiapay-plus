@@ -34,7 +34,6 @@ public class StatisticsOrderMQReceiver implements StatisticsOrderMQ.IMQReceiver 
                 RedisUtil.storeObjectWithExpiration(payOrder.getPayOrderId(), payOrder, CS.REAL_TIME_SUCCESS_STAT);
                 //测试冲正订单
             } else if (payOrder.getState() == PayOrder.STATE_REFUND) {
-                //todo 资金流水新增一条  所有相关余额减款  统计减款  根据时间来 统计均减1
                 payOrder.setAmount(payOrder.getAmount() * -1);
                 payOrder.setMchFeeAmount(payOrder.getMchFeeAmount() * -1);
                 payOrder.setPassageFeeAmount(payOrder.getPassageFeeAmount() * -1);
