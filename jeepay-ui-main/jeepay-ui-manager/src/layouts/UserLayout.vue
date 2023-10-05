@@ -15,7 +15,7 @@
           </div>
         </div>
         <router-view />
-        <div class="footer">`1  `133
+        <div class="footer">
         </div>
       </div>
     </div>
