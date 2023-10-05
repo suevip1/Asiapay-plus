@@ -168,13 +168,13 @@ public class RobotsService extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
 
-        if (update.hasMessage() && !update.getMessage().getFrom().getIsBot()) {
+        if (update.hasMessage()) {
             //检测权限，命令
-            if (update.getMessage().isCommand()) {
+            if (update.getMessage().isCommand() && !update.getMessage().getFrom().getIsBot()) {
                 handleCommand(update);
             } else if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
                 handleGroupCommand(update);
-            } else if (update.getMessage().isUserMessage()) {
+            } else if (update.getMessage().isUserMessage() && !update.getMessage().getFrom().getIsBot()) {
                 handlePrivateCommand(update);
             }
 
@@ -375,7 +375,7 @@ public class RobotsService extends TelegramLongPollingBot {
             //检测是否查单转发信息
             //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
-            if (messageSource != null && !message.getFrom().getIsBot()) {
+            if (messageSource != null) {
                 sendQueryMessage(message, messageSource);
                 return;
             }
@@ -383,7 +383,6 @@ public class RobotsService extends TelegramLongPollingBot {
             //检测是否催单信息  FORWARD_QUERY
             //REDIS_MCH_SOURCE_SUFFIX 存储的是 商户群suffix+id 通道群message
             Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
-            //&& messageReply.hasText() && !messageReply.getFrom().getIsBot()
             if (messageForwardSource != null && message.hasText()) {
                 Pattern regex = Pattern.compile(FORWARD_QUERY);
                 Matcher matcher = regex.matcher(message.getText());
@@ -411,6 +410,10 @@ public class RobotsService extends TelegramLongPollingBot {
         }
 
         if (!message.hasText()) {
+            return;
+        }
+
+        if (update.getMessage().getFrom().getIsBot()) {
             return;
         }
         //==================================匹配文字命令==========================================================
@@ -1014,7 +1017,7 @@ public class RobotsService extends TelegramLongPollingBot {
                 //是否空群  是否有权限
                 if (checkBlindPassage(chatId, userName)) {
                     String passageStr = text.substring(5);
-                    String[] passageIds = passageStr.split(",");
+                    String[] passageIds = passageStr.replaceAll(" ", "").split(",");
 
                     List<Long> noFindList = new ArrayList<>();
 
@@ -1060,7 +1063,7 @@ public class RobotsService extends TelegramLongPollingBot {
             try {
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                     String passageStr = text.substring(5);
-                    String[] passageIds = passageStr.split(",");
+                    String[] passageIds = passageStr.replaceAll(" ", "").split(",");
 
                     for (int index = 0; index < passageIds.length; index++) {
                         //移除

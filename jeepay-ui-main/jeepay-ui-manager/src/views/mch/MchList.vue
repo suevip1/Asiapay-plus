@@ -22,6 +22,7 @@
         </a-form>
         <div>
           <a-button v-if="$access('ENT_MCH_INFO_ADD')" type="primary" icon="plus" @click="addFunc" class="mg-b-30">新建</a-button>
+          <a-button type="danger" style="margin-left: 8px" icon="download" @click="exportExcel">导出</a-button>
         </div>
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
@@ -92,7 +93,7 @@
           </a-form-model-item>
           <a-form-model-item label="调整金额：" prop="changeAmount">
             <a-input prefix="￥" type="number" v-model="changeObject.changeAmount" />
-            <b style="color: gray">如需扣余额，则输入负数，例如:-10.50</b>
+            <b style="color: rgb(128,128,128)">如需扣余额，则输入负数，例如:-10.50</b>
           </a-form-model-item>
           <a-form-model-item label="备注：" prop="changeRemark">
             <a-input v-model="changeObject.changeRemark" />
@@ -106,11 +107,13 @@
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
-import { API_URL_MCH_BALANCE, API_URL_MCH_LIST, API_URL_MCH_STAT_LIST, req, reqLoad } from '@/api/manage'
+import { API_URL_MCH_BALANCE, API_URL_MCH_LIST, API_URL_MCH_STAT_LIST, exportExcel, req, reqLoad } from '@/api/manage'
 import InfoAddOrEdit from './AddOrEdit'
 import InfoDetail from './Detail'
 import MchProductEdit from '@/views/mch/MchProductEdit.vue'
 import MchPassageEdit from '@/views/mch/MchPassageEdit.vue'
+import moment from 'moment/moment'
+import { saveAs } from 'file-saver'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -218,6 +221,17 @@ export default {
       const that = this
       req.getNormal(API_URL_MCH_STAT_LIST, 'statMchInfo').then(res => {
         that.totalMchInfo = res
+      })
+    },
+    exportExcel: function () { // todo 这里返回的结果没有嵌入到通用返回格式中
+      exportExcel('/api/mchRealTimeInfo/exportExcel', this.searchData).then(res => {
+        const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件
+        saveAs(blob, moment().format('YYYY-MM-DD HH:mm:ss') + '-商户实时余额.xlsx')
+      }).catch((resErr) => {
+        const blob = new Blob([resErr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件
+        saveAs(blob, moment().format('YYYY-MM-DD HH:mm:ss') + '-商户实时余额.xlsx')
       })
     }
   }
