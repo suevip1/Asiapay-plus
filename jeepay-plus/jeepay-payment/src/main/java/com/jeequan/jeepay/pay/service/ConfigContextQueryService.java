@@ -19,6 +19,7 @@ import cn.hutool.core.collection.CollUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
+import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.pay.model.*;
 import com.jeequan.jeepay.pay.util.PayCommonUtil;
 import com.jeequan.jeepay.service.impl.*;
@@ -118,8 +119,8 @@ public class ConfigContextQueryService {
             if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_RANGE) {
                 //此处存的是 元
                 String[] range = configContext.getPayPassage().getPayRules().trim().split("-");
-                Long min = Long.parseLong(range[0]) * 100;
-                Long max = Long.parseLong(range[1]) * 100;
+                Long min = Long.parseLong(AmountUtil.convertDollar2Cent(range[0]));
+                Long max = Long.parseLong(AmountUtil.convertDollar2Cent(range[1]));
                 if (orderAmount.longValue() >= min.longValue() && orderAmount.longValue() <= max.longValue()) {
                     filterRuleList.add(configContext);
                     continue;
@@ -131,7 +132,8 @@ public class ConfigContextQueryService {
                 String[] amounts = configContext.getPayPassage().getPayRules().trim().split("\\|");
                 if (amounts != null) {
                     for (int index = 0; index < amounts.length; index++) {
-                        Long amount = Long.parseLong(amounts[index]) * 100;
+//                        Long amount = Long.parseLong(amounts[index]) * 100;
+                        Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amounts[index]));
                         if (orderAmount.longValue() == amount.longValue()) {
                             filterRuleList.add(configContext);
                             break;
