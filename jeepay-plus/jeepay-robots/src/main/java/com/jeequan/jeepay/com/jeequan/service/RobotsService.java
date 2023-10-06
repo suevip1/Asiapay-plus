@@ -657,12 +657,7 @@ public class RobotsService extends TelegramLongPollingBot {
             if (robotsPassageList.size() > 0) {
                 Date today = DateUtil.parse(DateUtil.today());
 
-                List<PayPassage> passageList = new ArrayList<>();
-                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
-                for (int i = 0; i < robotsPassageList.size(); i++) {
-                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
-                }
-                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+                List<PayPassage> passageList = getPassageInfoList(robotsPassageList);
 
                 StringBuffer stringBuffer = new StringBuffer();
                 Long totalBalance = 0L;
@@ -719,12 +714,7 @@ public class RobotsService extends TelegramLongPollingBot {
             }
             if (robotsPassageList.size() > 0) {
 
-                List<PayPassage> passageList = new ArrayList<>();
-                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
-                for (int i = 0; i < robotsPassageList.size(); i++) {
-                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
-                }
-                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+                List<PayPassage> passageList = getPassageInfoList(robotsPassageList);
 
                 StringBuffer stringBuffer = new StringBuffer();
                 Long totalBalance = 0L;
@@ -780,12 +770,7 @@ public class RobotsService extends TelegramLongPollingBot {
                 return;
             }
             if (robotsPassageList.size() > 0) {
-                List<PayPassage> passageList = new ArrayList<>();
-                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
-                for (int i = 0; i < robotsPassageList.size(); i++) {
-                    passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
-                }
-                Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+                List<PayPassage> passageList = getPassageInfoList(robotsPassageList);
                 //根据名字排序
                 StringBuffer stringBuffer = new StringBuffer();
                 stringBuffer.append("当前群已绑定通道列表：" + System.lineSeparator());
@@ -1409,11 +1394,7 @@ public class RobotsService extends TelegramLongPollingBot {
         //发送当前绑定列表
         List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
         if (robotsPassageList.size() > 0) {
-            List<PayPassage> passageList = new ArrayList<>();
-            for (int i = 0; i < robotsPassageList.size(); i++) {
-                passageList.add(payPassageMap.get(robotsPassageList.get(i).getPassageId()));
-            }
-            Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+            List<PayPassage> passageList = getPassageInfoList(robotsPassageList);
             //根据名字排序
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("当前群已绑定通道列表：" + System.lineSeparator());
@@ -1817,6 +1798,25 @@ public class RobotsService extends TelegramLongPollingBot {
                 sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
             }
         }
+    }
+
+    /**
+     * 查询通道实时信息
+     *
+     * @param robotsPassageList
+     * @return
+     */
+    private List<PayPassage> getPassageInfoList(List<RobotsPassage> robotsPassageList) {
+        List<PayPassage> passageList = new ArrayList<>();
+        Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+        for (int i = 0; i < robotsPassageList.size(); i++) {
+            Long passageId = robotsPassageList.get(i).getPassageId();
+            if (payPassageMap.containsKey(passageId)) {
+                passageList.add(payPassageMap.get(passageId));
+            }
+        }
+        Collections.sort(passageList, (o1, o2) -> Collator.getInstance(Locale.CHINA).compare(o1.getPayPassageName(), o2.getPayPassageName()));
+        return passageList;
     }
 
     /**
