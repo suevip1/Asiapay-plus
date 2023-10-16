@@ -82,7 +82,7 @@ public class MchHistoryController extends CommonCtrl {
             }
             wrapper.orderByDesc(MchHistory::getCreatedAt);
 
-            IPage<AgentAccountHistory> pages = mchHistoryService.page(getIPage(true), wrapper);
+            IPage<MchHistory> pages = mchHistoryService.page(getIPage(true), wrapper);
 
             return ApiRes.page(pages);
         } catch (Exception e) {

@@ -7,6 +7,7 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
+import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import com.jeequan.jeepay.util.JeepayKit;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -127,4 +129,24 @@ public class AsiapayChannelNoticeService extends AbstractChannelNoticeService {
             return false;
         }
     }
+
+    public static void main(String[] args) {
+        Map<String, Object> map = new HashMap();
+        map.put("ifCode","starpay");
+        map.put("amount",5000);
+        map.put("payOrderId","P1710245959317438466");
+        map.put("mchOrderNo","16965893832751772");
+        map.put("reqTime","1696589415801");
+        map.put("createdAt","1696589386191");
+        map.put("clientIp","127.0.0.1");
+        map.put("state","2");
+        map.put("mchNo","M1696580175");
+        String secret = "hgX3RGYoTEYCOsFCgoroP9tw4Oz6KPQby91s4jkueONbxSFnC8jyf2rXuNJT2xG6L3BcLsCSkrG9I21ttssWiSeUuQU38ITnWJlPhF4Bgxt6NkJX6C0zr1Kqfm8X9JFG";
+
+        final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
+        final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+        log.error(signContentStr);
+        log.error(signStr);
+    }
+
 }

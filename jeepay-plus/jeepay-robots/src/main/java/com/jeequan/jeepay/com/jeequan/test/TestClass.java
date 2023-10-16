@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.com.jeequan.test;
 
+import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.entity.RobotsMch;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +17,8 @@ import java.util.regex.Pattern;
 public class TestClass {
 
     public static void main(String[] args) {
-        Pattern regex = Pattern.compile("[Zz]{2}\\s.*");
-        Matcher matcher = regex.matcher("ZZ测试加急");
-        log.info(matcher.matches() + "");
+        String test = RedisUtil.getString("123");
+        log.info(test.toString());
 
     }
 
