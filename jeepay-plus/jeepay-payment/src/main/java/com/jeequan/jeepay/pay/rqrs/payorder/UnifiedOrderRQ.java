@@ -35,9 +35,11 @@ public class UnifiedOrderRQ extends AbstractMchAppRQ {
     private String mchOrderNo;
 
     /** 客户端IP地址 **/
+    @NotBlank(message="客户端IP地址不能为空")
     private String clientIp;
 
     /** 异步通知地址 **/
+    @NotBlank(message="异步通知地址不能为空")
     private String notifyUrl;
 
 
