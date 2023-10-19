@@ -77,6 +77,20 @@ public class MchDivisionController extends CommonCtrl {
         String remark = jsonObject.getString("remark");
         if (StringUtils.isNotEmpty(remark)) {
             divisionRecord.setRemark(remark);
+            //时间、金额、商户号能对上的第一条
+            List<MchHistory> mchHistoryList = mchHistoryService.list(
+                    MchHistory.gw().eq(MchHistory::getMchNo, divisionRecord.getUserNo()).
+                            eq(MchHistory::getAmount, -divisionRecord.getAmount()).
+                            eq(MchHistory::getBizType, CS.BIZ_TYPE_WITHDRAW).
+                            eq(MchHistory::getCreatedAt, divisionRecord.getCreatedAt()));
+            if (mchHistoryList.size() == 1) {
+                MchHistory updateMchHistory = mchHistoryList.get(0);
+                updateMchHistory.setRemark(remark);
+                mchHistoryService.updateById(updateMchHistory);
+            } else {
+                logger.error("reviewOk 查询错误, {}", JSONObject.toJSONString(divisionRecord));
+                logger.error("reviewOk 结果条数, {}", mchHistoryList.size());
+            }
         }
 
         //更新商户信息-冻结余额

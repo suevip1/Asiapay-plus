@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
 
 @RestController
 @RequestMapping("/api/agentDivision")
@@ -87,7 +89,8 @@ public class AgentDivisionController extends CommonCtrl {
         if ((agentAccountInfo.getBalance() < divisionRecord.getAmount())) {
             return ApiRes.customFail("申请金额大于可提现余额!");
         }
-        boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT);
+        Date submitDate = new Date();
+        boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT, submitDate);
         if (isSuccess) {
             //增加代理资金流水记录
             agentAccountInfo = agentAccountInfoService.queryAgentInfo(getCurrentAgentNo());
@@ -100,7 +103,7 @@ public class AgentDivisionController extends CommonCtrl {
             agentAccountHistory.setAgentNo(agentAccountInfo.getAgentNo());
             agentAccountHistory.setAgentName(agentAccountInfo.getAgentName());
             agentAccountHistory.setAmount(-amount);
-
+            agentAccountHistory.setCreatedAt(submitDate);
             agentAccountHistory.setBeforeBalance(beforeBalance);
             agentAccountHistory.setAfterBalance(afterBalance);
             agentAccountHistory.setFundDirection(CS.FUND_DIRECTION_REDUCE);

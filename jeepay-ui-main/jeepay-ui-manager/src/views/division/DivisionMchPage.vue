@@ -90,7 +90,7 @@
         </template>
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
-            <a-button type="link" v-if="$access('ENT_DIVISION_MCH')" @click="detailFunc(record.payOrderId)">查看详情</a-button>
+<!--            <a-button type="link" v-if="$access('ENT_DIVISION_MCH') " @click="detailFunc(record.payOrderId)">查看详情</a-button>-->
             <a-button type="link" v-if="$access('ENT_DIVISION_MCH') && record.state === 1" @click="clickReviewedFunc(record)">审核</a-button>
           </JeepayTableColumns>
         </template>
@@ -157,11 +157,21 @@
           <a-col :sm="24">
             <a-descriptions><a-descriptions-item label="手续费"><b>{{ (detailData.divisionAmountFee/100).toFixed(2) }}</b></a-descriptions-item></a-descriptions>
           </a-col>
+          <a-col :sm="24">
+            <a-form-model-item label="商户备注">
+              <a-input
+                  type="textarea"
+                  disabled="true"
+                  style="height: 100px;color: black"
+                  v-model="detailData.remark"
+              />
+            </a-form-model-item>
+          </a-col>
           <a-divider />
         </a-row>
         <a-row justify="start" type="flex">
           <a-col :sm="24">
-            <a-form-model-item label="备注">
+            <a-form-model-item label="审核备注">
               <a-input
                   type="textarea"
                   style="height: 100px;color: black"

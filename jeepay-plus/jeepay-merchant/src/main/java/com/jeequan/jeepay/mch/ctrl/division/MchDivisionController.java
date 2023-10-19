@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -85,7 +86,9 @@ public class MchDivisionController extends CommonCtrl {
         if ((mchInfo.getBalance() < divisionRecord.getAmount())) {
             return ApiRes.customFail("申请金额大于可提现余额!");
         }
-        boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH);
+        Date submitDate = new Date();
+
+        boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH, submitDate);
         if (isSuccess) {
             //增加商户资金流水记录
             mchInfo = mchInfoService.queryMchInfo(getCurrentMchNo());
@@ -103,6 +106,7 @@ public class MchDivisionController extends CommonCtrl {
             mchHistory.setAfterBalance(afterBalance);
             mchHistory.setFundDirection(CS.FUND_DIRECTION_REDUCE);
             mchHistory.setBizType(CS.BIZ_TYPE_WITHDRAW);
+            mchHistory.setCreatedAt(submitDate);
             mchHistoryService.save(mchHistory);
 
             mchInfo.setFreezeBalance(mchInfo.getFreezeBalance() + divisionRecord.getAmount());

@@ -38,10 +38,10 @@ public class DivisionRecordService extends ServiceImpl<DivisionRecordMapper, Div
      * @param amount
      * @param fee
      * @param remark
-     * @param userType  结算用户类型
+     * @param userType 结算用户类型
      * @return
      */
-    public boolean SaveDivisionRecord(String userNO, String userName, Long amount, Long fee, String remark,Byte userType) {
+    public boolean SaveDivisionRecord(String userNO, String userName, Long amount, Long fee, String remark, Byte userType) {
         DivisionRecord divisionRecord = new DivisionRecord();
         divisionRecord.setUserNo(userNO);
         divisionRecord.setUserName(userName);
@@ -52,6 +52,24 @@ public class DivisionRecordService extends ServiceImpl<DivisionRecordMapper, Div
         divisionRecord.setState(DivisionRecord.STATE_WAIT);
         divisionRecord.setUserType(userType);
         Date nowDate = new Date();
+        divisionRecord.setCreatedAt(nowDate);
+        divisionRecord.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间
+        divisionRecord.setPayType(DivisionRecord.PAY_TYPE_MANUAL);
+        divisionRecord.setAccType(DivisionRecord.ACC_TYPE_MANUAL);
+        divisionRecord.setRemark(remark);
+        return save(divisionRecord);
+    }
+
+    public boolean SaveDivisionRecord(String userNO, String userName, Long amount, Long fee, String remark, Byte userType, Date nowDate) {
+        DivisionRecord divisionRecord = new DivisionRecord();
+        divisionRecord.setUserNo(userNO);
+        divisionRecord.setUserName(userName);
+        divisionRecord.setAmount(amount);
+        divisionRecord.setDivisionAmount(amount - fee);
+        divisionRecord.setDivisionAmountFee(0L);
+        divisionRecord.setDivisionFeeRate(BigDecimal.ZERO);
+        divisionRecord.setState(DivisionRecord.STATE_WAIT);
+        divisionRecord.setUserType(userType);
         divisionRecord.setCreatedAt(nowDate);
         divisionRecord.setExpiredTime(DateUtil.offsetMinute(nowDate, CS.ORDER_EXPIRED_TIME)); //订单过期时间
         divisionRecord.setPayType(DivisionRecord.PAY_TYPE_MANUAL);
@@ -74,6 +92,7 @@ public class DivisionRecordService extends ServiceImpl<DivisionRecordMapper, Div
 
     /**
      * 清理分账记录
+     *
      * @param offsetDate
      * @param pageSize
      */

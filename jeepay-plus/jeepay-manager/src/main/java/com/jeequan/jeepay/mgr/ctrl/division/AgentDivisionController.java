@@ -78,6 +78,22 @@ public class AgentDivisionController extends CommonCtrl {
         String remark = jsonObject.getString("remark");
         if (StringUtils.isNotEmpty(remark)) {
             divisionRecord.setRemark(remark);
+
+            //时间、金额、商户号能对上的第一条
+            List<AgentAccountHistory> agentHistoryList = agentAccountHistoryService.list(
+                    AgentAccountHistory.gw().eq(AgentAccountHistory::getAgentNo, divisionRecord.getUserNo()).
+                            eq(AgentAccountHistory::getAmount, -divisionRecord.getAmount()).
+                            eq(AgentAccountHistory::getBizType, CS.BIZ_TYPE_WITHDRAW).
+                            eq(AgentAccountHistory::getCreatedAt, divisionRecord.getCreatedAt()));
+            if (agentHistoryList.size() == 1) {
+                AgentAccountHistory updateAgentHistory = agentHistoryList.get(0);
+                updateAgentHistory.setRemark(remark);
+                agentAccountHistoryService.updateById(updateAgentHistory);
+            } else {
+                logger.error("reviewOk 查询错误, {}", JSONObject.toJSONString(divisionRecord));
+                logger.error("reviewOk 结果条数, {}", agentHistoryList.size());
+            }
+
         }
         AgentAccountInfo agentAccountInfo = agentAccountInfoService.queryAgentInfo(divisionRecord.getUserNo());
         if (agentAccountInfo != null) {
