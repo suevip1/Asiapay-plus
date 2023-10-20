@@ -169,6 +169,7 @@ public class RobotsService extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage()) {
+
             //检测权限，命令
             if (update.getMessage().isCommand() && !update.getMessage().getFrom().getIsBot()) {
                 handleCommand(update);
@@ -301,6 +302,11 @@ public class RobotsService extends TelegramLongPollingBot {
         }
     }
 
+    /**
+     * 查找所有通道群
+     *
+     * @return
+     */
     public List<RobotsPassage> findNonPassageDuplicateChatIds() {
         QueryWrapper<RobotsPassage> wrapper = new QueryWrapper<>();
         // 使用GROUP BY查询chat_id并且HAVING COUNT(chat_id) = 1来找到不重复的chat_id
@@ -308,8 +314,20 @@ public class RobotsService extends TelegramLongPollingBot {
         return robotsPassageService.list(wrapper);
     }
 
+    /**
+     * 查找所有绑定了商户的群
+     *
+     * @return
+     */
     public List<RobotsMch> findNonMchDuplicateChatIds() {
-        return robotsMchService.list(RobotsMch.gw().ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
+        List<RobotsMch> temp = robotsMchService.list(RobotsMch.gw().ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
+        List<RobotsMch> result = new ArrayList<>();
+        for (int i = 0; i < temp.size(); i++) {
+            if (StringUtils.isNotEmpty(temp.get(i).getMchNo().trim())) {
+                result.add(temp.get(i));
+            }
+        }
+        return result;
     }
 
     /**
