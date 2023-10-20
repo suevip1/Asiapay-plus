@@ -169,7 +169,12 @@ public class RobotsService extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage()) {
-
+            int timestamp = update.getMessage().getDate();
+            int now = (int) (System.currentTimeMillis() / 1000);
+            if (Math.abs(now - timestamp) > 180) {
+                log.error("消息已超过三分钟,消息不处理,聊天原文: -- {}", update.getMessage().getText());
+                return;
+            }
             //检测权限，命令
             if (update.getMessage().isCommand() && !update.getMessage().getFrom().getIsBot()) {
                 handleCommand(update);
