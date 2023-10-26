@@ -187,6 +187,12 @@ public class MchAppController extends CommonCtrl {
         PayPassage payPassage = getObject(PayPassage.class);
         payPassage.setPayPassageId(payPassageId);
         payPassage.setUpdatedAt(new Date());
+        //去掉一些配置的空格
+        //payInterfaceConfig payRules
+        String payInterfaceConfig = payPassage.getPayInterfaceConfig();
+        String payRules = payPassage.getPayRules();
+        payPassage.setPayInterfaceConfig(payInterfaceConfig.replaceAll(" ", ""));
+        payPassage.setPayRules(payRules.replaceAll(" ", ""));
         payPassageService.updatePassageInfo(payPassage);
         return ApiRes.ok();
     }
