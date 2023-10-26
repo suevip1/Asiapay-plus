@@ -36,6 +36,7 @@ public class MqThreadExecutor {
 
     public static final String EXECUTOR_PAYORDER_MCH_NOTIFY = "mqQueue4PayOrderMchNotifyExecutor";
 
+
     /*
      * 功能描述:
      * 支付结果通知到商户的异步执行器 （由于量大， 单独新建一个线程池处理， 之前的不做变动 ）

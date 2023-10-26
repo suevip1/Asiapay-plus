@@ -47,6 +47,9 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
     @Resource
     private AgentAccountInfoMapper agentAccountInfoMapper;
 
+    @Autowired
+    private SysUserAuthService sysUserAuthService;
+
     /**
      * 通过代理商号获取
      *
@@ -162,6 +165,8 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
                 for (SysUser user : userList) {
                     userIdList.add(user.getSysUserId());
                 }
+                // 5.删除当前商户用户子用户信息
+                sysUserAuthService.remove(SysUserAuth.gw().in(SysUserAuth::getUserId, userIdList));
             }
 
             // 6.删除当前商户的登录用户

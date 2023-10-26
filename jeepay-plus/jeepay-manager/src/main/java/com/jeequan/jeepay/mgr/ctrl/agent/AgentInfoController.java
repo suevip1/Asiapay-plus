@@ -5,8 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.jeequan.jeepay.components.mq.model.CleanMchLoginAuthCacheMQ;
-import com.jeequan.jeepay.components.mq.model.ResetIsvMchAppInfoConfigMQ;
+import com.jeequan.jeepay.components.mq.model.CleanAgentLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
@@ -113,7 +112,7 @@ public class AgentInfoController extends CommonCtrl {
         }
         List<Long> userIdList = agentAccountInfoService.removeByAgentNo(agentNo);
         // 清除redis 登录用户缓存
-        mqSender.send(CleanMchLoginAuthCacheMQ.build(userIdList));
+        mqSender.send(CleanAgentLoginAuthCacheMQ.build(userIdList));
         return ApiRes.ok();
     }
 
@@ -148,7 +147,7 @@ public class AgentInfoController extends CommonCtrl {
             // 获取商户超管
             Long mchAdminUserId = sysUserService.findAgentAdminUserId(agentNo);
 
-            //重置超管密码
+            //重置密码
             sysUserAuthService.resetAuthInfoAndGoogle(mchAdminUserId, updatePwd, CS.SYS_TYPE.AGENT);
 
             //删除超管登录信息
@@ -157,7 +156,7 @@ public class AgentInfoController extends CommonCtrl {
 
         // 推送mq删除redis用户认证信息
         if (!removeCacheUserIdList.isEmpty()) {
-            mqSender.send(CleanMchLoginAuthCacheMQ.build(new ArrayList<>(removeCacheUserIdList)));
+            mqSender.send(CleanAgentLoginAuthCacheMQ.build(new ArrayList<>(removeCacheUserIdList)));
         }
 
         //更新商户信息

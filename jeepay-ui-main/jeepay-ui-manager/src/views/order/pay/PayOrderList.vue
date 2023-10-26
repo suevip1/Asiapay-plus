@@ -66,8 +66,8 @@
             <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
-              <a-switch style="margin-left: 8px" checked-children="统计开" un-checked-children="统计关" @change="onSwitchChange" :loading="statLoading"  />
-              <a-switch style="margin-left: 8px" checked-children="自动刷新开" un-checked-children="自动刷新关" @change="onAutoRefreshSwitchChange" />
+              <a-switch style="margin-left: 8px" checked-children="统计开" un-checked-children="统计关" @change="onSwitchChange" v-if="$access('ENT_C_MAIN_PAY_COUNT')" />
+              <a-switch v-if="$access('ENT_C_MAIN_PAY_COUNT')" style="margin-left: 8px" checked-children="自动刷新开" un-checked-children="自动刷新关" @change="onAutoRefreshSwitchChange" />
               <a-tag style="margin-left: 8px" :color="autoRefresh?'#1890ff':''">{{autoRefreshCoolDown}}s</a-tag>
             </span>
           </div>
@@ -457,12 +457,16 @@ export default {
   },
   mounted () {
     const that = this
-    req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
-      that.productList = res.records
-    })
-    req.list(API_URL_MCH_APP, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
-      that.payPassageList = res.records
-    })
+    if (this.$access('ENT_PC_WAY_LIST')) {
+      req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+        that.productList = res.records
+      })
+    }
+    if (this.$access('ENT_MCH_APP_LIST')) {
+      req.list(API_URL_MCH_APP, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+        that.payPassageList = res.records
+      })
+    }
     // 默认今天
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间

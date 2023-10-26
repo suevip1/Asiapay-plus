@@ -132,16 +132,17 @@ public class AsiapayChannelNoticeService extends AbstractChannelNoticeService {
 
     public static void main(String[] args) {
         Map<String, Object> map = new HashMap();
-        map.put("ifCode","starpay");
-        map.put("amount",5000);
-        map.put("payOrderId","P1710245959317438466");
-        map.put("mchOrderNo","16965893832751772");
-        map.put("reqTime","1696589415801");
-        map.put("createdAt","1696589386191");
-        map.put("clientIp","127.0.0.1");
+        map.put("ifCode","qipay");
+        map.put("amount",50000);
+        map.put("payOrderId","P1716306257339576322");
+        map.put("mchOrderNo","CZ72310230000000005");
+        map.put("reqTime","1698037019224");
+        map.put("createdAt","1698034273835");
+        map.put("clientIp","13.212.20.90");
         map.put("state","2");
-        map.put("mchNo","M1696580175");
-        String secret = "hgX3RGYoTEYCOsFCgoroP9tw4Oz6KPQby91s4jkueONbxSFnC8jyf2rXuNJT2xG6L3BcLsCSkrG9I21ttssWiSeUuQU38ITnWJlPhF4Bgxt6NkJX6C0zr1Kqfm8X9JFG";
+        map.put("mchNo","M1697950909");
+        map.put("successTime","1698037019000");
+        String secret = "mD9hE1PYmOTlO8GTbuerf7rUC8jK5R6T4Xuf2CbAonSMmD775LM1biYkpsWCeYm8KonAqFKTs5On1FC7qr3PETkLFMPDRR8OKl4tKlVN8HxR53q2DKVYw8HGTjwEKhHL";
 
         final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
         final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
