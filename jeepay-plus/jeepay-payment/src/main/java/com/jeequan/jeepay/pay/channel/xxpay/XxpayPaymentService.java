@@ -169,7 +169,7 @@ public class XxpayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://103.231.172.18:56700/api/pay/create_order";
 
-        raw = HttpUtil.post(payGateway, map);
+        raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

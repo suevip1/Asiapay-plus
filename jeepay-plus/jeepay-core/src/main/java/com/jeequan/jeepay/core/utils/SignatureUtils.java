@@ -1,6 +1,7 @@
 package com.jeequan.jeepay.core.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -20,6 +21,17 @@ public class SignatureUtils {
 
     public static void main(String[] args) {
 
+    }
+
+    public static String getSignContent(Map<String, Object> param) {
+        SortedMap<String,Object> map = new TreeMap(param);
+        String str = "";
+        for (Map.Entry<String,Object> entry : map.entrySet()){
+            if (!Objects.isNull(entry.getValue()) &&
+                    StringUtils.isNotEmpty(entry.getValue().toString()))
+                str += entry.getValue();
+        }
+        return str;
     }
 
     public static String getSignContent(Map<String, Object> param, String eqChar, String joinChar, String[] ignoreKeys, Object[] ignoreVal, boolean valueEncode) {

@@ -110,9 +110,9 @@ public class HongyunPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "WnxglAjxfYHtx31ooWW5TSFuvogCIST1";
+        String key = "5i88mSzwJTYXC2hAJlRW5hIRE2VaJPKx";
 
-        String appId = "N4TW3b";
+        String appId = "jyjPJX";
         String thirdOrderNo = RandomStringUtils.random(15, true, true);
         String payType = "2";
 
@@ -134,10 +134,10 @@ public class HongyunPaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent + "&key=" + key).toLowerCase();
         map.put("_sign", sign);
 
-        String payGateway = "http://120.79.51.114:81/down/order/api/createOrder";
+        String payGateway = "http://120.78.213.186:81/down/order/api/createOrder";
 
 //        // 发送POST请求并指定JSON数据
-//        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
+//        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
 //                .execute();
 //        // 处理响应
 //        raw = response.body();

@@ -79,7 +79,7 @@ public class BaihuiPaymentService extends AbstractPaymentService {
 
             String payGateway = normalMchParams.getPayGateway();
 
-            HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).header("welcome", "welcome-pay").contentType("application/json") // 指定请求体的Content-Type为JSON
+            HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).header("welcome", "welcome-pay").contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                     .execute();
             // 处理响应
             raw = response.body();
@@ -138,7 +138,7 @@ public class BaihuiPaymentService extends AbstractPaymentService {
         log.info("[{}]请求map:{}", LOG_TAG, JSONObject.toJSON(map).toString());
 
         // 发送POST请求并指定JSON数据
-        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).header("welcome", "welcome-pay").contentType("application/json").execute();
+        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).header("welcome", "welcome-pay").contentType("application/json").timeout(10000).execute();
         // 处理响应
         raw = response.body();
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

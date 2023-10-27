@@ -153,7 +153,7 @@ public class DafuPaymentService extends AbstractPaymentService {
         map.put("sign", sign);
 
         String payGateway = "https://api.dafupay.xyz/api/v1/payment/init";
-        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
+        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                 .execute();
         // 处理响应
         raw = response.body();

@@ -317,6 +317,7 @@ public class CS {
 
         String CHANGSHENG = "changsheng";
         String CHANGSHENG2 = "changsheng2";
+        String CHANGSHENG3 = "changsheng3";
 
         String XIAOBAWANG = "xiaobawang";
 
@@ -370,6 +371,41 @@ public class CS {
 
         String SHUNXIN = "shunxin";
 
+        String WEILAN = "weilan";
+
+        String XUANJIE = "xuanjie";
+
+        String GFPAY = "gfpay";
+
+        String YUNYIN = "yunyin";
+
+        String PANGPANG = "pangpang";
+
+        String JUDING = "juding";
+
+        String HAIFU = "haifu";
+
+        String GANPAY = "ganpay";
+
+        String RONGFU = "rongfu";
+
+        String PPPAY = "pppay";
+
+        String JIBA = "jiba";
+
+        String DASHI = "dashi";
+
+        String JULIANG = "juliang";
+
+        String ANSHUNFA = "anshunfa";
+
+        String YIFENG = "yifeng";
+
+        String YONGSHENG = "yongsheng";
+
+        String JIEDA = "jieda";
+
+        String MINGFA = "mingfa";
     }
 
 

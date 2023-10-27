@@ -31,6 +31,7 @@ public class AsiapayPaymentService extends AbstractPaymentService {
 
     @Override
     public String getIfCode() {
+
         return CS.IF_CODE.ASIAPAY;
     }
 
@@ -97,13 +98,13 @@ public class AsiapayPaymentService extends AbstractPaymentService {
 
     public static void main(String[] args) {
         Map<String, Object> map = new HashMap<>();
-        String key = "mD9hE1PYmOTlO8GTbuerf7rUC8jK5R6T4Xuf2CbAonSMmD775LM1biYkpsWCeYm8KonAqFKTs5On1FC7qr3PETkLFMPDRR8OKl4tKlVN8HxR53q2DKVYw8HGTjwEKhHL";
-        String mchNo = "M1697950909";
+        String key = "JGdYUTMu7jDkavYeFe0VgM8jo8fAGu656ymQvErvqua9PL3KmOHglNx2xSUAKXiRrcLIioEHQ2GIxgIOpeJ4yanVMlcGoXM1fqhfAEzGixp6fGmKEPpKiT8w92KVz1es";
+        String mchNo = "M1693765855";
 
 
         map.put("mchNo", mchNo);
-        map.put("mchOrderNo", "CZ72310230000000005");
-        map.put("amount", 50000L);
+        map.put("mchOrderNo", "AT12023090521025312632");
+        map.put("amount", 5000L);
         map.put("productId", "8089");
         map.put("reqTime", "1693918973130");
         map.put("clientIp", "127.0.0.1");

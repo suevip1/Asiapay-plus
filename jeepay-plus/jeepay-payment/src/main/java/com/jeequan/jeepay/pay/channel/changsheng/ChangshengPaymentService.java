@@ -140,7 +140,7 @@ public class ChangshengPaymentService extends AbstractPaymentService {
         map.put("Sign", Sign);
 
         String payGateway = "https://merchant.tengdazhifu.xyz/api/PayV2/submit";
-        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON
+        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                 .execute();
         raw = response.body();
 

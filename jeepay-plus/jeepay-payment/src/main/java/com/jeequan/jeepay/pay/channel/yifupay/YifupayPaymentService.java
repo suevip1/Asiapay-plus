@@ -76,7 +76,7 @@ public class YifupayPaymentService extends AbstractPaymentService {
             String sign = SignatureUtils.md5(signContent).toUpperCase();
             map.put("md5_sign", sign);
 
-            raw = HttpUtil.post(normalMchParams.getPayGateway(), map);
+            raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -125,7 +125,7 @@ public class YifupayPaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent).toUpperCase();
         map.put("md5_sign", sign);
 
-        String raw = HttpUtil.post("http://merchant.alipay688.com/api/merchant/order", map);
+        String raw = HttpUtil.post("http://merchant.alipay688.com/api/merchant/order", map,10000);
 
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
         JSONObject result = JSON.parseObject(raw, JSONObject.class);
