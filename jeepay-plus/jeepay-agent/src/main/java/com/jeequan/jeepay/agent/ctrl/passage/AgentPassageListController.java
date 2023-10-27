@@ -51,7 +51,7 @@ public class AgentPassageListController extends CommonCtrl {
             }
 
             if (StringUtils.isNotEmpty(payPassage.getPayPassageName())) {
-                wrapper.like(PayPassage::getPayPassageName, payPassage.getPayPassageName());
+                wrapper.like(PayPassage::getPayPassageName, payPassage.getPayPassageName().trim());
             }
 
             wrapper.orderByDesc(PayPassage::getCreatedAt);

@@ -54,7 +54,7 @@ public class AgentHistoryController extends CommonCtrl {
         }
 
         if (StringUtils.isNotEmpty(agentAccountHistory.getAgentName())) {
-            wrapper.like(AgentAccountHistory::getAgentName, agentAccountHistory.getAgentName());
+            wrapper.like(AgentAccountHistory::getAgentName, agentAccountHistory.getAgentName().trim());
         }
 
         //订单
@@ -102,7 +102,7 @@ public class AgentHistoryController extends CommonCtrl {
         }
         if (StringUtils.isNotEmpty(agentName)) {
             //商号
-            wrapper.like(AgentAccountHistory::getAgentName, agentName);
+            wrapper.like(AgentAccountHistory::getAgentName, agentName.trim());
         }
 
         //订单

@@ -63,7 +63,7 @@ public class SysLogController extends CommonCtrl {
             LambdaQueryWrapper<SysLog> condition = SysLog.gw();
             condition.orderByDesc(SysLog::getCreatedAt);
             if (sysLog.getLoginUsername() != null) {
-                condition.like(SysLog::getLoginUsername, sysLog.getLoginUsername());
+                condition.like(SysLog::getLoginUsername, sysLog.getLoginUsername().trim());
             }
             if (StringUtils.isNotEmpty(sysLog.getSysType())) {
                 condition.eq(SysLog::getSysType, sysLog.getSysType());

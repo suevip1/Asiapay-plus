@@ -40,7 +40,7 @@ public class MchStatController extends CommonCtrl {
         LambdaQueryWrapper<StatisticsMch> wrapper = StatisticsMch.gw();
 
         if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
-            wrapper.like(StatisticsMch::getMchNo, mchInfo.getMchNo());
+            wrapper.like(StatisticsMch::getMchNo, mchInfo.getMchNo().trim());
         }
 
         if (paramJSON != null) {

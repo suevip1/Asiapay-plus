@@ -65,7 +65,7 @@ public class PayPassagePayOrderController extends CommonCtrl {
      */
     @GetMapping("/{payOrderId}")
     public ApiRes detail(@PathVariable("payOrderId") String payOrderId) {
-        PayOrder payOrder = payOrderService.getOne(PayOrder.gw().select(PayOrder::getPayOrderId, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getMchOrderNo, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getAgentPassageRate, PayOrder::getAgentPassageFee, PayOrder::getAgentNo, PayOrder::getSuccessTime, PayOrder::getExpiredTime, PayOrder::getAgentNoPassage).eq(PayOrder::getPayOrderId, payOrderId));
+        PayOrder payOrder = payOrderService.getOne(PayOrder.gw().select(PayOrder::getPayOrderId, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getMchOrderNo, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getAgentPassageRate, PayOrder::getAgentPassageFee, PayOrder::getAgentNo, PayOrder::getSuccessTime, PayOrder::getExpiredTime, PayOrder::getAgentNoPassage).eq(PayOrder::getPayOrderId, payOrderId.trim()));
         if (payOrder == null) {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_SELETE);
         }

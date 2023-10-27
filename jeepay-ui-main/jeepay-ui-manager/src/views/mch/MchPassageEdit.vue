@@ -37,7 +37,7 @@
           <jeepay-text-up :placeholder="'通道ID'" :msg="searchData.payPassageId" v-model="searchData.payPassageId"/>
           <jeepay-text-up :placeholder="'通道名'" :msg="searchData.payPassageName" v-model="searchData.payPassageName"/>
           <a-form-item label="" class="table-head-layout">
-            <a-select v-model="searchData.haveAgent" placeholder="商户是否存在代理" default-value="">
+            <a-select v-model="searchData.haveAgent" placeholder="通道是否存在代理" default-value="">
               <a-select-option value="">全部</a-select-option>
               <a-select-option value="0">无</a-select-option>
               <a-select-option value="1">有</a-select-option>

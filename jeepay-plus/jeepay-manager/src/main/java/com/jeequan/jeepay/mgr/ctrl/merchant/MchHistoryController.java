@@ -56,7 +56,7 @@ public class MchHistoryController extends CommonCtrl {
 
             //商号
             if (StringUtils.isNotEmpty(mchHistory.getMchName())) {
-                wrapper.like(MchHistory::getMchName, mchHistory.getMchName());
+                wrapper.like(MchHistory::getMchName, mchHistory.getMchName().trim());
             }
 
             //订单
@@ -107,7 +107,7 @@ public class MchHistoryController extends CommonCtrl {
         }
         if (StringUtils.isNotEmpty(mchName)) {
             //商号
-            wrapper.like(MchHistory::getMchName, mchName);
+            wrapper.like(MchHistory::getMchName, mchName.trim());
         }
 
         //订单

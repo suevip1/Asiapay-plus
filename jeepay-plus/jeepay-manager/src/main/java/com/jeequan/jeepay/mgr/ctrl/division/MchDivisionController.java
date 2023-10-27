@@ -40,7 +40,7 @@ public class MchDivisionController extends CommonCtrl {
             LambdaQueryWrapper<DivisionRecord> wrapper = DivisionRecord.gw();
             wrapper.eq(DivisionRecord::getUserType, DivisionRecord.USER_TYPE_MCH);
             if (StringUtils.isNotEmpty(divisionRecord.getUserNo())) {
-                wrapper.like(DivisionRecord::getUserNo, divisionRecord.getUserNo());
+                wrapper.like(DivisionRecord::getUserNo, divisionRecord.getUserNo().trim());
             }
 
             if (divisionRecord.getState() != null) {

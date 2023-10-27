@@ -4,7 +4,7 @@
       :title=" true ? '支付产品配置' : '' "
       @close="onClose"
       :body-style="{ paddingBottom: '80px' }"
-      width="40%"
+      width="60%"
   >
       <div class="table-page-search-wrapper">
         <a-form layout="inline" class="table-head-ground">
@@ -12,7 +12,7 @@
             <a-col :sm="12">
               <a-descriptions>
                 <a-descriptions-item label="商户号">
-                  <b>{{ mchNo }}</b>
+                  <b style="color: #1a53ff">{{ mchNo }}</b>
                 </a-descriptions-item>
               </a-descriptions>
             </a-col>
@@ -23,9 +23,29 @@
                 </a-descriptions-item>
               </a-descriptions>
             </a-col>
+            <a-col :sm="12">
+              <a-descriptions>
+                <a-descriptions-item label="商户代理">
+                  <span style="color: #1a53ff">{{ mchInfo.agentNo==''?'无':mchInfo.agentNo }}</span>
+                </a-descriptions-item>
+              </a-descriptions>
+            </a-col>
+            <a-col :sm="12">
+              <a-descriptions>
+                <a-descriptions-item label="代理名称">
+                  {{ (mchInfo.agentName ==undefined || mchInfo.agentName == '')?'无代理':mchInfo.agentName }}
+                </a-descriptions-item>
+              </a-descriptions>
+            </a-col>
           </a-row>
           <br/>
-          <div class="table-layer">
+          <jeepay-text-up :placeholder="'产品ID'" :msg="searchData.productId" v-model="searchData.productId"/>
+          <jeepay-text-up :placeholder="'产品名'" :msg="searchData.productName" v-model="searchData.productName"/>
+          <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
+            <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">查询</a-button>
+            <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {  'productId' : productId}">重置</a-button>
+          </span>
+          <div class="table-layer" style="width: 100%">
             <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
               <template>
                   <a-popconfirm title="确认全部绑定么?" ok-text="确认" cancel-text="取消" @confirm="blindAll">
@@ -37,6 +57,9 @@
                       <a-button style="margin-left: 8px" icon="close"  :loading="btnLoading" >一键全解绑</a-button>
                   </a-popconfirm>
               </template>
+              <template>
+              <a-button type="dashed" style="margin-left: 8px" icon="retweet"  :loading="btnLoading" @click="setAllMch">批量配置</a-button>
+            </template>
             </span>
           </div>
         </a-form>
@@ -53,7 +76,7 @@
           rowKey="productId"
       >
         <template slot="nameSlot" slot-scope="{record}">
-          <b style="font-weight: bold" >[{{ record.productId }}]{{ record.productName}}</b>
+          <b style="font-weight: bold;color: #1a53ff" >[{{ record.productId }}]</b>&nbsp;<b>{{ record.productName.trim()}}</b>
         </template> <!-- 自定义插槽 -->
         <template slot="stateSlot" slot-scope="{record}">
           <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'禁用':'启用'" />
@@ -115,7 +138,7 @@ import { API_URL_MCH_PRODUCT_LIST, req } from '@/api/manage'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'nameSlot', fixed: 'left', width: '250px', title: '支付产品', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'nameSlot', fixed: 'left', width: '450px', title: '支付产品', scopedSlots: { customRender: 'nameSlot' } },
   { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
   { key: 'mchRate', title: '商户费率', scopedSlots: { customRender: 'mchRateSlot' } },
   { key: 'agentRate', title: '代理费率', scopedSlots: { customRender: 'agentRateSlot' } },
@@ -138,18 +161,23 @@ export default {
       changeAgentRate: 0,
       isShowModal: false,
       mchNo: '',
-      mchName: ''
+      mchName: '',
+      mchInfo: {},
+      selectedIds: [],
+      changeAllState: 0,
+      isShowAllSetModal: false
     }
   },
   mounted () {
   },
   methods: {
-    show: function (mchNo, mchName) { // 弹层打开事件
+    show: function (record) { // 弹层打开事件
       // 查询商户所有开通的产品
       this.visible = true
-      this.mchNo = mchNo
-      this.mchName = mchName
-      this.searchData.mchNo = mchNo
+      this.mchInfo = record
+      this.mchNo = record.mchNo
+      this.mchName = record.mchName
+      this.searchData.mchNo = record.mchNo
       if (this.$refs.mchProductTable !== undefined) {
         this.$refs.mchProductTable.refTable(true)
       }

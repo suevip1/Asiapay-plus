@@ -69,7 +69,7 @@ public class SysUserController extends CommonCtrl {
         condition.eq(SysUser::getSysType, CS.SYS_TYPE.MGR);
 
         if (StringUtils.isNotEmpty(queryObject.getLoginUsername())) {
-            condition.like(SysUser::getLoginUsername, queryObject.getLoginUsername());
+            condition.like(SysUser::getLoginUsername, queryObject.getLoginUsername().trim());
         }
 
         if (queryObject.getSysUserId() != null) {

@@ -61,10 +61,10 @@ public class AgentInfoController extends CommonCtrl {
             AgentAccountInfo agentAccountInfo = getObject(AgentAccountInfo.class);
             LambdaQueryWrapper<AgentAccountInfo> wrapper = AgentAccountInfo.gw();
             if (StringUtils.isNotEmpty(agentAccountInfo.getAgentNo())) {
-                wrapper.like(AgentAccountInfo::getAgentNo, agentAccountInfo.getAgentNo());
+                wrapper.eq(AgentAccountInfo::getAgentNo, agentAccountInfo.getAgentNo());
             }
             if (StringUtils.isNotEmpty(agentAccountInfo.getAgentName())) {
-                wrapper.like(AgentAccountInfo::getAgentName, agentAccountInfo.getAgentName());
+                wrapper.like(AgentAccountInfo::getAgentName, agentAccountInfo.getAgentName().trim());
             }
             if (agentAccountInfo.getState() != null) {
                 wrapper.eq(AgentAccountInfo::getState, agentAccountInfo.getState());

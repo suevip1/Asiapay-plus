@@ -189,7 +189,7 @@ export default {
       })
     },
     mchAppConfig: function (record) { // 支付产品配置
-      this.$refs.infoProduct.show(record.mchNo, record.mchName)
+      this.$refs.infoProduct.show(record)
     },
     mchPassageConfig: function (record) { // 通道绑定
       this.$refs.infoPassage.show(record)

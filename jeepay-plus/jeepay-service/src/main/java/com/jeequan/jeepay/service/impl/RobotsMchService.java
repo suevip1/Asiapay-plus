@@ -114,7 +114,7 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
 
     public void updateBlindMch(Long chatId, String mchNo) {
         //查找其他群有没有绑定
-        List<RobotsMch> robotsMchOldList = list(RobotsMch.gw().like(RobotsMch::getMchNo, mchNo));
+        List<RobotsMch> robotsMchOldList = list(RobotsMch.gw().like(RobotsMch::getMchNo, mchNo.trim()));
         if (robotsMchOldList.size() > 0) {
             for (int i = 0; i < robotsMchOldList.size(); i++) {
                 unBlindMch(robotsMchOldList.get(i).getChatId(), mchNo);

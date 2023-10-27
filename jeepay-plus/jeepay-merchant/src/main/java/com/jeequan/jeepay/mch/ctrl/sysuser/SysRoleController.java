@@ -73,7 +73,7 @@ public class SysRoleController extends CommonCtrl {
 		condition.eq(SysRole::getBelongInfoId, getCurrentMchNo());
 
 		if(StringUtils.isNotEmpty(queryObject.getRoleName())){
-			condition.like(SysRole::getRoleName, queryObject.getRoleName());
+			condition.like(SysRole::getRoleName, queryObject.getRoleName().trim());
 		}
 
 		if(StringUtils.isNotEmpty(queryObject.getRoleId())){

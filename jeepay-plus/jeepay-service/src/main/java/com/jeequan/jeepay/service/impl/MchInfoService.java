@@ -154,13 +154,13 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
             }
 
             // 1.查看当前商户是否存在交易数据
-            int payCount = payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo));
+            int payCount = payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo.trim()));
             if (payCount > 0) {
                 throw new BizException("该商户已存在交易数据，不可删除");
             }
 
             // 2.删除当前商户配置的支付通道
-            mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getMchNo, mchNo));
+            mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getMchNo, mchNo.trim()));
 
             // 3.删除当前商户对应的产品表
             mchProductService.remove(MchProduct.gw().eq(MchProduct::getMchNo, mchNo));

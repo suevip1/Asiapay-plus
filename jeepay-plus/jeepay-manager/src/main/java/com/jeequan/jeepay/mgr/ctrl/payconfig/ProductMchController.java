@@ -73,7 +73,7 @@ public class ProductMchController extends CommonCtrl {
             }
             //查询参数 商户名
             if (!StringUtils.isNullOrEmpty(mchName)) {
-                mchInfoWrapper.like(MchInfo::getMchName, mchName);
+                mchInfoWrapper.like(MchInfo::getMchName, mchName.trim());
             }
             //是否有代理 0 无 1有
             if (!StringUtils.isNullOrEmpty(haveAgent)) {

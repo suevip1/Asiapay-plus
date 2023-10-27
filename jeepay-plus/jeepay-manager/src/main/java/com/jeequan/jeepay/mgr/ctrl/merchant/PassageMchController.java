@@ -69,11 +69,11 @@ public class PassageMchController extends CommonCtrl {
             LambdaQueryWrapper<MchInfo> mchInfoWrapper = MchInfo.gw();
             //查询参数 商户号
             if (!StringUtils.isNullOrEmpty(mchNo)) {
-                mchInfoWrapper.eq(MchInfo::getMchNo, mchNo);
+                mchInfoWrapper.eq(MchInfo::getMchNo, mchNo.trim());
             }
             //查询参数 商户名
             if (!StringUtils.isNullOrEmpty(mchName)) {
-                mchInfoWrapper.like(MchInfo::getMchName, mchName);
+                mchInfoWrapper.like(MchInfo::getMchName, mchName.trim());
             }
             //是否有代理 0 无 1有
             if (!StringUtils.isNullOrEmpty(haveAgent)) {
@@ -85,7 +85,7 @@ public class PassageMchController extends CommonCtrl {
             }
             //代理号
             if (!StringUtils.isNullOrEmpty(agentNo)) {
-                mchInfoWrapper.eq(MchInfo::getAgentNo, agentNo);
+                mchInfoWrapper.eq(MchInfo::getAgentNo, agentNo.trim());
             }
 
             List<MchInfo> mchList = mchInfoService.list(mchInfoWrapper);

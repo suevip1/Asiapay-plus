@@ -71,7 +71,7 @@ public class MchPassageController extends CommonCtrl {
             }
 
             if (!StringUtils.isNullOrEmpty(queryObj.getPayPassageName())) {
-                payPassageWrapper.like(PayPassage::getPayPassageName, queryObj.getPayPassageName());
+                payPassageWrapper.like(PayPassage::getPayPassageName, queryObj.getPayPassageName().trim());
             }
             //是否有代理 0 无 1有
             if (!StringUtils.isNullOrEmpty(haveAgent)) {

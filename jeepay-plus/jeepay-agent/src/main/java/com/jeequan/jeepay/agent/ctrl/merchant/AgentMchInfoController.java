@@ -49,10 +49,10 @@ public class AgentMchInfoController extends CommonCtrl {
             wrapper.eq(MchInfo::getAgentNo, getCurrentAgentNo());
 
             if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
-                wrapper.eq(MchInfo::getMchNo, mchInfo.getMchNo());
+                wrapper.eq(MchInfo::getMchNo, mchInfo.getMchNo().trim());
             }
             if (StringUtils.isNotEmpty(mchInfo.getMchName())) {
-                wrapper.like(MchInfo::getMchName, mchInfo.getMchName());
+                wrapper.like(MchInfo::getMchName, mchInfo.getMchName().trim());
             }
 
             wrapper.orderByDesc(MchInfo::getBalance);

@@ -42,7 +42,7 @@ public class AgentDivisionController extends CommonCtrl {
             LambdaQueryWrapper<DivisionRecord> wrapper = DivisionRecord.gw();
             wrapper.eq(DivisionRecord::getUserType, DivisionRecord.USER_TYPE_AGENT);
             if (StringUtils.isNotEmpty(divisionRecord.getUserNo())) {
-                wrapper.like(DivisionRecord::getUserNo, divisionRecord.getUserNo());
+                wrapper.like(DivisionRecord::getUserNo, divisionRecord.getUserNo().trim());
             }
             if (divisionRecord.getState() != null) {
                 wrapper.eq(DivisionRecord::getState, divisionRecord.getState());

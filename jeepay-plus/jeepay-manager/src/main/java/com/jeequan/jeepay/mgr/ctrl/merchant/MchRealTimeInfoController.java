@@ -41,13 +41,13 @@ public class MchRealTimeInfoController extends CommonCtrl {
 
         LambdaQueryWrapper<MchInfo> wrapper = MchInfo.gw();
         if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
-            wrapper.like(MchInfo::getMchNo, mchInfo.getMchNo());
+            wrapper.like(MchInfo::getMchNo, mchInfo.getMchNo().trim());
         }
         if (StringUtils.isNotEmpty(mchInfo.getAgentNo())) {
-            wrapper.like(MchInfo::getAgentNo, mchInfo.getAgentNo());
+            wrapper.like(MchInfo::getAgentNo, mchInfo.getAgentNo().trim());
         }
         if (StringUtils.isNotEmpty(mchInfo.getMchName())) {
-            wrapper.like(MchInfo::getMchName, mchInfo.getMchName());
+            wrapper.like(MchInfo::getMchName, mchInfo.getMchName().trim());
         }
 
         if (mchInfo.getState() != null) {

@@ -48,7 +48,7 @@ public class MchAppHistoryController extends CommonCtrl {
 
             //通道名
             if (StringUtils.isNotEmpty(passageTransactionHistory.getPayPassageName())) {
-                wrapper.like(PassageTransactionHistory::getPayPassageName, passageTransactionHistory.getPayPassageName());
+                wrapper.like(PassageTransactionHistory::getPayPassageName, passageTransactionHistory.getPayPassageName().trim());
             }
 
             //通道ID

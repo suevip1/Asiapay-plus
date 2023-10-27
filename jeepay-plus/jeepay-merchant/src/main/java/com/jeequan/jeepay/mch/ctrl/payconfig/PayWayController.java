@@ -53,7 +53,7 @@ public class PayWayController extends CommonCtrl {
             condition.like(Product::getProductId, queryObject.getProductId());
         }
         if (StringUtils.isNotEmpty(queryObject.getProductName())) {
-            condition.like(Product::getProductName, queryObject.getProductName());
+            condition.like(Product::getProductName, queryObject.getProductName().trim());
         }
         condition.orderByAsc(Product::getProductId);
 

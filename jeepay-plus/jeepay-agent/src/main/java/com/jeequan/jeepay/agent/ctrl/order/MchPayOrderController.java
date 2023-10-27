@@ -61,7 +61,7 @@ public class MchPayOrderController extends CommonCtrl {
      */
     @GetMapping("/{payOrderId}")
     public ApiRes detail(@PathVariable("payOrderId") String payOrderId) {
-        PayOrder payOrder = payOrderService.getOne(PayOrder.gw().select(PayOrder::getPayOrderId, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getMchOrderNo, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getForceChangeState, PayOrder::getForceChangeBeforeState, PayOrder::getForceChangeLoginName, PayOrder::getMchFeeAmount, PayOrder::getMchFeeRate, PayOrder::getAgentNo, PayOrder::getAgentFeeAmount, PayOrder::getAgentRate, PayOrder::getSuccessTime, PayOrder::getExpiredTime).eq(PayOrder::getPayOrderId, payOrderId));
+        PayOrder payOrder = payOrderService.getOne(PayOrder.gw().select(PayOrder::getPayOrderId, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getMchOrderNo, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getForceChangeState, PayOrder::getForceChangeBeforeState, PayOrder::getForceChangeLoginName, PayOrder::getMchFeeAmount, PayOrder::getMchFeeRate, PayOrder::getAgentNo, PayOrder::getAgentFeeAmount, PayOrder::getAgentRate, PayOrder::getSuccessTime, PayOrder::getExpiredTime).eq(PayOrder::getPayOrderId, payOrderId.trim()));
 
         if (payOrder == null) {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_SELETE);

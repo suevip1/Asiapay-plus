@@ -410,11 +410,11 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
         //商户号
         if (StringUtils.isNotEmpty(payOrder.getMchNo())) {
-            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo());
+            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo().trim());
         }
         //商户名
         if (StringUtils.isNotEmpty(payOrder.getMchName())) {
-            wrapper.like(PayOrder::getMchName, payOrder.getMchName());
+            wrapper.like(PayOrder::getMchName, payOrder.getMchName().trim());
         }
         //商户代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
@@ -485,11 +485,11 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
         //商户号
         if (StringUtils.isNotEmpty(payOrder.getMchNo())) {
-            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo());
+            wrapper.like(PayOrder::getMchNo, payOrder.getMchNo().trim());
         }
         //商户名
         if (StringUtils.isNotEmpty(payOrder.getMchName())) {
-            wrapper.like(PayOrder::getMchName, payOrder.getMchName());
+            wrapper.like(PayOrder::getMchName, payOrder.getMchName().trim());
         }
         //商户代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
