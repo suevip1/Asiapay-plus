@@ -192,7 +192,7 @@ export default {
       this.$refs.infoProduct.show(record.mchNo, record.mchName)
     },
     mchPassageConfig: function (record) { // 通道绑定
-      this.$refs.infoPassage.show(record.mchNo, record.mchName)
+      this.$refs.infoPassage.show(record)
     },
     clickChangeBalance: function (record) { // 业务通用【新增】 函数
       this.isShowModal = true

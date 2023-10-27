@@ -1,15 +1,16 @@
 package com.jeequan.jeepay.mgr.ctrl.merchant;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
-import com.jeequan.jeepay.core.entity.MchPayPassage;
-import com.jeequan.jeepay.core.entity.PayPassage;
+import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
+import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
 import com.jeequan.jeepay.service.impl.MchInfoService;
 import com.jeequan.jeepay.service.impl.MchPayPassageService;
 import com.jeequan.jeepay.service.impl.PayPassageService;
@@ -18,10 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 
 /**
@@ -40,6 +39,9 @@ public class MchPassageController extends CommonCtrl {
     @Autowired
     private MchInfoService mchInfoService;
 
+    @Autowired
+    private AgentAccountInfoService agentAccountInfoService;
+
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_EDIT')")
     @GetMapping
     public ApiRes list() {
@@ -48,6 +50,7 @@ public class MchPassageController extends CommonCtrl {
 
             JSONObject paramJSON = getReqParamJSON();
             String mchNo = paramJSON.getString("mchNo");
+            String haveAgent = paramJSON.getString("haveAgent");
 
             LambdaQueryWrapper<MchPayPassage> wrapper = MchPayPassage.gw();
             wrapper.eq(MchPayPassage::getMchNo, mchNo);
@@ -70,8 +73,16 @@ public class MchPassageController extends CommonCtrl {
             if (!StringUtils.isNullOrEmpty(queryObj.getPayPassageName())) {
                 payPassageWrapper.like(PayPassage::getPayPassageName, queryObj.getPayPassageName());
             }
+            //是否有代理 0 无 1有
+            if (!StringUtils.isNullOrEmpty(haveAgent)) {
+                if (haveAgent.equals("1")) {
+                    payPassageWrapper.ne(PayPassage::getAgentNo, "");
+                } else {
+                    payPassageWrapper.eq(PayPassage::getAgentNo, "");
+                }
+            }
             List<PayPassage> passageList = payPassageService.list(payPassageWrapper.orderByAsc(PayPassage::getPayPassageId));
-
+            Map<String, AgentAccountInfo> agentAccountInfoMap = agentAccountInfoService.getAgentInfoMap();
             List<MchPayPassage> result = new ArrayList<>();
             for (int i = 0; i < passageList.size(); i++) {
                 MchPayPassage item = passageMchMap.get(passageList.get(i).getPayPassageId());
@@ -82,6 +93,16 @@ public class MchPassageController extends CommonCtrl {
                     item.setState(CS.NO);
                 }
                 item.addExt("payPassageName", passageList.get(i).getPayPassageName());
+
+                String passageAgentNo = passageList.get(i).getAgentNo();
+                if(!StringUtils.isNullOrEmpty(passageAgentNo)){
+                    item.addExt("passageAgentNo", passageAgentNo);
+                    item.addExt("passageAgentName", agentAccountInfoMap.get(passageAgentNo).getAgentName());
+                }else{
+                    item.addExt("passageAgentNo", "");
+                    item.addExt("passageAgentName", "");
+                }
+
                 item.addExt("rate", passageList.get(i).getRate());
                 result.add(item);
             }
@@ -171,6 +192,53 @@ public class MchPassageController extends CommonCtrl {
                 item.setMchNo(mchNo);
             }
             item.setState(CS.NO);
+            result.add(item);
+        }
+        boolean isSuccess = mchPayPassageService.saveOrUpdateBatch(result);
+        if (!isSuccess) {
+            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_UPDATE);
+        }
+        return ApiRes.ok();
+    }
+
+    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @RequestMapping(value = "/setAll/{mchNo}", method = RequestMethod.POST)
+    public ApiRes setAll(@PathVariable("mchNo") String mchNo) {
+
+        JSONObject reqJson = getReqParamJSON();
+        Byte changeAllState = reqJson.getByte("changeAllState");
+        JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
+
+        List<Long> passageIdList = new LinkedList<>();
+
+        if (selectedIds == null || selectedIds.size() == 0) {
+            return ApiRes.customFail("请先选中需要批量修改的商户");
+        }
+
+        for (int i = 0; i < selectedIds.size(); i++) {
+            passageIdList.add(selectedIds.getLong(i));
+        }
+
+        /**
+         * 已有的绑定关系 mch passage
+         */
+        List<MchPayPassage> listBlind = mchPayPassageService.list(MchPayPassage.gw().eq(MchPayPassage::getMchNo, mchNo));
+        Map<Long, MchPayPassage> passageMchBlindMap = new HashMap<>();
+
+        for (int i = 0; i < listBlind.size(); i++) {
+            passageMchBlindMap.put(listBlind.get(i).getPayPassageId(), listBlind.get(i));
+        }
+
+        List<MchPayPassage> result = new ArrayList<>();
+        //需要批量操作的商户
+        for (int i = 0; i < passageIdList.size(); i++) {
+            MchPayPassage item = passageMchBlindMap.get(passageIdList.get(i));
+            if (item == null) {
+                item = new MchPayPassage();
+                item.setPayPassageId(passageIdList.get(i));
+                item.setMchNo(mchNo);
+            }
+            item.setState(changeAllState);
             result.add(item);
         }
         boolean isSuccess = mchPayPassageService.saveOrUpdateBatch(result);
