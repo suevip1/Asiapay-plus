@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.jeequan.jeepay.components.mq.model.RobotListenPayOrderSuccessMQ;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
@@ -54,7 +55,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class RobotsService extends TelegramLongPollingBot {
+public class RobotsService extends TelegramLongPollingBot implements RobotListenPayOrderSuccessMQ.IMQReceiver {
 
     private static final String LOG_TAG = "ROBOTS_ERROR";
     private static final String REDIS_SOURCE_SUFFIX = "REDIS_SOURCE_";
@@ -1782,6 +1783,8 @@ public class RobotsService extends TelegramLongPollingBot {
                         if (messageTemp != null) {
                             //保持2小时缓存
                             RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
+                            //商户查单消息
+                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + payOrder.getPayOrderId(), message, 2, TimeUnit.HOURS);
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
                             stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
@@ -1885,5 +1888,23 @@ public class RobotsService extends TelegramLongPollingBot {
         Date offsetDate = DateUtil.offsetDay(date, dayOffset);
         //过期订单
         robotsMchRecordsService.ClearRecord(offsetDate, 500);
+    }
+
+    @Override
+    public void receive(RobotListenPayOrderSuccessMQ.MsgPayload payload) {
+        try {
+            String payOrderId = payload.getPayOrderId();
+            //商户查单消息
+            Message messageSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + payOrderId, Message.class);
+            if (messageSource != null) {
+                log.info("收到成功订单并有查单缓存" + payOrderId);
+                sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), payOrderId + " 已回调成功!");
+                RedisUtil.del(REDIS_MCH_SOURCE_SUFFIX + payOrderId);
+            }
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
     }
 }

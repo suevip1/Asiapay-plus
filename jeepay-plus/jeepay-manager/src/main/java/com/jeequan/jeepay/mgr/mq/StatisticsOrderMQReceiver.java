@@ -1,7 +1,9 @@
 package com.jeequan.jeepay.mgr.mq;
 
 import cn.hutool.json.JSONUtil;
+import com.jeequan.jeepay.components.mq.model.RobotListenPayOrderSuccessMQ;
 import com.jeequan.jeepay.components.mq.model.StatisticsOrderMQ;
+import com.jeequan.jeepay.components.mq.vender.IMQSender;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
@@ -21,6 +23,10 @@ public class StatisticsOrderMQReceiver implements StatisticsOrderMQ.IMQReceiver 
     @Autowired
     private StatisticsService statisticsService;
 
+    @Autowired
+    private IMQSender mqSender;
+
+
     @Override
     public void receive(StatisticsOrderMQ.MsgPayload payload) {
         try {
@@ -32,8 +38,11 @@ public class StatisticsOrderMQReceiver implements StatisticsOrderMQ.IMQReceiver 
             } else if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
                 statisticsService.PushSuccessPayOrderToCache(payOrder);
                 RedisUtil.storeObjectWithExpiration(payOrder.getPayOrderId(), payOrder, CS.REAL_TIME_SUCCESS_STAT);
-                //测试冲正订单
+                //todo 发mq到机器人 只发成功的订单
+                mqSender.send(RobotListenPayOrderSuccessMQ.build(payOrder.getPayOrderId(), payOrder.getMchOrderNo(), payOrder.getPassageOrderNo()));
+
             } else if (payOrder.getState() == PayOrder.STATE_REFUND) {
+                //测试冲正订单
                 payOrder.setAmount(payOrder.getAmount() * -1);
                 payOrder.setMchFeeAmount(payOrder.getMchFeeAmount() * -1);
                 payOrder.setPassageFeeAmount(payOrder.getPassageFeeAmount() * -1);
