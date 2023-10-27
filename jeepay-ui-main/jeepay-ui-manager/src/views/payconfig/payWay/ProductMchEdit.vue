@@ -320,6 +320,7 @@ export default {
     onClose () {
       this.visible = false
       this.selectedIds = []
+      this.searchData = {}
     }
   }
 }

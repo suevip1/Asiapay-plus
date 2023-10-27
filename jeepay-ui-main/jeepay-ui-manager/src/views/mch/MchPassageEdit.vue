@@ -237,6 +237,7 @@ export default {
     onClose () {
       this.visible = false
       this.selectedIds = []
+      this.searchData = {}
     },
     setAllMch () {
       if (this.selectedIds.length === 0) {

@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.mgr.ctrl.merchant;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -11,6 +12,7 @@ import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.MchProductService;
 import com.jeequan.jeepay.service.impl.ProductService;
+import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +36,12 @@ public class MchProductController extends CommonCtrl {
         try {
             JSONObject paramJSON = getReqParamJSON();
             String mchNo = paramJSON.getString("mchNo");
+            String productName = paramJSON.getString("productName");
+            Long productId = paramJSON.getLong("productId");
 
             LambdaQueryWrapper<MchProduct> wrapper = MchProduct.gw();
             wrapper.eq(MchProduct::getMchNo, mchNo);
+//            wrapper.like()
 
             IPage<MchProduct> pages = mchProductService.page(getIPage(true), wrapper);
 
@@ -46,8 +51,18 @@ public class MchProductController extends CommonCtrl {
             for (int i = 0; i < listBlind.size(); i++) {
                 productMchMap.put(listBlind.get(i).getProductId(), listBlind.get(i));
             }
+            LambdaQueryWrapper<Product> productWrapper = Product.gw();
+            //查询参数 商户号
+            if (productId != null) {
+                productWrapper.eq(Product::getProductId, productId);
+            }
+            //查询参数 商户名
+            if (!StringUtils.isNullOrEmpty(productName)) {
+                productWrapper.like(Product::getProductName, productName.trim());
+            }
+            productWrapper.orderByAsc(Product::getProductId);
 
-            List<Product> productList = productService.list(Product.gw().orderByAsc(Product::getProductId));
+            List<Product> productList = productService.list(productWrapper);
 
             List<MchProduct> result = new ArrayList<>();
             for (int i = 0; i < productList.size(); i++) {
@@ -71,7 +86,7 @@ public class MchProductController extends CommonCtrl {
         }
     }
 
-    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @MethodLog(remark = "更新商户-产品绑定信息")
     @PutMapping
     public ApiRes update() {
@@ -95,7 +110,7 @@ public class MchProductController extends CommonCtrl {
         return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_UPDATE);
     }
 
-    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @MethodLog(remark = "商户-产品一键全绑定")
     @RequestMapping(value = "/blindAll/{mchNo}", method = RequestMethod.POST)
     public ApiRes blindAll(@PathVariable("mchNo") String mchNo) {
@@ -128,7 +143,7 @@ public class MchProductController extends CommonCtrl {
         return ApiRes.ok();
     }
 
-    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @MethodLog(remark = "商户-产品一键全解绑")
     @RequestMapping(value = "/unBlindAll/{mchNo}", method = RequestMethod.POST)
     public ApiRes unBlindAll(@PathVariable("mchNo") String mchNo) {
@@ -152,6 +167,57 @@ public class MchProductController extends CommonCtrl {
                 item.setMchNo(mchNo);
             }
             item.setState(CS.NO);
+            result.add(item);
+        }
+        boolean isSuccess = mchProductService.saveOrUpdateBatch(result);
+        if (!isSuccess) {
+            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_UPDATE);
+        }
+        return ApiRes.ok();
+    }
+
+    @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
+    @RequestMapping(value = "/setAllRate/{mchNo}", method = RequestMethod.POST)
+    public ApiRes setAllRate(@PathVariable("mchNo") String mchNo) {
+
+        JSONObject reqJson = getReqParamJSON();
+        String setAllRate = reqJson.getString("setAllRate");
+        String setAllAgentRate = reqJson.getString("setAllAgentRate");
+        Byte changeAllState = reqJson.getByte("changeAllState");
+        JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
+
+        List<Long> productIdList = new LinkedList<>();
+
+        if (selectedIds == null || selectedIds.size() == 0) {
+            return ApiRes.customFail("请先选中需要批量修改的商户");
+        }
+
+        for (int i = 0; i < selectedIds.size(); i++) {
+            productIdList.add(selectedIds.getLong(i));
+        }
+
+        /**
+         * 已有的绑定关系 mch product
+         */
+        List<MchProduct> listBlind = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchNo));
+        Map<Long, MchProduct> productMchBlindMap = new HashMap<>();
+
+        for (int i = 0; i < listBlind.size(); i++) {
+            productMchBlindMap.put(listBlind.get(i).getProductId(), listBlind.get(i));
+        }
+
+        List<MchProduct> result = new ArrayList<>();
+        //需要批量操作的商户
+        for (int i = 0; i < productIdList.size(); i++) {
+            MchProduct item = productMchBlindMap.get(productIdList.get(i));
+            if (item == null) {
+                item = new MchProduct();
+                item.setProductId(productIdList.get(i));
+                item.setMchNo(mchNo);
+            }
+            item.setMchRate(new BigDecimal(setAllRate));
+            item.setAgentRate(new BigDecimal(setAllAgentRate));
+            item.setState(changeAllState);
             result.add(item);
         }
         boolean isSuccess = mchProductService.saveOrUpdateBatch(result);

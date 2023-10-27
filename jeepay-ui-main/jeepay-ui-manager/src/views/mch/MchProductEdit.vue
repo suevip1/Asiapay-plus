@@ -1,7 +1,7 @@
 <template>
   <a-drawer
       :visible="visible"
-      :title=" true ? '支付产品配置' : '' "
+      :title=" true ? '商户-支付产品配置' : '' "
       @close="onClose"
       :body-style="{ paddingBottom: '80px' }"
       width="60%"
@@ -43,7 +43,7 @@
           <jeepay-text-up :placeholder="'产品名'" :msg="searchData.productName" v-model="searchData.productName"/>
           <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
             <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">查询</a-button>
-            <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {  'productId' : productId}">重置</a-button>
+            <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {  'mchNo' : mchNo}">重置</a-button>
           </span>
           <div class="table-layer" style="width: 100%">
             <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
@@ -73,6 +73,7 @@
           :reqTableDataFunc="reqTableDataFunc"
           :tableColumns="tableColumns"
           :searchData="searchData"
+          :rowSelection="rowSelection"
           rowKey="productId"
       >
         <template slot="nameSlot" slot-scope="{record}">
@@ -123,6 +124,29 @@
         </a-form-model>
       </a-modal>
     </template>
+    <!-- 统一设置弹窗 -->
+    <template>
+      <a-modal v-model="isShowAllSetModal" title="统一配置产品" @ok="confirmSetAll">
+        <a-form-model :label-col="{span: 6}" :wrapper-col="{span: 15}">
+          <a-form-model-item label="状态" prop="state">
+            <a-radio-group v-model="changeAllState">
+              <a-radio :value="1">
+                启用
+              </a-radio>
+              <a-radio :value="0">
+                禁用
+              </a-radio>
+            </a-radio-group>
+          </a-form-model-item>
+          <a-form-model-item label="商户费率：">
+            <a-input prefix="%" type="number" v-model="setAllRate" />
+          </a-form-model-item>
+          <a-form-model-item label="代理费率：">
+            <a-input prefix="%" type="number" v-model="setAllAgentRate" />
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
     <div class="drawer-btn-center" >
       <a-button icon="close" :style="{ marginRight: '8px' }" @click="onClose" style="margin-right:8px">
         关闭
@@ -135,6 +159,7 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import { API_URL_MCH_PRODUCT_LIST, req } from '@/api/manage'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -165,10 +190,25 @@ export default {
       mchInfo: {},
       selectedIds: [],
       changeAllState: 0,
-      isShowAllSetModal: false
+      isShowAllSetModal: false,
+      setAllRate: 0,
+      setAllAgentRate: 0
     }
   },
   mounted () {
+  },
+  computed: {
+    rowSelection () {
+      const that = this
+      return {
+        onChange: (selectedRowKeys, selectedRows) => {
+          that.selectedIds = [] // 清空选中数组
+          selectedRows.forEach(function (data) { // 赋值选中参数
+            that.selectedIds.push(data.productId)
+          })
+        }
+      }
+    }
   },
   methods: {
     show: function (record) { // 弹层打开事件
@@ -178,9 +218,16 @@ export default {
       this.mchNo = record.mchNo
       this.mchName = record.mchName
       this.searchData.mchNo = record.mchNo
+      this.setAllRate = 0
+      this.setAllAgentRate = 0
+      this.selectedIds = []
       if (this.$refs.mchProductTable !== undefined) {
         this.$refs.mchProductTable.refTable(true)
       }
+    },
+    queryFunc: function () {
+      this.btnLoading = true
+      this.$refs.mchProductTable.refTable(true)
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
@@ -244,6 +291,36 @@ export default {
     },
     onClose () {
       this.visible = false
+      this.selectedIds = []
+      this.searchData = {}
+    },
+    setAllMch () {
+      if (this.selectedIds.length === 0) {
+        message.error('请先选择要配置的产品')
+        return
+      }
+      this.isShowAllSetModal = true
+      this.setAllRate = 0
+      this.setAllAgentRate = 0
+    },
+    confirmSetAll () {
+      this.btnLoading = true
+      const that = this
+      const params = { }
+      params.setAllRate = this.setAllRate / 100
+      params.setAllAgentRate = this.setAllAgentRate / 100
+      params.selectedIds = this.selectedIds
+      params.changeAllState = this.changeAllState
+      req.postDataNormal(API_URL_MCH_PRODUCT_LIST + '/setAllRate', this.mchNo, params).then(res => {
+        that.setAllRate = 0
+        that.setAllAgentRate = 0
+        setTimeout(() => {
+          that.btnLoading = false
+          that.isShowAllSetModal = false
+          that.$refs.mchProductTable.refTable(true)
+          that.$message.success('修改成功')
+        }, 500) // 1000毫秒等于1秒
+      })
     }
   }
 }
