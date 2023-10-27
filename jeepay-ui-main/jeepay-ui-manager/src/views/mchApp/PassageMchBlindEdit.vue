@@ -1,5 +1,5 @@
 <template>
-  <a-drawer :visible="visible" :title=" true ? '支付通道绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="40%">
+  <a-drawer :visible="visible" :title=" true ? '通道-商户绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="60%">
     <div class="table-page-search-wrapper">
       <a-form layout="inline" class="table-head-ground">
         <a-row justify="space-between" type="flex">
@@ -20,11 +20,19 @@
         </a-row>
         <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo"/>
         <jeepay-text-up :placeholder="'商户名'" :msg="searchData.mchName" v-model="searchData.mchName"/>
+        <jeepay-text-up :placeholder="'上级代理号'" :msg="searchData.agentNo" v-model="searchData.agentNo"/>
+        <a-form-item label="" class="table-head-layout">
+          <a-select v-model="searchData.haveAgent" placeholder="商户是否存在代理" default-value="">
+            <a-select-option value="">全部</a-select-option>
+            <a-select-option value="0">无</a-select-option>
+            <a-select-option value="1">有</a-select-option>
+          </a-select>
+        </a-form-item>
         <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
           <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">查询</a-button>
           <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = { 'payPassageId' : selectPassage.payPassageId }">重置</a-button>
         </span>
-        <a-row justify="space-between" type="flex">
+        <a-row style="margin-left: 30px" justify="space-between" type="flex">
           <a-col :sm="24">
             <div class="table-layer">
               <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
@@ -34,6 +42,9 @@
                 <template>
                   <a-popconfirm title="确认全部解绑么?" ok-text="确认" cancel-text="取消" @confirm="unBlindAll"><a-button style="margin-left: 8px" icon="close"  :loading="btnLoading" >一键全解绑</a-button>
                   </a-popconfirm>
+                </template>
+                <template>
+                  <a-button type="dashed" style="margin-left: 8px" icon="retweet"  :loading="btnLoading" @click="setAllMch">批量操作</a-button>
                 </template>
               </span>
             </div>
@@ -51,9 +62,13 @@
         :reqTableDataFunc="reqTableDataFunc"
         :tableColumns="tableColumns"
         :searchData="searchData"
+        :rowSelection="rowSelection"
         rowKey="mchNo">
       <template slot="nameSlot" slot-scope="{record}">
-        <b style="color: #1A79FF">[{{ record.mchNo }}]</b><b>{{ record.mchName}}</b>
+        <b style="color: #1A79FF">[{{ record.mchNo }}]</b>&nbsp;<b>{{ record.mchName}}</b>
+      </template> <!-- 自定义插槽 -->
+      <template slot="agentSlot" slot-scope="{record}">
+        <span style="color: #1A79FF;font-size: 12px">{{ record.agentNo!=""?'['+record.agentNo+']':'' }}</span>&nbsp;<span style="font-size: 12px">{{ record.agentName}}</span>
       </template> <!-- 自定义插槽 -->
       <template slot="stateSlot" slot-scope="{record}">
         <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'未绑定':'已绑定'" />
@@ -69,6 +84,26 @@
         </JeepayTableColumns>
       </template>
     </JeepayTable>
+    <!-- 统一设置弹窗 -->
+    <template>
+      <a-modal v-model="isShowAllSetModal" title="统一配置通道绑定" @ok="confirmSetAll">
+        <a-form-model :label-col="{span: 6}" :wrapper-col="{span: 15}">
+          <a-form-model-item label="已选择商户">
+            <b>{{selectedIds.length}}</b>
+          </a-form-model-item>
+          <a-form-model-item label="状态" prop="state">
+            <a-radio-group v-model="selectedChangeState">
+              <a-radio :value="1">
+                绑定
+              </a-radio>
+              <a-radio :value="0">
+                解绑
+              </a-radio>
+            </a-radio-group>
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
     <div class="drawer-btn-center" >
       <a-button icon="close" :style="{ marginRight: '8px' }" @click="onClose" style="margin-right:8px">
         关闭
@@ -81,10 +116,12 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import { API_URL_PASSAGE_MCH_LIST, req } from '@/api/manage'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'nameSlot', fixed: 'left', width: '350px', title: '商户名称', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'nameSlot', fixed: 'left', width: '400px', title: '商户名称', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'agentSlot', title: '上级代理', scopedSlots: { customRender: 'agentSlot' } },
   { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
   { key: 'op', title: '操作', width: '200px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
@@ -99,10 +136,26 @@ export default {
       tableColumns: tableColumns,
       searchData: {},
       value: "''",
-      selectPassage: {}
+      selectPassage: {},
+      selectedIds: [],
+      selectedChangeState: 0,
+      isShowAllSetModal: false
     }
   },
   mounted () {
+  },
+  computed: {
+    rowSelection () {
+      const that = this
+      return {
+        onChange: (selectedRowKeys, selectedRows) => {
+          that.selectedIds = [] // 清空选中数组
+          selectedRows.forEach(function (data) { // 赋值选中参数
+            that.selectedIds.push(data.mchNo)
+          })
+        }
+      }
+    }
   },
   methods: {
     show: function (payPassage) { // 弹层打开事件
@@ -110,6 +163,7 @@ export default {
       this.visible = true
       this.selectPassage = payPassage
       this.searchData.payPassageId = payPassage.payPassageId + ''
+      this.selectedIds = []
       if (this.$refs.mchPassageTable !== undefined) {
         this.$refs.mchPassageTable.refTable(true)
       }
@@ -165,6 +219,30 @@ export default {
     onClose () {
       this.visible = false
       this.searchData = {}
+      this.selectedIds = []
+    },
+    setAllMch () {
+      if (this.selectedIds.length === 0) {
+        message.error('请先选择要配置的商户')
+        return
+      }
+      this.isShowAllSetModal = true
+      this.selectedChangeState = 1
+    },
+    confirmSetAll () {
+      this.btnLoading = true
+      const that = this
+      const params = { }
+      params.state = this.selectedChangeState
+      params.selectedIds = this.selectedIds
+      req.postDataNormal(API_URL_PASSAGE_MCH_LIST + '/batchSet', this.selectPassage.payPassageId, params).then(res => {
+        setTimeout(() => {
+          that.btnLoading = false
+          that.isShowAllSetModal = false
+          that.$refs.mchPassageTable.refTable(true)
+          that.$message.success('修改成功')
+        }, 500) // 1000毫秒等于1秒
+      })
     }
   }
 }

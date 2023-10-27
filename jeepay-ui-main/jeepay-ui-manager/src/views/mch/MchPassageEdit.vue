@@ -1,5 +1,5 @@
 <template>
-  <a-drawer :visible="visible" :title=" true ? '支付通道绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="40%">
+  <a-drawer :visible="visible" :title=" true ? '商户-通道绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="40%">
     <div class="table-page-search-wrapper">
       <a-form layout="inline" class="table-head-ground">
         <a-row justify="space-between" type="flex">

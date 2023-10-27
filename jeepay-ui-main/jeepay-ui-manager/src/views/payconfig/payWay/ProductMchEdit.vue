@@ -1,7 +1,7 @@
 <template>
   <a-drawer
       :visible="visible"
-      :title=" true ? '商户产品配置' : '' "
+      :title=" true ? '商户-产品配置' : '' "
       @close="onClose"
       :body-style="{ paddingBottom: '80px' }"
       width="50%"
@@ -284,6 +284,7 @@ export default {
     },
     onClose () {
       this.visible = false
+      this.selectedIds = []
     }
   }
 }

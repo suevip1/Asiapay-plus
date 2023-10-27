@@ -182,7 +182,7 @@ public class ProductMchController extends CommonCtrl {
 
         List<String> mchNoList = new LinkedList<>();
 
-        if (selectedIds == null) {
+        if (selectedIds == null || selectedIds.size() == 0) {
             return ApiRes.customFail("请先选中需要批量修改的商户");
         }
 
