@@ -12,7 +12,7 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="产品ID">
-                <b>{{ product.productId }}</b>
+                <b style="color: #1a53ff">{{ product.productId }}</b>
               </a-descriptions-item>
             </a-descriptions>
           </a-col>
@@ -25,7 +25,21 @@
           </a-col>
         </a-row>
         <br/>
-        <div class="table-layer">
+        <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo"/>
+        <jeepay-text-up :placeholder="'商户名'" :msg="searchData.mchName" v-model="searchData.mchName"/>
+        <jeepay-text-up :placeholder="'上级代理号'" :msg="searchData.agentNo" v-model="searchData.agentNo"/>
+        <a-form-item label="" class="table-head-layout">
+          <a-select v-model="searchData.haveAgent" placeholder="商户是否存在代理" default-value="">
+            <a-select-option value="">全部</a-select-option>
+            <a-select-option value="0">无</a-select-option>
+            <a-select-option value="1">有</a-select-option>
+          </a-select>
+        </a-form-item>
+        <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
+          <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">查询</a-button>
+          <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {  'productId' : productId}">重置</a-button>
+        </span>
+        <div class="table-layer" style="width: 100%">
           <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
             <template>
               <a-popconfirm title="确认全部绑定么?" ok-text="确认" cancel-text="取消" @confirm="blindAll">
@@ -56,9 +70,13 @@
         :rowSelection="rowSelection"
         rowKey="mchNo"
     >
+      <template slot="agentSlot" slot-scope="{record}">
+        <span style="color: #1A79FF;font-size: 12px">{{ record.agentNo!=""?'['+record.agentNo+']':'' }}</span>
+        <br>
+        <span style="font-size: 12px">{{ record.agentName}}</span>
+      </template> <!-- 自定义插槽 -->
       <template slot="nameSlot" slot-scope="{record}">
-        <b style="font-weight: bold" >[{{ record.mchNo }}]</b>
-        <p>{{ record.mchName}}</p>
+        <b style="color: #1A79FF">[{{ record.mchNo }}]</b><br><b>{{ record.mchName}}</b>
       </template> <!-- 自定义插槽 -->
       <template slot="stateSlot" slot-scope="{record}">
         <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'禁用':'启用'" />
@@ -109,6 +127,16 @@
     <template>
       <a-modal v-model="isShowAllSetModal" title="统一配置产品费率" @ok="confirmSetAll">
         <a-form-model :label-col="{span: 6}" :wrapper-col="{span: 15}">
+          <a-form-model-item label="状态" prop="state">
+            <a-radio-group v-model="changeAllState">
+              <a-radio :value="1">
+                启用
+              </a-radio>
+              <a-radio :value="0">
+                禁用
+              </a-radio>
+            </a-radio-group>
+          </a-form-model-item>
           <a-form-model-item label="商户费率：">
             <a-input prefix="%" type="number" v-model="setAllRate" />
           </a-form-model-item>
@@ -134,8 +162,9 @@ import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'nameSlot', fixed: 'left', width: '250px', title: '商户', scopedSlots: { customRender: 'nameSlot' } },
-  { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'R', fixed: 'left', width: '250px', title: '商户', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'agentSlot', title: '上级代理', scopedSlots: { customRender: 'agentSlot' } },
+  { key: 'state', title: '状态', scopedSlots: { customRender: 'stateSlot' } },
   { key: 'mchRate', title: '商户费率', scopedSlots: { customRender: 'mchRateSlot' } },
   { key: 'agentRate', title: '代理费率', scopedSlots: { customRender: 'agentRateSlot' } },
   { key: 'op', title: '操作', width: '100px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
@@ -163,7 +192,8 @@ export default {
       mchName: '',
       productId: '',
       product: {},
-      selectedIds: []
+      selectedIds: [],
+      changeAllState: 0
     }
   },
   mounted () {
@@ -194,6 +224,10 @@ export default {
       this.setAllRate = 0
       this.setAllAgentRate = 0
       this.selectedIds = []
+    },
+    queryFunc: function () {
+      this.btnLoading = true
+      this.$refs.mchProductTable.refTable(true)
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
@@ -271,6 +305,7 @@ export default {
       params.setAllRate = this.setAllRate / 100
       params.setAllAgentRate = this.setAllAgentRate / 100
       params.selectedIds = this.selectedIds
+      params.changeAllState = this.changeAllState
       req.postDataNormal(API_URL_PRODUCT_MCH_LIST + '/setAllRate', this.productId, params).then(res => {
         that.setAllRate = 0
         that.setAllAgentRate = 0

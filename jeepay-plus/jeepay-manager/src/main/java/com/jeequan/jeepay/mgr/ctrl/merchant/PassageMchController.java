@@ -35,9 +35,6 @@ public class PassageMchController extends CommonCtrl {
     private MchPayPassageService mchPayPassageService;
 
     @Autowired
-    private PayPassageService payPassageService;
-
-    @Autowired
     private MchInfoService mchInfoService;
 
     @Autowired

@@ -7,14 +7,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
+import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.MchInfo;
 import com.jeequan.jeepay.core.entity.MchProduct;
 import com.jeequan.jeepay.core.entity.Product;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
+import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
 import com.jeequan.jeepay.service.impl.MchInfoService;
 import com.jeequan.jeepay.service.impl.MchProductService;
 import com.jeequan.jeepay.service.impl.ProductService;
+import com.mysql.cj.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +33,6 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/productMchInfo")
 public class ProductMchController extends CommonCtrl {
-    @Autowired
-    private ProductService productService;
 
     @Autowired
     private MchProductService mchProductService;
@@ -39,11 +40,18 @@ public class ProductMchController extends CommonCtrl {
     @Autowired
     private MchInfoService mchInfoService;
 
+    @Autowired
+    private AgentAccountInfoService agentAccountInfoService;
 
     @GetMapping
     public ApiRes list() {
         try {
             JSONObject paramJSON = getReqParamJSON();
+            String mchNo = paramJSON.getString("mchNo");
+            String mchName = paramJSON.getString("mchName");
+            String haveAgent = paramJSON.getString("haveAgent");
+            String agentNo = paramJSON.getString("agentNo");
+
             Long productId = paramJSON.getLong("productId");
 
             LambdaQueryWrapper<MchProduct> wrapper = MchProduct.gw();
@@ -58,7 +66,30 @@ public class ProductMchController extends CommonCtrl {
                 mchProductMap.put(listBlind.get(i).getMchNo(), listBlind.get(i));
             }
 
-            List<MchInfo> mchList = mchInfoService.list(MchInfo.gw().orderByAsc(MchInfo::getCreatedAt));
+            LambdaQueryWrapper<MchInfo> mchInfoWrapper = MchInfo.gw();
+            //查询参数 商户号
+            if (!StringUtils.isNullOrEmpty(mchNo)) {
+                mchInfoWrapper.eq(MchInfo::getMchNo, mchNo);
+            }
+            //查询参数 商户名
+            if (!StringUtils.isNullOrEmpty(mchName)) {
+                mchInfoWrapper.like(MchInfo::getMchName, mchName);
+            }
+            //是否有代理 0 无 1有
+            if (!StringUtils.isNullOrEmpty(haveAgent)) {
+                if (haveAgent.equals("1")) {
+                    mchInfoWrapper.ne(MchInfo::getAgentNo, "");
+                } else {
+                    mchInfoWrapper.eq(MchInfo::getAgentNo, "");
+                }
+            }
+            //代理号
+            if (!StringUtils.isNullOrEmpty(agentNo)) {
+                mchInfoWrapper.eq(MchInfo::getAgentNo, agentNo);
+            }
+            //MchInfo.gw().orderByAsc(MchInfo::getCreatedAt)
+            List<MchInfo> mchList = mchInfoService.list(mchInfoWrapper);
+            Map<String, AgentAccountInfo> agentAccountInfoMap = agentAccountInfoService.getAgentInfoMap();
 
             List<MchProduct> result = new ArrayList<>();
             for (int i = 0; i < mchList.size(); i++) {
@@ -72,6 +103,14 @@ public class ProductMchController extends CommonCtrl {
                     item.setState(CS.NO);
                 }
                 item.addExt("mchName", mchList.get(i).getMchName());
+                String agentNoItem = mchList.get(i).getAgentNo();
+                if (!StringUtils.isNullOrEmpty(agentNoItem)) {
+                    item.addExt("agentNo", mchList.get(i).getAgentNo());
+                    item.addExt("agentName", agentAccountInfoMap.get(mchList.get(i).getAgentNo()).getAgentName());
+                } else {
+                    item.addExt("agentNo", "");
+                    item.addExt("agentName", "");
+                }
                 result.add(item);
             }
             pages.setTotal(result.size());
@@ -178,6 +217,7 @@ public class ProductMchController extends CommonCtrl {
         JSONObject reqJson = getReqParamJSON();
         String setAllRate = reqJson.getString("setAllRate");
         String setAllAgentRate = reqJson.getString("setAllAgentRate");
+        Byte changeAllState = reqJson.getByte("changeAllState");
         JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
 
         List<String> mchNoList = new LinkedList<>();
@@ -207,11 +247,11 @@ public class ProductMchController extends CommonCtrl {
             if (item == null) {
                 item = new MchProduct();
                 item.setProductId(productId);
-                item.setState(CS.NO);
                 item.setMchNo(mchNoList.get(i));
             }
             item.setMchRate(new BigDecimal(setAllRate));
             item.setAgentRate(new BigDecimal(setAllAgentRate));
+            item.setState(changeAllState);
             result.add(item);
         }
         boolean isSuccess = mchProductService.saveOrUpdateBatch(result);
