@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.juliang;
+package com.jeequan.jeepay.pay.channel.xiami;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -8,9 +8,11 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
+import com.jeequan.jeepay.core.utils.JeepayKit;
+import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
+import com.jeequan.jeepay.pay.channel.bolin.BolinParamsModel;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
-import com.jeequan.jeepay.util.JeepayKit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -18,15 +20,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 
 @Slf4j
 @Service
-public class JuliangChannelNoticeService extends AbstractChannelNoticeService {
+public class XiamiChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "巨量支付";
+    private static final String LOG_TAG = "[虾米支付]";
 
     private static final String ON_FAIL = "fail";
 
@@ -34,14 +37,14 @@ public class JuliangChannelNoticeService extends AbstractChannelNoticeService {
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.JULIANG;
+        return CS.IF_CODE.XIAMI;
     }
 
     @Override
     public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, NoticeTypeEnum noticeTypeEnum) {
         try {
             JSONObject params = getReqParamJSON();
-            return MutablePair.of(params.getString("orderno"), params);
+            return MutablePair.of(urlOrderId, params);
         } catch (Exception e) {
             log.error("error", e);
             throw ResponseException.buildText("ERROR");
@@ -70,24 +73,29 @@ public class JuliangChannelNoticeService extends AbstractChannelNoticeService {
 
             //查单
             Map<String, Object> map = new HashMap<>();
-            String orderno = jsonParams.getString("orderno");
-            NormalMchParams normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
-            map.put("orderno", orderno);
+            String payOrderId = jsonParams.getString("payOrderId");
+            NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
+            String key = resultsParam.getSecret();
+            map.put("mchId", resultsParam.getMchNo());
+            map.put("payOrderId", payOrderId);
+            String sign = JeepayKit.getSign(map, key).toLowerCase();
+            map.put("sign", sign);
 
-            String raw = HttpUtil.post(normalMchParams.getQueryUrl(), map, 10000);
+            String raw = HttpUtil.post(resultsParam.getQueryUrl(), map, 10000);
             log.info("{} 查单请求响应:{}", LOG_TAG, raw);
             JSONObject queryResult = JSON.parseObject(raw, JSONObject.class);
 
-            //订单具体状态：「未支付、已支付、已结算」
-            String status = queryResult.getString("status");
-
-            if (status.equals("已结算")) {
-                //验签成功后判断上游订单状态
-                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-            } else {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
-                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
+            //只有请求code为200，status: 订单状态。0-支付失败、1-订单生成、 2-支付中、 3-支付成功、 4-业务处理完成（回调成功）
+            if (queryResult.getString("code").equals("200")) {
+                String status = queryResult.getJSONObject("data").getString("status");
+                if (status.equals("3") || status.equals("4")) {
+                    //验签成功后判断上游订单状态
+                    result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
+                    return result;
+                }
             }
+            log.info("{}回调通知订单状态错误:{}", LOG_TAG, raw);
+            result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             return result;
         } catch (Exception e) {
             log.error("error", e);
@@ -104,12 +112,20 @@ public class JuliangChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderno");        // 商户订单号
+        String orderNo = jsonParams.getString("mchOrderNo");        // 商户订单号
+        String txnAmt = jsonParams.getString("orderAmount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
             return false;
         }
+        if (StringUtils.isEmpty(txnAmt)) {
+            log.info("金额参数为空 [txnAmt] :{}", txnAmt);
+            return false;
+        }
+
+        BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
@@ -118,8 +134,9 @@ public class JuliangChannelNoticeService extends AbstractChannelNoticeService {
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signStr = JeepayKit.getSign(map, secret).toUpperCase();
-            if (signStr.equalsIgnoreCase(sign)) {
+            String signContent = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
+            String signStr = SignatureUtils.md5(signContent).toLowerCase();
+            if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
                 log.error("{} 验签或校验金额失败！ 回调参数：parameter = {}", LOG_TAG, jsonParams);

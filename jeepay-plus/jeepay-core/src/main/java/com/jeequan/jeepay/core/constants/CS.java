@@ -406,6 +406,20 @@ public class CS {
         String JIEDA = "jieda";
 
         String MINGFA = "mingfa";
+
+        String MAYI = "mayi";
+
+        String LANTIAN = "lantian";
+
+        String BOLIN = "bolin";
+
+        String G63A = "g63a";
+
+        String ANGELPAY = "angelpay";
+
+        String XIAMI = "xiami";
+
+        String SHANDIAN = "shandian";
     }
 
 

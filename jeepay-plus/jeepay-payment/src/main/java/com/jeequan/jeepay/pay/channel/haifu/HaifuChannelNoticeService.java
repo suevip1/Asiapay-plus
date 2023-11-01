@@ -29,7 +29,7 @@ public class HaifuChannelNoticeService extends AbstractChannelNoticeService {
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "success ";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {

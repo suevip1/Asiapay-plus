@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.cangqiong;
+package com.jeequan.jeepay.pay.channel.angelpay;
 
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
@@ -10,7 +10,6 @@ import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.JeepayKit;
-import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -22,20 +21,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 苍穹支付
+ * 天使支付
  */
 @Service
 @Slf4j
-public class CangqiongPaymentService extends AbstractPaymentService {
-    private static final String LOG_TAG = "[苍穹支付]";
+public class AngelpayPaymentService extends AbstractPaymentService {
+    private static final String LOG_TAG = "[天使支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.CANGQIONG;
+        return CS.IF_CODE.ANGELPAY;
     }
 
     @Override
@@ -57,25 +58,34 @@ public class CangqiongPaymentService extends AbstractPaymentService {
 
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-            String pay_memberid = normalMchParams.getMchNo();
-            String pay_orderid = payOrder.getPayOrderId();
+            String mch_no = normalMchParams.getMchNo();
+            String order_no = payOrder.getPayOrderId();
+            String date = dateFormat.format(new Date());
+            String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
+            String notifyurl = getNotifyUrl(payOrder.getPayOrderId());
+            String callbackurl = notifyurl;
+            String detail = "detail";
+            String email = "test@gmail.com";
+            String phone = "13122336688";
+            String name = "zhang san";
+            String ccy = normalMchParams.getPayType();
 
+            map.put("mch_no", mch_no);
+            map.put("order_no", order_no);
+            map.put("date", date);
+            map.put("amount", amount);
+            map.put("notifyurl", notifyurl);
+            map.put("callbackurl", callbackurl);
+            map.put("detail", detail);
+            map.put("email", email);
+            map.put("phone", phone);
+            map.put("name", name);
+            map.put("ccy", ccy);
 
-            String pay_bankcode = normalMchParams.getPayType();
-            String pay_amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-            String pay_notifyurl = getNotifyUrl(payOrder.getPayOrderId());
-
-            map.put("pay_memberid", pay_memberid);
-            map.put("pay_orderid", pay_orderid);
-
-            map.put("pay_bankcode", pay_bankcode);
-            map.put("pay_amount", pay_amount);
-            map.put("pay_notifyurl", pay_notifyurl);
-
-
-            String pay_md5sign = JeepayKit.getSign(map, key).toUpperCase();
-            map.put("pay_md5sign", pay_md5sign);
+            String sign = JeepayKit.getSign(map, key).toLowerCase();
+            map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
@@ -87,11 +97,11 @@ public class CangqiongPaymentService extends AbstractPaymentService {
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("code").equals("200")) {
+            if (result.getString("code").equals("0")) {
                 JSONObject data = result.getJSONObject("data");
 
-                String payUrl = data.getString("payUrl");
-                String passageOrderId = "";
+                String payUrl = data.getString("pay_url");
+                String passageOrderId = data.getString("pt_order_no");
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
                 res.setPayData(payUrl);
@@ -114,27 +124,37 @@ public class CangqiongPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "32cpqp7ui9gmyr0dzviw86g5589nk1mv";
+        String key = "234c5f683ea942e82acfa3f2de5e9f92";
 
-        String pay_memberid = "10000352";
-        String pay_orderid = RandomStringUtils.random(15, true, true);
+        String mch_no = "100004";
+        String order_no = RandomStringUtils.random(15, true, true);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String date = dateFormat.format(new Date());
+        String amount = AmountUtil.convertCent2Dollar(10000L);
+        String notifyurl = "http://47.243.56.57";
+        String callbackurl = notifyurl;
+        String detail = "detail";
+        String email = "test@gmail.com";
+        String phone = "13122336688";
+        String name = "zhang san";
+        String ccy = "USD";
 
-        String pay_bankcode = "999";
-        String pay_notifyurl = "http://47.243.56.57";
-        String pay_amount = "100";
+        map.put("mch_no", mch_no);
+        map.put("order_no", order_no);
+        map.put("date", date);
+        map.put("amount", amount);
+        map.put("notifyurl", notifyurl);
+        map.put("callbackurl", callbackurl);
+        map.put("detail", detail);
+        map.put("email", email);
+        map.put("phone", phone);
+        map.put("name", name);
+        map.put("ccy", ccy);
 
+        String sign = JeepayKit.getSign(map, key).toLowerCase();
+        map.put("sign", sign);
 
-        map.put("pay_memberid", pay_memberid);
-        map.put("pay_orderid", pay_orderid);
-        map.put("pay_bankcode", pay_bankcode);
-        map.put("pay_notifyurl", pay_notifyurl);
-        map.put("pay_amount", pay_amount);
-
-        String pay_md5sign = JeepayKit.getSign(map, key).toUpperCase();
-        map.put("pay_md5sign", pay_md5sign);
-
-
-        String payGateway = "http://pay.zhuanyunpay.top/pay/doPay";
+        String payGateway = "http://www.angelpay.vip/api/create_order";
 
         // 发送POST请求并指定JSON数据
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();
