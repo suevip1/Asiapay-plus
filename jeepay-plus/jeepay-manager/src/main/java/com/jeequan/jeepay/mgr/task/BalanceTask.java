@@ -151,6 +151,8 @@ public class BalanceTask {
                     //通道入账余额= 订单金额-通道成本-通道代理成本
                     Long passageChangeAmount = payOrder.getAmount() - payOrder.getPassageFeeAmount() - payOrder.getAgentPassageFee();
                     PayPassage payPassage = payPassageService.queryPassageInfo(payOrder.getPassageId());
+                    //updatePassageInfo 这个方法中设置了余额会变为null,提前取出
+                    Long passageBeforeBalance = payPassage.getBalance();
 
                     //额度限制打开的情况
                     if (payPassage.getQuotaLimitState() == CS.YES) {
@@ -169,7 +171,7 @@ public class BalanceTask {
                     }
 
                     //通道余额处理
-                    Long passageBeforeBalance = payPassage.getBalance();
+                    //为何空？
 
                     if (payPassageBalanceChange.containsKey(payOrder.getPassageId())) {
                         passageBeforeBalance += payPassageBalanceChange.get(payOrder.getPassageId());
@@ -183,6 +185,7 @@ public class BalanceTask {
                     //保存流水入通道流水记录
                     //插入通道流水记录
                     passageTransactionHistoryList.add(AddPassageOrderSuccessHistory(payOrder, payPassage, passageBeforeBalance, passageAfterBalance, passageChangeAmount));
+
                 } else {
                     log.error("BalanceTask 余额统计订单状态错误 订单号[{}] , {}", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
                 }
