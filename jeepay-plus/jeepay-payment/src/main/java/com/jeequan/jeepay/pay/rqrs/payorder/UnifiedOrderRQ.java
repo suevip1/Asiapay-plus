@@ -42,6 +42,11 @@ public class UnifiedOrderRQ extends AbstractMchAppRQ {
     @NotBlank(message="异步通知地址不能为空")
     private String notifyUrl;
 
+    /**
+     * 额外参数
+     */
+    private String extParam;
+
 
     /** 返回真实的bizRQ **/
     public UnifiedOrderRQ buildBizRQ(){

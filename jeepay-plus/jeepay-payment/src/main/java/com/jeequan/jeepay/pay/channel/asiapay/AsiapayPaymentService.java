@@ -46,6 +46,7 @@ public class AsiapayPaymentService extends AbstractPaymentService {
         UnifiedOrderRS res = ApiResBuilder.buildSuccess(UnifiedOrderRS.class);
         ChannelRetMsg channelRetMsg = new ChannelRetMsg();
         res.setChannelRetMsg(channelRetMsg);
+
         String raw = "";
         try {
             PayPassage payPassage = payConfigContext.getPayPassage();

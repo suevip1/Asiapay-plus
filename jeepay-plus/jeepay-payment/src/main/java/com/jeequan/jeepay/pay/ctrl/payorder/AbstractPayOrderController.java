@@ -293,6 +293,9 @@ public abstract class AbstractPayOrderController extends ApiController {
         payOrder.setAmount(rq.getAmount()); //订单金额
         payOrder.setClientIp(rq.getClientIp()); // 设置IP
 
+        if(StringUtils.isNotEmpty(rq.getExtParam())){
+            payOrder.setExtParamJson(rq.getExtParam());
+        }
 
         //商户手续费费率快照-总收费
         Long mchFeeAmount = AmountUtil.calPercentageFee(rq.getAmount(), payConfigContext.getMchProduct().getMchRate());

@@ -91,7 +91,7 @@ public abstract class ApiController extends AbstractCtrl {
             throw new BizException("验签失败");
         }
 
-        //todo xss 待验证
+
         String params = bizReqJSON.toString();
         if (StringUtils.isNotBlank(params)) {
             if (XssFilterUtil.isHandXss(request.getRequestURI())) {
@@ -106,43 +106,4 @@ public abstract class ApiController extends AbstractCtrl {
         return bizRQ;
     }
 
-    protected <T extends AbstractRQ> T getRQByWithMchSignTest(Class<T> cls) {
-
-        //获取请求RQ, and 通用验证
-        T bizRQ = getRQ(cls);
-
-        AbstractMchAppRQ abstractMchAppRQ = (AbstractMchAppRQ) bizRQ;
-
-        //业务校验， 包括： 验签， 商户状态是否可用， 是否支持该支付方式下单等。
-        String mchNo = abstractMchAppRQ.getMchNo();
-        String sign = bizRQ.getSign();
-
-        if (StringUtils.isAnyBlank(mchNo, sign)) {
-            throw new BizException("参数有误！");
-        }
-
-        MchInfo mchInfo = configContextQueryService.queryMchInfo(mchNo);
-
-        if (mchInfo == null || mchInfo.getState() != MchInfo.STATE_OPEN) {
-            throw new BizException("商户不存或商户状态异常");
-        }
-
-        // 转换为 JSON
-        JSONObject bizReqJSON = (JSONObject) JSONObject.toJSON(bizRQ);
-        bizReqJSON.remove("sign");
-
-        //todo xss 待验证
-        String params = bizReqJSON.toString();
-        if (StringUtils.isNotBlank(params)) {
-            if (XssFilterUtil.isHandXss(request.getRequestURI())) {
-                String cleanValue = XssFilterUtil.clean(params);
-                if (!cleanValue.equals(params)) {
-                    logger.error("参数中含有XSS符号!,params={}" + params);
-                    throw new BizException("请求参数异常");
-                }
-            }
-        }
-
-        return bizRQ;
-    }
 }

@@ -33,6 +33,7 @@ public class TestpayPaymentService extends AbstractPaymentService {
         UnifiedOrderRS res = ApiResBuilder.buildSuccess(UnifiedOrderRS.class);
         res.setChannelRetMsg(channelRetMsg);
         channelRetMsg.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
+
         res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
         res.setPayData("https://www.google.com/testpay");
 
