@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.dashi;
+package com.jeequan.jeepay.pay.channel.xxpay5;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -9,7 +9,6 @@ import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
-import com.jeequan.jeepay.pay.channel.IChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,21 +23,21 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class DashiChannelNoticeService extends AbstractChannelNoticeService {
+public class Xxpay5ChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "大师支付";
+    private static final String LOG_TAG = "[xxpay5支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "SUCCESS";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.DASHI;
+        return CS.IF_CODE.XXPAY5;
     }
 
     @Override
-    public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, IChannelNoticeService.NoticeTypeEnum noticeTypeEnum) {
+    public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, NoticeTypeEnum noticeTypeEnum) {
         try {
             JSONObject params = getReqParamJSON();
             return MutablePair.of(urlOrderId, params);
@@ -49,7 +48,7 @@ public class DashiChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     @Override
-    public ChannelRetMsg doNotice(HttpServletRequest request, Object params, PayOrder payOrder, PayPassage payPassage, IChannelNoticeService.NoticeTypeEnum noticeTypeEnum) {
+    public ChannelRetMsg doNotice(HttpServletRequest request, Object params, PayOrder payOrder, PayPassage payPassage, NoticeTypeEnum noticeTypeEnum) {
         ChannelRetMsg result = ChannelRetMsg.confirmSuccess(null);
         try {
             // 获取请求参数
@@ -68,11 +67,11 @@ public class DashiChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //支付状态：“SUCCESS” 为支付成功
-            String trade_state = jsonParams.getString("trade_state");
+            //支付状态,0-订单生成,1-支付中,2-支付成功,3-业务处理完成
+            int status = jsonParams.getInteger("status");
 
-            if (!trade_state.equals("SUCCESS")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, trade_state);
+            if (status != 2) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
                 //验签成功后判断上游订单状态
@@ -94,7 +93,7 @@ public class DashiChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("out_trade_no");        // 商户订单号
+        String orderNo = jsonParams.getString("mchOrderNo");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -107,7 +106,7 @@ public class DashiChannelNoticeService extends AbstractChannelNoticeService {
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 

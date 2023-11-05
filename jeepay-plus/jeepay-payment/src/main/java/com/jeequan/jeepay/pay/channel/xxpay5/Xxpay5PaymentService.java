@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.dashi;
+package com.jeequan.jeepay.pay.channel.xxpay5;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -7,8 +7,7 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
+import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -23,18 +22,16 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 大师支付
- */
+
 @Service
 @Slf4j
-public class DashiPaymentService extends AbstractPaymentService {
+public class Xxpay5PaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "大师支付";
+    private static final String LOG_TAG = "[xxpay5支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.DASHI;
+        return CS.IF_CODE.XXPAY5;
     }
 
     @Override
@@ -57,37 +54,42 @@ public class DashiPaymentService extends AbstractPaymentService {
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
 
-            String app_id = normalMchParams.getMchNo();
-            String out_trade_no = payOrder.getPayOrderId();
+            String mchId = normalMchParams.getMchNo();
+            String productId = normalMchParams.getPayType();
+            String mchOrderNo = payOrder.getPayOrderId();
+
+            String currency = "cny";
             String subject = "subject";
-            String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-            String channel = normalMchParams.getPayType();
-            String client_ip = payOrder.getClientIp();
-            String notify_url = getNotifyUrl(payOrder.getPayOrderId());
-            String return_url = notify_url;
+            String body = "body";
 
-            map.put("app_id", app_id);
-            map.put("out_trade_no", out_trade_no);
-            map.put("subject", subject);
+            Long amount = payOrder.getAmount();
+            String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());
+
+            map.put("mchId", mchId);
+            map.put("productId", productId);
             map.put("amount", amount);
-            map.put("channel", channel);
-            map.put("client_ip", client_ip);
-            map.put("notify_url", notify_url);
-            map.put("return_url", return_url);
+            map.put("mchOrderNo", mchOrderNo);
 
-            String sign = JeepayKit.getSign(map, key).toUpperCase();
+            map.put("currency", currency);
+            map.put("subject", subject);
+            map.put("body", body);
+            map.put("notifyUrl", notifyUrl);
+
+            String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
+            String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
             raw = HttpUtil.post(payGateway, map, 10000);
-            channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
+            channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("return_code").equals("SUCCESS")) {
-                String payUrl = result.getString("credential");
-                String passageOrderId = "";
+            if (result.getString("retCode").equals("SUCCESS")) {
+
+                String payUrl = result.getJSONObject("payParams").getString("payJumpUrl");
+                String passageOrderId = result.getString("payOrderId");
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
                 res.setPayData(payUrl);
@@ -109,35 +111,38 @@ public class DashiPaymentService extends AbstractPaymentService {
 
     public static void main(String[] args) {
         String raw = "";
+
         Map<String, Object> map = new HashMap<>();
-        String key = "7C8A71AB099B1BCABA2E936E6FC4E5F7";
+        String key = "DBFXKRGWTQJ4YNW4MYEX4M0YPQD9X0PFWP9CWQAEMSPGAVYWPVCYQLMODXHGZH5M3KOC85YOY5YIHOTHNRRSQCFGAHU5GIAML9Y6AVIRFRD5XVFDMTZ5TV2NO7EXH3UC";
 
-        String app_id = "1683";
-        String out_trade_no = RandomStringUtils.random(15, true, true);
-        String subject = "subject";
-        String amount = AmountUtil.convertCent2Dollar(10000L);
-        String channel = "604";
-        String client_ip = "127.0.0.1";
-        String notify_url = "https://www.test.com";
-        String return_url = notify_url;
+        String mchId = "20000274";
+        String productId = "2392";
+        String mchOrderNo = RandomStringUtils.random(15, true, true);
+        String currency = "cny";
 
-        map.put("app_id", app_id);
-        map.put("out_trade_no", out_trade_no);
-        map.put("subject", subject);
+        String subject = "goods";
+        String body = "desc";
+
+        Long amount = 10000L;
+        String notifyUrl = "https://www.test.com";
+
+        map.put("mchId", mchId);
+        map.put("productId", productId);
         map.put("amount", amount);
-        map.put("channel", channel);
-        map.put("client_ip", client_ip);
-        map.put("notify_url", notify_url);
-        map.put("return_url", return_url);
+        map.put("mchOrderNo", mchOrderNo);
 
-        String sign = JeepayKit.getSign(map, key).toUpperCase();
+        map.put("currency", currency);
+        map.put("subject", subject);
+        map.put("body", body);
+        map.put("notifyUrl", notifyUrl);
+
+        String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
+        String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
         map.put("sign", sign);
-        log.info("[{}]请求Map:{}", LOG_TAG, JSONObject.toJSON(map));
 
-        String payGateway = "https://dashi.fpgw.net/apply";
+        String payGateway = "http://pay.dmdm8.net/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
-
 }

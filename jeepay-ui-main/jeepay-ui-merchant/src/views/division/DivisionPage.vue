@@ -203,6 +203,7 @@ export default {
         this.$message.error('金额格式错误')
         return
       }
+      that.isShowModal = false
       const param = {}
       param.amount = this.changeObject.amount * 100
       param.remark = this.changeObject.remark
