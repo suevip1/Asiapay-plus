@@ -181,7 +181,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 handleCommand(update);
             } else if (update.getMessage().isGroupMessage() || update.getMessage().isSuperGroupMessage()) {
                 handleGroupCommand(update);
-            } else if (update.getMessage().isUserMessage() && !update.getMessage().getFrom().getIsBot()) {
+            } else if (update.getMessage().isUserMessage()) {
                 handlePrivateCommand(update);
             }
 

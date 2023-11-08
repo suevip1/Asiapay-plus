@@ -36,6 +36,10 @@ public class TestpayPaymentService extends AbstractPaymentService {
         res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
         res.setPayData("https://www.google.com/testpay");
 
+
+        bizRQ.getExtParam();
+        payOrder.getExtParamJson();
+
         return res;
     }
 
