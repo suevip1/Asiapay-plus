@@ -1,4 +1,5 @@
-package com.jeequan.jeepay.pay.channel.shengyang;
+package com.jeequan.jeepay.pay.channel.zhaocaimao;
+
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -22,9 +23,8 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class ShengyangChannelNoticeService extends AbstractChannelNoticeService {
-
-    private static final String LOG_TAG = "[盛阳支付]";
+public class ZhaocaimaoChannelNoticeService extends AbstractChannelNoticeService {
+    private static final String LOG_TAG = "[招财猫支付]";
 
     private static final String ON_FAIL = "fail";
 
@@ -32,7 +32,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHENGYANG;
+        return CS.IF_CODE.ZHAOCAIMAO;
     }
 
     @Override
@@ -66,18 +66,15 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //交易状态：“00” 为成功
-            String returncode = jsonParams.getString("returncode");
+            //“SUCCESS” 为充值成功
+            String status = jsonParams.getString("status");
 
-
-            if (!returncode.equals("00")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
+            if (!status.equals("SUCCESS")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
-                String channelOrderId = jsonParams.getString("transaction_id");
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                result.setChannelOrderId(channelOrderId);
             }
             return result;
         } catch (Exception e) {
@@ -95,7 +92,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderid");        // 商户订单号
+        String orderNo = jsonParams.getString("orderId");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -108,7 +105,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 

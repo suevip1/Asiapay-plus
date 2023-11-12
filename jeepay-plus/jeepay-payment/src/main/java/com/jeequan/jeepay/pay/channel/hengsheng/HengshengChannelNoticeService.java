@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.shengyang;
+package com.jeequan.jeepay.pay.channel.hengsheng;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -6,7 +6,6 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
-import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
@@ -20,19 +19,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Map;
 
+
 @Slf4j
 @Service
-public class ShengyangChannelNoticeService extends AbstractChannelNoticeService {
+public class HengshengChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[盛阳支付]";
+    private static final String LOG_TAG = "[恒生支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "OK";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHENGYANG;
+        return CS.IF_CODE.HENGSHENG;
     }
 
     @Override
@@ -66,18 +66,15 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //交易状态：“00” 为成功
-            String returncode = jsonParams.getString("returncode");
+            //订单支付状态 0：处理中 1：成功 2：失败
+            String status = jsonParams.getString("status");
 
-
-            if (!returncode.equals("00")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
+            if (!status.equals("1")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
-                String channelOrderId = jsonParams.getString("transaction_id");
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                result.setChannelOrderId(channelOrderId);
             }
             return result;
         } catch (Exception e) {
@@ -95,7 +92,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderid");        // 商户订单号
+        String orderNo = jsonParams.getString("merchantOrderNo");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -110,16 +107,16 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
         BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
 
-        NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
+        HengshengParamsModel hengshengParamsModel = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), HengshengParamsModel.class);
 
         String sign = jsonParams.getString("sign");
         Map map = JSON.parseObject(jsonParams.toJSONString());
         map.remove("sign");
-        if (resultsParam != null) {
-            String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"attach"}) + "&key=" + secret;
-            final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
-            if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
+        if (hengshengParamsModel != null) {
+            String requestPublicKey = hengshengParamsModel.getRequestPublicKey();
+            final String signContentStr = SignatureUtils.getSignContent(map, null, new String[]{""});
+            boolean verifySign = SignatureUtils.buildSHA1WithRSAVerifyByPublicKey(signContentStr, requestPublicKey, sign);
+            if (verifySign && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
                 log.error("{} 验签或校验金额失败！ 回调参数：parameter = {}", LOG_TAG, jsonParams);

@@ -1,4 +1,5 @@
-package com.jeequan.jeepay.pay.channel.shengyang;
+package com.jeequan.jeepay.pay.channel.fengye;
+
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -10,29 +11,33 @@ import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.service.impl.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Service
-public class ShengyangChannelNoticeService extends AbstractChannelNoticeService {
-
-    private static final String LOG_TAG = "[盛阳支付]";
+public class FengyeChannelNoticeService extends AbstractChannelNoticeService {
+    private static final String LOG_TAG = "[枫叶支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "OK";
+    private static final String ON_SUCCESS = "success";
 
+    @Autowired
+    protected SysConfigService sysConfigService;
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHENGYANG;
+        return CS.IF_CODE.FENGYE;
     }
 
     @Override
@@ -66,18 +71,15 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //交易状态：“00” 为成功
-            String returncode = jsonParams.getString("returncode");
+            //订单支付状态，SUCCESS:支付成功；
+            String TradeStatus = jsonParams.getString("TradeStatus");
 
-
-            if (!returncode.equals("00")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
+            if (!TradeStatus.equals("SUCCESS")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, TradeStatus);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
-                String channelOrderId = jsonParams.getString("transaction_id");
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                result.setChannelOrderId(channelOrderId);
             }
             return result;
         } catch (Exception e) {
@@ -95,8 +97,8 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderid");        // 商户订单号
-        String txnAmt = jsonParams.getString("amount");        // 支付金额
+        String orderNo = jsonParams.getString("OrderId");        // 商户订单号
+        String txnAmt = jsonParams.getString("Amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
@@ -112,12 +114,19 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
-        String sign = jsonParams.getString("sign");
+        String sign = jsonParams.getString("Sign");
         Map map = JSON.parseObject(jsonParams.toJSONString());
-        map.remove("sign");
+
+        // 回调签名参数为五个，其中NotifyUrl接口不返回，商户需要自己内置
+        Map<String, Object> signMap = new HashMap<>();
+        signMap.put("NotifyUrl", getNotifyUrl(payOrder.getPayOrderId()));
+        signMap.put("ReturnUrl", map.get("ReturnUrl"));
+        signMap.put("OrderId", map.get("OrderId"));
+        signMap.put("Amount", map.get("Amount"));
+        signMap.put("PayType", map.get("PayType"));
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"attach"}) + "&key=" + secret;
+            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(signMap, null) + "&key=" + secret;
             final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
@@ -129,5 +138,8 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             log.info("{} 获取商户配置失败！ 参数：parameter = {}", LOG_TAG, jsonParams);
             return false;
         }
+    }
+    protected String getNotifyUrl(String payOrderId) {
+        return sysConfigService.getDBApplicationConfig().getPaySiteUrl() + "/api/pay/notify/" + getIfCode() + "/" + payOrderId;
     }
 }

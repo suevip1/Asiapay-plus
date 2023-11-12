@@ -3,12 +3,12 @@ package com.jeequan.jeepay.core.utils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
@@ -21,6 +21,34 @@ public class SignatureUtils {
 
     public static void main(String[] args) {
 
+    }
+
+    /**
+     * hmac-sha256签名算法
+     *
+     * @param map 待加密参数
+     * @param key 密钥
+     * @return 签名字符串
+     */
+    public static String generateSign(Map<String, Object> map, String key) {
+        try {
+            StringJoiner sj = new StringJoiner("&");
+            map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(x -> {
+                sj.add(x.getKey()+"="+x.getValue());
+            });
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+            byte[] array = sha256_HMAC.doFinal(sj.toString().getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte item : array) {
+                sb.append(Integer.toHexString((item & 0xFF) | 0x100).substring(1, 3));
+            }
+            return sb.toString();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public static String getSignContent(Map<String, Object> param) {
@@ -197,13 +225,58 @@ public class SignatureUtils {
     }
 
     /**
-     * RSA算法使用私钥对数据生成数字签名
+     * SHA1WithRSA算法使用私钥对数据生成数字签名
+     *
+     * @param signValue 待签名的明文字符串(MD5后字符串)
+     * @param key       RSA商户私钥字符串
+     * @return RSA私钥签名后的经过Base64编码的字符串
+     */
+    public static String buildSHA1WithRSASignByPrivateKey(String signValue, String key) {
+        try {
+            //通过PKCS#8编码的Key指令获得私钥对象
+            PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PrivateKey privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initSign(privateKey);
+            signature.update(signValue.getBytes("UTF-8"));
+            return Base64.getEncoder().encodeToString(signature.sign());
+        } catch (Exception e) {
+            throw new RuntimeException("签名字符串[" + signValue + "]时遇到异常", e);
+        }
+    }
+
+    /**
+     * SHA1WithRSA算法使用公钥校验数字签名
+     *
+     * @param signValue 参与签名的明文字符串(MD5后字符串)
+     * @param key       RSA平台公钥字符串(平台公钥，通道管理->对接参数中查看)
+     * @param sign      回调参数sign值
+     * @return true--验签通过,false--验签未通过
+     */
+    public static boolean buildSHA1WithRSAVerifyByPublicKey(String signValue, String key, String sign) {
+        try {
+            //通过X509编码的Key指令获得公钥对象
+            X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            PublicKey publicKey = keyFactory.generatePublic(x509KeySpec);
+            Signature signature = Signature.getInstance("SHA1WithRSA");
+            signature.initVerify(publicKey);
+            signature.update(signValue.getBytes("UTF-8"));
+            return signature.verify(Base64.getDecoder().decode(sign));
+        } catch (Exception e) {
+            throw new RuntimeException("验签字符串[" + signValue + "]时遇到异常", e);
+        }
+    }
+
+    /**
+     * SHA256WithRSA算法使用私钥对数据生成数字签名
      *
      * @param signValue 待签名的明文字符串(MD5后字符串)
      * @param key       RSA私钥字符串
      * @return RSA私钥签名后的经过Base64编码的字符串
      */
-    public static String buildRSASignByPrivateKey(String signValue, String key) {
+    public static String buildSHA256WithRSASignByPrivateKey(String signValue, String key) {
         try {
             //通过PKCS#8编码的Key指令获得私钥对象
             PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
@@ -219,14 +292,14 @@ public class SignatureUtils {
     }
 
     /**
-     * RSA算法使用公钥校验数字签名
+     * SHA256WithRSA算法使用公钥校验数字签名
      *
      * @param signValue 参与签名的明文字符串(MD5后字符串)
      * @param key       RSA公钥字符串(平台公钥，通道管理->对接参数中查看)
-     * @param sign      参数sign值
+     * @param sign      回调参数sign值
      * @return true--验签通过,false--验签未通过
      */
-    public static boolean buildRSAVerifyByPublicKey(String signValue, String key, String sign) {
+    public static boolean buildSHA256WithRSAVerifyByPublicKey(String signValue, String key, String sign) {
         try {
             //通过X509编码的Key指令获得公钥对象
             X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));

@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.shengyang;
+package com.jeequan.jeepay.pay.channel.tesila;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -22,9 +22,9 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class ShengyangChannelNoticeService extends AbstractChannelNoticeService {
+public class TesilaChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[盛阳支付]";
+    private static final String LOG_TAG = "[特斯拉支付]";
 
     private static final String ON_FAIL = "fail";
 
@@ -32,7 +32,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHENGYANG;
+        return CS.IF_CODE.TESILA;
     }
 
     @Override
@@ -66,18 +66,15 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //交易状态：“00” 为成功
+            //支付状态：“00” 为成功
             String returncode = jsonParams.getString("returncode");
-
 
             if (!returncode.equals("00")) {
                 log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
-                String channelOrderId = jsonParams.getString("transaction_id");
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                result.setChannelOrderId(channelOrderId);
             }
             return result;
         } catch (Exception e) {

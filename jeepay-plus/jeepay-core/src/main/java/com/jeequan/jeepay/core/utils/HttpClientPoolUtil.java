@@ -188,14 +188,14 @@ public class HttpClientPoolUtil {
                 }
             }
             URI uri = builder.build();
-            // LOGGER.info("请求地址：" + uri);
+           // LOGGER.info("请求地址：" + uri);
             method = getRequest(uri, headers, HttpGet.METHOD_NAME, DEFAULT_CONTENT_TYPE, 0);
             HttpContext context = HttpClientContext.create();
             CloseableHttpResponse httpResponse = httpClient.execute(method, context);
             httpEntity = httpResponse.getEntity();
             if (httpEntity != null) {
                 responseBody = EntityUtils.toString(httpEntity, "UTF-8");
-                //   LOGGER.info("请求URL: " + url + "+  返回状态码：" + httpResponse.getStatusLine().getStatusCode());
+             //   LOGGER.info("请求URL: " + url + "+  返回状态码：" + httpResponse.getStatusLine().getStatusCode());
             }
             ;
         } catch (HttpHostConnectException e) {
@@ -282,7 +282,7 @@ public class HttpClientPoolUtil {
             }
             e.printStackTrace();
             log.error("execute post request exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                    + (System.currentTimeMillis() - startTime));
+                            + (System.currentTimeMillis() - startTime));
         } finally {
             if (httpEntity != null) {
                 try {
@@ -290,7 +290,7 @@ public class HttpClientPoolUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("close response exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                            + (System.currentTimeMillis() - startTime));
+                                    + (System.currentTimeMillis() - startTime));
                 }
             }
         }
@@ -326,7 +326,7 @@ public class HttpClientPoolUtil {
             }
             e.printStackTrace();
             log.error("execute post request exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                    + (System.currentTimeMillis() - startTime));
+                            + (System.currentTimeMillis() - startTime));
         } finally {
             if (httpEntity != null) {
                 try {
@@ -334,7 +334,7 @@ public class HttpClientPoolUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("close response exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                            + (System.currentTimeMillis() - startTime));
+                                    + (System.currentTimeMillis() - startTime));
                 }
             }
         }

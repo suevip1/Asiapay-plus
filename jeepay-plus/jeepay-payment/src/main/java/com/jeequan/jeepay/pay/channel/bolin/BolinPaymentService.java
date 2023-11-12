@@ -85,7 +85,7 @@ public class BolinPaymentService extends AbstractPaymentService {
             map.put("pay_amount", pay_amount);
 
             String signValue = JeepayKit.getSign(map, key).toUpperCase();
-            String pay_md5sign = SignatureUtils.buildRSASignByPrivateKey(signValue, requestPrivateKey);
+            String pay_md5sign = SignatureUtils.buildSHA256WithRSASignByPrivateKey(signValue, requestPrivateKey);
             map.put("pay_md5sign", pay_md5sign);
             map.put("type", "json");
 
@@ -148,7 +148,7 @@ public class BolinPaymentService extends AbstractPaymentService {
         map.put("pay_amount", pay_amount);
 
         String signValue = JeepayKit.getSign(map, key).toUpperCase();
-        String pay_md5sign = SignatureUtils.buildRSASignByPrivateKey(signValue, rsa);
+        String pay_md5sign = SignatureUtils.buildSHA256WithRSASignByPrivateKey(signValue, rsa);
         map.put("pay_md5sign", pay_md5sign);
         map.put("type", "json");
 

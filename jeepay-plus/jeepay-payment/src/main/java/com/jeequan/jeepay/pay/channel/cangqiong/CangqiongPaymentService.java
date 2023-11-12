@@ -120,7 +120,7 @@ public class CangqiongPaymentService extends AbstractPaymentService {
         String pay_orderid = RandomStringUtils.random(15, true, true);
 
         String pay_bankcode = "999";
-        String pay_notifyurl = "http://47.243.56.57";
+        String pay_notifyurl = "http://www.test.com";
         String pay_amount = "100";
 
 

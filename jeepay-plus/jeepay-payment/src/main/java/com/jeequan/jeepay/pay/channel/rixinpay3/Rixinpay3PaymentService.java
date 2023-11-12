@@ -149,7 +149,7 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
         map.put("pay_amount", pay_amount);
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("pay_md5sign", sign);
-//        map.put("pay_user_ip", pay_user_ip);
+        map.put("pay_user_ip", pay_user_ip);
         map.put("pay_productname", "下单");
 
         String payGateway = "https://zzjijipay.eazyzhi.com/Pay_index.html";

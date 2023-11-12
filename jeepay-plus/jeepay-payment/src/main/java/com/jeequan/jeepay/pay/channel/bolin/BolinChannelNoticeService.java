@@ -79,7 +79,7 @@ public class BolinChannelNoticeService extends AbstractChannelNoticeService {
             map.put("pay_memberid", bolinParamsModel.getMchNo());
             map.put("pay_orderid", pay_orderid);
             String signValue = JeepayKit.getSign(map, key).toUpperCase();
-            String pay_md5sign = SignatureUtils.buildRSASignByPrivateKey(signValue, requestPrivateKey);
+            String pay_md5sign = SignatureUtils.buildSHA256WithRSASignByPrivateKey(signValue, requestPrivateKey);
             map.put("pay_md5sign", pay_md5sign);
 
             String raw = HttpUtil.post(bolinParamsModel.getQueryUrl(), map, 10000);
@@ -137,7 +137,7 @@ public class BolinChannelNoticeService extends AbstractChannelNoticeService {
             String secret = bolinParamsModel.getSecret();
             String requestPublicKey = bolinParamsModel.getRequestPublicKey();
             final String signValue = JeepayKit.getSign(map, secret).toUpperCase();
-            boolean verifySign = SignatureUtils.buildRSAVerifyByPublicKey(signValue, requestPublicKey, sign);
+            boolean verifySign = SignatureUtils.buildSHA256WithRSAVerifyByPublicKey(signValue, requestPublicKey, sign);
             if (verifySign && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
@@ -162,7 +162,7 @@ public class BolinChannelNoticeService extends AbstractChannelNoticeService {
         String signValue = JeepayKit.getSign(map, secret).toUpperCase();
         System.out.println("MD5后字符串："+ signValue);
         System.out.println("公钥："+ requestPublicKey);
-        boolean verifySign = SignatureUtils.buildRSAVerifyByPublicKey(signValue, requestPublicKey, sign);
+        boolean verifySign = SignatureUtils.buildSHA256WithRSAVerifyByPublicKey(signValue, requestPublicKey, sign);
         System.out.println(verifySign);
     }
 }

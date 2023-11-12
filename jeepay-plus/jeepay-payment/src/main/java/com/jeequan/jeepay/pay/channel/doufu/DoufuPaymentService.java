@@ -1,6 +1,6 @@
-package com.jeequan.jeepay.pay.channel.shayupay;
+package com.jeequan.jeepay.pay.channel.doufu;
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -19,28 +19,23 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRQ;
 import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-
 
 /**
- * 鲨鱼支付
+ * 豆付支付
  */
 @Service
 @Slf4j
-public class ShayupayPaymentService extends AbstractPaymentService {
-
-    private static final String LOG_TAG = "[鲨鱼支付]";
+public class DoufuPaymentService extends AbstractPaymentService {
+    private static final String LOG_TAG = "[豆付支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHAYUPAY;
+        return CS.IF_CODE.DOUFU;
     }
 
     @Override
@@ -63,41 +58,42 @@ public class ShayupayPaymentService extends AbstractPaymentService {
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
 
-            String merchantId = normalMchParams.getMchNo();
-            String orderId = payOrder.getPayOrderId();
+            String merchant_no = normalMchParams.getMchNo();
+            String merchant_order_id = payOrder.getPayOrderId();
+            String pay_type = normalMchParams.getPayType();
+            String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
+            String caller_ip = payOrder.getPayOrderId();
+            String trade_name = "下单";
+            long timestamp = System.currentTimeMillis();
+            String notify_url = getNotifyUrl(payOrder.getPayOrderId());
+            String return_url = notify_url;
 
-            String channelType = normalMchParams.getPayType();
-            String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());
-
-            String orderAmount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-
-            map.put("merchantId", merchantId);
-            map.put("orderId", orderId);
-            map.put("channelType", channelType);
-            map.put("notifyUrl", notifyUrl);
-            map.put("orderAmount", orderAmount);
-
-            // 处理非空
-            if (bizRQ != null && bizRQ.getExtParam() != null) {
-                map.put("order_title", bizRQ.getExtParam());
-            }
-
-            String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + key;
-            String sign = SignatureUtils.md5(signStr).toLowerCase();
+            map.put("merchant_no", merchant_no);
+            map.put("merchant_order_id", merchant_order_id);
+            map.put("pay_type", pay_type);
+            map.put("amount", amount);
+            map.put("caller_ip", caller_ip);
+            map.put("trade_name", trade_name);
+            map.put("timestamp", timestamp);
+            map.put("notify_url", notify_url);
+            map.put("return_url", return_url);
+            String sign = JeepayKit.getSign(map, key).toLowerCase();
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map, 10000);
-            channelRetMsg.setChannelOriginResponse(raw);
+            // 发送POST请求并指定JSON数据
+            HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();
+            // 处理响应
+            raw = response.body();
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
-
+            channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
             if (result.getString("code").equals("200")) {
-                JSONObject data = result.getJSONObject("data");
-                String payUrl = data.getString("payUrl");
-                String passageOrderId = "";
+
+                String payUrl = result.getString("pay_url");
+                String passageOrderId = result.getString("platform_order_id");
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
                 res.setPayData(payUrl);
@@ -116,33 +112,40 @@ public class ShayupayPaymentService extends AbstractPaymentService {
         return res;
     }
 
-
     public static void main(String[] args) {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "add9c842ede16832b0a1b3be25952d09";
+        String key = "0a49f5e82b930a5adda2df29b9aff985";
 
-        String merchantId = "10130";
-        String orderId = RandomStringUtils.random(15, true, true);
-        String orderAmount = AmountUtil.convertCent2Dollar(10000L);
-        String channelType = "8006";
-        String notifyUrl = "https://www.test.com";
+        String merchant_no = "91913254295";
+        String merchant_order_id = RandomStringUtils.random(15, true, true);
+        String pay_type = "3";
+        String amount = AmountUtil.convertCent2Dollar(10000L);
+        String caller_ip = "127.0.0.1";
+        String trade_name = "下单";
+        long timestamp = System.currentTimeMillis();
+        String notify_url = "http://www.test.com";
+        String return_url = notify_url;
 
-        map.put("merchantId", merchantId);
-        map.put("orderId", orderId);
-        map.put("orderAmount", orderAmount);
-        map.put("channelType", channelType);
-        map.put("notifyUrl", notifyUrl);
-        map.put("order_title", "张三");
-
-        String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + key;
-        String sign = SignatureUtils.md5(signStr).toLowerCase();
+        map.put("merchant_no", merchant_no);
+        map.put("merchant_order_id", merchant_order_id);
+        map.put("pay_type", pay_type);
+        map.put("amount", amount);
+        map.put("caller_ip", caller_ip);
+        map.put("trade_name", trade_name);
+        map.put("timestamp", timestamp);
+        map.put("notify_url", notify_url);
+        map.put("return_url", return_url);
+        String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "http://miduo.joy999.shop/api/newOrder";
+        String payGateway = "http://43.129.246.3/order/pay";
 
-        raw = HttpUtil.post(payGateway, map, 10000);
+        // 发送POST请求并指定JSON数据
+        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();
+        // 处理响应
+        raw = response.body();
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
 }

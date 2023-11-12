@@ -423,6 +423,27 @@ public class CS {
         String SHANDIAN = "shandian";
 
         String CHUANGYUAN = "chuangyuan";
+
+        String HUOJIAN = "huojian";
+
+        String XINGWANG = "xingwang";
+
+        String FENGYE = "fengye";
+
+        String DOUFU = "doufu";
+
+        String XIAPI = "xiapi";
+
+        String ZHAOCAIMAO = "zhaocaimao";
+
+        String TESILA = "tesila";
+
+        String DASHENG = "dasheng";
+        String WWGOPAY = "wwgopay";
+        String HENGSHENG = "hengsheng";
+        String LIYUPAY = "liyupay";
+        String HUOYAN = "huoyan";
+        String TENGCHENG = "tengcheng";
     }
 
 

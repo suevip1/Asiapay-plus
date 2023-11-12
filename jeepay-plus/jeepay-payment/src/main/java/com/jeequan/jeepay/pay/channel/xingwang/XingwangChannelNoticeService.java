@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.shengyang;
+package com.jeequan.jeepay.pay.channel.xingwang;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -7,9 +7,9 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.util.JeepayKit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -20,19 +20,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.Map;
 
+
 @Slf4j
 @Service
-public class ShengyangChannelNoticeService extends AbstractChannelNoticeService {
+public class XingwangChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[盛阳支付]";
+    private static final String LOG_TAG = "兴旺支付";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "OK";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.SHENGYANG;
+        return CS.IF_CODE.XINGWANG;
     }
 
     @Override
@@ -66,18 +67,15 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //交易状态：“00” 为成功
-            String returncode = jsonParams.getString("returncode");
+            //支付状态,0-订单生成,1-支付中,2-支付成功,3-业务处理完成
+            int status = jsonParams.getInteger("status");
 
-
-            if (!returncode.equals("00")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
+            if (status != 2) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
-                String channelOrderId = jsonParams.getString("transaction_id");
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                result.setChannelOrderId(channelOrderId);
             }
             return result;
         } catch (Exception e) {
@@ -95,7 +93,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("orderid");        // 商户订单号
+        String orderNo = jsonParams.getString("mchOrderNo");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -108,7 +106,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
@@ -117,8 +115,7 @@ public class ShengyangChannelNoticeService extends AbstractChannelNoticeService 
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"attach"}) + "&key=" + secret;
-            final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+            final String signStr = JeepayKit.getSign(map, secret).toUpperCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {

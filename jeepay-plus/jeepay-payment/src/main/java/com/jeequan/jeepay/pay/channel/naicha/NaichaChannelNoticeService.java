@@ -66,7 +66,7 @@ public class NaichaChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //支付状态,-2:订单已关闭,0-订单生成,1-支付中,2-支付成功,3-业务处理完成,4-已退款
+            //交易状态 “00” 为成功
             String returncode = jsonParams.getString("returncode");
 
             if (!returncode.equals("00")) {
