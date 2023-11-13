@@ -1729,11 +1729,14 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             Long chatId = message.getChatId();
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
 
-            String regex = "^[a-zA-Z0-9]{6,}$";
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(unionOrderId);
-
-            if (!matcher.matches()) {
+//            String regex = "^[a-zA-Z0-9]{6,}$";
+//            Pattern pattern = Pattern.compile(regex);
+//            Matcher matcher = pattern.matcher(unionOrderId);
+//
+//            if (!matcher.matches()) {
+//                return;
+//            }
+            if (unionOrderId.length() <= 6) {
                 return;
             }
             //不是通道群
