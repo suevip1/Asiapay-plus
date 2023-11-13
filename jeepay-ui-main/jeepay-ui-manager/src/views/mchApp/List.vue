@@ -133,7 +133,7 @@
           </a-form-model-item>
           <a-form-model-item label="调整金额：" prop="changeAmount">
             <a-input prefix="￥" type="number" v-model="changeBalanceObject.changeAmount" />
-            <b style="color: gray">如需扣余额，则输入负数，例如:-10.50</b>
+            <b style="color: rgb(128,128,128)">如需扣余额，则输入负数，例如:-10.50</b>
           </a-form-model-item>
           <a-form-model-item label="备注：" prop="changeRemark">
             <a-input v-model="changeBalanceObject.changeRemark" />
@@ -150,7 +150,7 @@
           </a-form-model-item>
           <a-form-model-item label="轮询权重：" prop="changeWeights">
             <a-input type="number" v-model="changeWeights" />
-            <b style="color: gray">输入1-10的整数</b>
+            <b style="color: rgb(128,128,128)">输入1-10的整数</b>
           </a-form-model-item>
         </a-form-model>
       </a-modal>
@@ -191,8 +191,8 @@
     <!-- 通道定时开启弹窗 -->
     <template>
       <a-modal v-model="isShowTimeLimitModal" title="通道定时开启设置" @ok="handleTimeLimitOkFunc">
-        <b style="color: gray">设置通道的可用时间，如8:00-23:00，表示通道在这个时间段可用</b><br/><br/>
-        <b style="color: gray">如:23:00-7:00，表示通道在前一天23点到后一天7点可用，可以跨天</b><br/><br/>
+        <b style="color: rgb(128,128,128)">设置通道的可用时间，如8:00-23:00，表示通道在这个时间段可用</b><br/><br/>
+        <b style="color: rgb(128,128,128)">如:23:00-7:00，表示通道在前一天23点到后一天7点可用，可以跨天</b><br/><br/>
         <a-form-model-item label="通道定时开关：">
           <a-radio-group v-model="changeTimeLimitState">
             <a-radio :value="1">
@@ -221,10 +221,10 @@
     <template>
       <a-modal v-model="isShowCloseAllModal" title="关闭全部通道" @ok="handleCloseAllOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
-          <b style="color: gray">此操作将停止所有通道的定时任务!!</b><br/><br/>
-          <b style="color: gray">可通过<span style="color: #007eff">[打开最近启用通道]</span>恢复到一键关闭前的通道状态</b><br/><br/>
-          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
-          <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
+          <b style="color: rgb(128,128,128)">此操作将停止所有通道的定时任务!!</b><br/><br/>
+          <b style="color: rgb(128,128,128)">可通过<span style="color: #007eff">[打开最近启用通道]</span>恢复到一键关闭前的通道状态</b><br/><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
           <a-form-model-item label="请输入谷歌验证码：">
             <a-input v-model="setCloseAllGoogleCode" />
           </a-form-model-item>
@@ -234,17 +234,17 @@
     <template>
       <a-modal v-model="isShowOpenRecentlyModal" title="打开最近启用通道" @ok="handleOpenRecentlyOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
-          <b style="color: gray">此操作会将所有通道状态恢复到<span style="color: #FF4D4F">[关闭全部通道]</span>操作前的状态</b><br/><br/>
-          <b style="color: gray">包含通道状态、定时任务开启状态</b><br/><br/>
-          <b style="color: gray;font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
-          <b style="color: gray;font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
+          <b style="color: rgb(128,128,128)">此操作会将所有通道状态恢复到<span style="color: #FF4D4F">[关闭全部通道]</span>操作前的状态</b><br/><br/>
+          <b style="color: rgb(128,128,128)">包含通道状态、定时任务开启状态</b><br/><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">使用一键关闭前的所有通道状态有效保存时间为三个小时</b><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">过期再使用 [打开最近启用通道] 操作无效请注意！！</b><br/><br/>
         </a-form-model>
       </a-modal>
     </template>
     <template>
       <a-modal v-model="isShowSetAutoCleanModal" title="设置通道自动日切清零" @ok="handleSetAutoCleanOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
-          <b style="color: gray">开启后每天北京时间 00:00 自动清空所有通道余额</b><br/><br/>
+          <b style="color: rgb(128,128,128)">开启后每天北京时间 00:00 自动清空所有通道余额</b><br/><br/>
           <a-form-model-item label="通道自动日切开关：">
             <a-radio-group v-model="autoCleanEnable">
               <a-radio :value="1">
@@ -648,7 +648,7 @@ export default {
 <style lang="less" scoped>
 .stat-col{
   position: relative;
-  //background-color: gray;
+  //background-color: rgb(128,128,128);
   height: 100px;
   border-radius: 13px;
 }
