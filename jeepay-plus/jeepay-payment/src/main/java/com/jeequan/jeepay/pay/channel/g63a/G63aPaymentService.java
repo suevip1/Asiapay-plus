@@ -40,10 +40,7 @@ public class G63aPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.G63A;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

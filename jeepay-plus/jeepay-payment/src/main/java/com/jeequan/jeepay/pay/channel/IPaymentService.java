@@ -36,14 +36,6 @@ public interface IPaymentService {
     String getIfCode();
 
     /**
-     * 前置检查如参数等信息是否符合要求， 返回错误信息或直接抛出异常即可
-     * @param bizRQ
-     * @param payOrder
-     * @return
-     */
-    String preCheck(UnifiedOrderRQ bizRQ, PayOrder payOrder);
-
-    /**
      * 自定义支付订单号， 若返回空则使用系统生成订单号
      * @param bizRQ
      * @param payOrder

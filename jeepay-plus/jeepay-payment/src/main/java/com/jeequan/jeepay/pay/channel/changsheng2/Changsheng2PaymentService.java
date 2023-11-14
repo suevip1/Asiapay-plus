@@ -36,10 +36,7 @@ public class Changsheng2PaymentService extends AbstractPaymentService {
         return CS.IF_CODE.CHANGSHENG2;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

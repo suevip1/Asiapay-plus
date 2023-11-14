@@ -36,10 +36,7 @@ public class FengyePaymentService extends AbstractPaymentService {
         return CS.IF_CODE.FENGYE;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

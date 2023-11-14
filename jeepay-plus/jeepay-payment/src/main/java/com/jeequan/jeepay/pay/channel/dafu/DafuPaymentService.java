@@ -40,10 +40,7 @@ public class DafuPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.DAFU;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

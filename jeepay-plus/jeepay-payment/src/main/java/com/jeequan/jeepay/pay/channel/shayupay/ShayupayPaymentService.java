@@ -43,10 +43,7 @@ public class ShayupayPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.SHAYUPAY;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

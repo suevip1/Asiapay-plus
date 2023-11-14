@@ -38,10 +38,7 @@ public class YifengPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.YIFENG;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

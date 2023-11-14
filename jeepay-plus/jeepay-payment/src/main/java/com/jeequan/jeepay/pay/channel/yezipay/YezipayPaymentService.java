@@ -33,10 +33,7 @@ public class YezipayPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.YEZIPAY;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

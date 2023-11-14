@@ -16,19 +16,17 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class TestpayPaymentService extends AbstractPaymentService {
-
+    private static final String LOG_TAG = "[Test Pay]";
     @Override
     public String getIfCode() {
         return CS.IF_CODE.TESTPAY;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) throws Exception {
+        log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());
         ChannelRetMsg channelRetMsg = new ChannelRetMsg();
         UnifiedOrderRS res = ApiResBuilder.buildSuccess(UnifiedOrderRS.class);
         res.setChannelRetMsg(channelRetMsg);

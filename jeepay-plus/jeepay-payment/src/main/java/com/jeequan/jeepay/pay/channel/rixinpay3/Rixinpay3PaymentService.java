@@ -39,10 +39,7 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
         return CS.IF_CODE.RIXINPAY3;
     }
 
-    @Override
-    public String preCheck(UnifiedOrderRQ rq, PayOrder payOrder) {
-        return "";
-    }
+  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

@@ -34,14 +34,19 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRQ;
 import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.service.ConfigContextQueryService;
 import com.jeequan.jeepay.pay.service.PayOrderProcessService;
+import com.jeequan.jeepay.pay.util.PayCommonUtil;
 import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import sun.management.Agent;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
+import static com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg.ChannelState.SYS_ERROR;
 
 /*
  * 创建支付订单抽象类
@@ -70,45 +75,40 @@ public abstract class AbstractPayOrderController extends ApiController {
     private static final String TEST_ORDER_TAG = "[测试入库下单校验]";
 
     /**
-     * 统一下单 (新建订单模式)
-     **/
-    protected ApiRes unifiedOrder(Long productId, UnifiedOrderRQ bizRQ) {
-        return unifiedOrder(productId, bizRQ, null);
-    }
+     * 最大轮询次数
+     */
+    private static int MAX_POLLING_TIME = 4;
 
     /**
-     * 统一下单
+     * 统一下单(新建订单模式)
      **/
-    protected ApiRes unifiedOrder(Long productId, UnifiedOrderRQ bizRQ, PayOrder payOrder) {
+    protected ApiRes unifiedOrder(Long productId, UnifiedOrderRQ bizRQ) {
 
         // 响应数据
         UnifiedOrderRS bizRS = null;
-
+        PayOrder payOrder = null;
+        byte orderState = PayOrder.STATE_INIT;
         //是否新订单模式 [  一般接口都为新订单模式，需要先 在DB插入一个新订单， 导致此处需要特殊判断下。 如果已存在则直接更新，否则为插入。  ]
-        boolean isNewOrder = payOrder == null;
-
         try {
-
-            if (payOrder != null) { //当订单存在时，封装公共参数。
-
-                if (payOrder.getState() != PayOrder.STATE_INIT) {
-                    throw new BizException("订单状态异常");
-                }
-                payOrder.setProductId(productId); // 需要将订单更新 支付方式
-
-                bizRQ.setMchNo(payOrder.getMchNo());
-                bizRQ.setProductId(productId);
-
-                bizRQ.setMchOrderNo(payOrder.getMchOrderNo());
-                bizRQ.setAmount(payOrder.getAmount());
-                bizRQ.setClientIp(payOrder.getClientIp());
-                bizRQ.setNotifyUrl(payOrder.getNotifyUrl());
-            }
+//            if (payOrder != null) { //当订单存在时，封装公共参数。
+//                if (payOrder.getState() != PayOrder.STATE_INIT) {
+//                    throw new BizException("订单状态异常");
+//                }
+//                payOrder.setProductId(productId); // 需要将订单更新 支付方式
+//
+//                bizRQ.setMchNo(payOrder.getMchNo());
+//                bizRQ.setProductId(productId);
+//
+//                bizRQ.setMchOrderNo(payOrder.getMchOrderNo());
+//                bizRQ.setAmount(payOrder.getAmount());
+//                bizRQ.setClientIp(payOrder.getClientIp());
+//                bizRQ.setNotifyUrl(payOrder.getNotifyUrl());
+//            }
 
             String mchNo = bizRQ.getMchNo();
 
-            // 只有新订单模式，进行校验
-            if (isNewOrder && payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo).eq(PayOrder::getMchOrderNo, bizRQ.getMchOrderNo())) > 0) {
+            // 只有新订单进行校验
+            if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo).eq(PayOrder::getMchOrderNo, bizRQ.getMchOrderNo())) > 0) {
                 log.error("{}商户订单[{}]已存在", ORDER_TAG, bizRQ.getMchOrderNo());
                 throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
             }
@@ -118,60 +118,146 @@ public abstract class AbstractPayOrderController extends ApiController {
                 throw new BizException("异步通知地址协议仅支持http:// 或 https:// !");
             }
 
-            Product product = configContextQueryService.queryProduct(bizRQ.getProductId());
+            Product product = configContextQueryService.queryProduct(productId);
             if (product == null) {
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品不存在");
             }
             if (product.getState() == CS.NO) {
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品状态不可用");
             }
-            PayConfigContext payConfigContext = configContextQueryService.queryAndCheckPayConfig(mchNo, product, bizRQ.getAmount());
 
-            if (payConfigContext == null || payConfigContext.getPayPassage() == null || payConfigContext.getMchPayPassage() == null) {
+            //todo ================================此处返回所有可用通道并储存
+//            PayConfigContext payConfigContext = configContextQueryService.queryAndCheckPayConfig(mchNo, product, bizRQ.getAmount());
+//
+//            if (payConfigContext == null || payConfigContext.getPayPassage() == null || payConfigContext.getMchPayPassage() == null) {
+//                log.error("{}没有可用的通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
+//                throw new BizException("没有可用的通道");
+//            }
+//            payConfigContext.setProduct(product);
+//            MchInfo mchInfo = payConfigContext.getMchInfo();
+//
+//            //获取支付接口
+//            IPaymentService paymentService = getService(payConfigContext.getPayPassage().getIfCode());
+//
+//            //生成订单
+//            if (isNewOrder) {
+//                payOrder = genPayOrder(bizRQ, mchInfo, payConfigContext);
+//            } else {
+//                //不是新订单的情况如何处理
+//                throw new BizException("重复下单,请检查");
+//            }
+//
+//            //预先校验
+//            String errMsg = paymentService.preCheck(bizRQ, payOrder);
+//            if (StringUtils.isNotEmpty(errMsg)) {
+//                log.error("{} - preCheck失败 [{}] [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder), errMsg);
+//                throw new BizException(errMsg);
+//            }
+//
+//            String newPayOrderId = paymentService.customPayOrderId(bizRQ, payOrder);
+//
+//            if (isNewOrder) {
+//                if (StringUtils.isNotBlank(newPayOrderId)) { // 自定义订单号
+//                    payOrder.setPayOrderId(newPayOrderId);
+//                }
+//                //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
+//                payOrderService.save(payOrder);
+//                log.info("{}-订单入库 [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder));
+//            }
+//
+//
+//            //调起上游支付接口
+//            bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigContext);
+//            log.info("{}-调起[{}]三方接口返回:{}", ORDER_TAG, payOrder.getIfCode(), JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
+
+            //1、查询所有可用通道
+            List<PayConfigContext> payConfigList = configContextQueryService.queryAllPayConfig(mchNo, product, bizRQ.getAmount());
+
+            if (payConfigList == null || payConfigList.size() == 0) {
                 log.error("{}没有可用的通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
                 throw new BizException("没有可用的通道");
             }
-            payConfigContext.setProduct(product);
-            MchInfo mchInfo = payConfigContext.getMchInfo();
+            //轮询次数
+            int pollingTime = 0;
+            //有通道且小于最大轮询次数时
+            while ((payConfigList.size() > 0) && pollingTime < MAX_POLLING_TIME) {
+                //2、根据权重分配通道
+                PayConfigContext payConfigContextCurrent = PayCommonUtil.getPayPassageByWeights(payConfigList);
+                if (payConfigContextCurrent == null) {
+                    log.error("{}没有可用的支付通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
+                    throw new BizException("没有可用的支付通道");
+                }
+                //复制元素，防止remove引用乱
+                PayConfigContext payConfigCopy = new PayConfigContext();
+                BeanUtils.copyProperties(payConfigContextCurrent, payConfigCopy);
+                payConfigList.remove(payConfigContextCurrent);
 
-            //获取支付接口
-            IPaymentService paymentService = getService(payConfigContext.getPayPassage().getIfCode());
+                payConfigCopy.setProduct(product);
+                MchInfo mchInfo = payConfigCopy.getMchInfo();
+                //3、获取支付接口
+                IPaymentService paymentService = getService(payConfigCopy.getPayPassage().getIfCode());
+                //4、生成对应订单对象
+                payOrder = genPayOrder(bizRQ, mchInfo, payConfigCopy);
 
-            //生成订单
-            if (isNewOrder) {
-                payOrder = genPayOrder(bizRQ, mchInfo, payConfigContext);
-            } else {
-                //不是新订单的情况如何处理
-                throw new BizException("重复下单,请检查");
-            }
-
-            //预先校验
-            String errMsg = paymentService.preCheck(bizRQ, payOrder);
-            if (StringUtils.isNotEmpty(errMsg)) {
-                log.error("{} - preCheck失败 [{}] [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder), errMsg);
-                throw new BizException(errMsg);
-            }
-
-            String newPayOrderId = paymentService.customPayOrderId(bizRQ, payOrder);
-
-            if (isNewOrder) {
+                String newPayOrderId = paymentService.customPayOrderId(bizRQ, payOrder);
                 if (StringUtils.isNotBlank(newPayOrderId)) { // 自定义订单号
                     payOrder.setPayOrderId(newPayOrderId);
                 }
-                //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
-                payOrderService.save(payOrder);
-                log.info("{}-订单入库 [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder));
+                //5、调起上游支付接口
+                bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigCopy);
+                pollingTime++;
+          
+                //只处理错误、失败以及支付中两种状态
+                switch (bizRS.getChannelRetMsg().getChannelState()) {
+                    case CONFIRM_FAIL:
+                    case SYS_ERROR:
+                        // 明确失败
+                        // 系统异常：出码失败
+                        //判断是否最后一条通道,如果是则订单入库,并返回出码失败
+                        //逻辑是取出后马上移除,所以此处判断0
+                        orderState = PayOrder.STATE_ERROR;
+                        if (payConfigList.size() != 0) {
+                            log.info("{}-[{}]通道[{}]{} 出码失败，第【{}】次下单，继续轮询", payOrder.getPayOrderId(), payOrder.getIfCode(), payConfigCopy.getPayPassage().getPayPassageId(), payConfigCopy.getPayPassage().getPayPassageName(), pollingTime);
+                            continue;
+                        }
+                        break;
+                    case CONFIRM_SUCCESS:
+                    case WAITING:
+                        // 上游处理中 || 确认成功  订单为支付中状态
+                        orderState = PayOrder.STATE_ING;
+                        log.info("{}-[{}]通道[{}]{} 第【{}】次下单，调起成功", payOrder.getPayOrderId(), payOrder.getIfCode(), payConfigCopy.getPayPassage().getPayPassageId(), payConfigCopy.getPayPassage().getPayPassageName(), pollingTime);
+                        //清空待循环列表,退出循环
+                        payConfigList.clear();
+                        continue;
+                    default:
+                        throw new BizException("ChannelState 返回异常！");
+                }
             }
-
-            //todo  如果是出码失败,则拉起下一条
-            //调起上游支付接口
-            bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigContext);
-            log.info("{}-调起[{}]三方接口返回:{}", ORDER_TAG, payOrder.getIfCode(), JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
+            //循环结束订单入库
+            //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
             //保存响应
-            //处理上游返回数据 此处待修改,状态只到支付中  这里的CONFIRM_SUCCESS 也只修改订单状态为支付中
-            byte orderState = this.processOrderChannelMsg(bizRS.getChannelRetMsg(), payOrder);
-            //返回的最新订单状态
             payOrder.setState(orderState);
+            if (bizRS != null) {
+                if (bizRS.getChannelRetMsg() != null) {
+                    if (StringUtils.isNotEmpty(bizRS.getChannelRetMsg().getChannelOrderId())) {
+                        payOrder.setPassageOrderNo(bizRS.getChannelRetMsg().getChannelOrderId());
+                    }
+                    if (StringUtils.isNotEmpty(bizRS.getChannelRetMsg().getChannelOriginResponse())) {
+                        payOrder.setPassageResp(bizRS.getChannelRetMsg().getChannelOriginResponse());
+                    }
+                    if (StringUtils.isNotEmpty(bizRS.getChannelRetMsg().getChannelErrCode())) {
+                        payOrder.setErrCode(bizRS.getChannelRetMsg().getChannelErrCode());
+                    }
+                    if (StringUtils.isNotEmpty(bizRS.getChannelRetMsg().getChannelErrMsg())) {
+                        payOrder.setErrMsg(bizRS.getChannelRetMsg().getChannelErrMsg());
+                    }
+                }
+            }
+            payOrderService.save(payOrder);
+            log.info("{}-订单入库 [{}]", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
+
+            //todo ======================判断状态 如果是出码失败,则拉起下一条,
+
             //订单入库,更新统计订单表使用 mq
             mqSender.send(StatisticsOrderMQ.build(payOrder.getPayOrderId(), payOrder));
             return packageApiResByPayOrder(bizRQ, bizRS, payOrder);
@@ -181,7 +267,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         } catch (ChannelException e) {
             //处理上游返回数据
             this.processOrderChannelMsg(bizRS.getChannelRetMsg(), payOrder);
-            if (e.getChannelRetMsg().getChannelState() == ChannelRetMsg.ChannelState.SYS_ERROR) {
+            if (e.getChannelRetMsg().getChannelState() == SYS_ERROR) {
                 return ApiRes.customFail(e.getMessage());
             }
             return this.packageApiResByPayOrder(bizRQ, bizRS, payOrder);
@@ -233,13 +319,6 @@ public abstract class AbstractPayOrderController extends ApiController {
             //生成订单
             payOrder = genTestInPayOrder(bizRQ, payConfigContext);
 
-            //预先校验
-            String errMsg = paymentService.preCheck(null, payOrder);
-            if (StringUtils.isNotEmpty(errMsg)) {
-                log.error("{} - preCheck失败 [{}] [{}]", TEST_ORDER_TAG, JSONObject.toJSONString(payOrder), errMsg);
-                throw new BizException(errMsg);
-            }
-
             //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
             payOrderService.save(payOrder);
             log.info("{}-订单入库 [{}]", TEST_ORDER_TAG, JSONObject.toJSONString(payOrder));
@@ -261,7 +340,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         } catch (ChannelException e) {
             //处理上游返回数据
             this.processOrderChannelMsg(bizRS.getChannelRetMsg(), payOrder);
-            if (e.getChannelRetMsg().getChannelState() == ChannelRetMsg.ChannelState.SYS_ERROR) {
+            if (e.getChannelRetMsg().getChannelState() == SYS_ERROR) {
                 return ApiRes.customFail(e.getMessage());
             }
             return this.packageApiResByPayOrder(bizRQ, bizRS, payOrder);
@@ -273,7 +352,7 @@ public abstract class AbstractPayOrderController extends ApiController {
 
 
     /**
-     * 生成新订单
+     * 生成/更新订单
      *
      * @param rq
      * @param mchInfo
@@ -451,8 +530,6 @@ public abstract class AbstractPayOrderController extends ApiController {
             return PayOrder.STATE_INIT;
         }
 
-        String payOrderId = payOrder.getPayOrderId();
-
         //只处理错误、失败以及支付中两种状态
         switch (channelRetMsg.getChannelState()) {
             case CONFIRM_FAIL:
@@ -471,9 +548,9 @@ public abstract class AbstractPayOrderController extends ApiController {
         }
 
         //判断是否需要轮询查单
-        if (channelRetMsg.isNeedQuery()) {
-            mqSender.send(PayOrderReissueMQ.build(payOrderId, 1), 5);
-        }
+//        if (channelRetMsg.isNeedQuery()) {
+//            mqSender.send(PayOrderReissueMQ.build(payOrderId, 1), 5);
+//        }
         return PayOrder.STATE_ING;
     }
 
@@ -489,9 +566,6 @@ public abstract class AbstractPayOrderController extends ApiController {
         payOrder.setPassageResp(channelRetMsg.getChannelOriginResponse());
         boolean isSuccess = true;
         switch (channelRetMsg.getChannelState()) {
-//            case CONFIRM_FAIL:
-//                isSuccess = payOrderService.updateIng2Fail(payOrder);
-//                break;
             case CONFIRM_SUCCESS:
             case WAITING:
                 // 上游处理中 || 确认成功  订单为支付中状态

@@ -200,6 +200,136 @@ public class ConfigContextQueryService {
         return payConfigContext;
     }
 
+
+    /**
+     * 查询所有可用通道
+     *
+     * @param mchNo
+     * @param product
+     * @param orderAmount
+     * @return
+     */
+    public List<PayConfigContext> queryAllPayConfig(String mchNo, Product product, Long orderAmount) {
+
+        Long productId = product.getProductId();
+
+        List<PayConfigContext> payConfigContextList = getAvailablePassage(mchNo, product.getProductId());
+
+        if (!CollUtil.isNotEmpty(payConfigContextList)) {
+            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId, mchNo));
+        }
+
+        List<PayConfigContext> filterAmountList = new ArrayList<>();
+        // 检查通道授信是否满足,通道额度不足-关闭通道
+        for (int i = 0; i < payConfigContextList.size(); i++) {
+            PayConfigContext configContext = payConfigContextList.get(i);
+            PayPassage payPassage = configContext.getPayPassage();
+
+            if (payPassage.getQuotaLimitState() == PayPassage.STATE_CLOSE) {
+                filterAmountList.add(configContext);
+            } else {
+                if (payPassage.getQuota().longValue() >= orderAmount.longValue()) {
+                    filterAmountList.add(configContext);
+                } else {
+                    if (payPassage.getQuota().longValue() <= 0) {
+                        //关闭此通道
+                        payPassage.setState(CS.NO);
+                        payPassageService.updatePassageInfo(payPassage);
+                    }
+                }
+            }
+        }
+        if (filterAmountList.size() == 0) {
+            log.error("[{}]产品下通道授信不足", productId);
+            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+        }
+
+        // 检查金额是否符合收款规则
+        List<PayConfigContext> filterRuleList = new ArrayList<>();
+        for (int i = 0; i < filterAmountList.size(); i++) {
+            PayConfigContext configContext = filterAmountList.get(i);
+
+            //范围金额
+            if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_RANGE) {
+                //此处存的是 元
+                String[] range = configContext.getPayPassage().getPayRules().trim().split("-");
+                Long min = Long.parseLong(AmountUtil.convertDollar2Cent(range[0]));
+                Long max = Long.parseLong(AmountUtil.convertDollar2Cent(range[1]));
+                if (orderAmount.longValue() >= min.longValue() && orderAmount.longValue() <= max.longValue()) {
+                    filterRuleList.add(configContext);
+                    continue;
+                }
+            }
+
+            //指定金额
+            if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_SPECIFIED) {
+                String[] amounts = configContext.getPayPassage().getPayRules().trim().split("\\|");
+                if (amounts != null) {
+                    for (int index = 0; index < amounts.length; index++) {
+                        Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amounts[index]));
+                        if (orderAmount.longValue() == amount.longValue()) {
+                            filterRuleList.add(configContext);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (filterRuleList.size() == 0) {
+            log.error("[{}]产品[{}]下无满足收款规则通道,订单金额[{}]", mchNo, productId, orderAmount.longValue() / 100);
+            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+        }
+
+        //去重
+        List<PayConfigContext> resultList = CollUtil.distinct(filterRuleList);
+
+        //商户信息
+        MchInfo mchInfo = queryMchInfo(mchNo);
+
+        //检查 实际成本与商户-产品费率 去除费率过高的通道配置
+        List<PayConfigContext> rateFilterList = new ArrayList<>();
+        for (int index = 0; index < resultList.size(); index++) {
+            PayConfigContext payConfigFilter = resultList.get(index);
+            //商户-产品费率-总收费
+            BigDecimal mchRate = payConfigFilter.getMchProduct().getMchRate();
+            //通道费率
+            BigDecimal passageRate = payConfigFilter.getPayPassage().getRate();
+            //通道代理费率
+            BigDecimal agentRate = BigDecimal.ZERO;
+            if (StringUtils.isNotEmpty(payConfigFilter.getPayPassage().getAgentNo())) {
+                agentRate = payConfigFilter.getPayPassage().getAgentRate();
+            }
+
+            //商户代理费率
+            BigDecimal agentMchRate = BigDecimal.ZERO;
+            //代理不为空时计算 产品-商户-代理费
+            if (StringUtils.isNotEmpty(mchInfo.getAgentNo())) {
+                if (payConfigFilter.getMchProduct().getAgentRate() != null) {
+                    agentMchRate = payConfigFilter.getMchProduct().getAgentRate();
+                }
+            }
+            BigDecimal totalCostRate = passageRate.add(agentRate).add(agentMchRate);
+
+            //是否允许低于成本拉起
+            if (product.getLimitState() == CS.YES) {
+                payConfigFilter.setMchInfo(mchInfo);
+                rateFilterList.add(payConfigFilter);
+            } else {
+                if (mchRate.compareTo(totalCostRate) > 0) {
+                    payConfigFilter.setMchInfo(mchInfo);
+                    rateFilterList.add(payConfigFilter);
+                }
+            }
+        }
+
+        if (!CollUtil.isNotEmpty(rateFilterList)) {
+            log.error("[{}]产品[{}]下无符合费率要求通道,订单金额[{}]", mchNo, productId, orderAmount.longValue() / 100);
+            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+        }
+
+        return rateFilterList;
+    }
+
     /**
      * 查询商户信息
      *
