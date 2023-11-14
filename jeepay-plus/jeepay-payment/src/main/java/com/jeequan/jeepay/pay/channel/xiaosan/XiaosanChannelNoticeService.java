@@ -1,6 +1,5 @@
-package com.jeequan.jeepay.pay.channel.liyupay;
+package com.jeequan.jeepay.pay.channel.xiaosan;
 
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -19,16 +18,14 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 
 @Slf4j
 @Service
-public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
+public class XiaosanChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[鲤鱼支付]";
+    private static final String LOG_TAG = "[小三支付]";
 
     private static final String ON_FAIL = "fail";
 
@@ -36,7 +33,7 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.LIYUPAY;
+        return CS.IF_CODE.XIAOSAN;
     }
 
     @Override
@@ -70,34 +67,17 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //查单
-            Map<String, Object> map = new HashMap<>();
-            String merchantOrderNo = jsonParams.getString("merchantOrderNo");
-            NormalMchParams normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
-            map.put("merchantOrderNo", merchantOrderNo);
-            map.put("merchantId", normalMchParams.getMchNo());
 
-            String SignStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&secret=" + normalMchParams.getSecret();
-            String sign = SignatureUtils.md5(SignStr).toLowerCase();
-            map.put("sign", sign);
+            //订单状态 :1=完成，3=失败
+            String status = jsonParams.getString("order_status");
 
-            String raw = HttpUtil.get(normalMchParams.getQueryUrl(), map, 10000);
-            log.info("{} 查单请求响应:{}", LOG_TAG, raw);
-            JSONObject queryResult = JSON.parseObject(raw, JSONObject.class);
-
-            if (queryResult.getString("code").equals("0")) {
-                JSONObject data = queryResult.getJSONObject("data");
-
-                //支付状态：0：待用户付款 1：付款成功 -1：数据异常 -2：订单超时未支付，已被系统关闭
-                String payStatus = data.getString("payStatus");
-                if (payStatus.equals("1")) {
-                    //验签成功后判断上游订单状态
-                    result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
-                    return result;
-                }
+            if (!status.equals("1")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
+                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
+            } else {
+                //验签成功后判断上游订单状态
+                result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
             }
-            log.info("{}回调通知订单状态错误:{}", LOG_TAG, raw);
-            result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             return result;
         } catch (Exception e) {
             log.error("error", e);
@@ -114,7 +94,7 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("merchantOrderNo");        // 商户订单号
+        String orderNo = jsonParams.getString("trade_no");        // 商户订单号
         String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
@@ -127,7 +107,7 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
@@ -136,18 +116,8 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-
-            List<String> fieldOrder = Arrays.asList("merchantId", "merchantOrderNo", "orderNo", "amount", "secret");
-            StringBuilder sb = new StringBuilder();
-            for (String field : fieldOrder) {
-                if (map.containsKey(field)) {
-                    Object value = map.get(field);
-                    sb.append(field).append("=").append(value).append("&");
-                }
-            }
-            sb.append("secret=").append(secret);
-            final String signContent = sb.toString();
-            final String signStr = SignatureUtils.md5(signContent).toLowerCase();
+            String signContent = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
+            String signStr = SignatureUtils.md5(signContent).toLowerCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
@@ -161,26 +131,16 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     public static void main(String[] args) {
-        String jsonParams = "{\"amount\":10000,\"orderNo\":\"231113145712535497\",\"merchantId\":8028369,\"sign\":\"2464393671d69d85d27ab957711e40cc\",\"merchantOrderNo\":\"P1723958166676934657\"}";
-        Map map = JSON.parseObject(jsonParams);
-        String sign = (String) map.get("sign");
-        System.out.println(sign);
-        map.remove("sign");
+        String str = "{\"Status\":4,\"Amount\":\"800.00\",\"Sign\":\"854966029d53f2e7e1479739bc84cee1\",\"OrderNo\":\"P1690173583160000514\",\"AccessKey\":\"QkxxKwQyxKhJxme8zWMeulBOve\",\"Timestamp\":1691803910}";
 
-        String secret = "7f34993df140afd1b0937c99a415e2d8";
-        List<String> fieldOrder = Arrays.asList("merchantId", "merchantOrderNo", "orderNo", "amount", "secret");
-        StringBuilder sb = new StringBuilder();
-        for (String field : fieldOrder) {
-            if (map.containsKey(field)) {
-                Object value = map.get(field);
-                sb.append(field).append("=").append(value).append("&");
-            }
-        }
-        sb.append("secret=").append(secret);
-
-        String signContent = sb.toString();
-        System.out.println(signContent);
-        final String signStr = SignatureUtils.md5(signContent).toLowerCase();
-        System.out.println(signStr);
+        JSONObject jsonParams = JSONObject.parseObject(str);
+        String sign = jsonParams.getString("Sign");
+        Map map = JSON.parseObject(jsonParams.toJSONString());
+        map.remove("Sign");
+        String secret = "zPK5KwymlMCvJ3J1g1NMINlBmMdNvKfKVwKlyoA7";
+        String signContent = SignatureUtils.getSignContentFilterEmpty(map, null) + "&SecretKey=" + secret;
+        String signStr = SignatureUtils.md5(signContent).toLowerCase();
+        log.info(signStr);
     }
+
 }

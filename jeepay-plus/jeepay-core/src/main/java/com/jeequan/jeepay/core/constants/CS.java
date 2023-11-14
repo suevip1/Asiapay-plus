@@ -456,6 +456,8 @@ public class CS {
         String LIYUPAY = "liyupay";
         String HUOYAN = "huoyan";
         String TENGCHENG = "tengcheng";
+
+        String XIAOSAN = "xiaosan";
     }
 
 

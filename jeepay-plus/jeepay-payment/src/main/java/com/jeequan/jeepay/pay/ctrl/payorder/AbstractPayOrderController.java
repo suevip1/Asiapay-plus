@@ -163,6 +163,7 @@ public abstract class AbstractPayOrderController extends ApiController {
                 log.info("{}-订单入库 [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder));
             }
 
+            //todo  如果是出码失败,则拉起下一条
             //调起上游支付接口
             bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigContext);
             log.info("{}-调起[{}]三方接口返回:{}", ORDER_TAG, payOrder.getIfCode(), JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
@@ -293,7 +294,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         payOrder.setAmount(rq.getAmount()); //订单金额
         payOrder.setClientIp(rq.getClientIp()); // 设置IP
 
-        if(StringUtils.isNotEmpty(rq.getExtParam())){
+        if (StringUtils.isNotEmpty(rq.getExtParam())) {
             payOrder.setExtParamJson(rq.getExtParam());
         }
 
