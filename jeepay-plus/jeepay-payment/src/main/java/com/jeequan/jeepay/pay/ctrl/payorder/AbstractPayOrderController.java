@@ -126,50 +126,6 @@ public abstract class AbstractPayOrderController extends ApiController {
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品状态不可用");
             }
 
-            //todo ================================此处返回所有可用通道并储存
-//            PayConfigContext payConfigContext = configContextQueryService.queryAndCheckPayConfig(mchNo, product, bizRQ.getAmount());
-//
-//            if (payConfigContext == null || payConfigContext.getPayPassage() == null || payConfigContext.getMchPayPassage() == null) {
-//                log.error("{}没有可用的通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
-//                throw new BizException("没有可用的通道");
-//            }
-//            payConfigContext.setProduct(product);
-//            MchInfo mchInfo = payConfigContext.getMchInfo();
-//
-//            //获取支付接口
-//            IPaymentService paymentService = getService(payConfigContext.getPayPassage().getIfCode());
-//
-//            //生成订单
-//            if (isNewOrder) {
-//                payOrder = genPayOrder(bizRQ, mchInfo, payConfigContext);
-//            } else {
-//                //不是新订单的情况如何处理
-//                throw new BizException("重复下单,请检查");
-//            }
-//
-//            //预先校验
-//            String errMsg = paymentService.preCheck(bizRQ, payOrder);
-//            if (StringUtils.isNotEmpty(errMsg)) {
-//                log.error("{} - preCheck失败 [{}] [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder), errMsg);
-//                throw new BizException(errMsg);
-//            }
-//
-//            String newPayOrderId = paymentService.customPayOrderId(bizRQ, payOrder);
-//
-//            if (isNewOrder) {
-//                if (StringUtils.isNotBlank(newPayOrderId)) { // 自定义订单号
-//                    payOrder.setPayOrderId(newPayOrderId);
-//                }
-//                //订单入库 订单状态： 生成状态  此时没有和任何上游渠道产生交互。
-//                payOrderService.save(payOrder);
-//                log.info("{}-订单入库 [{}]", ORDER_TAG, JSONObject.toJSONString(payOrder));
-//            }
-//
-//
-//            //调起上游支付接口
-//            bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigContext);
-//            log.info("{}-调起[{}]三方接口返回:{}", ORDER_TAG, payOrder.getIfCode(), JSONObject.toJSONString(bizRS.getChannelRetMsg().getChannelOriginResponse()));
-
             //1、查询所有可用通道
             List<PayConfigContext> payConfigList = configContextQueryService.queryAllPayConfig(mchNo, product, bizRQ.getAmount());
 
@@ -179,6 +135,7 @@ public abstract class AbstractPayOrderController extends ApiController {
             }
             //轮询次数
             int pollingTime = 0;
+            String payOrderId = SeqKit.genPayOrderId();
             //有通道且小于最大轮询次数时
             while ((payConfigList.size() > 0) && pollingTime < MAX_POLLING_TIME) {
                 //2、根据权重分配通道
@@ -196,8 +153,9 @@ public abstract class AbstractPayOrderController extends ApiController {
                 MchInfo mchInfo = payConfigCopy.getMchInfo();
                 //3、获取支付接口
                 IPaymentService paymentService = getService(payConfigCopy.getPayPassage().getIfCode());
-                //4、生成对应订单对象
+                //4、生成对应订单对象,一次下单只生成一个订单号
                 payOrder = genPayOrder(bizRQ, mchInfo, payConfigCopy);
+                payOrder.setPayOrderId(payOrderId);
 
                 String newPayOrderId = paymentService.customPayOrderId(bizRQ, payOrder);
                 if (StringUtils.isNotBlank(newPayOrderId)) { // 自定义订单号
@@ -363,7 +321,7 @@ public abstract class AbstractPayOrderController extends ApiController {
 
         PayOrder payOrder = new PayOrder();
 
-        payOrder.setPayOrderId(SeqKit.genPayOrderId()); //生成订单ID
+//        payOrder.setPayOrderId(SeqKit.genPayOrderId()); //生成订单ID
         payOrder.setMchNo(mchInfo.getMchNo()); //商户号
         payOrder.setMchName(mchInfo.getMchName()); //商户名称
         payOrder.setMchOrderNo(rq.getMchOrderNo()); //商户订单号
