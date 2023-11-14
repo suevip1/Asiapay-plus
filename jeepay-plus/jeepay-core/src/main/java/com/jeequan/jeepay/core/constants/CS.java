@@ -37,6 +37,18 @@ public class CS {
      */
     public static final int ORDER_EXPIRED_TIME = 120;
 
+
+    /**
+     * Redis key 检查是否能下单-租户余额是否充足
+     */
+    public static final String CHECK_AVAILABLE = "CHECK_AVAILABLE_KEY";
+
+    /**
+     * 四方管理平台检查可用接口地址
+     */
+//    public static final String CHECK_AVAILABLE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/check";
+    public static final String CHECK_AVAILABLE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/check";
+
     /**
      * 系统类型定义
      **/

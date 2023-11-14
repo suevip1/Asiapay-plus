@@ -18,6 +18,7 @@ package com.jeequan.jeepay.pay.ctrl.payorder;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.components.mq.model.StatisticsOrderMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
@@ -33,6 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 /*
  * 统一下单 controller
  *
@@ -47,12 +51,17 @@ public class UnifiedOrderController extends AbstractPayOrderController {
     @Autowired
     private ConfigContextQueryService configContextQueryService;
 
+
     /**
      * 统一下单接口
      **/
     @PostMapping("/api/pay/unifiedOrder")
     public ApiRes unifiedOrder() {
-
+        //todo 检查是否允许下单（余额是否充足）
+        if (!CheckOrderProcessAvailable()) {
+            log.error("四方租户余额不足,请充值后再使用");
+            return ApiRes.customFail("系统异常,请联系四方平台");
+        }
         //获取参数 & 验签
         UnifiedOrderRQ rq = getRQByWithMchSign(UnifiedOrderRQ.class);
 
@@ -110,7 +119,7 @@ public class UnifiedOrderController extends AbstractPayOrderController {
     public ApiRes unifiedOrderInTest() {
         try {
             String TAG = "入库订单测试: ";
-            //todo 设置测试商户并走正常流程,测试商户不校验绑定等
+
             PayOrder payOrderParams = getObject(PayOrder.class);
             log.info(TAG + JSONObject.toJSONString(payOrderParams));
 
@@ -137,5 +146,17 @@ public class UnifiedOrderController extends AbstractPayOrderController {
         return rq.buildBizRQ();
     }
 
+    /**
+     * 检查是否能下单
+     *
+     * @return
+     */
+    private boolean CheckOrderProcessAvailable() {
+        Boolean isAvailable = RedisUtil.getObject(CS.CHECK_AVAILABLE, Boolean.class);
 
+        if (isAvailable != null && !isAvailable) {
+            return false;
+        }
+        return true;
+    }
 }
