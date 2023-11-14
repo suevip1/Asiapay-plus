@@ -27,8 +27,9 @@ public class CheckAvailableTask {
     @Autowired
     private StatisticsPlatService statisticsPlatService;
 
-    //从整点开始，每隔20分钟触发一次任务
-    @Scheduled(cron = "0 0/30 * * * ?")
+    //从整点开始，每隔30分钟触发一次任务
+//    @Scheduled(cron = "0 0/30 * * * ?")
+    @Scheduled(cron = "0 59 * * * ?") // 每小时第59分执行一次
 //    @Scheduled(fixedRate = 10000) // 每5秒执行一次 5000
     public void start() {
         try {
