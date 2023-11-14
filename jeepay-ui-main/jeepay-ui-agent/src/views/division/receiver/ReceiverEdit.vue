@@ -95,10 +95,9 @@ export default {
               divisionProfit: that.saveObject.divisionProfit,
               state: that.saveObject.state
             }
-
+            that.isShow = false
             req.updateById(API_URL_DIVISION_RECEIVER, that.recordId, reqObject).then(res => {
               that.$message.success('修改成功')
-              that.isShow = false
               that.callbackFunc() // 刷新列表
             }).catch(res => { that.confirmLoading = false })
           }

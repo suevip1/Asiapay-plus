@@ -206,7 +206,7 @@ public abstract class AbstractPayOrderController extends ApiController {
                 //5、调起上游支付接口
                 bizRS = (UnifiedOrderRS) paymentService.pay(bizRQ, payOrder, payConfigCopy);
                 pollingTime++;
-          
+
                 //只处理错误、失败以及支付中两种状态
                 switch (bizRS.getChannelRetMsg().getChannelState()) {
                     case CONFIRM_FAIL:
@@ -216,8 +216,8 @@ public abstract class AbstractPayOrderController extends ApiController {
                         //判断是否最后一条通道,如果是则订单入库,并返回出码失败
                         //逻辑是取出后马上移除,所以此处判断0
                         orderState = PayOrder.STATE_ERROR;
+                        log.info("{}-[{}]通道[{}]{} 出码失败，第【{}】次下单", payOrder.getPayOrderId(), payOrder.getIfCode(), payConfigCopy.getPayPassage().getPayPassageId(), payConfigCopy.getPayPassage().getPayPassageName(), pollingTime);
                         if (payConfigList.size() != 0) {
-                            log.info("{}-[{}]通道[{}]{} 出码失败，第【{}】次下单，继续轮询", payOrder.getPayOrderId(), payOrder.getIfCode(), payConfigCopy.getPayPassage().getPayPassageId(), payConfigCopy.getPayPassage().getPayPassageName(), pollingTime);
                             continue;
                         }
                         break;

@@ -81,7 +81,6 @@ export default {
       uSysUserRoleRela(this.recordId, this.checkedVal).then(res => {
         that.$message.success('更新成功！')
         this.isShow = false
-
         if (that.callbackFunc !== undefined) {
           that.callbackFunc() // 刷新列表
         }

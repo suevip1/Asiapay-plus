@@ -74,17 +74,15 @@ export default {
           // 请求接口
 
           that.confirmLoading = true // 显示loading
-
+          that.isShow = false
           if (that.isAdd) {
             req.add(API_URL_DIVISION_RECEIVER_GROUP, that.saveObject).then(res => {
               that.$message.success('添加成功')
-              that.isShow = false
               that.callbackFunc() // 刷新列表
             }).catch(res => { that.confirmLoading = false })
           } else {
             req.updateById(API_URL_DIVISION_RECEIVER_GROUP, that.recordId, that.saveObject).then(res => {
               that.$message.success('修改成功')
-              that.isShow = false
               that.callbackFunc() // 刷新列表
             }).catch(res => { that.confirmLoading = false })
           }

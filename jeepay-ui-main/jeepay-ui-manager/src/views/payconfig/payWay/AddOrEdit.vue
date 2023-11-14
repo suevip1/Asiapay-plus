@@ -57,17 +57,15 @@ export default {
         this.$refs.infoFormModel.validate(valid => {
           if (valid) { // 验证通过
             // 请求接口
-
+            that.isShow = false
             if (that.isAdd) {
               req.add(API_URL_PAYWAYS_LIST, that.saveObject).then(res => {
                 that.$message.success('新增成功')
-                that.isShow = false
                 that.callbackFunc() // 刷新列表
               })
             } else {
               req.updateById(API_URL_PAYWAYS_LIST, that.wayCode, that.saveObject).then(res => {
                 that.$message.success('修改成功')
-                that.isShow = false
                 that.callbackFunc() // 刷新列表
               })
             }

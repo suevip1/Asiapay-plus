@@ -206,9 +206,9 @@ export default {
       const param = {}
       param.amount = this.changeObject.amount * 100
       param.remark = this.changeObject.remark
+      that.isShowModal = false
       req.add(API_URL_AGENT_DIVISION, param).then(res => {
         that.$message.info('提交成功')
-        that.isShowModal = false
         getAgentMainInfo().then(res => {
           that.agentInfo = res
           that.$refs.infoTable.refTable(true)

@@ -209,7 +209,6 @@ export default {
       param.remark = this.changeObject.remark
       req.add(API_URL_MCH_DIVISION, param).then(res => {
         that.$message.info('提交成功')
-        that.isShowModal = false
         req.getById(API_URL_MCH_INFO, 'info').then(res => {
           that.mchInfo = res
           that.$refs.infoTable.refTable(true)

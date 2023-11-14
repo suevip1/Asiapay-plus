@@ -83,17 +83,15 @@ export default {
             // 保存选择的权限信息
             const selectedEntIdList = that.$refs.roleDist.getSelectedEntIdList()
             that.saveObject.entIdListStr = selectedEntIdList ? JSON.stringify(selectedEntIdList) : ''
-
+            that.isShow = false
             if (that.isAdd) {
               req.add(API_URL_ROLE_LIST, that.saveObject).then(res => {
                 that.$message.success('新增成功')
-                that.isShow = false
                 that.callbackFunc() // 刷新列表
               }).catch(res => { that.confirmLoading = false })
             } else {
               req.updateById(API_URL_ROLE_LIST, that.recordId, that.saveObject).then(res => {
                 that.$message.success('修改成功')
-                that.isShow = false
                 that.callbackFunc() // 刷新列表
               }).catch(res => { that.confirmLoading = false })
             }

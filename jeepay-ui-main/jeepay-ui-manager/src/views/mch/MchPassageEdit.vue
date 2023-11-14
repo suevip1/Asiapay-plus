@@ -254,8 +254,8 @@ export default {
       params.changeAllState = this.changeAllState
       req.postDataNormal(API_URL_MCH_PASSAGE_LIST + '/setAll', this.mchNo, params).then(res => {
         setTimeout(() => {
-          that.btnLoading = false
           that.isShowAllSetModal = false
+          that.btnLoading = false
           that.$refs.mchPassageTable.refTable(true)
           that.$message.success('修改成功')
         }, 500) // 1000毫秒等于1秒
