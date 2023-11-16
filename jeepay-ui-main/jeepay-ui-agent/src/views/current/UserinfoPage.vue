@@ -115,8 +115,8 @@ export default {
       const that = this
       getUserInfo().then(res => {
         that.saveObject = res
-        that.googleAuth = res.googleAuth
-        that.originalGoogleAuth = res.googleAuth
+        that.googleAuth = res.ext.googleAuth
+        that.originalGoogleAuth = res.ext.googleAuth
       })
     },
     googleAuthChange () {
