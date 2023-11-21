@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -42,7 +43,12 @@ public class MchBalanceController extends CommonCtrl {
         String changeRemark = getValString("changeRemark");
 
         if (StringUtils.isNotEmpty(changeAmount) && StringUtils.isNotEmpty(changeRemark)) {
-            Long amount = (long) (Double.valueOf(changeAmount) * 100);
+            // 使用 BigDecimal 进行精确计算
+            double changeAmountValue = Double.valueOf(changeAmount);
+            BigDecimal bigDecimalValue = BigDecimal.valueOf(changeAmountValue);
+            BigDecimal result = bigDecimalValue.multiply(BigDecimal.valueOf(100));
+            Long amount = result.longValue();
+
             MchInfo selectMch = mchInfoService.queryMchInfo(mchNo);
             Long beforeBalance = selectMch.getBalance();
             Long afterBalance = selectMch.getBalance() + amount;

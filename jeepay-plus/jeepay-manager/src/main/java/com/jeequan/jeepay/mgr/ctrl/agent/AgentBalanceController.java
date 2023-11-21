@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @RestController
@@ -44,7 +45,11 @@ public class AgentBalanceController extends CommonCtrl {
         String changeRemark = getValString("changeRemark");
 
         if (StringUtils.isNotEmpty(changeAmount) && StringUtils.isNotEmpty(changeRemark)) {
-            Long amount = (long) (Double.valueOf(changeAmount) * 100);
+            double changeAmountValue = Double.valueOf(changeAmount);
+            BigDecimal bigDecimalValue = BigDecimal.valueOf(changeAmountValue);
+            BigDecimal result = bigDecimalValue.multiply(BigDecimal.valueOf(100));
+            Long amount = result.longValue();
+
             AgentAccountInfo selectAgent = agentAccountInfoService.queryAgentInfo(agentNo);
             Long beforeBalance = selectAgent.getBalance();
             Long afterBalance = selectAgent.getBalance() + amount;
