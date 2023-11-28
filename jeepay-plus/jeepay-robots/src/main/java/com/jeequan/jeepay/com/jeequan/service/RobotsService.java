@@ -1770,6 +1770,16 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         sendSingleMessage(chatId, "未查询到该群所有绑定商户下，订单号为[" + unionOrderId + "]的记录");
                         return;
                     }
+                    //检查订单是否成功状态
+                    if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("订单已支付成功！" + System.lineSeparator());
+                        stringBuffer.append("商户单号：[ <b>" + payOrder.getMchOrderNo() + "</b> ]" + System.lineSeparator());
+                        stringBuffer.append("平台单号：[ " + payOrder.getPayOrderId() + " ]" + System.lineSeparator());
+                        sendReplyMessage(chatId, message.getMessageId(), stringBuffer.toString());
+                        return;
+                    }
+
                     //1、将这条消息转发到通道群,带图或视频
                     Long passageId = payOrder.getPassageId();
                     RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
@@ -1900,7 +1910,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             Message messageSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + payOrderId, Message.class);
             if (messageSource != null) {
                 log.info("收到成功订单并有查单缓存" + payOrderId);
-                sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), payOrderId + " 已回调成功!");
+                StringBuffer stringBuffer = new StringBuffer();
+                stringBuffer.append("订单已回调！" + System.lineSeparator());
+                stringBuffer.append("商户单号：[ <b>" + payload.getMchOrderNo() + "</b> ]" + System.lineSeparator());
+                stringBuffer.append("平台单号：[ " + payload.getPayOrderId() + " ]" + System.lineSeparator());
+                sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), stringBuffer.toString());
                 RedisUtil.del(REDIS_MCH_SOURCE_SUFFIX + payOrderId);
             }
 
