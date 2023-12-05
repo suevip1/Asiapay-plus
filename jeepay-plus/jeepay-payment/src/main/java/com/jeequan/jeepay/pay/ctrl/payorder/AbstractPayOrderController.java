@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.components.mq.model.PayOrderReissueMQ;
 import com.jeequan.jeepay.components.mq.model.StatisticsOrderMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
@@ -79,6 +80,8 @@ public abstract class AbstractPayOrderController extends ApiController {
      */
     private static int MAX_POLLING_TIME = 4;
 
+    private static final String TEMP_ORDER_SUFFIX = "pollingOrder_";
+
     /**
      * 统一下单(新建订单模式)
      **/
@@ -90,26 +93,16 @@ public abstract class AbstractPayOrderController extends ApiController {
         byte orderState = PayOrder.STATE_INIT;
         //是否新订单模式 [  一般接口都为新订单模式，需要先 在DB插入一个新订单， 导致此处需要特殊判断下。 如果已存在则直接更新，否则为插入。  ]
         try {
-//            if (payOrder != null) { //当订单存在时，封装公共参数。
-//                if (payOrder.getState() != PayOrder.STATE_INIT) {
-//                    throw new BizException("订单状态异常");
-//                }
-//                payOrder.setProductId(productId); // 需要将订单更新 支付方式
-//
-//                bizRQ.setMchNo(payOrder.getMchNo());
-//                bizRQ.setProductId(productId);
-//
-//                bizRQ.setMchOrderNo(payOrder.getMchOrderNo());
-//                bizRQ.setAmount(payOrder.getAmount());
-//                bizRQ.setClientIp(payOrder.getClientIp());
-//                bizRQ.setNotifyUrl(payOrder.getNotifyUrl());
-//            }
-
             String mchNo = bizRQ.getMchNo();
 
             // 只有新订单进行校验
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo).eq(PayOrder::getMchOrderNo, bizRQ.getMchOrderNo())) > 0) {
                 log.error("{}商户订单[{}]已存在", ORDER_TAG, bizRQ.getMchOrderNo());
+                throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
+            }
+            //校验是否当前正在轮询中的订单
+            if (StringUtils.isNotEmpty(RedisUtil.getString(TEMP_ORDER_SUFFIX + mchNo + bizRQ.getMchOrderNo()))) {
+                log.error("{}商户订单[{}]已存在，正在轮询中", ORDER_TAG, bizRQ.getMchOrderNo());
                 throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
             }
 
@@ -137,6 +130,10 @@ public abstract class AbstractPayOrderController extends ApiController {
             int pollingTime = 0;
             String payOrderId = SeqKit.genPayOrderId();
             //有通道且小于最大轮询次数时
+            //开始轮询
+            //正在轮询的订单入库到redis
+            RedisUtil.set(TEMP_ORDER_SUFFIX + mchNo + bizRQ.getMchOrderNo(), payOrderId);
+
             while ((payConfigList.size() > 0) && pollingTime < MAX_POLLING_TIME) {
                 //2、根据权重分配通道
                 PayConfigContext payConfigContextCurrent = PayCommonUtil.getPayPassageByWeights(payConfigList);
@@ -213,8 +210,8 @@ public abstract class AbstractPayOrderController extends ApiController {
             }
             payOrderService.save(payOrder);
             log.info("{}-订单入库 [{}]", payOrder.getPayOrderId(), JSONObject.toJSONString(payOrder));
-
-            //todo ======================判断状态 如果是出码失败,则拉起下一条,
+            //订单已入库，删除redis中的缓存
+            RedisUtil.del(TEMP_ORDER_SUFFIX + mchNo + bizRQ.getMchOrderNo());
 
             //订单入库,更新统计订单表使用 mq
             mqSender.send(StatisticsOrderMQ.build(payOrder.getPayOrderId(), payOrder));
