@@ -392,7 +392,7 @@ import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上�
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
-  API_URL_MCH_APP,
+  API_URL_MCH_APP_LIST,
   API_URL_PAY_ORDER_LIST,
   API_URL_PAYWAYS_LIST,
   PAY_ORDER_FORCE_SUCCESS,
@@ -463,8 +463,8 @@ export default {
       })
     }
     if (this.$access('ENT_MCH_APP_LIST')) {
-      req.list(API_URL_MCH_APP, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
-        that.payPassageList = res.records
+      req.list(API_URL_MCH_APP_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+        that.payPassageList = res
       })
     }
     // 默认今天

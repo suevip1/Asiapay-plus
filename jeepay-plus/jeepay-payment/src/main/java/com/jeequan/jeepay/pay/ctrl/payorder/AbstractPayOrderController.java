@@ -377,7 +377,7 @@ public abstract class AbstractPayOrderController extends ApiController {
         }
 
         payOrder.setState(PayOrder.STATE_INIT); //订单状态, 默认订单生成状态
-        payOrder.setClientIp(StringUtils.defaultIfEmpty(rq.getClientIp(), getClientIp())); //客户端IP
+        payOrder.setClientIp(rq.getClientIp()); //客户端IP
         payOrder.setNotifyUrl(rq.getNotifyUrl()); //异步通知地址
 
         Date nowDate = new Date();

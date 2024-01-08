@@ -215,6 +215,9 @@ export default {
       req.updateById(API_URL_MCH_BALANCE, this.selectMch.mchNo, this.changeObject).then(res => {
         this.$refs.infoTable.refTable()
         this.$message.success('修改成功')
+      }).catch(err => {
+        console.log(err)
+        this.isShowModal = false
       })
     },
     getMchStatInfo: function () {

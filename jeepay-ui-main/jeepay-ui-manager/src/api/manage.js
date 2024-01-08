@@ -135,6 +135,8 @@ export const API_URL_MCH_HISTORY_LIST = '/api/mchHistory'
 /** 商户App管理 **/
 export const API_URL_MCH_APP = '/api/mchApps'
 
+export const API_URL_MCH_APP_LIST = '/api/mchAppsList'
+
 export const API_URL_MCH_APP_HISTORY_LIST = '/api/passageHistory'
 
 export const API_URL_MCH_APP_BALANCE = '/api/mchAppsBalance'
