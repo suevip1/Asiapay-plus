@@ -114,11 +114,11 @@ public class Xxpay2PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "7dcb99a99452ae16c338b516a94030b1";
+        String key = "016c4df55fef538438b4bf5959470095";
 
-        String mchId = "1100072";
+        String mchId = "1100206";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
-        String channelId = "8002";
+        String channelId = "1111";
 
         long amount = 10000;
         String notifyUrl = "https://www.test.com";
@@ -143,7 +143,7 @@ public class Xxpay2PaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "http://103.13.230.213:2088/api/pay/create_order";
+        String payGateway = "http://8.218.7.188:2088/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

@@ -18,6 +18,7 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -69,6 +70,12 @@ public class HengshengPaymentService extends AbstractPaymentService {
             map.put("amount", amount);
             map.put("model", model);
             map.put("notifyUrl", notifyUrl);
+            // 处理用户真实姓名，让商户多传一个字段 extParam
+            if (bizRQ != null) {
+                if(StringUtils.isNotEmpty(bizRQ.getExtParam())){
+                    map.put("memberNo", bizRQ.getExtParam());
+                }
+            }
 
             String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
             String sign = SignatureUtils.buildSHA1WithRSASignByPrivateKey(signContent, requestPrivateKey);

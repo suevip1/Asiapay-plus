@@ -126,6 +126,7 @@ public class ProductMchController extends CommonCtrl {
     @MethodLog(remark = "更新产品-商户绑定信息")
     @PutMapping
     public ApiRes update() {
+        //todo 检查此处偶尔会插入两条相同的问题
         MchProduct mchProduct = getObject(MchProduct.class);
         List<MchProduct> listBlind = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchProduct.getMchNo()).eq(MchProduct::getProductId, mchProduct.getProductId()));
         if (listBlind != null) {

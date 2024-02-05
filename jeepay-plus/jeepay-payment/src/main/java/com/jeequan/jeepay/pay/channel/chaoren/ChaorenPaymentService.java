@@ -68,6 +68,7 @@ public class ChaorenPaymentService extends AbstractPaymentService {
             map.put("pay_type", URLEncoder.encode(pay_type, "UTF-8"));
             map.put("amount", amount);
             map.put("out_trade_no", out_trade_no);
+            map.put("callback_url", URLEncoder.encode(getNotifyUrl(payOrder.getPayOrderId()), "UTF-8"));
 
             String signContent = out_trade_no+amount;
             String sign = SignatureUtils.buildRSASHA1SignByPrivateKey(signContent, key);

@@ -109,11 +109,11 @@ public class ShengyangPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "1d5KO5WJaDhnGbUD99iyOZQMyyuwBAou";
+        String key = "UfsTKW8bMxCUbe2gbySgVRFlkG7d50Zw";
 
-        String pay_memberid = "230742659";
+        String pay_memberid = "231106801";
         String pay_orderid = RandomStringUtils.random(15, true, true);
-        String pay_bankcode = "0021";
+        String pay_bankcode = "116";
 
         String pay_amount = AmountUtil.convertCent2Dollar(10000L);
         String pay_notifyurl = "https://www.test.com";
@@ -131,7 +131,7 @@ public class ShengyangPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("pay_md5sign", sign);
 
-        String payGateway = "https://sy001.top/Pay";
+        String payGateway = "https://ffan12.top/Pay";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

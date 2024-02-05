@@ -141,6 +141,7 @@ public class DoufuPaymentService extends AbstractPaymentService {
 
         // 发送POST请求并指定JSON数据
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();
+
         // 处理响应
         raw = response.body();
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

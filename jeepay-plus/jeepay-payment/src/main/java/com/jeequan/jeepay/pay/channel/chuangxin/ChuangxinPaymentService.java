@@ -19,6 +19,7 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -38,8 +39,6 @@ public class ChuangxinPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.CHUANGXIN;
     }
 
-  
-
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
         log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());
@@ -56,28 +55,30 @@ public class ChuangxinPaymentService extends AbstractPaymentService {
             String key = normalMchParams.getSecret();
 
             String mchid = normalMchParams.getMchNo();
-            String channel = normalMchParams.getPayType();
-            String body = "123";
-
             String out_trade_no = payOrder.getPayOrderId();
             String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-
+            String channel = normalMchParams.getPayType();
             String notify_url = getNotifyUrl(payOrder.getPayOrderId());
             String return_url = notify_url;
-
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
             String time_stamp = dateFormat.format(new Date());
+            String body = "body";
 
             map.put("mchid", mchid);
             map.put("out_trade_no", out_trade_no);
-
-            map.put("channel", channel);
             map.put("amount", amount);
-
-            map.put("body", body);
-            map.put("time_stamp", time_stamp);
+            map.put("channel", channel);
             map.put("notify_url", notify_url);
             map.put("return_url", return_url);
+            map.put("time_stamp", time_stamp);
+            map.put("body", body);
+            // 处理用户真实姓名，让商户多传一个字段 extParam
+            if (bizRQ != null) {
+                if(StringUtils.isNotEmpty(bizRQ.getExtParam())){
+                    map.put("body", bizRQ.getExtParam());
+                }
+            }
+
             String sign = JeepayKit.getSign(map, key).toLowerCase();
             map.put("sign", sign);
 

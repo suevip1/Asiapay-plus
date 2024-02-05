@@ -108,9 +108,9 @@ public class G63aPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "608AA4EBCEF78F820EB8CBAD1DE65F58";
+        String key = "0227CFEBBC4088B7E63B5818561AC8B2";
 
-        String api_id = "g632308811";
+        String api_id = "g630063403";
         String orderid = RandomStringUtils.random(15, true, true);
         String dm = "ALL";
         String money = AmountUtil.convertCent2DollarShort("100000");
@@ -128,7 +128,7 @@ public class G63aPaymentService extends AbstractPaymentService {
         map.put("sign", sign);
         log.info("[{}]请求Map:{}", LOG_TAG, JSONObject.toJSON(map));
 
-        String payGateway = "http://18.166.23.198/api/Api_pay/CreatePay";
+        String payGateway = "http://g63a2.danimmp.net/api/Api_pay/CreatePay";
 
         raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

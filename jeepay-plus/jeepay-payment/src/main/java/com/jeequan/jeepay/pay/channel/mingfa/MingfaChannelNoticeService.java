@@ -13,6 +13,7 @@ import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -131,7 +132,7 @@ public class MingfaChannelNoticeService extends AbstractChannelNoticeService {
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal orderAmount = BigDecimalUtil.INSTANCE.divide(payOrder.getAmount(), 100f);
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 

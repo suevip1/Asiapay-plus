@@ -24,9 +24,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 卡密支付
- */
+
 @Service
 @Slf4j
 public class YifupayPaymentService extends AbstractPaymentService {

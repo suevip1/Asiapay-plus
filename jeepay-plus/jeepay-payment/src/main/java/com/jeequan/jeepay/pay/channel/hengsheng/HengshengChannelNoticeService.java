@@ -9,6 +9,7 @@ import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -105,7 +106,7 @@ public class HengshengChannelNoticeService extends AbstractChannelNoticeService 
         }
 
         BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal orderAmount = BigDecimalUtil.INSTANCE.divide(payOrder.getAmount(), 100f);
 
         HengshengParamsModel hengshengParamsModel = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), HengshengParamsModel.class);
 
@@ -125,6 +126,28 @@ public class HengshengChannelNoticeService extends AbstractChannelNoticeService 
         } else {
             log.info("{} 获取商户配置失败！ 参数：parameter = {}", LOG_TAG, jsonParams);
             return false;
+        }
+    }
+
+    public static void main(String[] args){
+        String jsonParams = "{\"amount\":\"799.98\",\"merchantId\":\"80047\",\"sign\":\"GOfeO8pfRtdoEF+HpUuXV63KqbREhG328NfiMFtDzjMWwmFGqjRn9KtCjQQcHopARU9mHShAeNjvBdVJdz09WqZJHlGqrA3OAmPiT7+hUUAXeoKoTPzTvbxLOC2A/2nVTkdV1XHdxntiE/NOunnRK77vlgczcHZ9kcPx0eUGOVI=\",\"merchantOrderNo\":\"P1724709334316826625\",\"status\":\"1\"}";
+        Map map = JSON.parseObject(jsonParams);
+        String sign = map.get("sign").toString();
+        System.out.println("返回Sign："+ sign);
+        map.remove("sign");
+        String requestPublicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDQqnp6PMs5X2MTwuGqYV1j6rKmyMZeZcgycBDlSJS1gob2BePAkJBgYl9b0ks2HFmuPc9wSK5He1M5q2le/u02ahUsdaL2e0uOXK/fwpADS5DpbICXoUDG9A1pag5TFjJFt/xVRUkkB8mWnnHXwbAQfrjazuuzvXjPW/4Q7M8J5wIDAQAB";
+        final String signContentStr = SignatureUtils.getSignContent(map, null, new String[]{""});
+        boolean verifySign = SignatureUtils.buildSHA1WithRSAVerifyByPublicKey(signContentStr, requestPublicKey, sign);
+        System.out.println(verifySign);
+        String txnAmt = "799.98";
+        BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
+        Long amount = 79998L;
+        BigDecimal orderAmount = BigDecimalUtil.INSTANCE.divide(amount, 100f);
+//        BigDecimal orderAmount = new BigDecimal(amount / 100f);
+        if (orderAmount.compareTo(channelNotifyAmount) == 0) {
+            System.out.println("校验金额成功");
+        }else{
+            System.out.println("校验金额失败");
         }
     }
 }

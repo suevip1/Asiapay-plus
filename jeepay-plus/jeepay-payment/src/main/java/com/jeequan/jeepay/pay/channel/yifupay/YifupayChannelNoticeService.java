@@ -19,9 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 
-/**
- * 亿付支付
- */
+
 @Slf4j
 @Service
 public class YifupayChannelNoticeService extends AbstractChannelNoticeService {

@@ -118,19 +118,19 @@ public class RixinpayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "w8ajxz2x9q36s9bj7ybahdf9e80lhleu";
+        String key = "enlg7y3z5630rnm7jrczdwt9paqyqdwn";
 
-        String pay_memberid = "230807724";
+        String pay_memberid = "211129844";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
 
 
-        String pay_bankcode = "972";
+        String pay_bankcode = "wechat-big";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
 
 
-        String pay_amount = AmountUtil.convertCent2Dollar(10000L);
+        String pay_amount = AmountUtil.convertCent2Dollar(50000L);
         String pay_user_ip = "127.0.0.1";
 
 
@@ -148,7 +148,7 @@ public class RixinpayPaymentService extends AbstractPaymentService {
         map.put("pay_user_ip", pay_user_ip);
         map.put("pay_productname", "下单");
 
-        String payGateway = "http://aabb.rixin.threegf.com/Pay_Index.html";
+        String payGateway = "http://www.yongxinfa88.com/Pay_Index.html";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

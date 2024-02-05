@@ -25,9 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/**
- * 日鑫支付
- */
+
 @Service
 @Slf4j
 public class Rixinpay3PaymentService extends AbstractPaymentService {

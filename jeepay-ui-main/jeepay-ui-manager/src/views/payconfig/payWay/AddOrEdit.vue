@@ -25,7 +25,7 @@ export default {
       wayCode: null, // 更新对象ID
       rules: {
         productId: [
-          { required: true, message: '请输入产品代码(4到8位长度数字)', pattern: /^\d{4,8}$/, trigger: 'blur' }
+          { required: true, message: '请输入产品代码(纯数字1-8位，首位不为0)', pattern: /^[1-9]\d{0,7}$/, trigger: 'blur' }
         ],
         productName: [
           { required: true, message: '请输入产品名称', trigger: 'blur' }

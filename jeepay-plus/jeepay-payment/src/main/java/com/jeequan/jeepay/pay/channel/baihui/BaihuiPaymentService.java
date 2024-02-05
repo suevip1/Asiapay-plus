@@ -63,12 +63,14 @@ public class BaihuiPaymentService extends AbstractPaymentService {
             String channelCode = normalMchParams.getPayType();
             String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
             String version = "1.0";
+            String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());
 
             map.put("merchantNo", merchantNo);
             map.put("merchantOrderNo", merchantOrderNo);
             map.put("channelCode", channelCode);
             map.put("amount", amount);
             map.put("version", version);
+            map.put("notifyUrl", notifyUrl);
 
             String signContent = SignatureUtils.getSignContent(map, null, new String[]{""});
             String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
@@ -113,9 +115,9 @@ public class BaihuiPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "F3F760905A435B3DE1FE009B6DF494FF";
+        String key = "a130c6e6c5004a74997b6f3a77a7bafa";
 
-        String merchantNo = "10136";
+        String merchantNo = "11591";
         String merchantOrderNo = RandomStringUtils.random(15, true, true);
         String channelCode = "002";
         String amount = AmountUtil.convertCent2Dollar(10000L);
@@ -131,7 +133,7 @@ public class BaihuiPaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "https://pay.ccctre.co/pay-api/order/create";
+        String payGateway = "https://pay.bbbtre.co/pay-api/order/create";
         log.info("[{}]请求map:{}", LOG_TAG, JSONObject.toJSON(map).toString());
 
         // 发送POST请求并指定JSON数据

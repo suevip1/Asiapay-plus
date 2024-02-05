@@ -73,7 +73,6 @@ public class DafuPaymentService extends AbstractPaymentService {
             map.put("mchKey", mchKey);
             map.put("mchOrderNo", mchOrderNo);
             map.put("amount", amount);
-            map.put("mchOrderNo", mchOrderNo);
 
             map.put("product", product);
             map.put("nonce", nonce);
@@ -122,11 +121,11 @@ public class DafuPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "kys-9KqsVEW5AP-7twzBjrYcn";
+        String key = "kyszBOE4EB0TfWagJeNyEAI";
 
-        String mchKey = "1014";
+        String mchKey = "100377";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
-        String product = "1001";
+        String product = "1";
 
         long amount = 10000;
         String notifyUrl = "https://www.test.com";
@@ -137,7 +136,6 @@ public class DafuPaymentService extends AbstractPaymentService {
         map.put("mchKey", mchKey);
         map.put("mchOrderNo", mchOrderNo);
         map.put("amount", amount);
-        map.put("mchOrderNo", mchOrderNo);
 
         map.put("product", product);
         map.put("nonce", nonce);
@@ -149,7 +147,7 @@ public class DafuPaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent + key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "https://api.dafupay.xyz/api/v1/payment/init";
+        String payGateway = "https://longpay-api.tianshupay.xyz/api/v1/payment/init";
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                 .execute();
         // 处理响应

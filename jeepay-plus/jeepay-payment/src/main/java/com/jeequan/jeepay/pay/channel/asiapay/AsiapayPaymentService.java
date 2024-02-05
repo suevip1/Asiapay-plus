@@ -94,30 +94,23 @@ public class AsiapayPaymentService extends AbstractPaymentService {
     }
 
     public static void main(String[] args) {
-        JSONObject map = new JSONObject();
+        Map<String, Object> map = new HashMap<>();
+        String key = "XFjGbHNUho8MqYWycYsNFzSwBVvOAIepDz1QDTfoIfKFojXVyTFHReNteWzGSVoXyXLJzDAo9p0G6GIjQYPAPJXSttlymJ9pqvaVUsna8v6cRezJvmTSJleEPImlTqDI";
+        String mchNo = "M1691231056";
 
-        String key = "d2C7dI25QIMq79XeJkzQdt4DqwoSRavQxg6sh8pd4VfsSZPcpgy2HQIwKBkLlo7fRVkSKrxFON5wKgqSHkMzlhYH1cKwyoyR7JoCAIRxRLjZBgQPKJ1OwxTiXWhMaJvM";
-        String mchNo = "M1691316650";
-
-        map.put("amount", 3000);
-        map.put("createdAt", "1702129307574");
-        map.put("ifCode", "asiapay");
 
         map.put("mchNo", mchNo);
-        map.put("mchOrderNo", "20231209214147475YR2");
-        map.put("payOrderId", "P1733482073722724354");
-
-        map.put("reqTime", "1702129407128");
-        map.put("state", "2");
-        map.put("successTime", "1702129407000");
-
-        map.put("clientIp", null);
-        //876E2D5C543852B357CB7BE3D096953B
+        map.put("mchOrderNo", "AT1202309052102532632");
+        map.put("amount", 5000L);
+        map.put("productId", "1000");
+        map.put("reqTime", "1693918973130");
+        map.put("clientIp", "127.0.0.1");
+        map.put("notifyUrl", "http://107.148.198.70:8403/api/klnzfbjw/notify");
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-
-
+        String  raw = HttpUtil.post("http://pay-api.kln-mobile.com/api/pay/unifiedOrder", map);
+        log.info("[{}]请求响应:{}", LOG_TAG, raw);
 
 
     }

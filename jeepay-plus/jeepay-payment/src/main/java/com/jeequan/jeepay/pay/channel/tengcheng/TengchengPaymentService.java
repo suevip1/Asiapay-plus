@@ -107,12 +107,12 @@ public class TengchengPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "dc6f0b1fa2e301dce2c9a9aefd19313d";
+        String key = "c3ecf6af46f1d63a744c7d52915a2933";
 
-        String mid = "M200011";
+        String mid = "M200004";
         String merOrderTid = RandomStringUtils.random(15, true, true);
         String money = AmountUtil.convertCent2Dollar(10000L);
-        String channelCode = "166";
+        String channelCode = "112";
         String notifyUrl = "https://www.test.com";
 
         map.put("mid", mid);
@@ -122,11 +122,11 @@ public class TengchengPaymentService extends AbstractPaymentService {
         map.put("notifyUrl", notifyUrl);
 
         String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&" + key;
-        log.info("[{}]加密signStr:{}", LOG_TAG, signStr);
+
         String sign = SignatureUtils.md5(signStr).toUpperCase();
         map.put("sign", sign);
-
-        String payGateway = "http://sfapi.itpay.vip/api/services/app/Api_PayOrder/CreateOrderPay";
+        log.info("[{}]请求:{}", LOG_TAG, JSONObject.toJSONString(map));
+        String payGateway = "http://k6fhmfxxmxi.itxtpy.com/api/services/app/Api_PayOrder/CreateOrderPay";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

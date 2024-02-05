@@ -11,6 +11,7 @@ import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -104,17 +105,17 @@ public class G63aChannelNoticeService extends AbstractChannelNoticeService {
             return false;
         }
 
-        BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount() / 100f);
+        BigDecimal channelNotifyAmount = new BigDecimal(Double.parseDouble(txnAmt) * 100);
+        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
         String sign = jsonParams.getString("sign");
-        Map map = JSON.parseObject(jsonParams.toJSONString());
-        map.remove("sign");
+        Map<String, Object> map = JSON.parseObject(jsonParams.toJSONString());
+
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + secret;
+            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"sign"}) + secret;
             final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
@@ -126,5 +127,19 @@ public class G63aChannelNoticeService extends AbstractChannelNoticeService {
             log.info("{} 获取商户配置失败！ 参数：parameter = {}", LOG_TAG, jsonParams);
             return false;
         }
+    }
+
+    public static void main(String[] args) {
+        String test = "{\"api_id\":\"g630063403\",\"money\":\"200\",\"orderid\":\"P1753044592600588290\",\"sign\":\"4C566382E6985779537A86558BEEA6D3\",\"state\":\"2\"}";
+        String key = "0227CFEBBC4088B7E63B5818561AC8B2";
+        Map map = JSON.parseObject(test);
+        final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"sign"}) + key;
+        log.info(signContentStr);
+        final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+        log.info(signStr);
+
+        BigDecimal channelNotifyAmount = new BigDecimal(map.get("money").toString());
+        BigDecimal orderAmount = BigDecimalUtil.INSTANCE.divide(20000L, 100f);
+        log.info(String.valueOf((orderAmount.compareTo(channelNotifyAmount) == 0)));
     }
 }

@@ -29,9 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-/**
- * xxpay支付
- */
+
 @Service
 @Slf4j
 public class XxpayPaymentService extends AbstractPaymentService {
@@ -133,12 +131,12 @@ public class XxpayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "9ZXE7EYBMYPWX1DWUQSOPQQCHJ7L3LQF4M2GRC0E4PTPE9QHR7UAAM6MEGJP2HZGINXPSADOPSEGS1PDQSZQSOFTOVP9H1DC1ODWF4BQLB1X48TJIZS4EZT5QHIDT1IK";
+        String key = "MWGVLOUBQNRRAASCMSCGPT2ULB29YOEG9GNGTYVYOO1FVSSPP1VDUFAJJRZKR1DLRSLM5TCUIHEPOIR7CRGO2M07ROWOZNGCWXKSD1LQNVX388ZIF6JWMD2VEG1YKQJB";
 
-        String mchId = "20000028";
-        String productId = "8034";
+        String mchId = "20000202";
+        String productId = "8093";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
-        long amount = 10000;
+        long amount = 100000;
         String currency = "cny";
 
         String notifyUrl = "https://www.test.com";
@@ -164,7 +162,7 @@ public class XxpayPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "http://103.231.172.18:56700/api/pay/create_order";
+        String payGateway = "http://gateway.caiye6888.com/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

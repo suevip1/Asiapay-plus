@@ -112,12 +112,12 @@ public class ChangshengPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "rJVeoBam32Svmw53rk6oIn4YZqgBR4s6VMNeb97R";
+        String key = "2XeG1Zy1kZClaaBwRLJbtgLVdGZGMZh8Ydzkm9Rk";
 
         Long Timestamp = System.currentTimeMillis() / 1000;
-        String AccessKey = "b9rk4YGOYmIrMg3Qy2x7cynVBAz";
+        String AccessKey = "Vxkmv1ME2gSqe6Vn57mQuEJd24";
 
-        String PayChannelId = "1517";
+        String PayChannelId = "1516";
         String OrderNo = RandomStringUtils.random(15, true, true);
         String Amount = AmountUtil.convertCent2Dollar(200000L);
 
@@ -136,7 +136,7 @@ public class ChangshengPaymentService extends AbstractPaymentService {
         String Sign = SignatureUtils.md5(SignStr).toLowerCase();
         map.put("Sign", Sign);
 
-        String payGateway = "https://merchant.tengdazhifu.xyz/api/PayV2/submit";
+        String payGateway = "https://merchant.yidazhifu.xyz/api/PayV2/submit";
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                 .execute();
         raw = response.body();

@@ -17,6 +17,7 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -34,7 +35,6 @@ public class Xxpay5PaymentService extends AbstractPaymentService {
         return CS.IF_CODE.XXPAY5;
     }
 
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -85,14 +85,29 @@ public class Xxpay5PaymentService extends AbstractPaymentService {
             //拉起订单成功
             if (result.getString("retCode").equals("SUCCESS")) {
 
-                String payUrl = result.getJSONObject("payParams").getString("payJumpUrl");
-                String passageOrderId = result.getString("payOrderId");
+                String payJumpUrl = result.getJSONObject("payParams").getString("payJumpUrl");
+                String payUrlResp = result.getJSONObject("payParams").getString("payUrl");
+                String payUrl = "";
+                if (StringUtils.isNotEmpty(payJumpUrl)) {
+                    payUrl = payJumpUrl;
+                }
+                if (StringUtils.isNotEmpty(payUrlResp)) {
+                    payUrl = payUrlResp;
+                }
 
-                res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
-                res.setPayData(payUrl);
+                if (StringUtils.isNotEmpty(payUrl)) {
+                    String passageOrderId = result.getString("payOrderId");
 
-                channelRetMsg.setChannelOrderId(passageOrderId);
-                channelRetMsg.setChannelState(ChannelRetMsg.ChannelState.WAITING);
+                    res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
+                    res.setPayData(payUrl);
+
+                    channelRetMsg.setChannelOrderId(passageOrderId);
+                    channelRetMsg.setChannelState(ChannelRetMsg.ChannelState.WAITING);
+                } else {
+                    channelRetMsg.setChannelState(ChannelRetMsg.ChannelState.SYS_ERROR);
+                    log.error("[{}] 异常: {}", LOG_TAG, payOrder.getPayOrderId());
+                }
+
             } else {
                 //出码失败
                 channelRetMsg.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
@@ -110,10 +125,10 @@ public class Xxpay5PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "DBFXKRGWTQJ4YNW4MYEX4M0YPQD9X0PFWP9CWQAEMSPGAVYWPVCYQLMODXHGZH5M3KOC85YOY5YIHOTHNRRSQCFGAHU5GIAML9Y6AVIRFRD5XVFDMTZ5TV2NO7EXH3UC";
+        String key = "LX9QGRUJKEABNPCQ9F2K2FALZHPSB8VYTDVWAKFGFGQTMHCRVRCJJMVHUTXERWVOXJWL0IUTHFY2XEHPAAQUTVR3AKY4ROA5TUKREIJOVX3WSGDH0ASS6IDI61YWYWBD";
 
-        String mchId = "20000274";
-        String productId = "2392";
+        String mchId = "20000400";
+        String productId = "8001";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         String currency = "cny";
 
@@ -137,7 +152,7 @@ public class Xxpay5PaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "http://pay.dmdm8.net/api/pay/create_order";
+        String payGateway = "http://47.57.245.81/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

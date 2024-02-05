@@ -59,7 +59,7 @@ public class PppayPaymentService extends AbstractPaymentService {
             String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
             String paytypes = normalMchParams.getPayType();
             String notifyurl = getNotifyUrl(payOrder.getPayOrderId());
-            String memuid = "asiapay";
+            String memuid = SignatureUtils.md5(orderid).toLowerCase();
 
             map.put("recvid", recvid);
             map.put("orderid", orderid);
@@ -107,14 +107,14 @@ public class PppayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "018155439e60429bb582d3421d8f3c6e";
+        String key = "8bc3e44a628b422383fd9c347bb128cc";
 
-        String recvid = "c4d623f2-ec4b-448d-95e2-5a9d9f1e66ae";
+        String recvid = "ad9ccd1c-2bdf-46d1-b16b-29467920d818";
         String orderid = RandomStringUtils.random(15, true, true);
         String amount = AmountUtil.convertCent2Dollar(10000L);;
         String paytypes = "支付宝";
         String notifyurl = "https://www.test.com";
-        String memuid = "asiapay";
+        String memuid = SignatureUtils.md5(orderid).toLowerCase();
 
 
         map.put("recvid", recvid);
@@ -129,7 +129,7 @@ public class PppayPaymentService extends AbstractPaymentService {
         map.put("sign", sign);
 
 
-        String payGateway = "https://fh14no2113fdl.pppay.club/createpay";
+        String payGateway = "https://fh14no2113fdl.pppay24.com/createpay";
 
         // 发送POST请求并指定JSON数据
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

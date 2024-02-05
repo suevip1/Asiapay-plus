@@ -30,7 +30,7 @@ import java.util.Random;
 @Slf4j
 public class KamipayPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "[卡密支付]";
+    private static final String LOG_TAG = "[大富卡密支付2]";
 
     @Override
     public String getIfCode() {

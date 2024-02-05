@@ -120,6 +120,23 @@ public class AmountUtil {
         }
     }
 
+    /**
+     * 将字符串"分"转换成"元"（短格式），如：100分被转换为1元。
+     * @param s
+     * @return
+     */
+    public static String convertCent2DollarShort(Long s) {
+        String ss = convertCent2Dollar(s);
+        ss = "" + Double.parseDouble(ss);
+        if(ss.endsWith(".0")) {
+            return ss.substring(0, ss.length() - 2);
+        }
+        if(ss.endsWith(".00")) {
+            return ss.substring(0, ss.length() - 3);
+        } else {
+            return ss;
+        }
+    }
 
     /**
     * 计算百分比类型的各种费用值  （订单金额 * 真实费率  结果四舍五入并保留0位小数 ）

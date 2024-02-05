@@ -38,7 +38,7 @@ public class ChaorenChannelNoticeService extends AbstractChannelNoticeService {
     public MutablePair<String, Object> parseParams(HttpServletRequest request, String urlOrderId, NoticeTypeEnum noticeTypeEnum) {
         try {
             JSONObject params = getReqParamJSON();
-            return MutablePair.of(params.getString("thirdOrderNo"), params);
+            return MutablePair.of(urlOrderId, params);
         } catch (Exception e) {
             log.error("error", e);
             throw ResponseException.buildText("ERROR");

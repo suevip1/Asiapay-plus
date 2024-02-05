@@ -120,9 +120,9 @@ public class BoxinPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "00a9e24ebcc54eebb12e1639bf20a5c0";
+        String key = "A565B8F5A644439D895F488A3A89BBA9";
 
-        String p1_merchantno = "MER20230922154048637785";
+        String p1_merchantno = "MER20240105203204249789";
         String p2_amount = AmountUtil.convertCent2Dollar(10000L);
         String p3_orderno = RandomStringUtils.random(15, true, true);
 

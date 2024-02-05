@@ -119,21 +119,20 @@ public class WeilanPaymentService extends AbstractPaymentService {
         Map<String, Object> map = new HashMap<>();
         String key = "027cf39b9519099391b9227922256afb";
 
-        String channelId = "7";
-        String mcOrderNum = RandomStringUtils.random(15, true, true);
-        String merchantId = "356";
+        String PayChannelId = "7";
+        String OrderNo = RandomStringUtils.random(15, true, true);
+        String AccessKey = "356";
 
-        String notifyUrl = "https://www.test.com";
-        Long timestamp = System.currentTimeMillis() / 1000;
-        BigDecimal orderAmount = new BigDecimal(AmountUtil.convertCent2Dollar(10000L));
+        Long Timestamp = System.currentTimeMillis() / 1000;
+        BigDecimal Amount = new BigDecimal(AmountUtil.convertCent2Dollar(10000L));
+        String CallbackUrl = "https://www.test.com";
 
-        map.put("channelId", channelId);
-        map.put("mcOrderNum", mcOrderNum);
-        map.put("merchantId", merchantId);
-        map.put("notifyUrl", URLEncoder.encode(notifyUrl, "UTF-8"));
-        map.put("timestamp", timestamp);
-        map.put("orderAmount", orderAmount);
-        map.put("payName", "");
+        map.put("Timestamp", Timestamp);
+        map.put("AccessKey", AccessKey);
+        map.put("PayChannelId", PayChannelId);
+        map.put("OrderNo", OrderNo);
+        map.put("Amount", Amount);
+        map.put("CallbackUrl", CallbackUrl);
 
         String signStr = SignatureUtils.getSignContent(map, null, null) + "&key=" + key;
         String sign = SignatureUtils.md5(signStr).toUpperCase();

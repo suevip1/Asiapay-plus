@@ -3,7 +3,9 @@ package com.jeequan.jeepay.core.utils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.crypto.Cipher;
 import javax.crypto.Mac;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -312,5 +314,82 @@ public class SignatureUtils {
         } catch (Exception e) {
             throw new RuntimeException("验签字符串[" + signValue + "]时遇到异常", e);
         }
+    }
+
+    /**
+     * AES解密
+     * @param data 密文
+     * @param key  密钥，长度16
+     * @param iv   偏移量，长度16
+     * @return 明文
+     * @author miracle.qu
+     */
+    public static String decryptAES(String data, String key, String iv) {
+        try {
+            data = replaceAllSpecial(data);
+            byte[] encrypted1 = Base64.getDecoder().decode(data);
+
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec keyspec = new SecretKeySpec(key.getBytes(), "AES");
+            if (iv != null) {
+                IvParameterSpec ivspec = new IvParameterSpec(iv.getBytes());
+                cipher.init(Cipher.DECRYPT_MODE, keyspec, ivspec);
+            } else {
+                cipher.init(Cipher.DECRYPT_MODE, keyspec);
+            }
+
+
+            byte[] original = cipher.doFinal(encrypted1);
+            String originalString = new String(original);
+            return originalString.trim();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * AES加密
+     *
+     * @param data 加密参数
+     * @param key  密钥
+     * @param iv   偏移量
+     * @return
+     * @throws Exception
+     */
+    public static String encryptAES(String data, String key, String iv) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            int blockSize = cipher.getBlockSize();
+            data = replaceAllSpecial(data);
+            byte[] dataBytes = data.getBytes();
+            int plaintextLength = dataBytes.length;
+
+            if (plaintextLength % blockSize != 0) {
+                plaintextLength = plaintextLength + (blockSize - (plaintextLength % blockSize));
+            }
+
+            byte[] plaintext = new byte[plaintextLength];
+            System.arraycopy(dataBytes, 0, plaintext, 0, dataBytes.length);
+
+
+            SecretKeySpec keyspec = new SecretKeySpec(key.getBytes(), "AES");
+            if (iv != null) {
+                IvParameterSpec ivspec = new IvParameterSpec(iv.getBytes());
+                cipher.init(Cipher.ENCRYPT_MODE, keyspec, ivspec);
+            } else {
+                cipher.init(Cipher.ENCRYPT_MODE, keyspec);
+            }
+
+            byte[] encrypted = cipher.doFinal(plaintext);
+            return Base64.getEncoder().encodeToString(encrypted);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    public static String replaceAllSpecial(String s) {
+        return s.replaceAll("\\\\", "");
     }
 }
