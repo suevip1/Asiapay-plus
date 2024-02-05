@@ -48,6 +48,11 @@ public class MchHistoryController extends CommonCtrl {
         wrapper.eq(MchHistory::getMchNo, getCurrentMchNo());
 
         //订单
+        if (StringUtils.isNotEmpty(mchHistory.getMchOrderNo())) {
+            wrapper.eq(MchHistory::getMchOrderNo, mchHistory.getMchOrderNo().trim());
+        }
+
+        //订单
         if (StringUtils.isNotEmpty(mchHistory.getPayOrderId())) {
             wrapper.eq(MchHistory::getPayOrderId, mchHistory.getPayOrderId());
         }
@@ -115,7 +120,7 @@ public class MchHistoryController extends CommonCtrl {
             throw new BizException("导出最大数据不能超过65535行！");
         } else {
             List<List> excelData = new ArrayList();
-            List<String> header = Arrays.asList("记录ID", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "商户订单号", "订单金额", "时间");
+            List<String> header = Arrays.asList("记录ID", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "商户订单号", "订单金额","备注", "时间");
             excelData.add(header);
             Iterator iteratorRecord = records.iterator();
 
@@ -144,7 +149,8 @@ public class MchHistoryController extends CommonCtrl {
                 } else {
                     rowData.add("");
                 }
-
+                //备注
+                rowData.add(record.getRemark());
                 //时间
                 rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
                 excelData.add(rowData);

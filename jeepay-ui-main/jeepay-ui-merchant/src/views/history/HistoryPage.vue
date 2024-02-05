@@ -16,6 +16,7 @@
                 <a-icon slot="suffixIcon" type="sync"/>
               </a-range-picker>
             </a-form-item>
+            <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
             <jeepay-text-up :placeholder="'订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId"/>
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.fundDirection" placeholder="资金变动方向" default-value="0">
@@ -101,32 +102,30 @@ import { saveAs } from 'file-saver'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchNo', title: '商户号', dataIndex: 'mchNo', width: '150px', fixed: 'left' },
-  { key: 'mchName', title: '商户名', dataIndex: 'mchName', width: '150px', fixed: 'left' },
+  { key: 'mchNo', title: '商户号', dataIndex: 'mchNo', width: '150px' },
+  { key: 'mchName', title: '商户名', dataIndex: 'mchName', width: '150px' },
   {
     key: 'beforeBalance',
     title: '变更前余额(￥)',
     width: '180px',
-    fixed: 'left',
     scopedSlots: { customRender: 'beforeSlot' }
   },
-  { key: 'amount', width: '150px', title: '变更金额(￥)', fixed: 'left', scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'amount', width: '150px', title: '变更金额(￥)', scopedSlots: { customRender: 'amountSlot' } },
   {
     key: 'afterBalance',
     title: '变更后余额(￥)',
     width: '180px',
-    fixed: 'left',
     scopedSlots: { customRender: 'afterSlot' }
   },
-  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300, fixed: 'left' },
+  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 250 },
   {
     key: 'payOrderAmount',
     width: '150px',
     title: '订单金额',
-    fixed: 'left',
     scopedSlots: { customRender: 'payOrderAmountSlot' }
   },
-  { key: 'bizType', title: '业务类型', scopedSlots: { customRender: 'bizTypeSlot' } },
+  { key: 'bizType', title: '业务类型', scopedSlots: { customRender: 'bizTypeSlot' }, width: '100px' },
+  { key: 'remark', dataIndex: 'remark', title: '备注' },
   { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期' }
 ]
 

@@ -1803,6 +1803,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             stringBufferOrderInfo.append("商户订单号 [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
                             message.setText(stringBufferOrderInfo.toString());
                             RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
+
                             sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
                         } else {
                             sendReplyMessage(chatId, message.getMessageId(), "该订单对应通道群已失效,请联系四方工作人员检查");

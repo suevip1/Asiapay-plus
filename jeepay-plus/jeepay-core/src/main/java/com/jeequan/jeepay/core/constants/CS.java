@@ -35,7 +35,7 @@ public class CS {
     /**
      * 订单过期时间
      */
-    public static final int ORDER_EXPIRED_TIME = 120;
+    public static final int ORDER_EXPIRED_TIME = 180;
 
 
     /**
