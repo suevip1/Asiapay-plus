@@ -32,7 +32,7 @@ import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import InfoAddOrEdit from './AddOrEdit'
 
 const tableColumns = [
-  { title: '资源权限ID', dataIndex: 'entId' }, // key为必填项，用于标志该列的唯一
+  { title: '资源权限ID', dataIndex: 'entId', width: 300 }, // key为必填项，用于标志该列的唯一
   { title: '资源名称', dataIndex: 'entName' },
   { title: '图标', dataIndex: 'menuIcon' },
   { title: '路径', dataIndex: 'menuUri' },

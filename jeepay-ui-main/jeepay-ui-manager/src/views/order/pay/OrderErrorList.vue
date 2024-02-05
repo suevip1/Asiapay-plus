@@ -6,22 +6,21 @@
           <div class="table-layer">
             <a-form-item label="" class="table-head-layout" style="max-width:350px;min-width:300px">
               <a-range-picker
-                @change="onChange"
-                :show-time="{ format: 'HH:mm:ss' }"
-                format="YYYY-MM-DD HH:mm:ss"
-                :disabled-date="disabledDate"
-                :ranges="ranges"
-                v-model="selectedRange"
+                  @change="onChange"
+                  :show-time="{ format: 'HH:mm:ss' }"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  :disabled-date="disabledDate"
+                  v-model="selectedRange"
+                  :ranges="ranges"
               >
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
+            <!--            <jeepay-text-up :placeholder="'支付订单号/商户订单号/渠道订单号'" :msg="searchData.unionOrderId" v-model="searchData.unionOrderId" />-->
             <jeepay-text-up :placeholder="'支付订单号'" :msg="searchData.payOrderId" v-model="searchData.payOrderId" />
             <jeepay-text-up :placeholder="'商户订单号'" :msg="searchData.mchOrderNo" v-model="searchData.mchOrderNo" />
-            <jeepay-text-up :placeholder="'通道订单号'" :msg="searchData.passageOrderNo" v-model="searchData.passageOrderNo" />
             <jeepay-text-up :placeholder="'商户名'" :msg="searchData.mchName" v-model="searchData.mchName" />
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo" />
-            <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo" />
             <a-form-model-item label="" class="table-head-layout">
               <a-select v-model="searchData.passageId" :allowClear="true" placeholder="对应通道" show-search option-filter-prop="children">
                 <a-select-option v-for="d in payPassageList" :value="d.payPassageId" :key="d.payPassageId">
@@ -36,85 +35,39 @@
                 </a-select-option>
               </a-select>
             </a-form-model-item>
-            <a-form-item label="" class="table-head-layout">
-              <a-select v-model="searchData.state" placeholder="支付状态" default-value="">
-                <a-select-option value="">全部</a-select-option>
-                <a-select-option value="0">订单生成</a-select-option>
-                <a-select-option value="1">支付中</a-select-option>
-                <a-select-option value="2">支付成功</a-select-option>
-                <a-select-option value="3">支付失败</a-select-option>
-                <a-select-option value="5">测试冲正</a-select-option>
-                <a-select-option value="6">订单关闭</a-select-option>
-                <a-select-option value="7">出码失败</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item label="" class="table-head-layout">
-              <a-select v-model="searchData.notifyState" placeholder="回调状态" default-value="">
-                <a-select-option value="">全部</a-select-option>
-                <a-select-option value="0">未发送</a-select-option>
-                <a-select-option value="1">已发送</a-select-option>
-              </a-select>
-            </a-form-item>
-            <a-form-item label="" class="table-head-layout">
-              <a-select v-model="searchData.forceChangeState" placeholder="手动补单" default-value="">
-                <a-select-option value="">全部</a-select-option>
-                <a-select-option value="0">否</a-select-option>
-                <a-select-option value="1">是</a-select-option>
-              </a-select>
-            </a-form-item>
             <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
-              <a-switch style="margin-left: 8px" checked-children="统计开" un-checked-children="统计关" @change="onSwitchChange" v-if="$access('ENT_C_MAIN_PAY_COUNT')" />
-              <a-switch v-if="$access('ENT_C_MAIN_PAY_COUNT')" style="margin-left: 8px" checked-children="自动刷新开" un-checked-children="自动刷新关" @change="onAutoRefreshSwitchChange" />
-              <a-tag style="margin-left: 8px" :color="autoRefresh?'#1890ff':''">{{autoRefreshCoolDown}}s</a-tag>
             </span>
           </div>
         </a-form>
       </div>
       <!-- 统计部分 -->
-      <div v-if="realTimeStatOpen" style="background-color: #fafafa;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid rgba(179,179,179,0.4)">
+      <div style="background-color: #fafafa;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid rgba(179,179,179,0.4)">
         <a-row style="padding-left: 15px;padding-right: 15px;">
           <a-col class="stat-col bg-color-1" :span="4">
-            <span class="title">订单金额</span>
-            <b style="color: #DB4B4B;">{{ (realTimeStatData.successAmount/100).toFixed(2) }}</b>
-            <span class="sub-content">总：{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</span>
+            <span class="title">订单总金额</span>
+            <b style="color: #DB4B4B;">{{ (realTimeStatData.totalAmount/100).toFixed(2) }}</b>
             <img src="~@/assets/dashboard/icon_zuorichengg.png">
           </a-col>
           <a-col class="stat-col bg-color-2" :span="4" :offset="1">
-            <span class="title">订单数</span>
-            <b style="color: #FA9D2A;">{{ realTimeStatData.successCount }}</b>
-            <span class="sub-content">总：{{ realTimeStatData.totalCount }}</span>
+            <span class="title">订单总数</span>
+            <b style="color: #FA9D2A;">{{ realTimeStatData.totalCount }}</b>
             <img src="~@/assets/dashboard/orange-icon.png">
-          </a-col>
-          <a-col class="stat-col bg-color-3" :span="4" :offset="1">
-            <span class="title">商户入账</span>
-            <b style="color: #2F61DC;">{{ (realTimeStatData.totalMchIncome/100).toFixed(2) }}</b>
-            <img src="~@/assets/dashboard/icon_jinrichengg.png">
-          </a-col>
-          <a-col class="stat-col bg-color-4" :span="4" :offset="1">
-            <span class="title">平台利润</span>
-            <b style="color: #864FE1;">{{ (realTimeStatData.totalIncome/100).toFixed(2) }}</b>
-            <img src="~@/assets/dashboard/icon_dailishuliang.png">
-          </a-col>
-          <a-col class="stat-col bg-color-5" :span="4" :offset="1">
-            <span class="title">成功率</span>
-            <b style="color: #4BD884;">{{ (realTimeStatData.successCount===0?0:(realTimeStatData.successCount / realTimeStatData.totalCount * 100)).toFixed(2) }}%</b>
-            <img src="~@/assets/dashboard/icon_shanghushuliang.png">
           </a-col>
         </a-row>
       </div>
 
       <!-- 列表渲染 -->
       <JeepayTable
-        @btnLoadClose="btnLoading=false"
-        ref="infoTable"
-        :initData="false"
-        :reqTableDataFunc="reqTableDataFunc"
-        :tableColumns="tableColumns"
-        :searchData="searchData"
-        :pageSize="50"
-        rowKey="payOrderId"
+          @btnLoadClose="btnLoading=false"
+          ref="infoTable"
+          :initData="false"
+          :reqTableDataFunc="reqTableDataFunc"
+          :tableColumns="tableColumns"
+          :searchData="searchData"
+          :pageSize="50"
+          rowKey="payOrderId"
       >
         <template slot="mchSlot" slot-scope="{record}">
           <div class="mch-name">
@@ -125,25 +78,17 @@
         <template slot="amountSlot" slot-scope="{record}"><b>￥{{ record.amount/100 }}</b></template> <!-- 订单金额插槽 -->
         <template slot="stateSlot" slot-scope="{record}">
           <a-tag
-            :key="record.state"
-            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
+              :key="record.state"
+              :color="getOrderStateColor(record.state)"
           >
-            {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
+            {{ getOrderStateName(record.state) }}
           </a-tag>
-        </template>
-        <template slot="forceChangeStateSlot" slot-scope="{record}">
-          <a-tag :color="record.forceChangeState != undefined && record.forceChangeState === 1?'#007EFF':''">
-            {{ record.forceChangeState != undefined && record.forceChangeState === 1?'是':'否'}}
-          </a-tag>
-        </template>
-        <template slot="notifySlot" slot-scope="{record}">
-          <a-badge :status="record.notifyState === 1?'processing':'error'" :text="record.notifyState === 1?'已发送':'未发送'" />
-        </template>
-        <template slot="productSlot" slot-scope="{record}">
-          <span style="color: #007EFF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
         </template>
         <template slot="passageSlot" slot-scope="{record}">
-          <span style="color: #007EFF;">[{{ record.passageId }}]</span><span>{{ record.passageName }}</span>
+          <span style="color: #1A79FF;">[{{ record.passageId }}]</span>&nbsp;<span>{{ record.passageName }}</span>
+        </template> <!-- 商户信息插槽 -->
+        <template slot="productSlot" slot-scope="{record}">
+          <span style="color: #1A79FF">[{{ record.productId }}]</span><span>{{ record.productName }}</span>
         </template> <!-- 商户信息插槽 -->
         <template slot="orderSlot" slot-scope="{record}">
           <div class="order-list">
@@ -160,15 +105,9 @@
             </p>
           </div>
         </template>
-        <template slot="opSlot" slot-scope="{record}">
-          <JeepayTableColumns><!-- 0-订单生成, 1-支付中, 2-支付成功, 3-支付失败, 4-已撤销, 5-测试冲正, 6-订单关闭 ,7-出码失败 -->
-            <a-button type="link" v-if="$access('ENT_PAY_ORDER_VIEW')" @click="detailFunc(record.payOrderId)">订单详情</a-button>
-            <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" title="确认强制补单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeFunc(record.payOrderId)">
-              <a-button type="link" >强制补单</a-button>
-            </a-popconfirm>
-            <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 2" title="确认标记为测试订单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeRedo(record.payOrderId)">
-              <a-button type="link" >测试冲正</a-button>
-            </a-popconfirm>
+        <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
+          <JeepayTableColumns>
+            <a-button type="link" v-if="$access('ENT_PAY_ORDER_VIEW')" @click="detailFunc(record.payOrderId)">查看详情</a-button>
           </JeepayTableColumns>
         </template>
       </JeepayTable>
@@ -176,12 +115,12 @@
     <!-- 日志详情抽屉 -->
     <template>
       <a-drawer
-        width="50%"
-        placement="right"
-        :closable="true"
-        :visible="visible"
-        :title="visible === true? '订单详情':''"
-        @close="onClose"
+          width="50%"
+          placement="right"
+          :closable="true"
+          :visible="visible"
+          :title="visible === true? '订单详情':''"
+          @close="onClose"
       >
         <a-row justify="space-between" type="flex">
           <a-col :sm="12">
@@ -218,17 +157,19 @@
             <a-descriptions>
               <a-descriptions-item label="支付金额">
                 <a-tag color="green">
-                  {{ (detailData.amount/100).toFixed(2) }}
+                  {{ detailData.amount/100 }}
                 </a-tag>
               </a-descriptions-item>
             </a-descriptions>
           </a-col>
-
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
-                  {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':detailData.state === 7?'出码失败':'未知' }}
+                <a-tag
+                    :key="detailData.state"
+                    :color="getOrderStateColor(detailData.state)"
+                >
+                  {{ getOrderStateName(detailData.state) }}
                 </a-tag>
               </a-descriptions-item>
             </a-descriptions>
@@ -319,64 +260,52 @@
           <a-col :sm="24">
             <a-descriptions><a-descriptions-item label="平台利润"><a-tag color="blue">{{ ((detailData.mchFeeAmount - detailData.agentFeeAmount - detailData.passageFeeAmount -detailData.agentPassageFee)/100).toFixed(2)}}</a-tag></a-descriptions-item></a-descriptions>
           </a-col>
-          <a-divider />
-          <a-col :sm="24">
-            <a-descriptions>
-              <a-descriptions-item label="渠道订单号">
-                <b>{{ detailData.passageOrderNo == ''? '无':detailData.passageOrderNo }}</b>
-              </a-descriptions-item>
-            </a-descriptions>
-          </a-col>
-          <a-col :sm="12">
-            <a-descriptions>
-              <a-descriptions-item label="支付接口代码">
-                {{ detailData.ifCode }}
-              </a-descriptions-item>
-            </a-descriptions>
-          </a-col>
-          <a-col :sm="12">
-            <a-descriptions>
-              <a-descriptions-item label="支付通道ID">
-                {{ detailData.passageId }}
-              </a-descriptions-item>
-            </a-descriptions>
-          </a-col>
-          <a-col :sm="12">
-            <a-descriptions>
-              <a-descriptions-item label="客户端IP">
-                {{ detailData.clientIp }}
-              </a-descriptions-item>
-            </a-descriptions>
-          </a-col>
-          <a-col :sm="12">
-            <a-descriptions>
-              <a-descriptions-item label="异步通知地址">
-                {{ detailData.notifyUrl }}
-              </a-descriptions-item>
-            </a-descriptions>
-          </a-col>
-          <a-divider />
         </a-row>
+        <a-divider />
+        <a-col :sm="24">
+          <a-descriptions>
+            <a-descriptions-item label="渠道订单号">
+              <b>{{ detailData.passageOrderNo == ''? '无':detailData.passageOrderNo }}</b>
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-col>
+        <a-col :sm="12">
+          <a-descriptions>
+            <a-descriptions-item label="支付接口代码">
+              {{ detailData.ifCode }}
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-col>
+        <a-col :sm="12">
+          <a-descriptions>
+            <a-descriptions-item label="支付通道ID">
+              {{ detailData.passageId }}
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-col>
+        <a-col :sm="12">
+          <a-descriptions>
+            <a-descriptions-item label="客户端IP">
+              {{ detailData.clientIp }}
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-col>
+        <a-col :sm="12">
+          <a-descriptions>
+            <a-descriptions-item label="异步通知地址">
+              {{ detailData.notifyUrl }}
+            </a-descriptions-item>
+          </a-descriptions>
+        </a-col>
+        <a-divider />
         <a-row justify="start" type="flex">
           <a-col :sm="24">
             <a-form-model-item label="下单返回参数">
               <a-input
-                type="textarea"
-                disabled="disabled"
-                style="height: 100px;color: black"
-                v-model="detailData.passageResp"
-              />
-            </a-form-model-item>
-          </a-col>
-        </a-row>
-        <a-row justify="start" type="flex">
-          <a-col :sm="24">
-            <a-form-model-item label="回调通知参数">
-              <a-input
                   type="textarea"
                   disabled="disabled"
                   style="height: 100px;color: black"
-                  v-model="detailData.notifyParams"
+                  v-model="detailData.passageResp"
               />
             </a-form-model-item>
           </a-col>
@@ -392,44 +321,40 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
   API_URL_MCH_APP_LIST,
-  API_URL_PAY_ORDER_LIST,
-  API_URL_PAYWAYS_LIST,
+  API_URL_PAY_ORDER_LIST, API_URL_PAYWAYS_LIST,
   PAY_ORDER_FORCE_SUCCESS,
   req
 } from '@/api/manage'
 import moment from 'moment'
+import { getOrderStateColor, getOrderStateName } from '@/utils/util'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchNo', title: '商户号/商户', ellipsis: true, width: 200, scopedSlots: { customRender: 'mchSlot' } },
-// { key: 'mchFeeAmount', dataIndex: 'mchFeeAmount', title: '手续费', customRender: (text) => '￥' + (text / 100).toFixed(2), width: 100 },
-  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 250 },
-  { key: 'wayName', title: '产品(快照)', scopedSlots: { customRender: 'productSlot' }, width: 200 },
+  { key: 'mchNo', title: '商户号', ellipsis: true, width: 200, scopedSlots: { customRender: 'mchSlot' } },
   { key: 'amount', title: '支付金额', ellipsis: true, width: 100, scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 250 },
+  { key: 'wayName', title: '支付产品', scopedSlots: { customRender: 'productSlot' }, width: 200 },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
-  { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
-  { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 100 },
-  { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 200 },
-  { key: 'op', title: '操作', width: 250, align: 'center', scopedSlots: { customRender: 'opSlot' } }
+  { key: 'passageName', title: '支付通道', scopedSlots: { customRender: 'passageSlot' }, width: 250 },
+  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 150 },
+  { key: 'op', title: '操作', width: 150, align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
 
 export default {
-  name: 'PayOrderListPage',
+  name: 'OrderErrorList',
   components: { JeepayTable, JeepayTableColumns, JeepayTextUp, RefundModal },
   data () {
     return {
       btnLoading: false,
       tableColumns: tableColumns,
-      searchData: {},
+      searchData: { state: 7 },
       createdStart: '', // 选择开始时间
       createdEnd: '', // 选择结束时间
       visible: false,
       detailData: {},
       productList: [],
+      selectedRange: [],
       payPassageList: [],
-      realTimeStatOpen: false,
-      statLoading: false,
       realTimeStatData: {
         'totalAmount': 0,
         'totalIncome': 0,
@@ -438,9 +363,6 @@ export default {
         'successAmount': 0,
         'totalMchIncome': 0
       },
-      autoRefresh: false,
-      timer: null,
-      autoRefreshCoolDown: 120,
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -448,13 +370,17 @@ export default {
           moment().subtract(1, 'week').startOf('day'),
           moment().endOf('day')
         ]
-      },
-      selectedRange: null
+      }
     }
   },
   computed: {
   },
   mounted () {
+    this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
+    this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
+    this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
+    this.searchData.state = 7
+    this.queryFunc()
     const that = this
     if (this.$access('ENT_PC_WAY_LIST')) {
       req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
@@ -466,28 +392,14 @@ export default {
         that.payPassageList = res
       })
     }
-    // 默认今天
-    this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
-    this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
-    this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
-    this.searchData.mchOrderNo = this.$route.query.unionOrderId
-    this.autoRefreshCoolDown = 120
-    this.queryFunc()
-  },
-  beforeRouteLeave (to, from, next) {
-    // 在离开前执行一些操作，例如提示用户保存数据
-    // ...
-    // 执行next()，表示继续进行路由切换
-    console.log('test11')
-    clearInterval(this.timer)
-    next()
   },
   methods: {
+    getOrderStateColor,
+    getOrderStateName,
     queryFunc () {
+      this.searchData.state = 7
       this.btnLoading = true
-      if (this.realTimeStatOpen) {
-        this.getStatData(true)
-      }
+      this.getStatData()
       this.$refs.infoTable.refTable(true)
     },
     // 请求table接口数据
@@ -505,16 +417,10 @@ export default {
       this.visible = true
     },
     forceChangeFunc: function (recordId) {
+      console.log(recordId + 'forceChangeFunc')
       const that = this
       req.getNormal(PAY_ORDER_FORCE_SUCCESS, recordId + '/forcePayOrderSuccess').then(res => {
         that.$message.success('补单成功')
-        this.$refs.infoTable.refTable(false)
-      })
-    },
-    forceChangeRedo: function (recordId) {
-      const that = this
-      req.getNormal(PAY_ORDER_FORCE_SUCCESS, recordId + '/forcePayOrderRedo').then(res => {
-        that.$message.success('测试冲正成功')
         this.$refs.infoTable.refTable(false)
       })
     },
@@ -529,52 +435,21 @@ export default {
     onClose () {
       this.visible = false
     },
-    initPayWay: function () {
-      const that = this
-      req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉列表
-        that.payWayList = res.records
-      })
-    },
     changeStr2ellipsis (orderNo, baseLength) {
       const halfLengh = parseInt(baseLength / 2)
       return orderNo.substring(0, halfLengh - 1) + '...' + orderNo.substring(orderNo.length - halfLengh, orderNo.length)
     },
-    resetSearch: function () {
-      this.searchData = {}
-      this.selectedRange = null
+    resetSearch () {
+      this.searchData = { state: 7 }
+      this.selectedRange = []
     },
-    onSwitchChange (isOn) {
-      this.getStatData(isOn)
-    },
-    onAutoRefreshSwitchChange (isOn) {
-      this.autoRefresh = isOn
-      const that = this
-      if (isOn) {
-        this.timer = setInterval(function () {
-          that.autoRefreshCoolDown -= 1
-          if (that.autoRefreshCoolDown <= 0) {
-            that.autoRefreshCoolDown = 120
-            that.queryFunc()
-          }
-        }, 1000)
-      } else {
-        clearInterval(this.timer)
-        this.autoRefreshCoolDown = 120
-      }
-    },
-    getStatData (isOn) {
+    getStatData () {
       const that = this
       that.statLoading = true
-      if (isOn) {
-        req.postDataNormal('/api/payRealTimeStatOrder', '', this.searchData).then(res => { // 产品下拉列表
-          that.realTimeStatData = res
-          that.realTimeStatOpen = true
-          that.statLoading = false
-        })
-      } else {
-        that.realTimeStatOpen = false
+      req.postDataNormal('/api/payRealTimeStatOrder', 'countRealForceOrder', this.searchData).then(res => { // 产品下拉列表
+        that.realTimeStatData = res
         that.statLoading = false
-      }
+      })
     }
   }
 }
