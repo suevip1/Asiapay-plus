@@ -1,7 +1,7 @@
 <template>
   <page-header-wrapper>
     <a-card>
-      <div class="table-page-search-wrapper">
+      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
         <a-form layout="inline" class="table-head-ground">
           <div class="table-layer">
             <jeepay-text-up :placeholder="'通道名称'" :msg="searchData.payPassageName" v-model="searchData.payPassageName"/>

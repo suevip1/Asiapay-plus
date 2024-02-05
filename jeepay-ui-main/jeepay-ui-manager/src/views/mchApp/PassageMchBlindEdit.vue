@@ -1,6 +1,6 @@
 <template>
   <a-drawer :visible="visible" :title=" true ? '通道-商户绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="60%">
-    <div class="table-page-search-wrapper">
+    <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
       <a-form layout="inline" class="table-head-ground">
         <a-row justify="space-between" type="flex">
           <a-col :sm="12">

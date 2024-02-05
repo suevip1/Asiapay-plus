@@ -150,7 +150,7 @@ export default {
       setTimeout(() => {
         this.$notification.success({
           message: '欢迎',
-          description: `${timeFix()}，欢迎回来`
+          description: `${timeFix()}，建议按住鼠标滚轮缩放页面到合适大小获取更加体验！`
         })
       }, 1000)
       this.showLoginErrorInfo = ''

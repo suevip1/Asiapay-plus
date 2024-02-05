@@ -1,7 +1,7 @@
 <template>
   <page-header-wrapper>
     <a-card>
-      <div class="table-page-search-wrapper">
+      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
         <a-form layout="inline" class="table-head-ground">
           <div class="table-layer">
             <a-form-item label="" class="table-head-layout" style="max-width:350px;min-width:300px">
@@ -381,9 +381,9 @@ import moment from 'moment'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchNo', title: '商户号', ellipsis: true, width: 200, fixed: 'left', scopedSlots: { customRender: 'mchSlot' } },
-  { key: 'amount', title: '支付金额', ellipsis: true, width: 100, fixed: 'left', scopedSlots: { customRender: 'amountSlot' } },
-  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300, fixed: 'left' },
+  { key: 'mchNo', title: '商户号', ellipsis: true, width: 200, scopedSlots: { customRender: 'mchSlot' } },
+  { key: 'amount', title: '支付金额', ellipsis: true, width: 100, scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'orderNo', title: '订单号', scopedSlots: { customRender: 'orderSlot' }, width: 300 },
   { key: 'beforeState', title: '补单前状态', scopedSlots: { customRender: 'beforeStateSlot' }, width: 100 },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
@@ -391,7 +391,7 @@ const tableColumns = [
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
   { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 250 },
   { key: 'updatedAt', dataIndex: 'updatedAt', title: '更新日期', width: 200 },
-  { key: 'op', title: '操作', width: 100, fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
+  { key: 'op', title: '操作', width: 100, align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
 
 export default {

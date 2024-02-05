@@ -27,7 +27,7 @@
       </a-col>
     </a-row>
     <a-card style="margin-top: 20px">
-      <div class="table-page-search-wrapper">
+      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
         <a-form layout="inline" class="table-head-ground">
           <div class="table-layer">
             <a-form-item label="" class="table-head-layout" style="max-width:350px;min-width:300px">
