@@ -78,7 +78,7 @@ public abstract class AbstractPayOrderController extends ApiController {
     /**
      * 最大轮询次数
      */
-    private static int MAX_POLLING_TIME = 4;
+    private static int MAX_POLLING_TIME = 6;
 
     private static final String TEMP_ORDER_SUFFIX = "pollingOrder_";
 
