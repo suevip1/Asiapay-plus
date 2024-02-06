@@ -47,6 +47,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import javax.annotation.PostConstruct;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.Collator;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -92,6 +94,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
     private static final String QUERY_BALANCE = "查询余额";
 
+    private static final String QUERY_PRODUCT = "产品费率";
+
     private static final String FORWARD_QUERY = "[Zz]{2}\\s.*";
 
 
@@ -123,11 +127,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
     private static final String ROBOT_QUIT = "机器人退群";
 
-    private static final String GET_USDT_TEXT = "[Zz]{1}0";
 
-    private static final String GET_USDT = "/usdt";
 
-    //    群发全部 -- 私发机器人内容，再回复该内容：群发全部
+//    群发全部 -- 私发机器人内容，再回复该内容：群发全部
 //    群发商户 -- 私发机器人内容，再回复该内容：群发商户
 //    群发通道 -- 私发机器人内容，再回复该内容：群发通道
     private static final String SEND_ALL = "群发全部";
@@ -364,6 +366,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("======================================" + System.lineSeparator());
             stringBuffer.append("<b>商户功能</b>:（需先绑定商户才能使用）" + System.lineSeparator());
             stringBuffer.append("查询余额 -- 查询商户或通道的余额" + System.lineSeparator());
+            stringBuffer.append("产品费率 -- 查询商户已开通产品实时费率" + System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("zz xxx-- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
@@ -371,17 +374,17 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
             stringBuffer.append("<b>通用功能</b>:" + System.lineSeparator());
-            stringBuffer.append("z0 -- 查询今日U价" + System.lineSeparator());
+            stringBuffer.append("uj -- 查询今日U价(C2C全部支付方式)" + System.lineSeparator());
+            stringBuffer.append("ub -- 查询今日U价(C2C银行卡)" + System.lineSeparator());
+            stringBuffer.append("ua -- 查询今日U价(C2C支付宝)" + System.lineSeparator());
+            stringBuffer.append("uw -- 查询今日U价(C2C微信支付)" + System.lineSeparator());
+            stringBuffer.append("kj -- 查询今日U价(大宗全部支付方式)" + System.lineSeparator());
+            stringBuffer.append("kb -- 查询今日U价(大宗银行卡)" + System.lineSeparator());
+            stringBuffer.append("ka -- 查询今日U价(大宗支付宝)" + System.lineSeparator());
+            stringBuffer.append("kw -- 查询今日U价(大宗微信支付)" + System.lineSeparator());
             stringBuffer.append("计算 -- 进行四则运算，例如：计算 (1+2)*3" + System.lineSeparator());
 
             sendSingleMessage(update.getMessage().getChatId(), stringBuffer.toString());
-
-            return;
-        }
-
-
-        if (update.getMessage().getText().startsWith(GET_USDT)) {
-            sendUSDT(update.getMessage().getChatId());
             return;
         }
     }
@@ -521,13 +524,58 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             return;
         }
 
-        //GET_USDT_TEXT
-        Pattern patternUSDT = Pattern.compile(GET_USDT_TEXT);
-        Matcher matcherUSDT = patternUSDT.matcher(text);
-        if (matcherUSDT.matches()) {
-            sendUSDT(chatId);
+        //查U价格
+
+        //uj -- 查询市场USTD买入价，c2c全部支付方式;
+        if (text.trim().equals("uj")) {
+            sendUSDT(chatId, "all", "all", "C2C全部支付方式");
             return;
         }
+        //ub -- 查询市场USTD买入价，c2c银行卡;
+        if (text.trim().equals("ub")) {
+            sendUSDT(chatId, "all", "bank", "C2C银行卡");
+            return;
+        }
+        //ua 查询市场USTD买入价，c2c支付宝;
+        if (text.trim().equals("ua")) {
+            sendUSDT(chatId, "all", "aliPay", "C2C支付宝");
+            return;
+        }
+        //uw -- 查询市场USTD买入价，c2c微信支付;
+        if (text.trim().equals("uw")) {
+            sendUSDT(chatId, "all", "wxPay", "C2C微信支付");
+            return;
+        }
+        //kj -- 查询市场USTD买入价，大宗全部支付方式;
+        if (text.trim().equals("kj")) {
+            sendUSDT(chatId, "blockTrade", "all", "大宗全部支付方式");
+            return;
+        }
+        //kb -- 查询市场USTD买入价，大宗银行卡;
+        if (text.trim().equals("kb")) {
+            sendUSDT(chatId, "blockTrade", "bank", "大宗银行卡");
+            return;
+        }
+        //ka -- 查询市场USTD买入价，大宗支付宝;
+        if (text.trim().equals("ka")) {
+            sendUSDT(chatId, "blockTrade", "aliPay", "大宗支付宝");
+            return;
+        }
+        //kw -- 查询市场USTD买入价，大宗微信支付;
+        if (text.trim().equals("kw")) {
+            sendUSDT(chatId, "blockTrade", "wxPay", "大宗微信支付");
+            return;
+        }
+
+//        uj -- 查询市场USTD买入价，c2c全部支付方式;
+//        ub -- 查询市场USTD买入价，c2c银行卡;
+//        ua -- 查询市场USTD买入价，c2c支付宝;
+//        uw -- 查询市场USTD买入价，c2c微信支付;
+//
+//        kj -- 查询市场USTD买入价，大宗全部支付方式;
+//        kb -- 查询市场USTD买入价，大宗银行卡;
+//        ka -- 查询市场USTD买入价，大宗支付宝;
+//        kw -- 查询市场USTD买入价，大宗微信支付;
 
         //绑定商户-管理员
         Pattern patternBlindMch = Pattern.compile(BLIND_MCH);
@@ -668,6 +716,45 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             return;
         }
 
+
+        // 查产品费率
+        if (text.trim().equals(QUERY_PRODUCT)) {
+            RobotsMch robotsMch = robotsMchService.getMch(chatId);
+            //是否已绑定商户或通道
+            if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
+
+                String mchNoStr = robotsMch.getMchNo();
+                JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
+
+
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
+                    MchInfo mchInfo = mchInfoService.getById(mchNo);
+                    String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+
+                    List<MchProduct> records = statisticsService.mchProductService.list(MchProduct.gw().select(MchProduct::getMchNo, MchProduct::getCreatedAt, MchProduct::getMchRate, MchProduct::getProductId).eq(MchProduct::getMchNo, mchNo).eq(MchProduct::getState, CS.YES));
+
+                    Map<Long, Product> productMap = statisticsService.productService.getProductMap();
+
+
+                    if (records.isEmpty()) {
+                        sendSingleMessage(chatId, mchInfoStr + " 没有已绑定的产品记录");
+                    } else {
+                        StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append(mchInfoStr + " 产品列表:" + System.lineSeparator());
+                        for (int x = 0; x < records.size(); x++) {
+                            MchProduct record = records.get(x);
+                            String productInfo = "[" + record.getProductId() + "] " + productMap.get(record.getProductId()).getProductName();
+                            stringBuffer.append(productInfo + "   " + record.getMchRate().multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP) + "%" + System.lineSeparator());
+                        }
+                        sendSingleMessage(chatId, stringBuffer.toString());
+                    }
+                }
+                return;
+            }
+            return;
+        }
+
         //今日跑量
         if (text.equals(TODAY_BILL)) {
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
@@ -677,7 +764,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 String mchNoStr = robotsMch.getMchNo();
                 JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
 
-                //查今日账单
+                //查今日跑量
                 Date today = DateUtil.parse(DateUtil.today());
 
                 for (int i = 0; i < jsonArray.size(); i++) {
@@ -830,6 +917,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             sendSingleMessage(chatId, "未绑定商户或通道");
             return;
         }
+
 
         //下发-账单记录跟群走
         Pattern patternAddRecord = Pattern.compile(ADD_RECORD);
@@ -1401,17 +1489,64 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     }
 
     private void sendUSDT(Long chatId) {
-        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
+        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=sell&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
         //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
         String raw = HttpUtil.get(url);
         JSONObject result = JSONObject.parseObject(raw);
         if (result.getString("code").equals("0")) {
-            JSONArray buys = result.getJSONObject("data").getJSONArray("buy");
+            JSONArray buys = result.getJSONObject("data").getJSONArray("sell");
             String price = buys.getJSONObject(0).getString("price");
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
             for (int i = 0; i < buys.size(); i++) {
                 if (i < 4) {
+                    stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
+                } else {
+                    break;
+                }
+            }
+            sendSingleMessage(chatId, stringBuffer.toString());
+        } else {
+            sendSingleMessage(chatId, "网络异常，请稍后再试");
+            log.error(raw);
+        }
+    }
+
+    /**
+     * 查U价格
+     *
+     * @param chatId
+     * @param userType all,blockTrade(大宗)
+     * @param payType  all,bank,aliPay,wxPay
+     * @param title    自定义标题
+     */
+    private void sendUSDT(Long chatId, String userType, String payType, String title) {
+//        uj -- 查询市场USTD买入价，c2c全部支付方式;
+//        ub -- 查询市场USTD买入价，c2c银行卡;
+//        ua -- 查询市场USTD买入价，c2c支付宝;
+//        uw -- 查询市场USTD买入价，c2c微信支付;
+//
+//        kj -- 查询市场USTD买入价，大宗全部支付方式;
+//        kb -- 查询市场USTD买入价，大宗银行卡;
+//        ka -- 查询市场USTD买入价，大宗支付宝;
+//        kw -- 查询市场USTD买入价，大宗微信支付;
+
+
+//        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
+        //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
+        //https://www.okx.com/v3/c2c/tradingOrders/books?quoteCurrency=CNY&baseCurrency=USDT&side=sell&paymentMethod=wxPay&userType=all&t=1707206863366
+
+        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?quoteCurrency=CNY&baseCurrency=USDT&side=sell&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0&paymentMethod=" + payType + "&userType=" + userType + "&t=" + System.currentTimeMillis();
+        String raw = HttpUtil.get(url);
+        JSONObject result = JSONObject.parseObject(raw);
+        if (result.getString("code").equals("0")) {
+            JSONArray buys = result.getJSONObject("data").getJSONArray("sell");
+            String price = buys.getJSONObject(0).getString("price");
+            StringBuffer stringBuffer = new StringBuffer();
+            stringBuffer.append("<b>" + title + "</b>" + System.lineSeparator());
+            stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
+            for (int i = 0; i < buys.size(); i++) {
+                if (i < 5) {
                     stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
                 } else {
                     break;
@@ -1469,9 +1604,14 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     private void sendMchProduct(List<StatisticsMchProduct> list, Long chatId, String dayTitle) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(dayTitle + "跑量明细：" + System.lineSeparator());
+        stringBuffer.append("产品|跑量|费率|应结算" + System.lineSeparator());
         stringBuffer.append("===================================" + System.lineSeparator());
         for (int i = 0; i < list.size(); i++) {
-            stringBuffer.append("[" + list.get(i).getProductId() + "] " + list.get(i).getExt().getString("productName") + "     " + AmountUtil.convertCent2Dollar(list.get(i).getTotalSuccessAmount()) + System.lineSeparator());
+            stringBuffer.append("[" + list.get(i).getProductId() + "] "
+                    + list.get(i).getExt().getString("productName") + " | "
+                    + AmountUtil.convertCent2Dollar(list.get(i).getTotalSuccessAmount()) + " | "
+                    + list.get(i).getExt().getString("rate") + " | "
+                    + AmountUtil.convertCent2Dollar(list.get(i).getTotalSuccessAmount() - list.get(i).getTotalCost()) + System.lineSeparator());
         }
         sendSingleMessage(chatId, stringBuffer.toString());
     }
@@ -1671,7 +1811,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         // Define the commands to set
         List<BotCommand> commands = new ArrayList<>();
         commands.add(new BotCommand("help", "亚洲科技机器人帮助说明"));
-        commands.add(new BotCommand("usdt", "今日U价格查询"));
+//        commands.add(new BotCommand("usdt", "今日U价格查询"));
         // Create the SetMyCommands request
         SetMyCommands setMyCommands = new SetMyCommands();
         setMyCommands.setCommands(commands);

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.cache.RedisUtil;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.service.impl.*;
@@ -12,10 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 /**
  * 通用统计service
@@ -53,7 +53,10 @@ public class StatisticsService {
     private MchInfoService mchInfoService;
 
     @Autowired
-    private ProductService productService;
+    public ProductService productService;
+
+    @Autowired
+    public MchProductService mchProductService;
 
 
     public StatisticsPlat QueryStatisticsPlatByDate(Date date) {
@@ -79,11 +82,32 @@ public class StatisticsService {
 
         wrapper.orderByAsc(StatisticsMchProduct::getProductId);
         List<StatisticsMchProduct> records = statisticsMchProductService.list(wrapper);
+
+        Map<Long, MchProduct> mchProductMap = GetMchProduct(mchNo);
+        //查费率并附上去
         for (int i = 0; i < records.size(); i++) {
             records.get(i).addExt("mchName", mchMap.get(records.get(i).getMchNo()).getMchName());
             records.get(i).addExt("productName", productMap.get(records.get(i).getProductId()).getProductName());
+            String rate = mchProductMap.get(records.get(i).getProductId()).getMchRate().multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP) + "%";
+            records.get(i).addExt("rate", rate);
         }
         return records;
+    }
+
+    /**
+     * 获取商户-产品费率
+     *
+     * @param mchNo
+     * @return
+     */
+    public Map<Long, MchProduct> GetMchProduct(String mchNo) {
+
+        List<MchProduct> records = mchProductService.list(MchProduct.gw().select(MchProduct::getMchNo, MchProduct::getCreatedAt, MchProduct::getMchRate, MchProduct::getProductId).eq(MchProduct::getMchNo, mchNo).eq(MchProduct::getState, CS.YES));
+        Map<Long, MchProduct> mchProductMap = new HashMap<>();
+        for (int i = 0; i < records.size(); i++) {
+            mchProductMap.put(records.get(i).getProductId(), records.get(i));
+        }
+        return mchProductMap;
     }
 
     /**
