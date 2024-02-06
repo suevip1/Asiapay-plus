@@ -33,6 +33,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -138,6 +139,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
      * 绑定管理群
      */
     private static final String BLIND_MGR = "绑定管理群";
+
+    private static final String DELETE_MSG = "删除";
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -395,6 +398,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         String userName = message.getFrom().getUserName();
         Message messageReply = message.getReplyToMessage();
 
+        //todo 仔细考虑此处逻辑  查单问题
         if (messageReply != null) {
             //检测是否查单转发信息
             //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
@@ -474,6 +478,21 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     log.info("Bot left the chat...");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
+                }
+            }
+            return;
+        }
+        if (text.trim().equals(DELETE_MSG)) {
+            //是否admin
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+
+                //引用的是机器人自己的消息
+                if (message.isReply() && messageReply != null && messageReply.getFrom().getUserName().equals(getBotUsername())) {
+                    //删除本条消息以及引用的消息
+                    sendDeleteMessage(chatId, message.getMessageId());
+                    //删除本条消息以及引用的消息
+                    sendDeleteMessage(chatId, messageReply.getMessageId());
+                    log.info("收到删除命令 原文: " + messageReply.getText());
                 }
             }
             return;
@@ -1187,6 +1206,16 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         return null;
     }
 
+    private boolean sendDeleteMessage(DeleteMessage deleteMessage) {
+        try {
+            return execute(deleteMessage);
+        } catch (Exception e) {
+            log.error("{} {}", LOG_TAG, e);
+            log.error(e.getMessage());
+        }
+        return false;
+    }
+
     private void sendForward(Long chatId, Message message) {
         try {
             ForwardMessage forwardMessage = new ForwardMessage(chatId + "", message.getChatId() + "", message.getMessageId());
@@ -1207,7 +1236,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             Long chatId = sourceMessage.getChatId();
 
             StringBuffer stringBuffer = new StringBuffer();
-
 
             if (message.isReply()) {
                 if (message.hasPhoto()) {
@@ -1355,6 +1383,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         sendMessage.setText(messageStr);
         sendMessage.setParseMode(ParseMode.HTML);
         return sendSingleMessage(sendMessage);
+    }
+
+    protected void sendDeleteMessage(Long chatId, Integer messageId) {
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setChatId(chatId);
+        deleteMessage.setMessageId(messageId);
+        sendDeleteMessage(deleteMessage);
     }
 
     protected Message sendSinglePinMessage(Long chatId, String messageStr) {
@@ -1548,7 +1583,28 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
      * @return
      */
     private boolean checkIsMchChat(RobotsMch robotsMch) {
-        return robotsMch != null && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
+        if (robotsMch == null) {
+            return false;
+        }
+        if (robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH)) {
+            return false;
+        }
+        String mchStr = robotsMch.getMchNo();
+        if (StringUtils.isNotEmpty(mchStr)) {
+            JSONArray jsonArray = JSONArray.parseArray(mchStr);
+            //是空的移除
+            if (jsonArray.isEmpty()) {
+                robotsMch.setMchNo("");
+                robotsMchService.saveOrUpdate(robotsMch);
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+//        return robotsMch != null && !robotsMch.getMchNo().equals(CS.ROBOTS_MGR_MCH);
     }
 
     /**
@@ -1784,14 +1840,14 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     Long passageId = payOrder.getPassageId();
                     RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
                     if (robotsPassage != null) {
-                        StringBuffer stringBuffer = new StringBuffer();
-                        stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
-                        stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
-                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
-                        }
+//                        StringBuffer stringBuffer = new StringBuffer();
+//                        stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
+//                        stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+//                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
+//                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
+//                        }
 
-                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, stringBuffer.toString());
+                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, payOrder.getPayOrderId());
                         if (messageTemp != null) {
                             //保持2小时缓存
                             RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
