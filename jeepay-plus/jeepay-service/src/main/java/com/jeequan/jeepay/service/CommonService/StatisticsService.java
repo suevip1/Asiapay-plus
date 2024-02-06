@@ -88,10 +88,14 @@ public class StatisticsService {
         for (int i = 0; i < records.size(); i++) {
             records.get(i).addExt("mchName", mchMap.get(records.get(i).getMchNo()).getMchName());
             records.get(i).addExt("productName", productMap.get(records.get(i).getProductId()).getProductName());
-            String rate = mchProductMap.get(records.get(i).getProductId()).getMchRate().multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP) + "%";
+            String rate = GetRateStr(mchProductMap.get(records.get(i).getProductId()).getMchRate());
             records.get(i).addExt("rate", rate);
         }
         return records;
+    }
+
+    private String GetRateStr(BigDecimal rate) {
+        return rate.multiply(BigDecimal.valueOf(100)).setScale(2, RoundingMode.HALF_UP) + "%";
     }
 
     /**
