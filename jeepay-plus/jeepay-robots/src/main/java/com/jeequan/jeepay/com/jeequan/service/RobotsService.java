@@ -1707,6 +1707,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         stringBuffer.append("================" + System.lineSeparator());
         stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(totalStatStr);
+        stringBuffer.append("================" + System.lineSeparator());
+        stringBuffer.append("(记账累积,下发日清)" + System.lineSeparator());
 
         sendReplyMessageWithMenu(robotsMch.getChatId(), messageId, stringBuffer.toString());
     }
