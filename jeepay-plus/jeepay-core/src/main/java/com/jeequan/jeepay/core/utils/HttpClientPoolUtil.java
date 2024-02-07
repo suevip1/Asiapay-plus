@@ -189,7 +189,7 @@ public class HttpClientPoolUtil {
             }
             URI uri = builder.build();
            // LOGGER.info("请求地址：" + uri);
-            method = getRequest(uri, headers, HttpGet.METHOD_NAME, DEFAULT_CONTENT_TYPE, 0);
+            method = getRequest(uri, headers, HttpGet.METHOD_NAME, DEFAULT_CONTENT_TYPE, 10);
             HttpContext context = HttpClientContext.create();
             CloseableHttpResponse httpResponse = httpClient.execute(method, context);
             httpEntity = httpResponse.getEntity();

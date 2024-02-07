@@ -374,7 +374,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("产品费率 -- 查询商户已开通产品实时费率" + System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
-            stringBuffer.append("催单 -- 回复商户发单消息进行转发，例如：加急加急" + System.lineSeparator());
+            stringBuffer.append("zz -- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("今日结算 -- 查看今日结算信息" + System.lineSeparator());
@@ -431,24 +431,26 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             //REDIS_MCH_SOURCE_SUFFIX 存储的是 商户群suffix+id 通道群message
             Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
             if (messageForwardSource != null && message.hasText()) {
-                if (messageForwardSource.getFrom().getUserName().equals(getBotUsername())) {
-                    String queryStr = message.getText();
-                    sendReplyMessage(messageForwardSource.getChatId(), messageForwardSource.getMessageId(), queryStr);
+                if (message.getText().indexOf("zz ") == 0) {
+                    if (messageForwardSource.getFrom().getUserName().equals(getBotUsername())) {
+                        String queryStr = message.getText().replaceAll("zz ", "");
+                        sendReplyMessage(messageForwardSource.getChatId(), messageForwardSource.getMessageId(), queryStr);
+                    }
                 }
                 return;
             }
         }
         //包含图或视频、且不是回复信息
         if ((message.hasPhoto() || message.hasVideo()) && !message.isReply()) {
-            String text = message.getCaption().trim();
+            String text = message.getCaption();
             if (StringUtils.isNotEmpty(text)) {
                 if (text.contains("\n")) {
-                    String[] texts = text.split("\n");
+                    String[] texts = text.trim().split("\n");
                     for (int i = 0; i < texts.length; i++) {
                         sendSingleQuery(texts[i].trim(), message);
                     }
                 } else {
-                    sendSingleQuery(text, message);
+                    sendSingleQuery(text.trim(), message);
                 }
             }
             return;
@@ -1801,134 +1803,74 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 //                ===================================
 //        显示前日日终最后一笔入账余额
 //                显示当日日终最后一笔入账余额
-        if (mchNos.isEmpty()) {
-            return;
-        }
 
-        Long totalAmount = 0L;
-        Long amount = 0L;
-
-        //单个商户
-        for (int i = 0; i < mchNos.size(); i++) {
-            String mchNo = mchNos.getString(i);
-            MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo.trim());
-            if (mchInfo != null) {
-                StatisticsMch statisticsMch = statisticsService.QueryStatisticsMchByDate(mchNo, date);
-                String timeStrWithEnter = "<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator();
-                String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
-                if (statisticsMch == null) {
-                    sendSingleMessage(chatId, timeStrWithEnter + mchInfoStr + " 没有当日跑量记录");
-                } else {
-                    StringBuffer stringBuffer = new StringBuffer();
-
-                    stringBuffer.append(timeStrWithEnter + mchInfoStr + " 当日结算:" + System.lineSeparator());
-                    stringBuffer.append("-----------------------" + System.lineSeparator());
-                    stringBuffer.append("跑量汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount()) + "</b>" + System.lineSeparator());
-                    stringBuffer.append("入账汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost()) + "</b>" + System.lineSeparator());
-                    stringBuffer.append("-----------------------" + System.lineSeparator());
-
-                    totalAmount += statisticsMch.getTotalSuccessAmount();
-                    amount += (statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost());
-
-                    //查调账、提现 记录 当日
-                    List<MchHistory> mchHistories = getMchHistoryByDate(mchNo, date);
-                    if (!mchHistories.isEmpty()) {
-                        stringBuffer.append("<b>资金变动摘要:</b>" + System.lineSeparator());
-                        for (int x = 0; x < mchHistories.size(); x++) {
-                            MchHistory mchHistory = mchHistories.get(x);
-                            String remark = "";
-                            if (StringUtils.isNotEmpty(mchHistory.getRemark().trim())) {
-                                remark = "| 备注: " + mchHistory.getRemark().trim();
-                            }
-                            stringBuffer.append("[" + CS.GetMchBizTypeString(mchHistory.getBizType()) + "]: <b>" + AmountUtil.convertCent2Dollar(mchHistory.getAmount()) + "</b> | " + DateUtil.formatDateTime(mchHistory.getCreatedAt()) + remark + System.lineSeparator());
-                        }
-                        stringBuffer.append("-----------------------" + System.lineSeparator());
-                    }
-
-                    //当日 第一笔流水 最后一笔流水
-                    List<MchHistory> mchHistoryTotal = getTotalMchHistoryByDate(mchNo, date);
-                    if (!mchHistoryTotal.isEmpty()) {
-//                        MchHistory first = mchHistoryTotal.get(0);
-//                        String remarkFirst = "";
-//                        if (StringUtils.isNotEmpty(first.getRemark().trim())) {
-//                            remarkFirst = "| 备注: " + first.getRemark().trim();
-//                        }
-//                        stringBuffer.append("当日首笔流水: [" + CS.GetMchBizTypeString(first.getBizType()) + "]: 变动前金额:" + AmountUtil.convertCent2Dollar(first.getBeforeBalance()) + " | " + AmountUtil.convertCent2Dollar(first.getAmount()) + " | 变动后金额:" + AmountUtil.convertCent2Dollar(first.getAfterBalance()) + " | " + DateUtil.formatDateTime(first.getCreatedAt()) + remarkFirst + System.lineSeparator());
-//
-//
-//                        MchHistory last = mchHistoryTotal.get(mchHistoryTotal.size() - 1);
-//                        String remarkLast = "";
-//                        if (StringUtils.isNotEmpty(first.getRemark().trim())) {
-//                            remarkLast = "| 备注: " + first.getRemark().trim();
-//                        }
-//                        stringBuffer.append("当日末笔流水: [" + CS.GetMchBizTypeString(last.getBizType()) + "]: 变动前金额:" + AmountUtil.convertCent2Dollar(last.getBeforeBalance()) + " | " + AmountUtil.convertCent2Dollar(last.getAmount()) + " | 变动后金额:" + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + " | " + DateUtil.formatDateTime(last.getCreatedAt()) + remarkLast + System.lineSeparator());
-//                        stringBuffer.append("-----------------------" + System.lineSeparator());
-
-                        MchHistory first = mchHistoryTotal.get(0);
-                        stringBuffer.append("日初余额: " + AmountUtil.convertCent2Dollar(first.getBeforeBalance()) + System.lineSeparator());
-
-                        MchHistory last = mchHistoryTotal.get(mchHistoryTotal.size() - 1);
-                        stringBuffer.append("日终余额: " + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + System.lineSeparator());
-                        stringBuffer.append("-----------------------" + System.lineSeparator());
-                    }
-                    stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
-                    sendSingleMessageAndPin(chatId, stringBuffer.toString());
-                }
-                //跑量汇总
-                //入账汇总
+        try {
+            if (mchNos.isEmpty()) {
+                return;
             }
+
+            Long totalAmount = 0L;
+            Long amount = 0L;
+
+            //单个商户
+            for (int i = 0; i < mchNos.size(); i++) {
+                String mchNo = mchNos.getString(i);
+                MchInfo mchInfo = mchInfoService.getById(mchNo.trim());
+                if (mchInfo != null) {
+                    StatisticsMch statisticsMch = statisticsService.QueryStatisticsMchByDate(mchNo, date);
+                    String timeStrWithEnter = "<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator();
+                    String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+                    if (statisticsMch == null) {
+                        sendSingleMessage(chatId, timeStrWithEnter + mchInfoStr + " 没有当日跑量记录");
+                    } else {
+                        StringBuffer stringBuffer = new StringBuffer();
+
+                        stringBuffer.append(timeStrWithEnter + mchInfoStr + " 当日结算:" + System.lineSeparator());
+                        stringBuffer.append("-----------------------" + System.lineSeparator());
+                        stringBuffer.append("跑量汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount()) + "</b>" + System.lineSeparator());
+                        stringBuffer.append("入账汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost()) + "</b>" + System.lineSeparator());
+                        stringBuffer.append("-----------------------" + System.lineSeparator());
+
+                        totalAmount += statisticsMch.getTotalSuccessAmount();
+                        amount += (statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost());
+
+                        //查调账、提现 记录 当日
+                        List<MchHistory> mchHistories = getMchHistoryByDate(mchNo, date);
+                        if (!mchHistories.isEmpty()) {
+                            stringBuffer.append("<b>资金变动摘要:</b>" + System.lineSeparator());
+                            for (int x = 0; x < mchHistories.size(); x++) {
+                                MchHistory mchHistory = mchHistories.get(x);
+                                String remark = "";
+                                if (StringUtils.isNotEmpty(mchHistory.getRemark().trim())) {
+                                    remark = "| 备注: " + mchHistory.getRemark().trim();
+                                }
+                                stringBuffer.append("[" + CS.GetMchBizTypeString(mchHistory.getBizType()) + "]: <b>" + AmountUtil.convertCent2Dollar(mchHistory.getAmount()) + "</b> | " + DateUtil.formatDateTime(mchHistory.getCreatedAt()) + remark + System.lineSeparator());
+                            }
+                            stringBuffer.append("-----------------------" + System.lineSeparator());
+                        }
+
+                        //当日 第一笔流水 最后一笔流水
+                        List<MchHistory> mchHistoryTotal = getTotalMchHistoryByDate(mchNo, date);
+                        if (!mchHistoryTotal.isEmpty()) {
+
+                            MchHistory first = mchHistoryTotal.get(0);
+                            stringBuffer.append("日初余额: " + AmountUtil.convertCent2Dollar(first.getBeforeBalance()) + System.lineSeparator());
+
+                            MchHistory last = mchHistoryTotal.get(mchHistoryTotal.size() - 1);
+                            stringBuffer.append("日终余额: " + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + System.lineSeparator());
+                            stringBuffer.append("-----------------------" + System.lineSeparator());
+                        }
+                        stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
+                        sendSingleMessageAndPin(chatId, stringBuffer.toString());
+                    }
+                    //跑量汇总
+                    //入账汇总
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
 
-
-//        List<RobotsMchRecords> dayList = getDayStatByDate(chatId, date);
-//        List<RobotsMchRecords> totalList = getTotalStatByDate(chatId, date);
-//
-//        //没有就添加记账群记录
-//        RobotsMch robotsMch = robotsMchService.getById(chatId);
-//        if (robotsMch == null) {
-//            robotsMch = new RobotsMch();
-//            robotsMch.setChatId(chatId);
-//            robotsMch.setMchNo("");
-//            robotsMch.setBalance(0L);
-//            robotsMchService.save(robotsMch);
-//        }
-//        Long totalAmount = robotsMch.getBalance();
-//        Long dayAmount = 0L;
-//        StringBuffer dayStatStr = new StringBuffer();
-//        for (int i = 0; i < dayList.size(); i++) {
-//            if (dayList.get(i).getState() == CS.YES) {
-//                dayAmount += dayList.get(i).getAmount();
-//                dayStatStr.append(DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "</b>  " + dayList.get(i).getUserName() + System.lineSeparator());
-//            } else {
-//                dayStatStr.append("<s>" + DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "  " + dayList.get(i).getUserName() + "</s>  " + dayList.get(i).getRemark() + System.lineSeparator());
-//            }
-//        }
-//
-//        StringBuffer totalStatStr = new StringBuffer();
-//        for (int i = 0; i < totalList.size(); i++) {
-//            if (totalList.get(i).getState() == CS.YES) {
-//                totalStatStr.append(DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "</b>  " + totalList.get(i).getUserName() + System.lineSeparator());
-//            } else {
-//                totalStatStr.append("<s>" + DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "  " + totalList.get(i).getUserName() + "</s>  " + totalList.get(i).getRemark() + System.lineSeparator());
-//            }
-//        }
-//        stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
-//        stringBuffer.append("当日下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
-//        stringBuffer.append("记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
-//        stringBuffer.append("================" + System.lineSeparator());
-//        stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
-//        stringBuffer.append(dayStatStr);
-//        stringBuffer.append("================" + System.lineSeparator());
-//        stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
-//        stringBuffer.append(totalStatStr);
-//        stringBuffer.append("================" + System.lineSeparator());
-//        stringBuffer.append("(<b>记账累积,下发日清</b>)" + System.lineSeparator());
-//
-//        if (isPin) {
-//            sendReplyAndPinMessage(chatId, messageId, stringBuffer.toString());
-//        } else {
-//            sendReplyMessage(chatId, messageId, stringBuffer.toString());
-//        }
     }
 
     private List<RobotsMchRecords> getDayStatByDate(Long chatId, Date date) {
