@@ -85,9 +85,11 @@
             <a-col :span="23" :offset="1"><b>群发通道</b>--格式[群发通道] 管理员/操作员发送，私发机器人内容，再回复该内容：群发通道</a-col>
           </a-row>
           <br/>
-          <a-form-model
-              ref="configFormModel"
-          >
+          <a-row>
+            <a-col :span="23" :offset="1"><b>删除</b>--回复需要删除的机器人消息。 管理员/操作员发送，可删除机器人发出的任何消息</a-col>
+          </a-row>
+          <br/>
+          <a-form-model ref="configFormModel">
             <a-row>
               <a-col :span="8" :offset="1" :key="config" v-for="(item, config) in configData">
                 <a-form-model-item :label="item.configName">

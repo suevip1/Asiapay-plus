@@ -382,6 +382,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("催单 -- 回复商户发单消息进行转发，例如：加急加急" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
+            stringBuffer.append("今日结算 -- 查看今日结算信息" + System.lineSeparator());
+            stringBuffer.append("昨日结算 -- 查看昨日结算信息" + System.lineSeparator());
             stringBuffer.append("======================================" + System.lineSeparator());
             stringBuffer.append("<b>通用功能</b>:" + System.lineSeparator());
             stringBuffer.append("uj -- 查询今日U价(C2C全部支付方式)" + System.lineSeparator());
