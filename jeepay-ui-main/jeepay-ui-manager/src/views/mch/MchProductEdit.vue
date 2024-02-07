@@ -6,7 +6,7 @@
       :body-style="{ paddingBottom: '80px' }"
       width="60%"
   >
-      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
+      <div class="table-page-search-wrapper" @keydown.enter="queryFunc">
         <a-form layout="inline" class="table-head-ground">
           <a-row justify="space-between" type="flex">
             <a-col :sm="12">

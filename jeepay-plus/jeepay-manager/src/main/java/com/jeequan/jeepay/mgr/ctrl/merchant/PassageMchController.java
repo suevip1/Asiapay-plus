@@ -7,21 +7,16 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
-import com.jeequan.jeepay.core.entity.AgentAccountInfo;
-import com.jeequan.jeepay.core.entity.MchInfo;
-import com.jeequan.jeepay.core.entity.MchPayPassage;
-import com.jeequan.jeepay.core.entity.PayPassage;
+import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
-import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
-import com.jeequan.jeepay.service.impl.MchInfoService;
-import com.jeequan.jeepay.service.impl.MchPayPassageService;
-import com.jeequan.jeepay.service.impl.PayPassageService;
+import com.jeequan.jeepay.service.impl.*;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -40,6 +35,12 @@ public class PassageMchController extends CommonCtrl {
     @Autowired
     private AgentAccountInfoService agentAccountInfoService;
 
+    @Autowired
+    private MchProductService mchProductService;
+
+    @Autowired
+    private PayPassageService payPassageService;
+
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @GetMapping
     public ApiRes list() {
@@ -52,6 +53,12 @@ public class PassageMchController extends CommonCtrl {
             String mchName = paramJSON.getString("mchName");
             String haveAgent = paramJSON.getString("haveAgent");
             String agentNo = paramJSON.getString("agentNo");
+
+
+            PayPassage payPassage = payPassageService.queryPassageInfo(payPassageId);
+            if (payPassage.getProductId() == null) {
+                throw new RuntimeException("请先设置通道所属的产品");
+            }
 
             LambdaQueryWrapper<MchPayPassage> wrapper = MchPayPassage.gw();
             wrapper.eq(MchPayPassage::getPayPassageId, payPassageId);
@@ -91,25 +98,31 @@ public class PassageMchController extends CommonCtrl {
             List<MchInfo> mchList = mchInfoService.list(mchInfoWrapper);
             Map<String, AgentAccountInfo> agentAccountInfoMap = agentAccountInfoService.getAgentInfoMap();
 
+            //产品-商户费率关系表
+            Map<String, MchProduct> mchProductMap = mchProductService.GetFullMchProductMap(payPassage.getProductId());
+
             List<MchPayPassage> result = new ArrayList<>();
             for (int i = 0; i < mchList.size(); i++) {
-                MchPayPassage item = passageMchMap.get(mchList.get(i).getMchNo());
+                MchInfo mchInfo = mchList.get(i);
+                MchPayPassage item = passageMchMap.get(mchInfo.getMchNo());
                 if (item == null) {
                     item = new MchPayPassage();
                     item.setPayPassageId(payPassageId);
-                    item.setMchNo(mchList.get(i).getMchNo());
+                    item.setMchNo(mchInfo.getMchNo());
                     item.setState(CS.NO);
                 }
-                item.addExt("mchName", mchList.get(i).getMchName());
-                item.addExt("mchState", mchList.get(i).getState());
-                String agentNoItem = mchList.get(i).getAgentNo();
+                item.addExt("mchName", mchInfo.getMchName());
+                item.addExt("mchState", mchInfo.getState());
+                String agentNoItem = mchInfo.getAgentNo();
                 if (!StringUtils.isNullOrEmpty(agentNoItem)) {
-                    item.addExt("agentNo", mchList.get(i).getAgentNo());
-                    item.addExt("agentName", agentAccountInfoMap.get(mchList.get(i).getAgentNo()).getAgentName());
+                    item.addExt("agentNo", mchInfo.getAgentNo());
+                    item.addExt("agentName", agentAccountInfoMap.get(mchInfo.getAgentNo()).getAgentName());
                 } else {
                     item.addExt("agentNo", "");
                     item.addExt("agentName", "");
                 }
+                BigDecimal productRate = mchProductMap.get(mchInfo.getMchNo()).getMchRate();
+                item.addExt("productRate", productRate);
                 result.add(item);
             }
             pages.setRecords(result);

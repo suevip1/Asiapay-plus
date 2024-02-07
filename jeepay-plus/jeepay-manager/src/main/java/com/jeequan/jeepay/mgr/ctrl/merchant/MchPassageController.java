@@ -10,10 +10,7 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
-import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
-import com.jeequan.jeepay.service.impl.MchInfoService;
-import com.jeequan.jeepay.service.impl.MchPayPassageService;
-import com.jeequan.jeepay.service.impl.PayPassageService;
+import com.jeequan.jeepay.service.impl.*;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +38,9 @@ public class MchPassageController extends CommonCtrl {
 
     @Autowired
     private AgentAccountInfoService agentAccountInfoService;
+
+    @Autowired
+    private MchProductService mchProductService;
 
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_EDIT')")
     @GetMapping
@@ -84,6 +84,9 @@ public class MchPassageController extends CommonCtrl {
             List<PayPassage> passageList = payPassageService.list(payPassageWrapper.orderByAsc(PayPassage::getPayPassageId));
             Map<String, AgentAccountInfo> agentAccountInfoMap = agentAccountInfoService.getAgentInfoMap();
             List<MchPayPassage> result = new ArrayList<>();
+
+            //商户-产品费率关系表
+            Map<Long, MchProduct> mchProductMap = mchProductService.GetFullMchProductMap(mchNo);
             for (int i = 0; i < passageList.size(); i++) {
                 MchPayPassage item = passageMchMap.get(passageList.get(i).getPayPassageId());
                 if (item == null) {
@@ -95,15 +98,19 @@ public class MchPassageController extends CommonCtrl {
                 item.addExt("payPassageName", passageList.get(i).getPayPassageName());
 
                 String passageAgentNo = passageList.get(i).getAgentNo();
-                if(!StringUtils.isNullOrEmpty(passageAgentNo)){
+                if (!StringUtils.isNullOrEmpty(passageAgentNo)) {
                     item.addExt("passageAgentNo", passageAgentNo);
                     item.addExt("passageAgentName", agentAccountInfoMap.get(passageAgentNo).getAgentName());
-                }else{
+                } else {
                     item.addExt("passageAgentNo", "");
                     item.addExt("passageAgentName", "");
                 }
 
                 item.addExt("rate", passageList.get(i).getRate());
+                //添加产品-商户费率
+                BigDecimal productRate = mchProductMap.get(passageList.get(i).getProductId()).getMchRate();
+                item.addExt("productRate", productRate);
+
                 result.add(item);
             }
             pages.setTotal(result.size());
@@ -247,5 +254,6 @@ public class MchPassageController extends CommonCtrl {
         }
         return ApiRes.ok();
     }
+
 
 }

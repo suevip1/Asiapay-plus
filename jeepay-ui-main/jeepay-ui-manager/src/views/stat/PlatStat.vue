@@ -1,7 +1,7 @@
 <template>
   <page-header-wrapper>
     <a-card>
-      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
+      <div class="table-page-search-wrapper" @keydown.enter="queryFunc">
       </div>
 
       <!-- 列表渲染 -->

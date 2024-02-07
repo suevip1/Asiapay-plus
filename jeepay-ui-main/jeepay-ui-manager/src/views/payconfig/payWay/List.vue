@@ -1,7 +1,7 @@
 <template>
   <page-header-wrapper>
     <a-card>
-      <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
+      <div class="table-page-search-wrapper" @keydown.enter="searchFunc">
         <a-form layout="inline" v-if="$access('ENT_PC_WAY_SEARCH')" class="table-head-ground">
           <div class="table-layer">
             <jeepay-text-up :placeholder="'产品代码'" :msg="searchData.productId" v-model="searchData.productId" />

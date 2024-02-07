@@ -1,6 +1,6 @@
 <template>
   <a-drawer :visible="visible" :title=" true ? '商户-通道绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="60%">
-    <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
+    <div class="table-page-search-wrapper" @keydown.enter="queryFunc">
       <a-form layout="inline" class="table-head-ground">
         <a-row justify="space-between" type="flex">
           <a-col :sm="12">
@@ -89,6 +89,9 @@
       <template slot="mchRateSlot" slot-scope="{record}">
         <b>{{ (record.rate*100).toFixed(2) }}%</b>
       </template>
+      <template slot="mchProductRateSlot" slot-scope="{record}">
+        <b>{{ (record.productRate*100).toFixed(2) }}%</b>
+      </template>
       <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
         <JeepayTableColumns>
           <a-button type="link" @click="blindSelect(record)">绑定</a-button>
@@ -135,6 +138,7 @@ const tableColumns = [
   { key: 'nameSlot', fixed: 'left', width: '350px', title: '通道名称', scopedSlots: { customRender: 'nameSlot' } },
   { key: 'agentSlot', title: '通道代理', scopedSlots: { customRender: 'agentSlot' } },
   { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'mchProductRate', title: '商户产品费率', scopedSlots: { customRender: 'mchProductRateSlot' } },
   { key: 'mchRate', title: '通道费率', scopedSlots: { customRender: 'mchRateSlot' } },
   { key: 'op', title: '操作', width: '150px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]

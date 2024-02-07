@@ -41,7 +41,6 @@ public class MchProductController extends CommonCtrl {
 
             LambdaQueryWrapper<MchProduct> wrapper = MchProduct.gw();
             wrapper.eq(MchProduct::getMchNo, mchNo);
-//            wrapper.like()
 
             IPage<MchProduct> pages = mchProductService.page(getIPage(true), wrapper);
 

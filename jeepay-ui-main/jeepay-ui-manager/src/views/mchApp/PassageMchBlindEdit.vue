@@ -1,6 +1,6 @@
 <template>
   <a-drawer :visible="visible" :title=" true ? '通道-商户绑定' : '' " @close="onClose" :body-style="{ paddingBottom: '80px' }" width="60%">
-    <div class="table-page-search-wrapper" @keyup.enter="queryFunc">
+    <div class="table-page-search-wrapper" @keydown.enter="queryFunc">
       <a-form layout="inline" class="table-head-ground">
         <a-row justify="space-between" type="flex">
           <a-col :sm="12">
@@ -70,6 +70,9 @@
       <template slot="agentSlot" slot-scope="{record}">
         <span style="color: #1A79FF;font-size: 12px">{{ record.agentNo!=""?'['+record.agentNo+']':'' }}</span>&nbsp;<span style="font-size: 12px">{{ record.agentName}}</span>
       </template> <!-- 自定义插槽 -->
+      <template slot="mchProductRateSlot" slot-scope="{record}">
+        <b>{{ (record.productRate*100).toFixed(2) }}%</b>
+      </template>
       <template slot="stateSlot" slot-scope="{record}">
         <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'未绑定':'已绑定'" />
       </template>
@@ -122,6 +125,7 @@ import { message } from 'ant-design-vue'
 const tableColumns = [
   { key: 'nameSlot', fixed: 'left', width: '400px', title: '商户名称', scopedSlots: { customRender: 'nameSlot' } },
   { key: 'agentSlot', title: '上级代理', scopedSlots: { customRender: 'agentSlot' } },
+  { key: 'mchProductRate', title: '商户产品费率', scopedSlots: { customRender: 'mchProductRateSlot' } },
   { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
   { key: 'op', title: '操作', width: '200px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]
