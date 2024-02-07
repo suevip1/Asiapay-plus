@@ -589,6 +589,10 @@ public class CS {
         String TANGBANG = "tangbang";
 
         String GOODPAY = "goodpay";
+
+        String BYPAY = "bypay";
+
+        String JCPAY = "jcpay";
     }
 
 
