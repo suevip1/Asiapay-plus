@@ -175,6 +175,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     @Autowired
     private PayPassageService payPassageService;
 
+    @Autowired
+    private MchHistoryService mchHistoryService;
+
+    @Autowired
+    private PassageTransactionHistoryService passageTransactionHistoryService;
+
     @Override
     public void onUpdateReceived(Update update) {
 
@@ -215,7 +221,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 String text = update.getMessage().getText();
 
                 //群发全部
-                if (text.equals(SEND_ALL)) {
+                if (text.trim().equals(SEND_ALL)) {
                     //获取全部
                     List<RobotsMch> list = findNonMchDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
@@ -228,7 +234,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     return;
                 }
                 //群发商户
-                if (text.equals(SEND_ALL_MCH)) {
+                if (text.trim().equals(SEND_ALL_MCH)) {
                     List<RobotsMch> list = findNonMchDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
                         sendForward(list.get(i).getChatId(), update.getMessage().getReplyToMessage());
@@ -236,7 +242,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     return;
                 }
                 //群发通道
-                if (text.equals(SEND_ALL_PASSAGE)) {
+                if (text.trim().equals(SEND_ALL_PASSAGE)) {
                     List<RobotsPassage> list = findNonPassageDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
                         sendForward(list.get(i).getChatId(), update.getMessage().getReplyToMessage());
@@ -254,7 +260,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 String replyText = update.getMessage().getReplyToMessage().getText();
 
                 //群发全部
-                if (replyText.equals(SEND_ALL)) {
+                if (replyText.trim().equals(SEND_ALL)) {
                     //获取全部
                     List<RobotsMch> list = findNonMchDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
@@ -267,7 +273,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     return;
                 }
                 //群发商户
-                if (replyText.equals(SEND_ALL_MCH)) {
+                if (replyText.trim().equals(SEND_ALL_MCH)) {
                     List<RobotsMch> list = findNonMchDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
                         sendForward(list.get(i).getChatId(), update.getMessage());
@@ -275,7 +281,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     return;
                 }
                 //群发通道
-                if (replyText.equals(SEND_ALL_PASSAGE)) {
+                if (replyText.trim().equals(SEND_ALL_PASSAGE)) {
                     List<RobotsPassage> list = findNonPassageDuplicateChatIds();
                     for (int i = 0; i < list.size(); i++) {
                         sendForward(list.get(i).getChatId(), update.getMessage());
@@ -461,7 +467,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         //==================================匹配文字命令==========================================================
         String text = message.getText().trim();
         //绑定管理群
-        if (text.equals(BLIND_MGR)) {
+        if (text.trim().equals(BLIND_MGR)) {
             //是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
                 //不是商户群就覆盖  chatId下有商户号
@@ -481,7 +487,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //机器人退群
-        if (text.equals(ROBOT_QUIT)) {
+        if (text.trim().equals(ROBOT_QUIT)) {
             //是否admin
             if (robotsUserService.checkIsAdmin(userName)) {
                 sendSingleMessage(chatId, "收到退群命令");
@@ -708,7 +714,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //操作员名单
-        if (text.equals(LIST_OP)) {
+        if (text.trim().equals(LIST_OP)) {
             //是否admin 或操作员
             if (robotsUserService.checkIsAdmin(userName)) {
                 //操作员名单
@@ -767,7 +773,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //今日跑量
-        if (text.equals(TODAY_BILL)) {
+        if (text.trim().equals(TODAY_BILL)) {
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
             List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
             //是否已绑定商户或通道
@@ -843,7 +849,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //昨日跑量
-        if (text.equals(YESTERDAY_BILL)) {
+        if (text.trim().equals(YESTERDAY_BILL)) {
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
             List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
 
@@ -922,7 +928,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //查询余额
-        if (text.equals(QUERY_BALANCE)) {
+        if (text.trim().equals(QUERY_BALANCE)) {
             //查询是商户群还是通道群
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
             List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
@@ -1001,7 +1007,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             return;
         }
         //撤销下发
-        if (text.equals(REVOKE_RECORD)) {
+        if (text.trim().equals(REVOKE_RECORD)) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
                     String userNickname = "";
@@ -1022,7 +1028,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //清除下发  清除当天全部
-        if (text.equals(CLEAR_RECORD)) {
+        if (text.trim().equals(CLEAR_RECORD)) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
                     String userNickname = "";
@@ -1088,7 +1094,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //撤销记账
-        if (text.equals(REVOKE_RECORD_TOTAL)) {
+        if (text.trim().equals(REVOKE_RECORD_TOTAL)) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
                     String userNickname = "";
@@ -1123,7 +1129,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //清除记账  清除当天全部
-        if (text.equals(CLEAR_RECORD_TOTAL)) {
+        if (text.trim().equals(CLEAR_RECORD_TOTAL)) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
                     String userNickname = "";
@@ -1159,7 +1165,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
 
         //今日账单
-        if (text.equals(TODAY_RECORD)) {
+        if (text.trim().equals(TODAY_RECORD)) {
             try {
                 Date today = DateUtil.parse(DateUtil.today());
                 sendBillStat(chatId, today, message.getMessageId(), "今日", false);
@@ -1170,13 +1176,61 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
 
         //昨日账单
-        if (text.equals(YESTERDAY_RECORD)) {
+        if (text.trim().equals(YESTERDAY_RECORD)) {
             try {
                 sendBillStat(chatId, DateUtil.yesterday(), message.getMessageId(), "昨日", false);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
             return;
+        }
+
+        //今日结算
+        if (text.trim().equals(TODAY_SETTLE)) {
+            try {
+                if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                    RobotsMch robotsMch = robotsMchService.getById(chatId);
+                    if (robotsMch == null || StringUtils.isEmpty(robotsMch.getMchNo())) {
+                        sendSingleMessage(chatId, "请先绑定商户");
+                        return;
+                    }
+                    JSONArray jsonArray = JSONArray.parseArray(robotsMch.getMchNo());
+                    if (jsonArray.isEmpty()) {
+                        sendSingleMessage(chatId, "请先绑定商户");
+                        return;
+                    }
+                    Date today = DateUtil.parse(DateUtil.today());
+                    sendMchSettle(jsonArray, chatId, today);
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+            return;
+
+        }
+        //昨日结算
+        if (text.trim().equals(YESTERDAY_SETTLE)) {
+            try {
+                if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                    RobotsMch robotsMch = robotsMchService.getById(chatId);
+                    if (robotsMch == null || StringUtils.isEmpty(robotsMch.getMchNo())) {
+                        sendSingleMessage(chatId, "请先绑定商户");
+                        return;
+                    }
+                    JSONArray jsonArray = JSONArray.parseArray(robotsMch.getMchNo());
+                    if (jsonArray.isEmpty()) {
+                        sendSingleMessage(chatId, "请先绑定商户");
+                        return;
+                    }
+                    Date today = DateUtil.parse(DateUtil.today());
+                    DateTime yesterday = DateUtil.offsetDay(today, -1);
+                    sendMchSettle(jsonArray, chatId, yesterday);
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+            return;
+
         }
 
         //绑定通道  BLIND_PASSAGE
@@ -1746,6 +1800,150 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
     }
 
+    private void sendMchSettle(JSONArray mchNos, Long chatId, Date date) {
+//        [M1695799133] 华阳 今日结算：
+//===================================
+//        跑量汇总
+//                入账汇总
+//===================================
+//        显示商户资金流水
+//                手动调账记录
+//        以及提现记录
+//                还有非当天时间创建的资金流水入账
+//        汇总
+//                ===================================
+//        显示前日日终最后一笔入账余额
+//                显示当日日终最后一笔入账余额
+        if (mchNos.isEmpty()) {
+            return;
+        }
+
+        Long totalAmount = 0L;
+        Long amount = 0L;
+
+        //单个商户
+        for (int i = 0; i < mchNos.size(); i++) {
+            String mchNo = mchNos.getString(i);
+            MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo.trim());
+            if (mchInfo != null) {
+                StatisticsMch statisticsMch = statisticsService.QueryStatisticsMchByDate(mchNo, date);
+                String timeStrWithEnter = "<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator();
+                String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+                if (statisticsMch == null) {
+                    sendSingleMessage(chatId, timeStrWithEnter + mchInfoStr + " 没有当日跑量记录");
+                } else {
+                    StringBuffer stringBuffer = new StringBuffer();
+
+                    stringBuffer.append(timeStrWithEnter + mchInfoStr + " 当日结算:" + System.lineSeparator());
+                    stringBuffer.append("-----------------------" + System.lineSeparator());
+                    stringBuffer.append("跑量汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount()) + "</b>" + System.lineSeparator());
+                    stringBuffer.append("入账汇总: <b>" + AmountUtil.convertCent2Dollar(statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost()) + "</b>" + System.lineSeparator());
+                    stringBuffer.append("-----------------------" + System.lineSeparator());
+
+                    totalAmount += statisticsMch.getTotalSuccessAmount();
+                    amount += (statisticsMch.getTotalSuccessAmount() - statisticsMch.getTotalMchCost());
+
+                    //查调账、提现 记录 当日
+                    List<MchHistory> mchHistories = getMchHistoryByDate(mchNo, date);
+                    if (!mchHistories.isEmpty()) {
+                        stringBuffer.append("<b>资金变动摘要:</b>" + System.lineSeparator());
+                        for (int x = 0; x < mchHistories.size(); x++) {
+                            MchHistory mchHistory = mchHistories.get(x);
+                            String remark = "";
+                            if (StringUtils.isNotEmpty(mchHistory.getRemark().trim())) {
+                                remark = "| 备注: " + mchHistory.getRemark().trim();
+                            }
+                            stringBuffer.append("[" + CS.GetMchBizTypeString(mchHistory.getBizType()) + "]: <b>" + AmountUtil.convertCent2Dollar(mchHistory.getAmount()) + "</b> | " + DateUtil.formatDateTime(mchHistory.getCreatedAt()) + remark + System.lineSeparator());
+                        }
+                        stringBuffer.append("-----------------------" + System.lineSeparator());
+                    }
+
+                    //当日 第一笔流水 最后一笔流水
+                    List<MchHistory> mchHistoryTotal = getTotalMchHistoryByDate(mchNo, date);
+                    if (!mchHistoryTotal.isEmpty()) {
+//                        MchHistory first = mchHistoryTotal.get(0);
+//                        String remarkFirst = "";
+//                        if (StringUtils.isNotEmpty(first.getRemark().trim())) {
+//                            remarkFirst = "| 备注: " + first.getRemark().trim();
+//                        }
+//                        stringBuffer.append("当日首笔流水: [" + CS.GetMchBizTypeString(first.getBizType()) + "]: 变动前金额:" + AmountUtil.convertCent2Dollar(first.getBeforeBalance()) + " | " + AmountUtil.convertCent2Dollar(first.getAmount()) + " | 变动后金额:" + AmountUtil.convertCent2Dollar(first.getAfterBalance()) + " | " + DateUtil.formatDateTime(first.getCreatedAt()) + remarkFirst + System.lineSeparator());
+//
+//
+//                        MchHistory last = mchHistoryTotal.get(mchHistoryTotal.size() - 1);
+//                        String remarkLast = "";
+//                        if (StringUtils.isNotEmpty(first.getRemark().trim())) {
+//                            remarkLast = "| 备注: " + first.getRemark().trim();
+//                        }
+//                        stringBuffer.append("当日末笔流水: [" + CS.GetMchBizTypeString(last.getBizType()) + "]: 变动前金额:" + AmountUtil.convertCent2Dollar(last.getBeforeBalance()) + " | " + AmountUtil.convertCent2Dollar(last.getAmount()) + " | 变动后金额:" + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + " | " + DateUtil.formatDateTime(last.getCreatedAt()) + remarkLast + System.lineSeparator());
+//                        stringBuffer.append("-----------------------" + System.lineSeparator());
+
+                        MchHistory first = mchHistoryTotal.get(0);
+                        stringBuffer.append("日初余额: " + AmountUtil.convertCent2Dollar(first.getBeforeBalance()) + System.lineSeparator());
+
+                        MchHistory last = mchHistoryTotal.get(mchHistoryTotal.size() - 1);
+                        stringBuffer.append("日终余额: " + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + System.lineSeparator());
+                        stringBuffer.append("-----------------------" + System.lineSeparator());
+                    }
+                    stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
+                    sendSingleMessage(chatId, stringBuffer.toString());
+                }
+                //跑量汇总
+                //入账汇总
+            }
+        }
+
+
+//        List<RobotsMchRecords> dayList = getDayStatByDate(chatId, date);
+//        List<RobotsMchRecords> totalList = getTotalStatByDate(chatId, date);
+//
+//        //没有就添加记账群记录
+//        RobotsMch robotsMch = robotsMchService.getById(chatId);
+//        if (robotsMch == null) {
+//            robotsMch = new RobotsMch();
+//            robotsMch.setChatId(chatId);
+//            robotsMch.setMchNo("");
+//            robotsMch.setBalance(0L);
+//            robotsMchService.save(robotsMch);
+//        }
+//        Long totalAmount = robotsMch.getBalance();
+//        Long dayAmount = 0L;
+//        StringBuffer dayStatStr = new StringBuffer();
+//        for (int i = 0; i < dayList.size(); i++) {
+//            if (dayList.get(i).getState() == CS.YES) {
+//                dayAmount += dayList.get(i).getAmount();
+//                dayStatStr.append(DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "</b>  " + dayList.get(i).getUserName() + System.lineSeparator());
+//            } else {
+//                dayStatStr.append("<s>" + DateUtil.format(dayList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(dayList.get(i).getAmount()) + "  " + dayList.get(i).getUserName() + "</s>  " + dayList.get(i).getRemark() + System.lineSeparator());
+//            }
+//        }
+//
+//        StringBuffer totalStatStr = new StringBuffer();
+//        for (int i = 0; i < totalList.size(); i++) {
+//            if (totalList.get(i).getState() == CS.YES) {
+//                totalStatStr.append(DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "</b>  " + totalList.get(i).getUserName() + System.lineSeparator());
+//            } else {
+//                totalStatStr.append("<s>" + DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "  " + totalList.get(i).getUserName() + "</s>  " + totalList.get(i).getRemark() + System.lineSeparator());
+//            }
+//        }
+//        stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
+//        stringBuffer.append("当日下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
+//        stringBuffer.append("记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+//        stringBuffer.append("================" + System.lineSeparator());
+//        stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
+//        stringBuffer.append(dayStatStr);
+//        stringBuffer.append("================" + System.lineSeparator());
+//        stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
+//        stringBuffer.append(totalStatStr);
+//        stringBuffer.append("================" + System.lineSeparator());
+//        stringBuffer.append("(<b>记账累积,下发日清</b>)" + System.lineSeparator());
+//
+//        if (isPin) {
+//            sendReplyAndPinMessage(chatId, messageId, stringBuffer.toString());
+//        } else {
+//            sendReplyMessage(chatId, messageId, stringBuffer.toString());
+//        }
+    }
+
     private List<RobotsMchRecords> getDayStatByDate(Long chatId, Date date) {
         LambdaQueryWrapper<RobotsMchRecords> wrapper = RobotsMchRecords.gw();
 
@@ -1783,6 +1981,49 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         wrapper.orderByAsc(RobotsMchRecords::getCreatedAt);
         return robotsMchRecordsService.list(wrapper);
     }
+
+    /**
+     * 查商户当天的手动流水
+     *
+     * @param mchNo
+     * @param date
+     * @return
+     */
+    private List<MchHistory> getMchHistoryByDate(String mchNo, Date date) {
+        LambdaQueryWrapper<MchHistory> wrapper = MchHistory.gw();
+
+        wrapper.eq(MchHistory::getMchNo, mchNo);
+        wrapper.in(MchHistory::getBizType, Arrays.asList(CS.BIZ_TYPE_CHANGE, CS.BIZ_TYPE_WITHDRAW, CS.BIZ_TYPE_UNFREEZE));
+
+        //一天的开始，结果：2017-03-01 00:00:00
+        Date beginOfDay = DateUtil.beginOfDay(date);
+
+        //一天的结束，结果：2017-03-01 23:59:59
+        Date endOfDay = DateUtil.endOfDay(date);
+
+        wrapper.ge(MchHistory::getCreatedAt, DateUtil.format(beginOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.le(MchHistory::getCreatedAt, DateUtil.format(endOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.orderByAsc(MchHistory::getCreatedAt);
+        return mchHistoryService.list(wrapper);
+    }
+
+    private List<MchHistory> getTotalMchHistoryByDate(String mchNo, Date date) {
+        LambdaQueryWrapper<MchHistory> wrapper = MchHistory.gw();
+        wrapper.eq(MchHistory::getMchNo, mchNo);
+
+        //一天的开始，结果：2017-03-01 00:00:00
+        Date beginOfDay = DateUtil.beginOfDay(date);
+
+        //一天的结束，结果：2017-03-01 23:59:59
+        Date endOfDay = DateUtil.endOfDay(date);
+
+        wrapper.ge(MchHistory::getCreatedAt, DateUtil.format(beginOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.le(MchHistory::getCreatedAt, DateUtil.format(endOfDay, "yyyy-MM-dd HH:mm:ss"));
+        wrapper.orderByAsc(MchHistory::getCreatedAt);
+
+        return mchHistoryService.list(wrapper);
+    }
+
 
     /**
      * 判断是否商户群
