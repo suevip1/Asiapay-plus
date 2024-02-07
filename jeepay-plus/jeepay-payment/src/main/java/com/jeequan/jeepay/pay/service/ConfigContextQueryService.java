@@ -241,7 +241,7 @@ public class ConfigContextQueryService {
         }
         if (filterAmountList.size() == 0) {
             log.error("[{}]产品下通道授信不足", productId);
-            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+            throw new BizException(MessageFormat.format("[{0}]产品可用额度不足", productId.toString()));
         }
 
         // 检查金额是否符合收款规则
@@ -277,7 +277,7 @@ public class ConfigContextQueryService {
         }
         if (filterRuleList.size() == 0) {
             log.error("[{}]产品[{}]下无满足收款规则通道,订单金额[{}]", mchNo, productId, orderAmount.longValue() / 100);
-            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+            throw new BizException(MessageFormat.format("[{0}]无满足收款规则金额通道[{1}]", productId.toString(), mchNo));
         }
 
         //去重
@@ -324,7 +324,7 @@ public class ConfigContextQueryService {
 
         if (!CollUtil.isNotEmpty(rateFilterList)) {
             log.error("[{}]产品[{}]下无符合费率要求通道,订单金额[{}]", mchNo, productId, orderAmount.longValue() / 100);
-            throw new BizException(MessageFormat.format("[{0}]产品下无可用通道[{1}]", productId.toString(), mchNo));
+            throw new BizException(MessageFormat.format("[{0}]产品费率设置有误[{1}]", productId.toString(), mchNo));
         }
 
         return rateFilterList;
@@ -351,7 +351,7 @@ public class ConfigContextQueryService {
         //1、产品是否对商户开通
         List<MchProduct> mchProductList = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchNo).eq(MchProduct::getProductId, productId).eq(MchProduct::getState, CS.YES));
         if (mchProductList.size() != 1) {
-            throw new BizException(MessageFormat.format("[{0}]该商户[{1}]产品不可用", mchNo, productId.toString()));
+            throw new BizException(MessageFormat.format("[{0}]商户未绑定[{1}]产品", mchNo, productId.toString()));
         }
         MchProduct mchProduct = mchProductList.get(0);
 
@@ -381,10 +381,10 @@ public class ConfigContextQueryService {
                 return availablePassage;
             } else {
                 log.error("[{}]该产品下无此商户[{}]可用通道", productId, mchNo);
-                throw new BizException(MessageFormat.format("[{0}]该产品下无可用通道", productId.toString()));
+                throw new BizException(MessageFormat.format("[{0}]该产品下无此商户[{1}]可用通道", productId.toString(), mchNo));
             }
         } else {
-            throw new BizException(MessageFormat.format("[{0}]该产品下无可用通道", productId.toString()));
+            throw new BizException(MessageFormat.format("[{0}]该产品无可用通道", productId.toString()));
         }
     }
 

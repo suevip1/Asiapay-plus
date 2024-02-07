@@ -987,8 +987,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
                     String amountStr = text;
+
+                    Date today = DateUtil.parse(DateUtil.today());
                     Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
+
                     if (amount.longValue() == 0) {
+                        //发送今日账单
+                        sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                         return;
                     }
                     String userNickname = "";
@@ -1000,7 +1005,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     }
                     robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
 
-                    Date today = DateUtil.parse(DateUtil.today());
                     sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -1070,7 +1074,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                     String amountStr = text.substring(3);
                     Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
+
+                    Date today = DateUtil.parse(DateUtil.today());
+
                     if (amount.longValue() == 0) {
+                        sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                         return;
                     }
                     String userNickname = "";
@@ -1084,7 +1092,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     robotsMch.setBalance(robotsMch.getBalance() + amount);
                     robotsMchService.saveOrUpdate(robotsMch);
 
-                    Date today = DateUtil.parse(DateUtil.today());
 
                     sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
