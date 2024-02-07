@@ -119,14 +119,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     private static final String ADD_RECORD_TOTAL = "记账 [+-]?\\d+(\\.\\d+)?";
     private static final String REVOKE_RECORD_TOTAL = "撤销记账";
     private static final String CLEAR_RECORD_TOTAL = "清除记账";
-
     private static final String TODAY_RECORD = "今日账单";
-
     private static final String YESTERDAY_RECORD = "昨日账单";
 
 
     private static final String ROBOT_QUIT = "机器人退群";
-
 
     //    群发全部 -- 私发机器人内容，再回复该内容：群发全部
 //    群发商户 -- 私发机器人内容，再回复该内容：群发商户
@@ -1065,6 +1062,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     robotsMchService.saveOrUpdate(robotsMch);
 
                     Date today = DateUtil.parse(DateUtil.today());
+
                     sendBillStat(chatId, today, message.getMessageId(), "今日");
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -1317,7 +1315,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         sendMessage.setReplyMarkup(markupInline);
 
         try {
-            execute(sendMessage);
+            Message message = execute(sendMessage);
+            sendSinglePinMessage(chatId, message.getMessageId());
         } catch (TelegramApiException e) {
             log.error("{} {}", LOG_TAG, e);
         }
@@ -1342,6 +1341,16 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         try {
             return execute(deleteMessage);
         } catch (Exception e) {
+            log.error("{} {}", LOG_TAG, e);
+            log.error(e.getMessage());
+        }
+        return false;
+    }
+
+    private boolean sendPinMessage(PinChatMessage pinChatMessage) {
+        try {
+            return execute(pinChatMessage);
+        } catch (TelegramApiException e) {
             log.error("{} {}", LOG_TAG, e);
             log.error(e.getMessage());
         }
@@ -1524,37 +1533,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         sendDeleteMessage(deleteMessage);
     }
 
-    protected Message sendSinglePinMessage(Long chatId, String messageStr) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(false);
+    protected boolean sendSinglePinMessage(Long chatId, Integer messageId) {
+        PinChatMessage sendMessage = new PinChatMessage();
         sendMessage.setChatId(chatId);
-        sendMessage.setText(messageStr);
-        return sendSingleMessage(sendMessage);
+        sendMessage.setMessageId(messageId);
+        return sendPinMessage(sendMessage);
     }
 
-    private void sendUSDT(Long chatId) {
-        String url = "https://www.okx.com/v3/c2c/tradingOrders/books?t=" + System.currentTimeMillis() + "&quoteCurrency=cny&baseCurrency=usdt&side=sell&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0";
-        //https://www.okx.com/v3/c2c/tradingOrders/books?t=1693229098440&quoteCurrency=cny&baseCurrency=usdt&side=buy&paymentMethod=all&userType=all&showTrade=false&showFollow=false&showAlreadyTraded=false&isAbleFilter=false&receivingAds=false&urlId=0
-        String raw = HttpUtil.get(url);
-        JSONObject result = JSONObject.parseObject(raw);
-        if (result.getString("code").equals("0")) {
-            JSONArray buys = result.getJSONObject("data").getJSONArray("sell");
-            String price = buys.getJSONObject(0).getString("price");
-            StringBuffer stringBuffer = new StringBuffer();
-            stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
-            for (int i = 0; i < buys.size(); i++) {
-                if (i < 4) {
-                    stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());
-                } else {
-                    break;
-                }
-            }
-            sendSingleMessage(chatId, stringBuffer.toString());
-        } else {
-            sendSingleMessage(chatId, "网络异常，请稍后再试");
-            log.error(raw);
-        }
-    }
 
     /**
      * 查U价格
