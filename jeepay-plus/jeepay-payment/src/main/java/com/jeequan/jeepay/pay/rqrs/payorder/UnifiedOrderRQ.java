@@ -18,6 +18,7 @@ package com.jeequan.jeepay.pay.rqrs.payorder;
 import com.jeequan.jeepay.pay.rqrs.AbstractMchAppRQ;
 import lombok.Data;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /*
 * 创建订单请求参数对象
@@ -41,6 +42,10 @@ public class UnifiedOrderRQ extends AbstractMchAppRQ {
     /** 异步通知地址 **/
     @NotBlank(message="异步通知地址不能为空")
     private String notifyUrl;
+
+    /** 商户号 **/
+    @NotNull(message="产品号不能为空")
+    private Long productId;
 
     /**
      * 额外参数

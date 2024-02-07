@@ -65,6 +65,10 @@ public class QueryOrderController extends ApiController {
             throw new BizException("订单不存在");
         }
 
+        if (rq.getAmount().longValue() != payOrder.getAmount().longValue()) {
+            throw new BizException("订单金额有误");
+        }
+
         QueryPayOrderRS bizRes = QueryPayOrderRS.buildByPayOrder(payOrder);
         return ApiRes.okWithSign(bizRes, configContextQueryService.queryMchInfo(rq.getMchNo()).getSecret());
     }

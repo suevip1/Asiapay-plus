@@ -19,6 +19,7 @@ import com.jeequan.jeepay.pay.rqrs.AbstractMchAppRQ;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /*
 * 查询订单请求参数对象
@@ -35,5 +36,8 @@ public class QueryPayOrderRQ extends AbstractMchAppRQ {
 
     /** 支付系统订单号 **/
     private String payOrderId;
+
+    /** 商户号 **/
+    private Long productId;
 
 }

@@ -35,10 +35,6 @@ public class AbstractMchAppRQ extends AbstractRQ {
     @NotBlank(message="商户号不能为空")
     private String mchNo;
 
-    /** 商户号 **/
-    @NotNull(message="产品号不能为空")
-    private Long productId;
-
 
     /** 支付金额， 单位：分 **/
     @NotNull(message="支付金额不能为空")
