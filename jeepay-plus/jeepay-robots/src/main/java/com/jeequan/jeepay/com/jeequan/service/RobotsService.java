@@ -978,7 +978,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
 
                     Date today = DateUtil.parse(DateUtil.today());
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -998,7 +998,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     }
                     Date today = DateUtil.parse(DateUtil.today());
                     robotsMchRecordsService.RemoveRecentlyRecord(chatId, userNickname, today);
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -1020,7 +1020,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     //清除全部
                     Date today = DateUtil.parse(DateUtil.today());
                     robotsMchRecordsService.RemoveAllRecordByDate(chatId, userNickname, today);
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -1063,7 +1063,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                     Date today = DateUtil.parse(DateUtil.today());
 
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -1099,7 +1099,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     robotsMch.setBalance(robotsMch.getBalance() - amount);
                     robotsMchService.saveOrUpdate(robotsMch);
 
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -1134,7 +1134,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     robotsMch.setBalance(robotsMch.getBalance() - amount);
                     robotsMchService.saveOrUpdate(robotsMch);
 
-                    sendBillStat(chatId, today, message.getMessageId(), "今日");
+                    sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -1147,7 +1147,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         if (text.equals(TODAY_RECORD)) {
             try {
                 Date today = DateUtil.parse(DateUtil.today());
-                sendBillStat(chatId, today, message.getMessageId(), "今日");
+                sendBillStat(chatId, today, message.getMessageId(), "今日", false);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -1157,7 +1157,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         //昨日账单
         if (text.equals(YESTERDAY_RECORD)) {
             try {
-                sendBillStat(chatId, DateUtil.yesterday(), message.getMessageId(), "昨日");
+                sendBillStat(chatId, DateUtil.yesterday(), message.getMessageId(), "昨日", false);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -1283,6 +1283,21 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
     }
 
+    private void sendReplyAndPinMessage(Long chatId, Integer messageId, String messageStr) {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.enableMarkdown(false);
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyToMessageId(messageId);
+        sendMessage.setText(messageStr);
+        sendMessage.setParseMode(ParseMode.HTML);
+        try {
+            Message message = execute(sendMessage);
+            sendSinglePinMessage(chatId, message.getMessageId());
+        } catch (TelegramApiException e) {
+            log.error("{} {}", LOG_TAG, e);
+        }
+    }
+
     private void sendReplyMessageWithMenu(Long chatId, Integer messageId, String messageStr) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(false);
@@ -1316,7 +1331,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
         try {
             Message message = execute(sendMessage);
-            sendSinglePinMessage(chatId, message.getMessageId());
         } catch (TelegramApiException e) {
             log.error("{} {}", LOG_TAG, e);
         }
@@ -1663,7 +1677,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         return stringBuffer;
     }
 
-    private void sendBillStat(Long chatId, Date date, Integer messageId, String dayTitle) {
+    private void sendBillStat(Long chatId, Date date, Integer messageId, String dayTitle, boolean isPin) {
         //默认发送今日统计
         StringBuffer stringBuffer = new StringBuffer();
         List<RobotsMchRecords> dayList = getDayStatByDate(chatId, date);
@@ -1708,9 +1722,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(totalStatStr);
         stringBuffer.append("================" + System.lineSeparator());
-        stringBuffer.append("(记账累积,下发日清)" + System.lineSeparator());
+        stringBuffer.append("(<b>记账累积,下发日清</b>)" + System.lineSeparator());
 
-        sendReplyMessageWithMenu(robotsMch.getChatId(), messageId, stringBuffer.toString());
+        if (isPin) {
+            sendReplyAndPinMessage(chatId, messageId, stringBuffer.toString());
+        } else {
+            sendReplyMessage(chatId, messageId, stringBuffer.toString());
+        }
     }
 
     private List<RobotsMchRecords> getDayStatByDate(Long chatId, Date date) {
@@ -1806,10 +1824,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         switch (data) {
             case TODAY_RECORD://今日账单
                 Date today = DateUtil.parse(DateUtil.today());
-                sendBillStat(chatId, today, callbackQuery.getMessage().getMessageId(), "今日");
+                sendBillStat(chatId, today, callbackQuery.getMessage().getMessageId(), "今日", false);
                 break;
             case YESTERDAY_RECORD://昨日账单
-                sendBillStat(chatId, DateUtil.yesterday(), callbackQuery.getMessage().getMessageId(), "昨日");
+                sendBillStat(chatId, DateUtil.yesterday(), callbackQuery.getMessage().getMessageId(), "昨日", false);
                 break;
         }
 
