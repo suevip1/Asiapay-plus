@@ -88,6 +88,12 @@
           <a-row>
             <a-col :span="23" :offset="1"><b>删除</b>--回复需要删除的机器人消息。 管理员/操作员发送，可删除机器人发出的任何消息</a-col>
           </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1"><b>今日结算</b>--私聊机器人。 管理员/操作员发送，自动向所有商户群发送结算消息</a-col>
+          </a-row>
+          <a-row>
+            <a-col :span="23" :offset="1"><b>昨日结算</b>--私聊机器人。 管理员/操作员发送，自动向所有商户群发送结算消息</a-col>
+          </a-row>
           <br/>
           <a-form-model ref="configFormModel">
             <a-row>
