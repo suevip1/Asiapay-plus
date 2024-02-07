@@ -126,17 +126,17 @@ public class ChannelNoticeController extends AbstractCtrl {
                 return payNotifyService.doNotifyOrderNotExists(request);
             }
 
-            //订单已是关闭状态，此时是重复的订单
-            if (payOrder.getState() == PayOrder.STATE_CLOSED) {
-                log.error("{}, 订单已是关闭状态. payOrderId={} ", logPrefix, payOrderId);
-                throw new BizException("订单已关闭,无效的回调！");
-            }
-
-            //订单已是成功状态，此时是重复的订单
-            if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
-                log.error("{}, 订单已是成功状态. payOrderId={} ", logPrefix, payOrderId);
-                throw new BizException("订单已支付成功,重复的回调！");
-            }
+//            //订单已是关闭状态，此时是重复的订单
+//            if (payOrder.getState() == PayOrder.STATE_CLOSED) {
+//                log.error("{}, 订单已是关闭状态. payOrderId={} ", logPrefix, payOrderId);
+//                throw new BizException("订单已关闭,无效的回调！");
+//            }
+//
+//            //订单已是成功状态，此时是重复的订单
+//            if (payOrder.getState() == PayOrder.STATE_SUCCESS) {
+//                log.error("{}, 订单已是成功状态. payOrderId={} ", logPrefix, payOrderId);
+//                throw new BizException("订单已支付成功,重复的回调！");
+//            }
 
             //查询出商户应用的配置信息
             PayPassage payPassage = configContextQueryService.queryPayPassage(payOrder.getPassageId());
@@ -161,6 +161,9 @@ public class ChannelNoticeController extends AbstractCtrl {
             //判断IP是否在白名单中
             if (!StringKit.checkInWhiteList(requestIp, normalMchParams.getWhiteList())) {
                 log.error("回调IP[{}]不在白名单之内,白名单列表[{}]:", requestIp, normalMchParams.getWhiteList());
+
+                String noticeInfo = "回调IP[" + request + "]不在白名单之内,白名单列表[" + normalMchParams.getWhiteList() + "]";
+                payOrderService.updateNoticeInfo(payOrderId, noticeInfo);
                 throw new BizException("回调IP白名单校验异常！");
             }
 
@@ -179,8 +182,7 @@ public class ChannelNoticeController extends AbstractCtrl {
 
             boolean updateOrderSuccess = true; //默认更新成功
             // 订单是 【支付中状态】
-            if (payOrder.getState() == PayOrder.STATE_ING || payOrder.getState() == PayOrder.STATE_CLOSED) {
-
+            if (payOrder.getState() == PayOrder.STATE_ING) {
                 //明确成功
                 if (ChannelRetMsg.ChannelState.CONFIRM_SUCCESS == notifyResult.getChannelState()) {
                     if (StringUtils.isNotEmpty(notifyResult.getChannelOrderId())) {
@@ -198,26 +200,21 @@ public class ChannelNoticeController extends AbstractCtrl {
                         //余额更新mq
                         mqSender.send(BalanceChangeMQ.build(payOrderCopy));
                     }
-
+                    //订单支付成功 其他业务逻辑，给商户发回调等
+                    payOrderProcessService.confirmSuccess(payOrder);
                 } else if (ChannelRetMsg.ChannelState.CONFIRM_FAIL == notifyResult.getChannelState()) {
                     //明确失败
                     updateOrderSuccess = payOrderService.updateIng2Fail(payOrder);
                 }
+
+                // 更新订单 异常
+                if (!updateOrderSuccess) {
+                    log.error("{}, 更新订单 异常 = {} ", logPrefix, payOrder.getPayOrderId());
+                    return payNotifyService.doNotifyOrderStateUpdateFail(request);
+                }
+
+                log.info("===== {}, 订单通知完成。 payOrderId={}, parseState = {} =====", logPrefix, payOrderId, notifyResult.getChannelState());
             }
-
-            // 更新订单 异常
-            if (!updateOrderSuccess) {
-                log.error("{}, 更新订单 异常 = {} ", logPrefix, payOrder.getPayOrderId());
-                return payNotifyService.doNotifyOrderStateUpdateFail(request);
-            }
-
-            //订单支付成功 其他业务逻辑
-            if (notifyResult.getChannelState() == ChannelRetMsg.ChannelState.CONFIRM_SUCCESS) {
-                payOrderProcessService.confirmSuccess(payOrder);
-            }
-
-            log.info("===== {}, 订单通知完成。 payOrderId={}, parseState = {} =====", logPrefix, payOrderId, notifyResult.getChannelState());
-
             return notifyResult.getResponseEntity();
 
         } catch (BizException e) {

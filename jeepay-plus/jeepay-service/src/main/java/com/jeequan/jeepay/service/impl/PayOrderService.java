@@ -82,6 +82,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         return update(payOrder, wrapper);
     }
 
+    public boolean updateNoticeInfo(String payOrderId, String noticeInfo) {
+        PayOrder updateRecord = new PayOrder();
+        updateRecord.setPayOrderId(payOrderId);
+        updateRecord.setNotifyParams(noticeInfo);
+        LambdaUpdateWrapper wrapper = new LambdaUpdateWrapper<PayOrder>().eq(PayOrder::getPayOrderId, payOrderId).and(wr -> {
+            wr.eq(PayOrder::getNotifyState, CS.NO);
+        });
+        return update(updateRecord, wrapper);
+    }
+
     /**
      * 强制补单
      *
@@ -473,6 +483,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 
     /**
      * 实时统计专用
+     *
      * @param payOrder
      * @param paramJSON
      * @param wrapper
