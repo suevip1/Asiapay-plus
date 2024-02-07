@@ -191,11 +191,18 @@ public class MchAppController extends CommonCtrl {
         //payInterfaceConfig payRules
         String payInterfaceConfig = payPassage.getPayInterfaceConfig();
         String payRules = payPassage.getPayRules();
-        if(StringUtils.isNotEmpty(payInterfaceConfig)){
-            payPassage.setPayInterfaceConfig(payInterfaceConfig.replaceAll(" ", ""));
+
+        if (StringUtils.isNotEmpty(payInterfaceConfig)) {
+            //去掉换行符
+            String temp = payInterfaceConfig.replaceAll("\\\\n", "").trim();
+            String temp1 = temp.replaceAll(" ", "");
+            payPassage.setPayInterfaceConfig(temp1);
         }
-        if(StringUtils.isNotEmpty(payRules)){
-            payPassage.setPayRules(payRules.replaceAll(" ", ""));
+
+        if (StringUtils.isNotEmpty(payRules)) {
+            String temp = payRules.replaceAll("\\\\n", "").trim();
+            String temp1 = temp.replaceAll(" ", "");
+            payPassage.setPayRules(temp1);
         }
         payPassageService.updatePassageInfo(payPassage);
         return ApiRes.ok();
