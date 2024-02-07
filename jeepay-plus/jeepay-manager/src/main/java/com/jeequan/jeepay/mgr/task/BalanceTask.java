@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PreDestroy;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -255,7 +252,8 @@ public class BalanceTask {
         mchHistory.setAgentName(agentMchInfo.getAgentName());
         mchHistory.setAgentIncome(payOrder.getAgentFeeAmount());
         mchHistory.setMchOrderNo(payOrder.getMchOrderNo());
-//        mchHistoryService.save(mchHistory);
+
+        mchHistory.setCreatedAt(new Date());
         return mchHistory;
     }
 
@@ -281,7 +279,8 @@ public class BalanceTask {
         agentAccountHistory.setBizType(CS.BIZ_TYPE_PAY_OR_INCOME);
         agentAccountHistory.setPayOrderId(payOrder.getPayOrderId());
         agentAccountHistory.setPayOrderAmount(payOrder.getAmount());
-//        agentAccountHistoryService.save(agentAccountHistory);
+
+        agentAccountHistory.setCreatedAt(new Date());
         return agentAccountHistory;
     }
 
@@ -300,7 +299,7 @@ public class BalanceTask {
         passageTransactionHistory.setBizType(PassageTransactionHistory.BIZ_TYPE_ORDER);
         passageTransactionHistory.setRemark("");
 
-//        passageTransactionHistoryService.save(passageTransactionHistory);
+        passageTransactionHistory.setCreatedAt(new Date());
         return passageTransactionHistory;
     }
 
