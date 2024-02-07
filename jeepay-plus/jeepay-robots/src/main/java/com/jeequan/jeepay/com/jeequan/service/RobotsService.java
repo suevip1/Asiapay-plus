@@ -779,8 +779,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (todayStatisticsMch == null) {
                         sendSingleMessage(chatId, mchInfoStr + " 没有今日跑量记录");
                     } else {
-                        sendMchProduct(statisticsMchProductList, chatId, mchInfoStr + " 今日");
-                        sendDayStat(todayStatisticsMch, chatId, mchInfoStr + " ");
+                        StringBuffer sbTemp = sendMchProduct(statisticsMchProductList, chatId, mchInfoStr + " 今日");
+                        sbTemp.append(System.lineSeparator());
+                        sbTemp.append(sendDayStat(todayStatisticsMch, chatId, mchInfoStr + " "));
+                        sendSingleMessage(chatId, sbTemp.toString());
                         totalAmount += todayStatisticsMch.getTotalSuccessAmount();
                         amount += (todayStatisticsMch.getTotalSuccessAmount() - todayStatisticsMch.getTotalMchCost());
                     }
@@ -855,7 +857,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (todayStatisticsMch == null) {
                         sendSingleMessage(chatId, mchInfoStr + " 没有昨日跑量记录");
                     } else {
-                        sendMchProduct(statisticsMchProductList, chatId, mchInfoStr + " 昨日");
+                        StringBuffer sbTemp = sendMchProduct(statisticsMchProductList, chatId, mchInfoStr + " 昨日");
+                        sbTemp.append(System.lineSeparator());
+                        sbTemp.append(sendDayStat(todayStatisticsMch, chatId, mchInfoStr + " "));
+                        sendSingleMessage(chatId, sbTemp.toString());
+
                         totalAmount += todayStatisticsMch.getTotalSuccessAmount();
                         amount += (todayStatisticsMch.getTotalSuccessAmount() - todayStatisticsMch.getTotalMchCost());
                     }
@@ -869,24 +875,33 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 return;
             }
             if (robotsPassageList.size() > 0) {
-
                 List<PayPassage> passageList = getPassageInfoList(robotsPassageList);
 
                 StringBuffer stringBuffer = new StringBuffer();
+
                 Long totalBalance = 0L;
+                Long balance = 0L;
                 stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
+                stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
+                stringBuffer.append("通道|跑量金额|费率|入账金额" + System.lineSeparator());
+                stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
+
                 for (int i = 0; i < passageList.size(); i++) {
                     PayPassage payPassage = passageList.get(i);
                     StatisticsPassage statisticsPassage = statisticsService.QueryStatisticsPassageByDate(payPassage.getPayPassageId(), yesterday);
-                    String passageInfoStr = "通道：[" + payPassage.getPayPassageId() + "] <b>" + payPassage.getPayPassageName() + "</b>";
+                    String passageInfoStr = "[" + payPassage.getPayPassageId() + "] <b>" + payPassage.getPayPassageName() + "</b>";
                     if (statisticsPassage == null) {
-                        stringBuffer.append(passageInfoStr + " 没有昨日跑量记录" + System.lineSeparator());
+                        stringBuffer.append(passageInfoStr + " | " + GetRateStr(payPassage.getRate()) + " | " + "  没有昨日跑量记录" + System.lineSeparator());
                     } else {
-                        stringBuffer.append(passageInfoStr + " 昨日统计：" + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + System.lineSeparator());
+                        Long amount = statisticsPassage.getTotalSuccessAmount() - statisticsPassage.getTotalPassageCost();
+                        stringBuffer.append(passageInfoStr + " | " + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + " | " + GetRateStr(payPassage.getRate()) + " | " + AmountUtil.convertCent2Dollar(amount) + System.lineSeparator());
+                        balance += (amount);
                         totalBalance += statisticsPassage.getTotalSuccessAmount();
                     }
                 }
-                stringBuffer.append("跑量汇总：" + AmountUtil.convertCent2Dollar(totalBalance) + System.lineSeparator());
+                stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
+                stringBuffer.append("跑量汇总：<b>" + AmountUtil.convertCent2Dollar(totalBalance) + "</b>" + System.lineSeparator());
+                stringBuffer.append("入账汇总：<b>" + AmountUtil.convertCent2Dollar(balance) + "</b>" + System.lineSeparator());
                 sendSingleMessage(chatId, stringBuffer.toString());
                 return;
             }
@@ -1630,7 +1645,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
     }
 
-    private void sendMchProduct(List<StatisticsMchProduct> list, Long chatId, String dayTitle) {
+    private StringBuffer sendMchProduct(List<StatisticsMchProduct> list, Long chatId, String dayTitle) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(dayTitle + "跑量明细：" + System.lineSeparator());
         stringBuffer.append("----------------------------------" + System.lineSeparator());
@@ -1643,10 +1658,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     + list.get(i).getExt().getString("rate") + " | "
                     + AmountUtil.convertCent2Dollar(list.get(i).getTotalSuccessAmount() - list.get(i).getTotalCost()) + System.lineSeparator());
         }
-        sendSingleMessage(chatId, stringBuffer.toString());
+        return stringBuffer;
     }
 
-    private void sendDayStat(StatisticsMch statisticsMch, Long chatId, String title) {
+    private StringBuffer sendDayStat(StatisticsMch statisticsMch, Long chatId, String title) {
 
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         float rate = (statisticsMch.getOrderSuccessCount().floatValue() / statisticsMch.getTotalOrderCount().floatValue()) * 100;
@@ -1660,7 +1675,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         stringBuffer.append("成交订单数: " + statisticsMch.getOrderSuccessCount() + System.lineSeparator());
         stringBuffer.append("总订单数: " + statisticsMch.getTotalOrderCount() + System.lineSeparator());
         stringBuffer.append("成功率: " + rateStr + "%");
-        sendSingleMessage(chatId, stringBuffer.toString());
+        return stringBuffer;
     }
 
     private void sendBillStat(Long chatId, Date date, Integer messageId, String dayTitle) {
