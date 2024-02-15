@@ -593,6 +593,10 @@ public class CS {
         String BYPAY = "bypay";
 
         String JCPAY = "jcpay";
+
+        String YSPAY = "yspay";
+
+        String STOREPAY = "storepay";
     }
 
 

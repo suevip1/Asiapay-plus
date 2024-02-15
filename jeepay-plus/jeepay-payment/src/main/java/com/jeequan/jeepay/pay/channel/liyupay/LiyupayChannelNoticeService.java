@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.pay.channel.liyupay;
 
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -8,8 +9,11 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
+import com.jeequan.jeepay.core.utils.HttpClientPoolUtil;
+import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
+import com.jeequan.jeepay.pay.channel.rongfu.RongFuParamsModel;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -72,25 +76,30 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
 
             //查单
             Map<String, Object> map = new HashMap<>();
-            String merchantOrderNo = jsonParams.getString("merchantOrderNo");
-            NormalMchParams normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
-            map.put("merchantOrderNo", merchantOrderNo);
+            RongFuParamsModel normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), RongFuParamsModel.class);
+            map.put("orderNo", jsonParams.getString("orderNo"));
             map.put("merchantId", normalMchParams.getMchNo());
+            map.put("type", normalMchParams.getAppId());
 
             String SignStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&secret=" + normalMchParams.getSecret();
-            String sign = SignatureUtils.md5(SignStr).toLowerCase();
-            map.put("sign", sign);
+            String sign = SignatureUtils.md5(SignStr).toUpperCase();
 
-            String raw = HttpUtil.get(normalMchParams.getQueryUrl(), map, 10000);
+
+            Map<String, Object> mapData = new HashMap<>();
+            mapData.put("data", map);
+            mapData.put("sign", sign);
+
+            log.info("{} 查单请求:{}", LOG_TAG, JSONObject.toJSONString(mapData));
+            String raw = HttpClientPoolUtil.doPost(normalMchParams.getQueryUrl(),mapData);
             log.info("{} 查单请求响应:{}", LOG_TAG, raw);
             JSONObject queryResult = JSON.parseObject(raw, JSONObject.class);
 
             if (queryResult.getString("code").equals("0")) {
                 JSONObject data = queryResult.getJSONObject("data");
 
-                //支付状态：0：待用户付款 1：付款成功 -1：数据异常 -2：订单超时未支付，已被系统关闭
-                String payStatus = data.getString("payStatus");
-                if (payStatus.equals("1")) {
+                //支付状态：付款成功-200
+                String payStatus = data.getString("bindState");
+                if (payStatus.equals("200")) {
                     //验签成功后判断上游订单状态
                     result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
                     return result;
@@ -161,26 +170,46 @@ public class LiyupayChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     public static void main(String[] args) {
-        String jsonParams = "{\"amount\":10000,\"orderNo\":\"231113145712535497\",\"merchantId\":8028369,\"sign\":\"2464393671d69d85d27ab957711e40cc\",\"merchantOrderNo\":\"P1723958166676934657\"}";
-        Map map = JSON.parseObject(jsonParams);
-        String sign = (String) map.get("sign");
-        System.out.println(sign);
-        map.remove("sign");
+//        String jsonParams = "{\"data\":{\"merchantId\":\"8261558\",\"merchantOrderNo\":\"P1757675615797399553\"},\"sign\":\"a151a750b560d04df2755c4ba4106b91\"}";
+//        Map map = JSON.parseObject(jsonParams);
+//        String sign = (String) map.get("sign");
+//        System.out.println(sign);
+//        map.remove("sign");
+//
+//        String secret = "0f0570ce6423e17c6108c049d19649bc";
+//        List<String> fieldOrder = Arrays.asList("merchantId", "merchantOrderNo", "orderNo", "amount", "secret");
+//        StringBuilder sb = new StringBuilder();
+//        for (String field : fieldOrder) {
+//            if (map.containsKey(field)) {
+//                Object value = map.get(field);
+//                sb.append(field).append("=").append(value).append("&");
+//            }
+//        }
+//        sb.append("secret=").append(secret);
+//
+//        String signContent = sb.toString();
+//        System.out.println(signContent);
+//        final String signStr = SignatureUtils.md5(signContent).toLowerCase();
+//        System.out.println(signStr);
 
-        String secret = "7f34993df140afd1b0937c99a415e2d8";
-        List<String> fieldOrder = Arrays.asList("merchantId", "merchantOrderNo", "orderNo", "amount", "secret");
-        StringBuilder sb = new StringBuilder();
-        for (String field : fieldOrder) {
-            if (map.containsKey(field)) {
-                Object value = map.get(field);
-                sb.append(field).append("=").append(value).append("&");
-            }
-        }
-        sb.append("secret=").append(secret);
+//        String test = "{"data":{"merchantId":"8261558","type":"1","merchantOrderNo":"P1757715565003698177"},"sign":"b6bfd65417fc204d77a04234ee18f885"}";
+        Map<String, Object> map = new HashMap<>();
+        map.put("merchantId", "8261558");
+        map.put("orderNo", "2402141558171017731");
+        map.put("type", "1");
 
-        String signContent = sb.toString();
-        System.out.println(signContent);
-        final String signStr = SignatureUtils.md5(signContent).toLowerCase();
-        System.out.println(signStr);
+        Map<String, Object> mapData = new HashMap<>();
+        mapData.put("data", map);
+        String key = "96b3c7fbb1d37e6b6c5230df787d166a";
+
+        String SignStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&secret=" + key;
+        log.info("签名串:" + SignStr);
+        String sign = SignatureUtils.md5(SignStr).toUpperCase();
+        mapData.put("sign", sign.toUpperCase());
+
+        log.info("{} 查单请求:{}", LOG_TAG, JSONObject.toJSONString(mapData));
+
+        String raw = HttpClientPoolUtil.doPost("http://47.102.43.27:8011/api/merchant/order/info",mapData);
+        log.info("{} 查单请求响应:{}", LOG_TAG, raw);
     }
 }

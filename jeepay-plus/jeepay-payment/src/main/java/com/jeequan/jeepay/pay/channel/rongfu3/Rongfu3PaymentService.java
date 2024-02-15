@@ -112,14 +112,14 @@ public class Rongfu3PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "A2U3SZXN3SWKYE37HDYEQLK7C0KQFPLU1AWJQUOOAXFVYTD7H9UFHGLYVCTXKQFARWIDPVESBNUQRFFXXCU4VTRBEMNCCZNPNDAOVLCGVDCSLEXBHL4ARPW664RSWBTE";
+        String key = "VOTVJVIKFXIBKUOKQ2KI0JEPE1UPKWXQ3Q6XTFA54L4ULJQAMMU9JJWGSVJOLTKS7R9RVWOGADFPZNXAYUAHFG0W9WLGOTOLMBV7EKDMWDIQHPMXESUTU2HJI8HIJWDR";
 
-        String mchId = "20000190";
-        String appId = "4ebfa9a956ca41a4ae0035fca1e6c96f";
-        String productId = "8086";
+        String mchId = "20000247";
+        String appId = "2860e7596d2240b5bbf02f54e5231062";
+        String productId = "8061";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         String currency = "cny";
-        int amount = 2000;
+        int amount = 50000;
         String clientIp = "127.0.0.1";
         String notifyUrl = "https://www.test.com";
         String returnUrl = notifyUrl;

@@ -85,7 +85,7 @@ public class DopayPaymentService extends AbstractPaymentService {
             final String sign = SignatureUtils.md5(signContentStr).toUpperCase();
 
             map.put("sign", sign);
-
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
             String payGateway = normalMchParams.getPayGateway();
 
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

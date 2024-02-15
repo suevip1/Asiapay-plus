@@ -110,10 +110,10 @@ public class Xxpay3PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "CJY391J4HTSNQTS873UC4G5R39VT8N6JOXSE2Z6XFMQ8RXNU54Z9OD0W0WTLNP9FBQEVR0PGMLPXQF6KIKUOPBLA1DUBME4I17HG5S2ZVCZARK7D7I8IHWC1FWD5HYG0";
+        String key = "PADGDYHSTY35E6RGHTEXAWXXIILCKOLFDZFNVQWTBS5JMANGU12X3X3YQMMEBDJLQFWQ992FWB9GX8KUFPLOOOVS4VN73ZNRPK04KMLC6PNRMAH9A6OJO2CXKPGOKWWK";
 
-        String mchId = "1024";
-        String productId = "8009";
+        String mchId = "20000156";
+        String productId = "8046";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         String currency = "cny";
 
@@ -137,7 +137,7 @@ public class Xxpay3PaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent + "&key=" + key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "http://api.daodao.one/index/pay";
+        String payGateway = "http://pay.krpay.xyz/api/pay/create_order";
 
 //        // 发送POST请求并指定JSON数据
 //        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json") // 指定请求体的Content-Type为JSON

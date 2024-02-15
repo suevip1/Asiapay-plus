@@ -24,9 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/**
- * 永胜支付
- */
+
 @Service
 @Slf4j
 public class YongshengPaymentService extends AbstractPaymentService {

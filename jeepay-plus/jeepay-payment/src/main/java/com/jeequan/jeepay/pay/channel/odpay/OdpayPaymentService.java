@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
 @Service
 @Slf4j
 public class OdpayPaymentService extends AbstractPaymentService {
@@ -36,7 +35,6 @@ public class OdpayPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.ODPAY;
     }
-
 
 
     @Override
@@ -54,33 +52,27 @@ public class OdpayPaymentService extends AbstractPaymentService {
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
 
-            String pay_memberid = normalMchParams.getMchNo();
-            String pay_orderid = payOrder.getPayOrderId();
-            String pay_applydate = DateUtil.now();
+            String merId = normalMchParams.getMchNo();
+            String merOrderId = payOrder.getPayOrderId();
 
+            String payType = normalMchParams.getPayType();
+            String notifyUrl = getNotifyUrl(payOrder.getPayOrderId());
+            String returnUrl = notifyUrl;
 
-            String pay_bankcode = normalMchParams.getPayType();
-            String pay_notifyurl = getNotifyUrl(payOrder.getPayOrderId());
-            String pay_callbackurl = pay_notifyurl;
+            String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
+            String clientIp = payOrder.getClientIp();
 
+            map.put("merId", merId);
+            map.put("merOrderId", merOrderId);
+            map.put("payType", payType);
+            map.put("goodsName", "goods");
+            map.put("notifyUrl", notifyUrl);
+            map.put("returnUrl", returnUrl);
+            map.put("clientIp", clientIp);
+            map.put("amount", amount);
 
-            String pay_amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-            String pay_user_ip = payOrder.getClientIp();
-
-
-            map.put("pay_memberid", pay_memberid);
-            map.put("pay_orderid", pay_orderid);
-            map.put("pay_applydate", pay_applydate);
-            map.put("pay_bankcode", pay_bankcode);
-
-            map.put("pay_notifyurl", pay_notifyurl);
-            map.put("pay_callbackurl", pay_callbackurl);
-
-            map.put("pay_amount", pay_amount);
-            String sign = JeepayKit.getSign(map, key).toUpperCase();
-            map.put("pay_md5sign", sign);
-            map.put("pay_user_ip", pay_user_ip);
-            map.put("pay_productname", "下单");
+            String sign = JeepayKit.getSign(map, key).toLowerCase();
+            map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
@@ -92,8 +84,8 @@ public class OdpayPaymentService extends AbstractPaymentService {
             //拉起订单成功
             if (result.getString("code").equals("200")) {
 
-                String payUrl = result.getString("payurl");
-                String passageOrderId = "";
+                String payUrl = result.getString("payUrl");
+                String passageOrderId = result.getString("tradeNo");
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
                 res.setPayData(payUrl);
@@ -117,37 +109,32 @@ public class OdpayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "qq0io7vrgbu7774xfwvq4bolkizmvt1t";
+        String key = "6542f29f383c2d51ae46a93161260c68";
 
-        String pay_memberid = "230869685";
-        String pay_orderid = RandomStringUtils.random(15, true, true);
-        String pay_applydate = DateUtil.now();
+        String merId = "10270";
+        String merOrderId = RandomStringUtils.random(15, true, true);
+
+        String payType = "602";
+        String notifyUrl = "https://www.test.com";
+        String returnUrl = notifyUrl;
+
+        String amount = AmountUtil.convertCent2Dollar(10000L);
+        String clientIp = "127.0.0.1";
+
+        map.put("merId", merId);
+        map.put("merOrderId", merOrderId);
+        map.put("payType", payType);
+        map.put("goodsName", "下单");
+        map.put("notifyUrl", notifyUrl);
+        map.put("returnUrl", returnUrl);
+        map.put("clientIp", clientIp);
+        map.put("amount", amount);
+
+        String sign = JeepayKit.getSign(map, key).toLowerCase();
+        map.put("sign", sign);
 
 
-        String pay_bankcode = "106";
-        String pay_notifyurl = "https://www.test.com";
-        String pay_callbackurl = pay_notifyurl;
-
-
-        String pay_amount = AmountUtil.convertCent2Dollar(39900L);
-        String pay_user_ip = "127.0.0.1";
-
-        log.info("[{}]请求响应:{}", LOG_TAG, pay_applydate);
-        map.put("pay_memberid", pay_memberid);
-        map.put("pay_orderid", pay_orderid);
-        map.put("pay_applydate", pay_applydate);
-        map.put("pay_bankcode", pay_bankcode);
-
-        map.put("pay_notifyurl", pay_notifyurl);
-        map.put("pay_callbackurl", pay_callbackurl);
-
-        map.put("pay_amount", pay_amount);
-        String sign = JeepayKit.getSign(map, key).toUpperCase();
-        map.put("pay_md5sign", sign);
-        map.put("pay_user_ip", pay_user_ip);
-        map.put("pay_productname", "下单");
-
-        String payGateway = "https://zzjijipay.eazyzhi.com/Pay_index.html";
+        String payGateway = "https://pay.jintuzhifu.com/Pay/index";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

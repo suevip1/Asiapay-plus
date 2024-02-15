@@ -1,5 +1,6 @@
-package com.jeequan.jeepay.pay.channel.appay;
+package com.jeequan.jeepay.pay.channel.yspay;
 
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -8,6 +9,7 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
+import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -20,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,13 +32,15 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AppayPaymentService extends AbstractPaymentService {
-    private static final String LOG_TAG = "[AP支付]";
+public class YspayPaymentService extends AbstractPaymentService {
+
+    private static final String LOG_TAG = "YS支付";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.APPAY;
+        return CS.IF_CODE.YSPAY;
     }
+
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -51,49 +57,38 @@ public class AppayPaymentService extends AbstractPaymentService {
             Map<String, Object> map = new HashMap<>();
             String key = normalMchParams.getSecret();
 
-            String mch_id = normalMchParams.getMchNo();
-            String payChannel = normalMchParams.getPayType();
+            String appid = normalMchParams.getMchNo();
+            String type = normalMchParams.getPayType();
+            String out_trade_no = payOrder.getPayOrderId();
+            String pay_amount = AmountUtil.convertCent2DollarShort(payOrder.getAmount());
+            String notify_url = URLEncoder.encode(getNotifyUrl(payOrder.getPayOrderId()));
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = URLEncoder.encode(dateFormat.format(new Date()));
 
-            String order_no = payOrder.getPayOrderId();
-            String amount = AmountUtil.convertCent2Dollar(payOrder.getAmount());
-            String subject = "subject";
-            //固定值：2
-            String paytype = "2";
-            String version = "v2.0";
+            map.put("appid", appid);
+            map.put("type", type);
+            map.put("out_trade_no", out_trade_no);
+            map.put("pay_amount", pay_amount);
+            map.put("notify_url", notify_url);
+            map.put("timestamp", timestamp);
+            String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&api_secret=" + key;
+            String sign = SignatureUtils.md5(signStr).toLowerCase();
 
-            String return_url = getNotifyUrl(payOrder.getPayOrderId());
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-            String order_time = dateFormat.format(new Date());
-
-            map.put("mch_id", mch_id);
-            map.put("payChannel", payChannel);
-            map.put("order_no", order_no);
-            map.put("amount", amount);
-            map.put("subject", subject);
-            map.put("paytype", paytype);
-            map.put("version", version);
-            map.put("return_url", return_url);
-            map.put("order_time", order_time);
-
-            String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + key;
-            String sign = SignatureUtils.md5(signStr).toUpperCase();
+            map.put("notify_url", URLDecoder.decode(notify_url));
+            map.put("timestamp", URLDecoder.decode(timestamp));
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
 
             // 发送POST请求并指定JSON数据
             raw = HttpUtil.post(payGateway, map, 10000);
-
-            log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
+            log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("err_msg").equals("success")) {
-                JSONObject data = result.getJSONObject("data");
-
-                String payUrl = data.getString("qrcode");
-                String passageOrderId = "";
+            if (result.getString("code").equals("0")) {
+                String payUrl = result.getJSONObject("data").getString("pay_url");
+                String passageOrderId = result.getJSONObject("data").getString("trade_no");
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
                 res.setPayData(payUrl);
@@ -112,47 +107,44 @@ public class AppayPaymentService extends AbstractPaymentService {
         return res;
     }
 
+
     public static void main(String[] args) {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "gy837y8ecifdqybtn1vj1eftfig4sz03";
+        String key = "cae1b8ce6bf07efa8af88a1ce998a952";
 
-        String mch_id = "2307273100266";
-        String payChannel = "1002";
+        String appid = "cdd5d926dae105593a9bad1c0b42587b";
+        String type = "1";
+        String out_trade_no = RandomStringUtils.random(15, false, true);
+        String pay_amount = AmountUtil.convertCent2DollarShort(10000L);
+        String notify_url = URLEncoder.encode("https://www.test.com");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String timestamp = URLEncoder.encode(dateFormat.format(new Date()));
 
-        String order_no = RandomStringUtils.random(15, true, true);
-        String amount = AmountUtil.convertCent2Dollar(50000L);
-        String subject = "subject";
-        //固定值：2
-        String paytype = "2";
-        String version = "v2.0";
+        map.put("appid", appid);
+        map.put("type", type);
+        map.put("out_trade_no", out_trade_no);
+        map.put("pay_amount", pay_amount);
+        map.put("notify_url", notify_url);
+        map.put("timestamp", timestamp);
+        String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&api_secret=" + key;
+        log.error(signStr);
+        String sign = SignatureUtils.md5(signStr).toLowerCase();
 
-        String return_url = "http://www.test.com";
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-        String order_time = dateFormat.format(new Date());
-
-        map.put("mch_id", mch_id);
-        map.put("payChannel", payChannel);
-        map.put("order_no", order_no);
-        map.put("amount", amount);
-        map.put("subject", subject);
-        map.put("paytype", paytype);
-        map.put("version", version);
-        map.put("return_url", return_url);
-        map.put("order_time", order_time);
-
-        String signStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + key;
-        String sign = SignatureUtils.md5(signStr).toUpperCase();
+        map.put("notify_url", URLDecoder.decode(notify_url));
+        map.put("timestamp", URLDecoder.decode(timestamp));
         map.put("sign", sign);
 
-
-        String payGateway = "http://api.xfqmain32kd.top/payapi/apiPayUrl.do";
+        String payGateway = "http://8.217.58.124/api/pay/gateway";
 
         // 发送POST请求并指定JSON数据
+//        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").execute();
+//        // 处理响应
+//        raw = response.body();
+        log.info(JSONObject.toJSONString(map));
         raw = HttpUtil.post(payGateway, map, 10000);
-
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }
+
 }

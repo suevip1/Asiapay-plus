@@ -112,10 +112,10 @@ public class Xxpay8PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "QLBVYPSASX4CPEKS6Z31L603DIHYV705FKMBJURICDUWSYARFZXAOY7FCK0FUU3UCDW5CLXOMFXJOHSW9T507N7LETWZREG82ELCDGYSTCMLITP6XECV7JLM94JWRGIF";
+        String key = "PADGDYHSTY35E6RGHTEXAWXXIILCKOLFDZFNVQWTBS5JMANGU12X3X3YQMMEBDJLQFWQ992FWB9GX8KUFPLOOOVS4VN73ZNRPK04KMLC6PNRMAH9A6OJO2CXKPGOKWWK";
 
-        String mchId = "20000064";
-        String productId = "8013";
+        String mchId = "20000156";
+        String productId = "8046";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         long amount = 10000;
 
@@ -136,10 +136,12 @@ public class Xxpay8PaymentService extends AbstractPaymentService {
         map.put("body", body);
         map.put("extra", extra);
 
+        map.put("currency", "cny");
+
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "https://wg.zojh.club/api/pay/create_order";
+        String payGateway = "http://pay.krpay.xyz/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

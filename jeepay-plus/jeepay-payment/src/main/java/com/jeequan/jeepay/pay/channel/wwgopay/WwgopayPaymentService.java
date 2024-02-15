@@ -60,7 +60,7 @@ public class WwgopayPaymentService extends AbstractPaymentService {
             String notify_url = getNotifyUrl(payOrder.getPayOrderId());
             String return_url = notify_url;
             String ip = payOrder.getClientIp();
-            String type = normalMchParams.getPayType();
+            String gtype = normalMchParams.getPayType();
 
             map.put("api_id", api_id);
             map.put("orderid", orderid);
@@ -71,7 +71,7 @@ public class WwgopayPaymentService extends AbstractPaymentService {
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
             map.put("ip", ip);
-            map.put("type", type);
+            map.put("gtype", gtype);
 
             String payGateway = normalMchParams.getPayGateway();
 
@@ -107,15 +107,15 @@ public class WwgopayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "16558A02C08642BB1A09D3C025282BFA";
+        String key = "F06DAECA9465FA6A7B18A3428FD7A333";
 
-        String api_id = "1171927";
+        String api_id = "9252533";
         String orderid = RandomStringUtils.random(15, true, true);
         String money = AmountUtil.convertCent2DollarShort("10000");
         String notify_url = "https://www.test.com";
         String return_url = notify_url;
         String ip = "127.0.0.1";
-        String type = "alipay";
+        String gtype = "jw3_m";
 
         map.put("api_id", api_id);
         map.put("orderid", orderid);
@@ -126,10 +126,10 @@ public class WwgopayPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("sign", sign);
         map.put("ip", ip);
-        map.put("type", type);
+        map.put("gtype", gtype);
 
-        String payGateway = "http://a_api.haha1988.com/api/pay";
-
+        String payGateway = "https://miapi.qxyicloud.com/api/pay";
+        log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
         raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
     }

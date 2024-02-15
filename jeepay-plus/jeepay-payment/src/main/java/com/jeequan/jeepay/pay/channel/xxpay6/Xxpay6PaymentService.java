@@ -130,10 +130,10 @@ public class Xxpay6PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "8OJF5AGAS0U3MGDDFTF1OAAH2WJCDYPMGNRYBUSOAGSGPAIOO6ROXQIKPOJG2ILEKVFIIKAUJOWSPFI9KKO7CBCYJOSKJXBARNAEHFAW297JYO12RKYSLWYLVFVH4CFM";
+        String key = "YSIAUBMEB81KFBHA1LKFEX6FVWGNWJZXQYZNHHKH4F0ZQ4WG3YUZURRDBLWHBNLM0WQVSOO0O06ZYDPF6TBJBUETVI4O78YCDZ8YOAC0GHQ6SJP33M95IIYMYMKFA5NT";
 
-        String mchId = "20000276";
-        String productId = "8034";
+        String mchId = "20000208";
+        String productId = "8137";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         long amount = 10000;
         String currency = "cny";

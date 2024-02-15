@@ -113,14 +113,14 @@ public class KamipayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "91c1eab69ce4381dd7f60a1b67bf2766";
+        String key = "1e61a119c0b9d9e48a09d5a871859213";
 
-        String mchid = "9000023";
+        String mchid = "2100021";
         String mch_order_id = RandomStringUtils.random(15, true, true);
         String price = AmountUtil.convertCent2Dollar(10000L);
 
 
-        String card_type = "3";
+        String card_type = "3005";
 
         String time = System.currentTimeMillis() / 1000 + "";
         String notify = "https://www.test.com";
@@ -141,7 +141,7 @@ public class KamipayPaymentService extends AbstractPaymentService {
         String sign = SignatureUtils.md5(signContent).toLowerCase();
 
         map.put("sign", sign);
-        String payGateway = "http://162.216.240.188/api/pay";
+        String payGateway = "https://dwl.yzdaifu.com/api/pay";
         log.info("[{}]请求:{}", LOG_TAG, map);
 
         raw = HttpUtil.post(payGateway, map, 10000);

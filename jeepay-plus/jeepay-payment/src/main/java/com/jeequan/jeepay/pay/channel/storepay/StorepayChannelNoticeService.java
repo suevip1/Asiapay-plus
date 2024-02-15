@@ -1,5 +1,6 @@
-package com.jeequan.jeepay.pay.channel.odpay;
+package com.jeequan.jeepay.pay.channel.storepay;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -9,6 +10,7 @@ import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
+import com.jeequan.jeepay.pay.channel.wangting.WangTingParamsModel;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,22 +21,23 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 
 @Slf4j
 @Service
-public class OdpayChannelNoticeService extends AbstractChannelNoticeService {
+public class StorepayChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[OdPay支付]";
+    private static final String LOG_TAG = "[Store支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "SUCCESS";
+    private static final String ON_SUCCESS = "success";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.ODPAY;
+        return CS.IF_CODE.STOREPAY;
     }
 
     @Override
@@ -68,17 +71,28 @@ public class OdpayChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
-            //tradeStatus 订单状态 状态为SUCCESS时支付成功，其他为支付失败
-            String tradeStatus = jsonParams.getString("tradeStatus");
+            Map<String, Object> map = new HashMap<>();
 
-            if (!tradeStatus.equals("SUCCESS")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, tradeStatus);
+            NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
+            map.put("order_sn", payOrder.getPayOrderId());
+            map.put("store_id", resultsParam.getMchNo());
+
+            String raw = HttpUtil.post(resultsParam.getQueryUrl(), map, 10000);
+            log.info("{} 查单请求响应:{}", resultsParam, raw);
+            JSONObject queryJson = JSON.parseObject(raw, JSONObject.class);
+
+            //只有3为成功
+            int state = queryJson.getInteger("code");
+
+            if (state != 1) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, state);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
                 //验签成功后判断上游订单状态
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_SUCCESS);
             }
             return result;
+
         } catch (Exception e) {
             log.error("error", e);
             throw ResponseException.buildText(ON_FAIL);
@@ -94,8 +108,9 @@ public class OdpayChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("merOrderId");        // 商户订单号
-        String txnAmt = jsonParams.getString("amount");        // 支付金额
+
+        String orderNo = jsonParams.getString("order_sn");        // 商户订单号
+        String txnAmt = jsonParams.getString("money");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
@@ -112,12 +127,13 @@ public class OdpayChannelNoticeService extends AbstractChannelNoticeService {
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
         String sign = jsonParams.getString("sign");
-        Map<String, Object> map = JSON.parseObject(jsonParams.toJSONString());
-        map.remove("sign");
+
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"sign"}) + "&key=" + secret;
-            final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+
+            String signContentStr = SignatureUtils.getSignContentFilterEmpty(jsonParams, new String[]{"sign"}) + "&key=" + secret;
+            String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+
             if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
