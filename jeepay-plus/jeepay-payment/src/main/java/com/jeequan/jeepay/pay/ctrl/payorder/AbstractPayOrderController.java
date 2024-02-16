@@ -94,28 +94,32 @@ public abstract class AbstractPayOrderController extends ApiController {
         //是否新订单模式 [  一般接口都为新订单模式，需要先 在DB插入一个新订单， 导致此处需要特殊判断下。 如果已存在则直接更新，否则为插入。  ]
         try {
             String mchNo = bizRQ.getMchNo();
+            //todo 订单先入库？设置固定有效时间
 
-            // 只有新订单进行校验
+            //校验是否当前正在轮询中的订单
+            if (StringUtils.isNotEmpty(RedisUtil.getString(TEMP_ORDER_SUFFIX + mchNo + bizRQ.getMchOrderNo()))) {
+                log.error("{}商户订单[{}]已存在，已入库到redis", ORDER_TAG, bizRQ.getMchOrderNo());
+                throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
+            }
+
+            //是否在数据库中
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo).eq(PayOrder::getMchOrderNo, bizRQ.getMchOrderNo())) > 0) {
                 log.error("{}商户订单[{}]已存在", ORDER_TAG, bizRQ.getMchOrderNo());
                 throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
             }
-            //校验是否当前正在轮询中的订单
-            if (StringUtils.isNotEmpty(RedisUtil.getString(TEMP_ORDER_SUFFIX + mchNo + bizRQ.getMchOrderNo()))) {
-                log.error("{}商户订单[{}]已存在，正在轮询中", ORDER_TAG, bizRQ.getMchOrderNo());
-                throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
-            }
 
             if (StringUtils.isNotEmpty(bizRQ.getNotifyUrl()) && !StringKit.isAvailableUrl(bizRQ.getNotifyUrl())) {
-                log.error("{}异步通知地址协议仅支持http:// 或 https:// !,商户回调地址[{}]", ORDER_TAG, bizRQ.getNotifyUrl());
+                log.error("{}异步通知地址协议仅支持http:// 或 https:// !,商户回调地址[{}] [{}]", ORDER_TAG, bizRQ.getNotifyUrl(), bizRQ.getMchOrderNo());
                 throw new BizException("异步通知地址协议仅支持http:// 或 https:// !");
             }
 
             Product product = configContextQueryService.queryProduct(productId);
             if (product == null) {
+                log.error("{}下单失败[{}]产品不存在 [{}]", ORDER_TAG, bizRQ.getProductId(), bizRQ.getMchOrderNo());
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品不存在");
             }
             if (product.getState() == CS.NO) {
+                log.error("{}下单失败[{}]产品状态不可用 [{}]", ORDER_TAG, bizRQ.getProductId(), bizRQ.getMchOrderNo());
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品状态不可用");
             }
 
@@ -558,5 +562,8 @@ public abstract class AbstractPayOrderController extends ApiController {
         return ApiRes.okWithSign(bizRS, configContextQueryService.queryMchInfo(bizRQ.getMchNo()).getSecret());
     }
 
+    private void saveOrderToRedis(){
+
+    }
 
 }

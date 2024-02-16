@@ -597,6 +597,8 @@ public class CS {
         String YSPAY = "yspay";
 
         String STOREPAY = "storepay";
+
+        String CYOUPAY = "cyoupay";
     }
 
 
