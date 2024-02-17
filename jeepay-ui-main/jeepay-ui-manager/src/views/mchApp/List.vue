@@ -100,7 +100,6 @@
           &nbsp;<b>{{record.successRate}}%</b>
         </template>
         <template slot="configStrSlot" slot-scope="{record}"> <!-- 通道名插槽 -->
-<!--          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>-->
           <a-tooltip placement="bottom" style="font-size: 13px;color: #1E2229" v-if="record.payInterfaceConfig!=undefined && JSON.parse(record.payInterfaceConfig).mchNo.length > 14">
             <template slot="title">
               <span>{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).mchNo:''}}</span>
@@ -110,6 +109,15 @@
           <span style="font-size: 13px;color: #1E2229" v-else>{{ record.payInterfaceConfig!=undefined?JSON.parse(record.payInterfaceConfig).mchNo:'' }}</span>
           <br/>
           <span style="font-size: 13px;color: #1E2229">{{ record.payInterfaceConfig!=undefined && JSON.parse(record.payInterfaceConfig).payType!=undefined?JSON.parse(record.payInterfaceConfig).payType:''}}</span>
+        </template> <!-- 自定义插槽 -->
+        <template slot="payRuleStrSlot" slot-scope="{record}"> <!-- 收款方式插槽 -->
+          <a-tooltip placement="bottom" style="font-size: 13px;color: #1E2229" v-if="record.payRules.length > 14">
+            <template slot="title">
+              <span>{{ record.payRules}}</span>
+            </template>
+            {{ changeStr2ellipsis(record.payRules, 14) }}
+          </a-tooltip>
+          <span style="font-size: 13px;color: #1E2229" v-else>{{ record.payRules }}</span>
         </template> <!-- 自定义插槽 -->
         <template slot="opSlot" slot-scope="{record}">  <!-- 操作列插槽 -->
           <JeepayTableColumns>
@@ -294,13 +302,14 @@ import JeepayTableColState from '@/components/JeepayTable/JeepayTableColState.vu
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
   { key: 'payPassageId', fixed: 'left', width: '240px', title: '通道名称/所属产品', scopedSlots: { customRender: 'payPassageId' } },
-  { key: 'state', title: '状态', width: 100, scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'state', title: '状态', fixed: 'left', width: 100, scopedSlots: { customRender: 'stateSlot' } },
   { key: 'balance', title: '通道余额', width: 180, scopedSlots: { customRender: 'balanceSlot' } },
   { key: 'weightsSlot', title: '轮询权重', width: 100, scopedSlots: { customRender: 'weightsSlot' } },
   { key: 'quotaLimitState', width: 210, title: '通道授信限制', scopedSlots: { customRender: 'quotaLimitStateSlot' } },
   { key: 'timeLimitState', width: 210, title: '通道定时设置', scopedSlots: { customRender: 'timeLimitStateSlot' } },
-  { key: 'rate', title: '通道费率', scopedSlots: { customRender: 'rateSlot' } },
-  { key: 'successRate', title: '成功率(天)', scopedSlots: { customRender: 'successRateSlot' } },
+  { key: 'rate', title: '通道费率', width: 100, scopedSlots: { customRender: 'rateSlot' } },
+  { key: 'successRate', title: '成功率(天)', width: 100, scopedSlots: { customRender: 'successRateSlot' } },
+  { key: 'payRuleStr', width: 120, title: '收款规则', scopedSlots: { customRender: 'payRuleStrSlot' } },
   { key: 'configStr', width: 160, title: '三方用户/通道标识', scopedSlots: { customRender: 'configStrSlot' } },
   { key: 'op', title: '操作', width: '280px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]

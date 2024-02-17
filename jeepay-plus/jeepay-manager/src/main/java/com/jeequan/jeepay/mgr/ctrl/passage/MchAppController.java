@@ -232,22 +232,4 @@ public class MchAppController extends CommonCtrl {
 
         return ApiRes.ok();
     }
-
-    /**
-     * @param payPassageList
-     * @return
-     */
-    private List<PayPassage> sortByName(List<PayPassage> payPassageList) {
-        Comparator<PayPassage> comparator = (item1, item2) -> {
-            String s1 = (item1).getPayPassageName().toString();
-
-            String s2 = (item2).getPayPassageName().toString();
-
-            return Collator.getInstance(Locale.CHINESE).compare(s1, s2);
-        };
-//        List<PayPassage> copy = ListUtils.copy(payPassageList);
-        Collections.sort(payPassageList, comparator);
-        return payPassageList;
-    }
-
 }

@@ -80,7 +80,7 @@
 
     <div class="drawer-btn-center">
       <a-button @click="onClose" icon="close" :style="{ marginRight: '8px' }">取消</a-button>
-      <a-button type="primary" @click="onSubmit" icon="check" >保存</a-button>
+      <a-button type="primary" @click="onSubmit" icon="check" :loading="btnLoading" >保存</a-button>
     </div>
 
   </a-drawer>
@@ -97,6 +97,7 @@ export default {
     return {
       isAdd: true, // 新增 or 修改
       visible: false, // 抽屉开关
+      btnLoading: false,
       passageId: '', // 应用AppId
       saveObject: {}, // 数据对象
       rules: {
@@ -200,6 +201,11 @@ export default {
           const pattern = /^\d+(?:\.\d+)?$/
           if (!pattern.test(this.rate)) {
             that.$message.error('费率格式错误')
+            return
+          }
+          if (that.saveObject.productId === undefined || this.saveObject.productId == null || that.saveObject.productId === '') {
+            that.$message.error('请选择所属产品')
+            return
           }
           this.saveObject.agentRate = this.lastAgentRate / 100
           if (this.saveObject.agentNo == null || this.saveObject.agentNo === undefined) {
@@ -207,12 +213,14 @@ export default {
             this.saveObject.agentRate = 0
           }
           this.saveObject.rate = this.rate / 100
+          that.btnLoading = true
           // 请求接口
           if (that.isAdd) {
             req.add(API_URL_MCH_APP, that.saveObject).then(res => {
               that.$message.success('新增成功')
               that.visible = false
               that.callbackFunc() // 刷新列表
+              that.btnLoading = false
             })
           } else {
             if (that.saveObject.state === 0) {
@@ -222,6 +230,7 @@ export default {
               that.$message.success('修改成功')
               that.visible = false
               that.callbackFunc(true) // 刷新列表
+              that.btnLoading = false
             })
           }
         }
