@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -85,7 +86,7 @@ public class MchAppMultipleController extends CommonCtrl {
     }
 
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
-    @MethodLog(remark = "关闭全部通道")
+    @MethodLog(remark = "启用最近关闭通道")
     @RequestMapping(value = "/openRecently", method = RequestMethod.POST)
     public ApiRes openRecently() {
         try {
@@ -105,6 +106,35 @@ public class MchAppMultipleController extends CommonCtrl {
             RedisUtil.del(RECENTLY_OPEN);
             log.error(e.getMessage(), e);
             return ApiRes.customFail("关闭失败,请联系管理员");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @MethodLog(remark = "批量操作通道")
+    @RequestMapping(value = "/multiple", method = RequestMethod.POST)
+    public ApiRes multiple() {
+        try {
+            JSONObject reqJson = getReqParamJSON();
+
+            Byte state = reqJson.getByte("state");
+            JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
+
+            if (selectedIds == null || selectedIds.isEmpty()) {
+                return ApiRes.customFail("请先选中需要批量操作的通道");
+            }
+
+            List<PayPassage> updatePassageList = new ArrayList<>();
+            for (int i = 0; i < selectedIds.size(); i++) {
+                PayPassage passage = new PayPassage();
+                passage.setPayPassageId(selectedIds.getLongValue(i));
+                passage.setState(state);
+                updatePassageList.add(passage);
+            }
+            payPassageService.saveOrUpdateBatch(updatePassageList);
+            return ApiRes.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ApiRes.customFail("操作失败,请联系管理员");
         }
     }
 

@@ -32,6 +32,7 @@
           <a-button style="margin-left: 8px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="setting" @click="setAutoClean">通道自动日切设置</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="exclamation-circle" @click="setCloseAll">关闭全部通道</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="issues-close" @click="setOpenRecently">打开最近启用通道</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="edit" @click="setMultiplePassage">批量操作通道</a-button>
         </div>
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
@@ -60,6 +61,7 @@
         :tableColumns="tableColumns"
         :searchData="searchData"
         :pageSize="50"
+        :rowSelection="rowSelection"
         rowKey="payPassageId"
       >
         <template slot="payPassageId" slot-scope="{record}"> <!-- 通道名插槽 -->
@@ -250,6 +252,23 @@
       </a-modal>
     </template>
     <template>
+      <a-modal v-model="isShowMultipleModal" title="批量操作通道" @ok="handleMultiplePassageOkFunc">
+        <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
+          <b style="color: rgb(128,128,128);font-size: 13px">批量操作已选择的通道</b><br/><br/>
+          <a-form-model-item label="通道操作：">
+            <a-radio-group v-model="multipleState">
+              <a-radio :value="1">
+                启用
+              </a-radio>
+              <a-radio :value="0">
+                禁用
+              </a-radio>
+            </a-radio-group>
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
+    <template>
       <a-modal v-model="isShowSetAutoCleanModal" title="设置通道自动日切清零" @ok="handleSetAutoCleanOkFunc">
         <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
           <b style="color: rgb(128,128,128)">开启后每天北京时间 00:00 自动清空所有通道余额</b><br/><br/>
@@ -298,6 +317,7 @@ import PassageMchBlindEdit from '@/views/mchApp/PassageMchBlindEdit.vue'
 import moment from 'moment'
 import PassagePayTest from '@/views/mchApp/PassagePayTest.vue'
 import JeepayTableColState from '@/components/JeepayTable/JeepayTableColState.vue'
+import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -332,6 +352,7 @@ export default {
       isShowSetAutoCleanModal: false, // 自动日切
       isShowCloseAllModal: false, // 关闭全部
       isShowOpenRecentlyModal: false, // 最近启用
+      isShowMultipleModal: false, // 批量操作通道
       newPassageName: '', // 新通道名称
       copiedPassage: {}, // 复制的通道obj
       selectPayPassage: {}, // 当前选择通道
@@ -348,6 +369,7 @@ export default {
       limitTimeStart: '',
       limitTimeEnd: '',
       autoCleanEnable: 0, // 零点自动清零是否打开
+      multipleState: 0, // 零点自动清零是否打开
       totalPassageInfo: {
         passageNum: 0,
         totalBalance: 0
@@ -360,7 +382,9 @@ export default {
           { required: true, message: '请输入调整金额', trigger: 'blur' }
         ]
       },
-      stateLoading: false
+      stateLoading: false,
+      selectedIds: [],
+      selectedRowKeys: [] // 批量选中的key
     }
   },
   mounted () {
@@ -371,11 +395,27 @@ export default {
     })
     this.getPassageStatInfo()
   },
+  computed: {
+    rowSelection () {
+      const that = this
+      return {
+        selectedRowKeys: that.selectedRowKeys,
+        onChange: (selectedRowKeys, selectedRows) => {
+          that.selectedRowKeys = selectedRowKeys
+          that.selectedIds = [] // 清空选中数组
+          selectedRows.forEach(function (data) { // 赋值选中参数
+            that.selectedIds.push(data.payPassageId)
+          })
+        }
+      }
+    }
+  },
   methods: {
     queryFunc () {
       const that = this
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
+      this.selectedIds = []
       req.postDataNormal('/api/passageRealTimeStat', '', that.searchData).then(res => { // 产品下拉列表
         that.totalPassageInfo = res
       })
@@ -565,6 +605,13 @@ export default {
     setOpenRecently: function () { // 打开最近启用
       this.isShowOpenRecentlyModal = true
     },
+    setMultiplePassage: function () { // 批量操作通道
+      if (this.selectedIds.length === 0) {
+        message.error('请先选择要批量操作的通道')
+        return
+      }
+      this.isShowMultipleModal = true
+    },
     setAutoClean: function () { // 自动清零
       this.isShowSetAutoCleanModal = true
       this.setAutoCleanGoogleCode = ''
@@ -615,6 +662,20 @@ export default {
       req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'openRecently/', '').then(res => {
         this.$refs.infoTable.refTable()
         this.$message.success('恢复最近关闭通道状态成功')
+      })
+    },
+    handleMultiplePassageOkFunc: function () {
+      this.isShowMultipleModal = false // multipleState
+      const that = this
+      const params = { }
+      params.state = this.multipleState
+      params.selectedIds = this.selectedIds
+      req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'multiple/', params).then(res => {
+        that.$refs.infoTable.refTable()
+        that.$message.success('操作成功')
+        that.selectedIds = []
+        that.selectedRowKeys = []
+        that.multipleState = 0
       })
     },
     getPassageStatInfo: function () {
