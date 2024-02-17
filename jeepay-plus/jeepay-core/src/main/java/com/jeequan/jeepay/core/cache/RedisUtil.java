@@ -225,11 +225,12 @@ public class RedisUtil {
 
     /**
      * 从缓存集合中中获取
+     *
      * @param collectionKey
      * @param key
      * @param cls
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> T getObjectWithExpiration(String collectionKey, String key, Class<T> cls) {
         HashOperations<String, String, Object> hashOperations = getStringRedisTemplate().opsForHash();
@@ -248,12 +249,37 @@ public class RedisUtil {
     /**
      * 删除哈希表中的数据
      *
-     * @param hashKey 集合名
+     * @param hashKey  集合名
      * @param fieldKey 字段名
      */
     public static void deleteFromHash(String hashKey, String fieldKey) {
         HashOperations<String, String, Object> hashOps = getStringRedisTemplate().opsForHash();
         hashOps.delete(hashKey, fieldKey);
+    }
+
+
+    private static final String TEMP_ORDER_SUFFIX = "pollingOrder_";
+
+    /**
+     * redis 锁,防止重复下单
+     * @param mchNo
+     * @param mchOrderNo
+     * @return
+     */
+    public static boolean tryLockOrder(String mchNo, String mchOrderNo) {
+        String key = TEMP_ORDER_SUFFIX + mchNo + mchOrderNo;
+        Boolean success = getStringRedisTemplate().opsForValue().setIfAbsent(key, "locked", 60, TimeUnit.SECONDS);
+        return Boolean.TRUE.equals(success);
+    }
+
+    /**
+     *
+     * @param mchNo
+     * @param mchOrderNo
+     */
+    public static void unlockOrder(String mchNo, String mchOrderNo) {
+        String key = TEMP_ORDER_SUFFIX + mchNo + mchOrderNo;
+        getStringRedisTemplate().delete(key);
     }
 
 }
