@@ -409,9 +409,9 @@ const tableColumns = [
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 100 },
+  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 150 },
   { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 200 },
-  { key: 'op', title: '操作', width: 250, align: 'center', scopedSlots: { customRender: 'opSlot' } }
+  { key: 'op', title: '操作', width: 250, align: 'center', fixed: 'right', scopedSlots: { customRender: 'opSlot' } }
 ]
 
 export default {

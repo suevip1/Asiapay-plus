@@ -97,7 +97,7 @@
           &nbsp;<span style="color: #1E2229">{{record.timeLimit === 1?record.timeRules : ''}}</span>
         </template>
         <template slot="successRateSlot" slot-scope="{record}">
-          &nbsp;<span style="color: #1E2229">{{record.successRate}}%</span>
+          &nbsp;<b>{{record.successRate}}%</b>
         </template>
         <template slot="configStrSlot" slot-scope="{record}"> <!-- 通道名插槽 -->
 <!--          <span style="font-size: 13px;color: #1E2229">{{ JSON.parse(record.payInterfaceConfig).mchNo }}</span>-->

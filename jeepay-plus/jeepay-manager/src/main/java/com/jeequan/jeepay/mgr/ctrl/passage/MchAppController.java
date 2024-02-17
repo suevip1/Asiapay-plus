@@ -145,6 +145,8 @@ public class MchAppController extends CommonCtrl {
     @PostMapping
     public ApiRes add() {
         PayPassage payPassage = getObject(PayPassage.class);
+        String passageName = payPassage.getPayPassageName().replaceAll(" ", "");
+        payPassage.setPayPassageName(passageName);
         PayPassage resultPassage = payPassageService.getOne(PayPassage.gw().eq(PayPassage::getPayPassageName, payPassage.getPayPassageName()));
         if (resultPassage != null && StringUtils.isNotEmpty(resultPassage.getPayPassageName())) {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_REPEAT);
@@ -185,6 +187,8 @@ public class MchAppController extends CommonCtrl {
     public ApiRes update(@PathVariable("payPassageId") Long payPassageId) {
 
         PayPassage payPassage = getObject(PayPassage.class);
+        String passageName = payPassage.getPayPassageName().replaceAll(" ", "");
+        payPassage.setPayPassageName(passageName);
         payPassage.setPayPassageId(payPassageId);
         payPassage.setUpdatedAt(new Date());
         //去掉一些配置的空格

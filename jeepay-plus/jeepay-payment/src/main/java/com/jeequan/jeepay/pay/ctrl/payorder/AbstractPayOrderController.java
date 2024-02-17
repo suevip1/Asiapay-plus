@@ -93,7 +93,6 @@ public abstract class AbstractPayOrderController extends ApiController {
         //是否新订单模式 [  一般接口都为新订单模式，需要先 在DB插入一个新订单， 导致此处需要特殊判断下。 如果已存在则直接更新，否则为插入。  ]
         try {
             String mchNo = bizRQ.getMchNo();
-            //todo 只能每个商户单开一个订单队列处理，强制先后顺序
 
             //校验是否当前正在轮询中的订单
             if (!RedisUtil.tryLockOrder(mchNo, bizRQ.getMchOrderNo())) {
