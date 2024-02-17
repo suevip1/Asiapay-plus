@@ -83,9 +83,7 @@ public abstract class CommonCtrl extends AbstractCtrl {
      */
     protected void writeExcelStream(List<List> data) throws IOException {
         try {
-            if (data.size() > 65535) {
-                throw new BizException("导出最大数据不能超过65535行！");
-            }
+
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-Disposition", "attachment; filename=excel_file.xlsx");
 

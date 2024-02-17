@@ -117,51 +117,47 @@ public class AgentHistoryController extends CommonCtrl {
 
         List<AgentAccountHistory> pages = agentAccountHistoryService.list(wrapper);
 
-        int count = pages.size();
-        if (count > 65535) {
-            throw new BizException("导出最大数据不能超过65535行！");
-        } else {
-            List<List> excelData = new ArrayList();
-            List<String> header = Arrays.asList("记录ID", "代理商户号", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "订单金额", "时间");
-            excelData.add(header);
-            Iterator iteratorRecord = pages.iterator();
+        List<List> excelData = new ArrayList();
+        List<String> header = Arrays.asList("记录ID", "代理商户号", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "订单金额", "时间");
+        excelData.add(header);
+        Iterator iteratorRecord = pages.iterator();
 
-            while (iteratorRecord.hasNext()) {
-                AgentAccountHistory record = (AgentAccountHistory) iteratorRecord.next();
-                List<String> rowData = new ArrayList();
-                //id
-                rowData.add(String.valueOf(record.getAgentAccountHistoryId()));
+        while (iteratorRecord.hasNext()) {
+            AgentAccountHistory record = (AgentAccountHistory) iteratorRecord.next();
+            List<String> rowData = new ArrayList();
+            //id
+            rowData.add(String.valueOf(record.getAgentAccountHistoryId()));
 
-                rowData.add(record.getAgentNo());
-                //变更前余额
-                rowData.add(AmountUtil.convertCent2Dollar(record.getBeforeBalance() + ""));
-                //变更金额
-                String prefix = record.getFundDirection() == CS.FUND_DIRECTION_INCREASE ? "+" : "";
-                rowData.add(prefix + AmountUtil.convertCent2Dollar(record.getAmount() + ""));
-                //变更后余额
-                rowData.add(AmountUtil.convertCent2Dollar(record.getAfterBalance() + ""));
-                //业务类型
-                if (record.getBizType() == CS.BIZ_TYPE_CHANGE) {
-                    rowData.add(CS.GetAgentBizTypeString(record.getBizType()) + "-(操作员用户名)-" + record.getCreatedLoginName());
-                } else {
-                    rowData.add(CS.GetAgentBizTypeString(record.getBizType()));
-                }
-
-                //业务订单号
-                rowData.add(record.getPayOrderId());
-                //订单金额
-                if (record.getPayOrderAmount() != null) {
-                    rowData.add(AmountUtil.convertCent2Dollar(record.getPayOrderAmount() + ""));
-                } else {
-                    rowData.add("");
-                }
-
-                //时间
-                rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
-                excelData.add(rowData);
+            rowData.add(record.getAgentNo());
+            //变更前余额
+            rowData.add(AmountUtil.convertCent2Dollar(record.getBeforeBalance() + ""));
+            //变更金额
+            String prefix = record.getFundDirection() == CS.FUND_DIRECTION_INCREASE ? "+" : "";
+            rowData.add(prefix + AmountUtil.convertCent2Dollar(record.getAmount() + ""));
+            //变更后余额
+            rowData.add(AmountUtil.convertCent2Dollar(record.getAfterBalance() + ""));
+            //业务类型
+            if (record.getBizType() == CS.BIZ_TYPE_CHANGE) {
+                rowData.add(CS.GetAgentBizTypeString(record.getBizType()) + "-(操作员用户名)-" + record.getCreatedLoginName());
+            } else {
+                rowData.add(CS.GetAgentBizTypeString(record.getBizType()));
             }
 
-            this.writeExcelStream(excelData);
+            //业务订单号
+            rowData.add(record.getPayOrderId());
+            //订单金额
+            if (record.getPayOrderAmount() != null) {
+                rowData.add(AmountUtil.convertCent2Dollar(record.getPayOrderAmount() + ""));
+            } else {
+                rowData.add("");
+            }
+
+            //时间
+            rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
+            excelData.add(rowData);
         }
+
+        this.writeExcelStream(excelData);
     }
+
 }

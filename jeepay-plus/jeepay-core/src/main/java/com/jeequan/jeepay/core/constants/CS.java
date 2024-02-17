@@ -125,6 +125,15 @@ public class CS {
      */
     public static final byte BIZ_TYPE_REDO = 6;
 
+
+//    <a-select-option value="0">全部</a-select-option>
+//<a-select-option value="4">订单</a-select-option>
+//<a-select-option value="5">调账</a-select-option>
+//<a-select-option value="6">自动日切</a-select-option>
+    public static final byte BIZ_PASSAGE_TYPE_ORDER = 4;
+    public static final byte BIZ_PASSAGE_TYPE_CHANGE = 5;
+    public static final byte BIZ_PASSAGE_TYPE_AUTO_CLEAN = 6;
+
     public static final byte CHANGE_BALANCE_TYPE_ORDER = 1;
 
     public static final byte CHANGE_BALANCE_TYPE_MANUAL = 2;
@@ -166,6 +175,18 @@ public class CS {
                 return "驳回解冻";
             case BIZ_TYPE_REDO:
                 return "测试冲正";
+        }
+        return "";
+    }
+
+    public static String GetPassageBizTypeString(byte type) {
+        switch (type) {
+            case BIZ_PASSAGE_TYPE_ORDER:
+                return "订单";
+            case BIZ_PASSAGE_TYPE_AUTO_CLEAN:
+                return "自动日切";
+            case BIZ_PASSAGE_TYPE_CHANGE:
+                return "调账";
         }
         return "";
     }

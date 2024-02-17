@@ -62,9 +62,9 @@ public abstract class CommonCtrl extends AbstractCtrl {
      */
     protected void writeExcelStream(List<List> data) throws IOException {
         try {
-            if (data.size() > 65535) {
-                throw new BizException("导出最大数据不能超过65535行！");
-            }
+//            if (data.size() > 65535) {
+//                throw new BizException("导出最大数据不能超过65535行！");
+//            }
 //            this.response.setHeader("Content-disposition", "attachment;filename=" + new String((fileName + ".xlsx").getBytes("gb2312"), "ISO8859-1"));
 //            this.response.setContentType("APPLICATION/OCTET-STREAM;charset=UTF-8");
 

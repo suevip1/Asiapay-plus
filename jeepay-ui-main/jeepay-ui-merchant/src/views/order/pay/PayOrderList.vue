@@ -344,6 +344,7 @@ export default {
       return orderNo.substring(0, halfLengh - 1) + '...' + orderNo.substring(orderNo.length - halfLengh, orderNo.length)
     },
     exportExcel: function () { // todo 这里返回的结果没有嵌入到通用返回格式中
+      this.$message.success('操作成功！请误操作页面，完成后将自动开启下载请耐心等待')
       exportExcel('/api/payOrderExport/exportMchExcel', this.searchData).then(res => {
         const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件

@@ -9,6 +9,7 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.service.impl.PayOrderService;
 import com.jeequan.jeepay.service.impl.PayPassageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @site https://www.jeequan.com
  * @date 2021-04-27 15:50
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/payOrder")
 public class MchPayOrderController extends CommonCtrl {
@@ -40,13 +42,16 @@ public class MchPayOrderController extends CommonCtrl {
     @GetMapping
     public ApiRes list() {
         try {
-            PayOrder payOrder = getObject(PayOrder.class);
 
+            PayOrder payOrder = getObject(PayOrder.class);
             JSONObject paramJSON = getReqParamJSON();
             LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
-            wrapper.eq(PayOrder::getAgentNo, getCurrentAgentNo());
+
+            payOrder.setAgentNo(getCurrentAgentNo());
             wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getForceChangeState, PayOrder::getForceChangeBeforeState, PayOrder::getForceChangeLoginName, PayOrder::getMchFeeAmount, PayOrder::getMchFeeRate, PayOrder::getMchOrderNo);
+
             IPage<PayOrder> pages = payOrderService.listByPage(getIPage(), payOrder, paramJSON, wrapper);
+
             return ApiRes.page(pages);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

@@ -32,9 +32,6 @@ public class MchRealTimeInfoController extends CommonCtrl {
     @Autowired
     private MchInfoService mchInfoService;
 
-    @Autowired
-    private AgentAccountInfoService agentAccountInfoService;
-
     @PostMapping(value = "/exportExcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void exportExcel() throws Exception {
         MchInfo mchInfo = getObject(MchInfo.class);
@@ -57,31 +54,25 @@ public class MchRealTimeInfoController extends CommonCtrl {
 
         List<MchInfo> records = mchInfoService.list(wrapper);
 
-        int count = records.size();
-        if (count > 65535) {
-            throw new BizException("导出最大数据不能超过65535行！");
-        } else {
-            List<List> excelData = new ArrayList();
-            List<String> header = Arrays.asList("商户号", "商户名", "余额(元)", "创建时间");
-            excelData.add(header);
-            Iterator iteratorRecord = records.iterator();
+        List<List> excelData = new ArrayList();
+        List<String> header = Arrays.asList("商户号", "商户名", "余额(元)", "创建时间");
+        excelData.add(header);
+        Iterator iteratorRecord = records.iterator();
 
-            while (iteratorRecord.hasNext()) {
-                MchInfo record = (MchInfo) iteratorRecord.next();
-                List<String> rowData = new ArrayList();
+        while (iteratorRecord.hasNext()) {
+            MchInfo record = (MchInfo) iteratorRecord.next();
+            List<String> rowData = new ArrayList();
 
-                //商户号
-                rowData.add(String.valueOf(record.getMchNo()));
-                //商户名
-                rowData.add(String.valueOf(record.getMchName()));
-                //余额
-                rowData.add(AmountUtil.convertCent2Dollar(record.getBalance() + ""));
-                //时间
-                rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
-                excelData.add(rowData);
-            }
-
-            this.writeExcelStream(excelData);
+            //商户号
+            rowData.add(String.valueOf(record.getMchNo()));
+            //商户名
+            rowData.add(String.valueOf(record.getMchName()));
+            //余额
+            rowData.add(AmountUtil.convertCent2Dollar(record.getBalance() + ""));
+            //时间
+            rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
+            excelData.add(rowData);
         }
+        this.writeExcelStream(excelData);
     }
 }

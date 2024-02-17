@@ -42,7 +42,7 @@ public class PayPassagePayOrderController extends CommonCtrl {
             LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
 
-            wrapper.eq(PayOrder::getAgentNoPassage, getCurrentAgentNo());
+            payOrder.setAgentNoPassage(getCurrentAgentNo());
 
             wrapper.select(PayOrder::getPayOrderId, PayOrder::getAmount, PayOrder::getState, PayOrder::getNotifyState, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getCreatedAt, PayOrder::getUpdatedAt, PayOrder::getSuccessTime, PayOrder::getClientIp, PayOrder::getNotifyUrl, PayOrder::getAgentPassageRate, PayOrder::getAgentPassageFee, PayOrder::getPassageId, PayOrder::getPassageOrderNo);
             IPage<PayOrder> pages = payOrderService.listByPage(getIPage(), payOrder, paramJSON, wrapper);

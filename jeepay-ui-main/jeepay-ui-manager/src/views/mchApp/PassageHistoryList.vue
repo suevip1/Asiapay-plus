@@ -37,6 +37,7 @@
             <span class="table-page-search-submitButtons">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="resetSearch">重置</a-button>
+              <a-button type="danger" style="margin-left: 8px" icon="download" @click="exportExcel">导出</a-button>
             </span>
           </div>
         </a-form>
@@ -93,8 +94,9 @@
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
-import { API_URL_MCH_APP_HISTORY_LIST, req } from '@/api/manage'
+import { API_URL_MCH_APP_HISTORY_LIST, req, exportExcel } from '@/api/manage'
 import moment from 'moment'
+import { saveAs } from 'file-saver'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -174,6 +176,18 @@ export default {
     },
     detailFunc: function (record) {
       this.detailData = record
+    },
+    exportExcel: function () { // todo 这里返回的结果没有嵌入到通用返回格式中
+      this.$message.success('操作成功！请误操作页面，完成后将自动开启下载请耐心等待')
+      exportExcel('/api/passageHistory/exportExcel', this.searchData).then(res => {
+        const blob = new Blob([res], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件
+        saveAs(blob, moment().format('YYYY-MM-DD') + '-通道资金流水.xlsx')
+      }).catch((resErr) => {
+        const blob = new Blob([resErr], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        // 使用 FileSaver.js 的 saveAs 方法将 Blob 对象保存为文件
+        saveAs(blob, moment().format('YYYY-MM-DD') + '-通道资金流水.xlsx')
+      })
     }
   }
 }
