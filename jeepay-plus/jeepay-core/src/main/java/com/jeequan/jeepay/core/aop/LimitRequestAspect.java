@@ -42,8 +42,8 @@ public class LimitRequestAspect {
 
 
         if (uCount >= limitRequest.count()) { // 超过次数，不执行目标方法
-//            return ApiRes.customFail("请求次数过多，已经限制," + limitRequest.time() + "毫秒内超过" + uCount + "次！");
-            return ApiRes.ok();
+            return ApiRes.customFail("请求次数过多，已经限制," + limitRequest.time() + "毫秒内超过" + uCount + "次！");
+//            return ApiRes.ok();
         } else if (uCount == 0) { // 第一次请求时，设置有效时间
             uc.put(request.getRemoteAddr(), uCount + 1, ExpirationPolicy.CREATED, limitRequest.time(), TimeUnit.MILLISECONDS);
         } else { // 未超过次数， 记录加一

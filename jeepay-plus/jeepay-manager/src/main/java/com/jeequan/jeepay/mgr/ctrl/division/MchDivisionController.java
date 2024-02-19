@@ -3,6 +3,7 @@ package com.jeequan.jeepay.mgr.ctrl.division;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -68,6 +69,7 @@ public class MchDivisionController extends CommonCtrl {
 
     @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
     @RequestMapping(value = "/reviewOk/{recordId}", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes reviewOk(@PathVariable("recordId") Long recordId) {
         JSONObject jsonObject = getReqParamJSON();
         DivisionRecord divisionRecord = divisionRecordService.getById(recordId);
@@ -120,6 +122,7 @@ public class MchDivisionController extends CommonCtrl {
      */
     @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
     @RequestMapping(value = "/reviewRefuse/{recordId}", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes reviewRefuse(@PathVariable("recordId") Long recordId) {
         JSONObject jsonObject = getReqParamJSON();
         DivisionRecord divisionRecord = divisionRecordService.getById(recordId);

@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.mgr.ctrl.agent;
 
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.AgentAccountHistory;
@@ -39,6 +40,7 @@ public class AgentBalanceController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_ISV_INFO_EDIT')")
     @MethodLog(remark = "代理余额调整")
     @RequestMapping(value = "/{agentNo}", method = RequestMethod.PUT)
+    @LimitRequest
     public ApiRes update(@PathVariable("agentNo") String agentNo) {
 
         String changeAmount = getValString("changeAmount");

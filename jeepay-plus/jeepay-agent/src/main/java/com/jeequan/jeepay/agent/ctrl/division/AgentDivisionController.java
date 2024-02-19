@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.agent.ctrl.CommonCtrl;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -77,6 +78,7 @@ public class AgentDivisionController extends CommonCtrl {
      */
     @MethodLog(remark = "代理结算申请")
     @RequestMapping(value = "", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes add() {
         //todo 检测提现限额
         DivisionRecord divisionRecord = getObject(DivisionRecord.class);

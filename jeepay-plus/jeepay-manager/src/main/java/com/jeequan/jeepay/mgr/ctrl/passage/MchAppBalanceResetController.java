@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.mgr.ctrl.passage;
 
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PassageTransactionHistory;
@@ -39,6 +40,7 @@ public class MchAppBalanceResetController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @MethodLog(remark = "通道余额一键清零")
     @RequestMapping(value = "/resetAll", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes resetAll() {
         //校验谷歌
         String googleCodeStr = getValString("googleCode");

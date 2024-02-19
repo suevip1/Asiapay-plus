@@ -4,6 +4,7 @@ package com.jeequan.jeepay.mgr.ctrl.merchant;
 import cn.hutool.core.codec.Base64;
 import com.jeequan.jeepay.components.mq.model.CleanMchLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.model.ResetIsvMchAppInfoConfigMQ;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -38,6 +39,7 @@ public class MchBalanceController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_EDIT')")
     @MethodLog(remark = "商户余额调整")
     @RequestMapping(value = "/{mchNo}", method = RequestMethod.PUT)
+    @LimitRequest
     public ApiRes update(@PathVariable("mchNo") String mchNo) {
         String changeAmount = getValString("changeAmount");
         String changeRemark = getValString("changeRemark");
