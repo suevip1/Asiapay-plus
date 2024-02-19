@@ -116,12 +116,12 @@ public class FushengPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "4ln7swr6kxvhikszrpg8uw37429n5ohxd";
+        String key = "6ljo55sp7m7aabzpivfvgd34wfo6gv46";
 
-        String pay_memberid = "240165418";
+        String pay_memberid = "230857176";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
-        String pay_bankcode = "800";
+        String pay_bankcode = "115";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
         String pay_amount = AmountUtil.convertCent2Dollar(20000L);
@@ -138,7 +138,7 @@ public class FushengPaymentService extends AbstractPaymentService {
         map.put("pay_md5sign", sign);
         map.put("pay_productname", "下单");
 
-        String payGateway = "https://www.hs168.gay/Pay_Index.html";
+        String payGateway = "https://bobypay.rongyy.com/Pay_index.html";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

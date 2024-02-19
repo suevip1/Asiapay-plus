@@ -221,6 +221,8 @@ export default {
               that.visible = false
               that.callbackFunc() // 刷新列表
               that.btnLoading = false
+            }).catch(res => {
+              that.btnLoading = false
             })
           } else {
             if (that.saveObject.state === 0) {
@@ -230,6 +232,8 @@ export default {
               that.$message.success('修改成功')
               that.visible = false
               that.callbackFunc(true) // 刷新列表
+              that.btnLoading = false
+            }).catch(res => {
               that.btnLoading = false
             })
           }

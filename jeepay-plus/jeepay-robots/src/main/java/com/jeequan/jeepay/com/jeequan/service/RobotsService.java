@@ -9,6 +9,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jeequan.jeepay.components.mq.model.RobotListenPayOrderSuccessMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnPassage;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
@@ -58,7 +60,7 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Component
-public class RobotsService extends TelegramLongPollingBot implements RobotListenPayOrderSuccessMQ.IMQReceiver {
+public class RobotsService extends TelegramLongPollingBot implements RobotListenPayOrderSuccessMQ.IMQReceiver, RobotWarnMQ.IMQReceiver {
 
     private static final String LOG_TAG = "ROBOTS_ERROR";
 
@@ -2143,6 +2145,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             stringBuffer.append("订单号：[ " + payOrder.getPayOrderId() + " ]--通道:<b>[" + payOrder.getPassageId() + "] " + payPassageMap.get(payOrder.getPassageId()).getPayPassageName() + "</b>" + System.lineSeparator());
                         }
                         stringBuffer.append("过去一分钟异常订单数为[ <b>" + count + "</b> ]条，触发预警请检查❗" + System.lineSeparator());
+                        stringBuffer.append("（如需关闭此预警，请到四方后台调整[系统管理]-[机器人配置]-[异常订单预警]）" + System.lineSeparator());
                         sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
                     }
                 }
@@ -2366,6 +2369,42 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         robotsMchRecordsService.ClearRecord(offsetDate, 500);
     }
 
+    /**
+     * 异常通道检测
+     */
+    @Scheduled(fixedRate = 60000) // 每60秒执行一次
+    public void checkErrorPassage() {
+
+        int errorOrderWarnCount = Integer.parseInt(sysConfigService.getRobotsConfig().getErrorOrderWarnConfig().trim());
+
+        //异常通道检测-同异常订单(0关闭，1打开)
+        if (errorOrderWarnCount <= 0) {
+            return;
+        }
+
+        Map<Long, Integer> errorInfoMap = RedisUtil.checkAndCleanPassageErrorInfo(errorOrderWarnCount);
+        if (!errorInfoMap.isEmpty()) {
+            RobotsMch robotsMch = robotsMchService.getManageMch();
+            if (robotsMch != null) {
+                Date nowTime = new Date();
+
+                StringBuffer stringBuffer = new StringBuffer();
+                stringBuffer.append("<b>通道异常报警❗</b>" + System.lineSeparator());
+                stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
+                stringBuffer.append("过去一分钟拉起通道失败次数过多" + System.lineSeparator());
+                Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
+                for (Map.Entry<Long, Integer> entry : errorInfoMap.entrySet()) {
+                    Long passageId = entry.getKey();
+                    //发预警消息
+                    stringBuffer.append("通道：[<b>" + passageId + "</b>] <b>" + payPassageMap.get(passageId).getPayPassageName() + "</b> 拉起失败次数: " + entry.getValue() + System.lineSeparator());
+                }
+                stringBuffer.append("请及时调整通道!" + System.lineSeparator());
+                stringBuffer.append("（如需关闭此预警，请到四方后台调整[系统管理]-[机器人配置]-[异常订单预警]）" + System.lineSeparator());
+                sendSingleMessage(robotsMch.getChatId(), stringBuffer.toString());
+            }
+        }
+    }
+
     @Override
     public void receive(RobotListenPayOrderSuccessMQ.MsgPayload payload) {
         try {
@@ -2383,6 +2422,24 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             }
 
 
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void receive(RobotWarnMQ.MsgPayload robotWarn) {
+        try {
+            Byte warnType = robotWarn.getWarnType();
+            if (warnType == CS.ROBOT_WARN_TYPE.PASSAGE_ERROR) {
+                RobotWarnPassage robotWarnPassage = JSONObject.parseObject(robotWarn.getData(), RobotWarnPassage.class);
+                if (robotWarnPassage != null) {
+                    //异常信息存入redis
+                    RedisUtil.savePassageErrorInfo(robotWarnPassage.getPassageId(), robotWarnPassage.getTimestamp());
+                } else {
+                    log.error("转换 RobotWarnPassage 为空，检查代码");
+                }
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }

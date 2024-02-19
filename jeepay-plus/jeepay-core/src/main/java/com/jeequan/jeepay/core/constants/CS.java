@@ -87,6 +87,8 @@ public class CS {
      */
     public static final String REAL_TIME_SUCCESS_STAT = "Real_time_success_stat";
 
+    public static final String ERROR_PASSAGE = "ERROR_PASSAGE";
+
     /**
      * 资金变动方向 加
      */
@@ -126,7 +128,7 @@ public class CS {
     public static final byte BIZ_TYPE_REDO = 6;
 
 
-//    <a-select-option value="0">全部</a-select-option>
+    //    <a-select-option value="0">全部</a-select-option>
 //<a-select-option value="4">订单</a-select-option>
 //<a-select-option value="5">调账</a-select-option>
 //<a-select-option value="6">自动日切</a-select-option>
@@ -308,6 +310,10 @@ public class CS {
         String MENU_OTHER = "MO";  //其他菜单
         String PAGE_OR_BTN = "PB";  //页面 or 按钮
 
+    }
+
+    public interface ROBOT_WARN_TYPE {
+        Byte PASSAGE_ERROR = 1;  //通道异常
     }
 
     //接口类型
@@ -620,8 +626,9 @@ public class CS {
         String STOREPAY = "storepay";
 
         String CYOUPAY = "cyoupay";
-    }
 
+        String CPPAY = "cppay";
+    }
 
 
     //支付方式代码

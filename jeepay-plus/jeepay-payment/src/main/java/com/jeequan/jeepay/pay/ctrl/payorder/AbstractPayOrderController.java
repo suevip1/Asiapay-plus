@@ -18,6 +18,8 @@ package com.jeequan.jeepay.pay.ctrl.payorder;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.components.mq.model.PayOrderReissueMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnPassage;
 import com.jeequan.jeepay.components.mq.model.StatisticsOrderMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
 import com.jeequan.jeepay.core.cache.RedisUtil;
@@ -171,8 +173,14 @@ public abstract class AbstractPayOrderController extends ApiController {
                         //判断是否最后一条通道,如果是则订单入库,并返回出码失败
                         //逻辑是取出后马上移除,所以此处判断0
                         orderState = PayOrder.STATE_ERROR;
+                        //mq发送到robots
+                        RobotWarnPassage robotWarnPassage = new RobotWarnPassage();
+                        robotWarnPassage.setPassageId(payConfigCopy.getPayPassage().getPayPassageId());
+                        robotWarnPassage.setTimestamp(System.currentTimeMillis());
+                        mqSender.send(RobotWarnMQ.build(CS.ROBOT_WARN_TYPE.PASSAGE_ERROR, JSONObject.toJSONString(robotWarnPassage)));
+
                         log.info("{}-[{}]通道[{}]{} 出码失败，第【{}】次下单", payOrder.getPayOrderId(), payOrder.getIfCode(), payConfigCopy.getPayPassage().getPayPassageId(), payConfigCopy.getPayPassage().getPayPassageName(), pollingTime);
-                        if (payConfigList.size() != 0) {
+                        if (!payConfigList.isEmpty()) {
                             continue;
                         }
                         break;

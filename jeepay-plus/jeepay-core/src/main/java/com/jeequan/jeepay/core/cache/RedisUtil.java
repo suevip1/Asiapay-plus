@@ -15,16 +15,22 @@
  */
 package com.jeequan.jeepay.core.cache;
 
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.jeequan.jeepay.core.constants.CS;
+import com.jeequan.jeepay.core.entity.PayOrder;
+import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.utils.SpringBeansUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -34,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * @site https://www.jeequan.com
  * @date 2021/5/24 17:58
  */
+@Slf4j
 public class RedisUtil {
 
     private static StringRedisTemplate stringRedisTemplate = null;
@@ -262,6 +269,7 @@ public class RedisUtil {
 
     /**
      * redis 锁,防止重复下单
+     *
      * @param mchNo
      * @param mchOrderNo
      * @return
@@ -273,7 +281,6 @@ public class RedisUtil {
     }
 
     /**
-     *
      * @param mchNo
      * @param mchOrderNo
      */
@@ -282,4 +289,70 @@ public class RedisUtil {
         getStringRedisTemplate().delete(key);
     }
 
+    /**
+     * 存入异常通道信息
+     *
+     * @param passageId
+     * @param timestamp
+     */
+    public static void savePassageErrorInfo(Long passageId, Long timestamp) {
+        HashOperations<String, String, Object> hashOperations = getStringRedisTemplate().opsForHash();
+        //判断 对应的 List<Long> 是否存在
+        Object tempObj = hashOperations.get(CS.ERROR_PASSAGE, passageId.toString());
+
+        JSONArray tempList = null;
+        if (tempObj == null) {
+            tempList = new JSONArray();
+        } else {
+            tempList = JSONArray.parseArray(tempObj.toString());
+        }
+        tempList.add(timestamp);
+
+        hashOperations.put(CS.ERROR_PASSAGE, passageId.toString(), tempList.toString());
+    }
+
+    /**
+     * +
+     * 检查并清除数据
+     *
+     * @param trigger
+     * @return
+     */
+    public static Map<Long, Integer> checkAndCleanPassageErrorInfo(int trigger) {
+        Map<String, Object> errorInfoMap = retrieveCollection(CS.ERROR_PASSAGE);
+        long now = System.currentTimeMillis(); // 当前时间的毫秒级时间戳
+        HashOperations<String, String, Object> hashOperations = getStringRedisTemplate().opsForHash();
+
+        Map<Long, Integer> resultIds = new HashMap<>();
+
+        if (!errorInfoMap.isEmpty()) {
+            for (Map.Entry<String, Object> entry : errorInfoMap.entrySet()) {
+                JSONArray jsonArray = JSONArray.parseArray(entry.getValue().toString());
+                //移除超过一分钟的数据
+                for (int i = 0; i < jsonArray.size(); ) {
+                    long timestamp = jsonArray.getLong(i); // 获取数组中的时间戳
+                    if (now - timestamp > 60000) { // 检查时间差距是否大于一分钟（60000毫秒）
+                        jsonArray.remove(i); // 移除时间戳
+                        // 注意：不增加索引i，因为移除操作会导致后面的元素前移
+                    } else {
+                        i++; // 只有当不移除元素时才增加索引
+                    }
+                }
+
+                if (jsonArray.size() >= trigger) {
+                    resultIds.put(Long.parseLong(entry.getKey()), jsonArray.size());
+                }
+                if (jsonArray.isEmpty()) {
+                    //删除这个ID的键
+                    deleteFromHash(CS.ERROR_PASSAGE, entry.getKey());
+                } else {
+                    //替换过期数据
+                    hashOperations.put(CS.ERROR_PASSAGE, entry.getKey(), jsonArray.toString());
+                }
+
+            }
+        }
+
+        return resultIds;
+    }
 }

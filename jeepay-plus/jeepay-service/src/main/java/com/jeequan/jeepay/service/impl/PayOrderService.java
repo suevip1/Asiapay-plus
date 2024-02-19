@@ -212,6 +212,15 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
      */
     public IPage<PayOrder> listByPage(IPage iPage, PayOrder payOrder, JSONObject paramJSON, LambdaQueryWrapper<PayOrder> wrapper) {
 
+        if (paramJSON != null) {
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
+                wrapper.ge(PayOrder::getCreatedAt, paramJSON.getString("createdStart"));
+            }
+            if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
+                wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
+            }
+        }
+
         if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
             wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId().trim());
         }
@@ -253,14 +262,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             wrapper.eq(PayOrder::getForceChangeState, payOrder.getForceChangeState());
         }
 
-        if (paramJSON != null) {
-            if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
-                wrapper.ge(PayOrder::getCreatedAt, paramJSON.getString("createdStart"));
-            }
-            if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
-                wrapper.le(PayOrder::getCreatedAt, paramJSON.getString("createdEnd"));
-            }
-        }
+
         //三种单号区分
         if (StringUtils.isNotEmpty(payOrder.getPayOrderId())) {
             wrapper.eq(PayOrder::getPayOrderId, payOrder.getPayOrderId());
