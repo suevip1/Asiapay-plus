@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -124,10 +125,22 @@ public class MchAppMultipleController extends CommonCtrl {
             }
 
             List<PayPassage> updatePassageList = new ArrayList<>();
+            Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
             for (int i = 0; i < selectedIds.size(); i++) {
+                //todo 判断是否有定时任务  更新定时任务状态
                 PayPassage passage = new PayPassage();
-                passage.setPayPassageId(selectedIds.getLongValue(i));
+                Long passageId = selectedIds.getLongValue(i);
+                passage.setPayPassageId(passageId);
                 passage.setState(state);
+                //打开
+                if (state == CS.YES) {
+                    if (StringUtils.isNotEmpty(payPassageMap.get(passageId).getTimeRules())) {
+                        passage.setTimeLimit(CS.YES);
+                    }
+                } else {
+                    //关闭
+                    passage.setTimeLimit(CS.NO);
+                }
                 updatePassageList.add(passage);
             }
             payPassageService.saveOrUpdateBatch(updatePassageList);

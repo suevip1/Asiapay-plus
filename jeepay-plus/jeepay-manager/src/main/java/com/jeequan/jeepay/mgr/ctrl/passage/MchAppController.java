@@ -2,6 +2,7 @@ package com.jeequan.jeepay.mgr.ctrl.passage;
 
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -154,7 +155,6 @@ public class MchAppController extends CommonCtrl {
 //            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_REPEAT);
 //        }
         //插入对应通道的空值配置
-
         boolean result = payPassageService.save(payPassage);
         if (!result) {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_CREATE);
@@ -189,11 +189,28 @@ public class MchAppController extends CommonCtrl {
     @LimitRequest
     public ApiRes update(@PathVariable("payPassageId") Long payPassageId) {
 
+        JSONObject reqJson = getReqParamJSON();
+
         PayPassage payPassage = getObject(PayPassage.class);
-        String passageName = payPassage.getPayPassageName().replaceAll(" ", "");
-        payPassage.setPayPassageName(passageName);
+
+
         payPassage.setPayPassageId(payPassageId);
         payPassage.setUpdatedAt(new Date());
+
+
+        String passageName = payPassage.getPayPassageName();
+        if (StringUtils.isNotEmpty(passageName)) {
+            passageName = payPassage.getPayPassageName().replaceAll(" ", "");
+            payPassage.setPayPassageName(passageName);
+        }
+
+        if (reqJson.getBoolean("openLimit") != null && reqJson.getBoolean("openLimit")) {
+            PayPassage checkPassage = payPassageService.queryPassageInfo(payPassageId);
+            if (StringUtils.isNotEmpty(checkPassage.getTimeRules())) {
+                payPassage.setTimeLimit(CS.YES);
+            }
+        }
+
         //去掉一些配置的空格
         //payInterfaceConfig payRules
         String payInterfaceConfig = payPassage.getPayInterfaceConfig();

@@ -698,6 +698,8 @@ export default {
       }
       if (state === 0) {
         param.timeLimit = 0
+      } else {
+        param.openLimit = 1
       }
       return new Promise((resolve, reject) => {
         that.$infoBox.confirmDanger(title, content, () => {

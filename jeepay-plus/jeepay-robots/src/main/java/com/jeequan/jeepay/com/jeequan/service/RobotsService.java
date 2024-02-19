@@ -418,7 +418,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 //是否admin
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                     //引用的是机器人自己的消息
-                    if (message.isReply() && messageReply != null && messageReply.getFrom().getUserName().equals(getBotUsername())) {
+                    if (messageReply.getFrom().getUserName().equals(getBotUsername())) {
                         //删除本条消息以及引用的消息
                         sendDeleteMessage(chatId, message.getMessageId());
                         //删除本条消息以及引用的消息
@@ -438,7 +438,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     //是通道群发的消息
                     List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
                     if (!robotsPassageList.isEmpty()) {
-                        sendQueryMessage(message, messageSource);
+                        if (message.hasText()) {
+                            if (!message.getText().contains("@")) {
+                                sendQueryMessage(message, messageSource);
+                            }
+                        }
+
                     }
                 }
                 return;
@@ -585,15 +590,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             return;
         }
 
-//        uj -- 查询市场USTD买入价，c2c全部支付方式;
-//        ub -- 查询市场USTD买入价，c2c银行卡;
-//        ua -- 查询市场USTD买入价，c2c支付宝;
-//        uw -- 查询市场USTD买入价，c2c微信支付;
-//
-//        kj -- 查询市场USTD买入价，大宗全部支付方式;
-//        kb -- 查询市场USTD买入价，大宗银行卡;
-//        ka -- 查询市场USTD买入价，大宗支付宝;
-//        kw -- 查询市场USTD买入价，大宗微信支付;
 
         //绑定商户-管理员
         Pattern patternBlindMch = Pattern.compile(BLIND_MCH);
@@ -1862,6 +1858,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             stringBuffer.append("日终余额: " + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + System.lineSeparator());
                             stringBuffer.append("-----------------------" + System.lineSeparator());
                         }
+                        stringBuffer.append("当前商户余额: <b>" + AmountUtil.convertCent2DollarShort(mchInfo.getBalance()) + "</b>" + System.lineSeparator());
                         stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
                         sendSingleMessageAndPin(chatId, stringBuffer.toString());
                     }
@@ -2417,7 +2414,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 StringBuffer stringBuffer = new StringBuffer();
                 stringBuffer.append("订单已回调！" + System.lineSeparator());
                 stringBuffer.append("商户单号：[ <b>" + payload.getMchOrderNo() + "</b> ]" + System.lineSeparator());
-                stringBuffer.append("平台单号：[ " + payload.getPayOrderId() + " ]" + System.lineSeparator());
+//                stringBuffer.append("平台单号：[ " + payload.getPayOrderId() + " ]" + System.lineSeparator());
                 sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), stringBuffer.toString());
                 RedisUtil.del(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrderId);
             }
