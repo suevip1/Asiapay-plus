@@ -410,9 +410,24 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         String userName = message.getFrom().getUserName();
         Message messageReply = message.getReplyToMessage();
 
-        //todo 仔细考虑此处逻辑  查单问题
+
         if (message.isReply() && messageReply != null) {
             //检测是否查单转发信息
+
+            if (message.hasText() && message.getText().trim().equals(DELETE_MSG)) {
+                //是否admin
+                if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                    //引用的是机器人自己的消息
+                    if (message.isReply() && messageReply != null && messageReply.getFrom().getUserName().equals(getBotUsername())) {
+                        //删除本条消息以及引用的消息
+                        sendDeleteMessage(chatId, message.getMessageId());
+                        //删除本条消息以及引用的消息
+                        sendDeleteMessage(chatId, messageReply.getMessageId());
+                        log.info("收到删除命令 原文: " + messageReply.getText());
+                    }
+                }
+                return;
+            }
 
             //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
             Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
@@ -499,21 +514,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     log.info("Bot left the chat...");
                 } catch (TelegramApiException e) {
                     e.printStackTrace();
-                }
-            }
-            return;
-        }
-        if (text.trim().equals(DELETE_MSG)) {
-            //是否admin
-            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
-
-                //引用的是机器人自己的消息
-                if (message.isReply() && messageReply != null && messageReply.getFrom().getUserName().equals(getBotUsername())) {
-                    //删除本条消息以及引用的消息
-                    sendDeleteMessage(chatId, message.getMessageId());
-                    //删除本条消息以及引用的消息
-                    sendDeleteMessage(chatId, messageReply.getMessageId());
-                    log.info("收到删除命令 原文: " + messageReply.getText());
                 }
             }
             return;
@@ -605,7 +605,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     sendSingleMessage(chatId, "当前群已绑定为四方管理群，不可重复绑定商户");
                     return;
                 }
-
+                log.info(chatId + "");
                 if (checkIsPassageChat(chatId)) {
                     sendSingleMessage(chatId, "当前群已绑定为通道群，不可重复绑定商户");
                     return;
