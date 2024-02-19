@@ -2139,6 +2139,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         log.error("过去一分钟异常订单(出码失败)数为[ " + count + " ]条，触发预警请检查❗");
                         Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
                         StringBuffer stringBuffer = new StringBuffer();
+                        stringBuffer.append("<b>异常订单预警❗</b>" + System.lineSeparator());
                         stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
                         for (int i = 0; i < count; i++) {
                             PayOrder payOrder = list.get(i);
@@ -2389,7 +2390,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 Date nowTime = new Date();
 
                 StringBuffer stringBuffer = new StringBuffer();
-                stringBuffer.append("<b>通道异常报警❗</b>" + System.lineSeparator());
+                stringBuffer.append("<b>通道异常预警❗</b>" + System.lineSeparator());
                 stringBuffer.append("检测时间点：[ " + DateUtil.format(nowTime, "yyyy-MM-dd HH:mm:ss") + " ]" + System.lineSeparator());
                 stringBuffer.append("过去一分钟拉起通道失败次数过多" + System.lineSeparator());
                 Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
