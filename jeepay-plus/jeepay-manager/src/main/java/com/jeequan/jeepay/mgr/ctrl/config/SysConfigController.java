@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.jeequan.jeepay.components.mq.model.ResetAppConfigMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.SysConfig;
@@ -81,6 +82,7 @@ public class SysConfigController extends CommonCtrl {
 	@PreAuthorize("hasAuthority('ENT_SYS_CONFIG_EDIT')")
 	@MethodLog(remark = "系统配置修改")
 	@RequestMapping(value="/{groupKey}", method = RequestMethod.PUT)
+	@LimitRequest
 	public ApiRes update(@PathVariable("groupKey") String groupKey) {
 		JSONObject paramJSON = getReqParamJSON();
 		Map<String, String> updateMap = JSONObject.toJavaObject(paramJSON, Map.class);

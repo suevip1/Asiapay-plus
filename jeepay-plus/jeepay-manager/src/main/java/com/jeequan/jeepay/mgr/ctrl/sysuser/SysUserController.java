@@ -18,6 +18,7 @@ package com.jeequan.jeepay.mgr.ctrl.sysuser;
 import cn.hutool.core.codec.Base64;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.SysUser;
@@ -99,6 +100,7 @@ public class SysUserController extends CommonCtrl {
     @PreAuthorize("hasAuthority( 'ENT_UR_USER_ADD' )")
     @MethodLog(remark = "添加管理员")
     @RequestMapping(value = "", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes add() {
         SysUser sysUser = getObject(SysUser.class);
         sysUser.setBelongInfoId("0");
@@ -142,6 +144,7 @@ public class SysUserController extends CommonCtrl {
     @PreAuthorize("hasAuthority( 'ENT_UR_USER_EDIT' )")
     @RequestMapping(value = "/{recordId}", method = RequestMethod.PUT)
     @MethodLog(remark = "修改操作员信息")
+    @LimitRequest
     public ApiRes update(@PathVariable("recordId") Long recordId) {
         SysUser sysUser = getObject(SysUser.class);
         sysUser.setSysUserId(recordId);
@@ -173,6 +176,7 @@ public class SysUserController extends CommonCtrl {
     @PreAuthorize("hasAuthority( 'ENT_UR_USER_DELETE' )")
     @RequestMapping(value = "/{recordId}", method = RequestMethod.DELETE)
     @MethodLog(remark = "删除操作员信息")
+    @LimitRequest
     public ApiRes delete(@PathVariable("recordId") Long recordId) {
         //查询该操作员信息
         SysUser sysUser = sysUserService.getById(recordId);

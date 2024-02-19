@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -88,6 +89,7 @@ public class MchProductController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @MethodLog(remark = "更新商户-产品绑定信息")
     @PutMapping
+    @LimitRequest
     public ApiRes update() {
         MchProduct mchProduct = getObject(MchProduct.class);
         List<MchProduct> listBlind = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchProduct.getMchNo()).eq(MchProduct::getProductId, mchProduct.getProductId()));
@@ -112,6 +114,7 @@ public class MchProductController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @MethodLog(remark = "商户-产品一键全绑定")
     @RequestMapping(value = "/blindAll/{mchNo}", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes blindAll(@PathVariable("mchNo") String mchNo) {
         List<MchProduct> listBlind = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchNo));
         Map<Long, MchProduct> productMchMap = new HashMap<>();

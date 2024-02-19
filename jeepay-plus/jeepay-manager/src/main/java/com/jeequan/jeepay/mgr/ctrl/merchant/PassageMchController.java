@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -138,6 +139,7 @@ public class PassageMchController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @MethodLog(remark = "更新通道信息")
     @PutMapping
+    @LimitRequest
     public ApiRes update() {
         MchPayPassage mchPayPassage = getObject(MchPayPassage.class);
         List<MchPayPassage> listBlind = mchPayPassageService.list(MchPayPassage.gw().eq(MchPayPassage::getMchNo, mchPayPassage.getMchNo()).eq(MchPayPassage::getPayPassageId, mchPayPassage.getPayPassageId()));
@@ -162,6 +164,7 @@ public class PassageMchController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @MethodLog(remark = "通道-商户一键全绑定")
     @RequestMapping(value = "/blindAll/{payPassageId}", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes blindAll(@PathVariable("payPassageId") Long payPassageId) {
         List<MchPayPassage> listBlind = mchPayPassageService.list(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
         Map<String, MchPayPassage> payPassageMchMap = new HashMap<>();

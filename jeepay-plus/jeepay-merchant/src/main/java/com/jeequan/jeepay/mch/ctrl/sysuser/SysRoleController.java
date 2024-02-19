@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.SysRole;
@@ -101,6 +102,7 @@ public class SysRoleController extends CommonCtrl {
 	/** add */
 	@PreAuthorize("hasAuthority( 'ENT_UR_ROLE_ADD' )")
 	@RequestMapping(value="", method = RequestMethod.POST)
+	@LimitRequest
 	public ApiRes add() {
 		SysRole SysRole = getObject(SysRole.class);
 		String roleId = "ROLE_" + StringKit.getUUID(6);
@@ -126,6 +128,7 @@ public class SysRoleController extends CommonCtrl {
 	/** update */
 	@PreAuthorize("hasAuthority( 'ENT_UR_ROLE_EDIT' )")
 	@RequestMapping(value="/{recordId}", method = RequestMethod.PUT)
+	@LimitRequest
 	public ApiRes update(@PathVariable("recordId") String recordId) {
 
 		SysRole sysRole = getObject(SysRole.class);

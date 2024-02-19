@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,7 @@ public class SysEntController extends CommonCtrl {
 	@PreAuthorize("hasAuthority( 'ENT_UR_ROLE_ENT_EDIT')")
 	@MethodLog(remark = "更新资源权限")
 	@RequestMapping(value="/{entId}", method = RequestMethod.PUT)
+	@LimitRequest
 	public ApiRes updateById(@PathVariable("entId") String entId) {
 
 		SysEntitlement queryObject = getObject(SysEntitlement.class);

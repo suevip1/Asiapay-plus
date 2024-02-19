@@ -18,6 +18,7 @@ package com.jeequan.jeepay.mgr.ctrl.sysuser;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.SysLog;
@@ -108,6 +109,7 @@ public class SysLogController extends CommonCtrl {
 //    @PreAuthorize("hasAuthority('ENT_SYS_LOG_DEL')")
 //    @MethodLog(remark = "删除日志信息")
     @RequestMapping(value = "/{selectedIds}", method = RequestMethod.DELETE)
+    @LimitRequest
     public ApiRes delete(@PathVariable("selectedIds") String selectedIds) {
         //todo 配置到定时任务中
         String[] ids = selectedIds.split(",");

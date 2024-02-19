@@ -17,6 +17,7 @@ package com.jeequan.jeepay.mgr.ctrl.payconfig;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.*;
@@ -108,6 +109,7 @@ public class PayWayController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_WAY_ADD')")
     @PostMapping
     @MethodLog(remark = "新增支付方式")
+    @LimitRequest
     public ApiRes add() {
         Product product = getObject(Product.class);
 
@@ -132,6 +134,7 @@ public class PayWayController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @PutMapping("/{wayCode}")
     @MethodLog(remark = "更新支付方式")
+    @LimitRequest
     public ApiRes update(@PathVariable("wayCode") Long wayCode) {
         Product product = getObject(Product.class);
         product.setProductId(wayCode);
@@ -151,6 +154,7 @@ public class PayWayController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_WAY_DEL')")
     @DeleteMapping("/{productId}")
     @MethodLog(remark = "删除支付方式")
+    @LimitRequest
     public ApiRes delete(@PathVariable("productId") String productId) {
         // 校验该支付方式是否有商户已配置通道或者已有订单
         if (passageService.count(PayPassage.gw().eq(PayPassage::getProductId, productId)) > 0

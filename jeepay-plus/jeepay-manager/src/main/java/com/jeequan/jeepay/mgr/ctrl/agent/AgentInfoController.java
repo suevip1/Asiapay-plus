@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.components.mq.model.CleanAgentLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -86,6 +87,7 @@ public class AgentInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_ISV_INFO_ADD')")
     @MethodLog(remark = "新增代理商")
     @RequestMapping(value = "", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes add() {
         AgentAccountInfo agentAccountInfo = getObject(AgentAccountInfo.class);
         String loginUserName = getValStringRequired("loginUserName");
@@ -106,6 +108,7 @@ public class AgentInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_ISV_INFO_DEL')")
     @MethodLog(remark = "删除代理商")
     @RequestMapping(value = "/{agentNo}", method = RequestMethod.DELETE)
+    @LimitRequest
     public ApiRes delete(@PathVariable("agentNo") String agentNo) {
         if (payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNo, agentNo)) > 0 || payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNoPassage, agentNo)) > 0) {
             throw new BizException("该代理已发生交易，无法删除！");
@@ -124,6 +127,7 @@ public class AgentInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_ISV_INFO_EDIT')")
     @MethodLog(remark = "更新代理商信息")
     @RequestMapping(value = "/{agentNo}", method = RequestMethod.PUT)
+    @LimitRequest
     public ApiRes update(@PathVariable("agentNo") String agentNo) {
         //获取查询条件
         AgentAccountInfo agentAccountInfo = getObject(AgentAccountInfo.class);

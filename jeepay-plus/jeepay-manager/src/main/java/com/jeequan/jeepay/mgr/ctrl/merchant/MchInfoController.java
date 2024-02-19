@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.components.mq.model.CleanMchLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.model.ResetIsvMchAppInfoConfigMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -125,6 +126,7 @@ public class MchInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_ADD')")
     @MethodLog(remark = "新增商户")
     @RequestMapping(value = "", method = RequestMethod.POST)
+    @LimitRequest
     public ApiRes add() {
         MchInfo mchInfo = getObject(MchInfo.class);
         // 获取传入的商户登录名
@@ -147,6 +149,7 @@ public class MchInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_DEL')")
     @MethodLog(remark = "删除商户")
     @RequestMapping(value = "/{mchNo}", method = RequestMethod.DELETE)
+    @LimitRequest
     public ApiRes delete(@PathVariable("mchNo") String mchNo) {
         if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo)) > 0) {
             throw new BizException("该商户已发生交易，无法删除！");
@@ -166,6 +169,7 @@ public class MchInfoController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_INFO_EDIT')")
     @MethodLog(remark = "更新商户信息")
     @RequestMapping(value = "/{mchNo}", method = RequestMethod.PUT)
+    @LimitRequest
     public ApiRes update(@PathVariable("mchNo") String mchNo) {
         //获取查询条件
         MchInfo mchInfo = getObject(MchInfo.class);

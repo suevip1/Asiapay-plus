@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -143,14 +144,15 @@ public class MchAppController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_ADD')")
     @MethodLog(remark = "新建通道")
     @PostMapping
+    @LimitRequest
     public ApiRes add() {
         PayPassage payPassage = getObject(PayPassage.class);
         String passageName = payPassage.getPayPassageName().replaceAll(" ", "");
         payPassage.setPayPassageName(passageName);
-        PayPassage resultPassage = payPassageService.getOne(PayPassage.gw().eq(PayPassage::getPayPassageName, payPassage.getPayPassageName()));
-        if (resultPassage != null && StringUtils.isNotEmpty(resultPassage.getPayPassageName())) {
-            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_REPEAT);
-        }
+//        PayPassage resultPassage = payPassageService.getOne(PayPassage.gw().eq(PayPassage::getPayPassageName, payPassage.getPayPassageName()));
+//        if (resultPassage != null && StringUtils.isNotEmpty(resultPassage.getPayPassageName())) {
+//            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_REPEAT);
+//        }
         //插入对应通道的空值配置
 
         boolean result = payPassageService.save(payPassage);
@@ -184,6 +186,7 @@ public class MchAppController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @MethodLog(remark = "更新通道信息")
     @PutMapping("/{payPassageId}")
+    @LimitRequest
     public ApiRes update(@PathVariable("payPassageId") Long payPassageId) {
 
         PayPassage payPassage = getObject(PayPassage.class);
@@ -220,7 +223,9 @@ public class MchAppController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_DEL')")
     @MethodLog(remark = "删除通道")
     @DeleteMapping("/{payPassageId}")
+    @LimitRequest
     public ApiRes delete(@PathVariable("payPassageId") Long payPassageId) {
+        //todo 通道删除改为状态变 -1 ,每日固定时间检测 是否还存在相关通道
         if (payOrderService.count(PayOrder.gw().eq(PayOrder::getPassageId, payPassageId)) > 0) {
             throw new BizException("该支付通道已发生交易，无法删除！");
         }

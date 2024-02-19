@@ -17,6 +17,7 @@ package com.jeequan.jeepay.mgr.ctrl.payconfig;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.PayInterfaceDefine;
@@ -86,6 +87,7 @@ public class PayInterfaceDefineController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_IF_DEFINE_ADD')")
     @PostMapping
     @MethodLog(remark = "新增支付接口")
+    @LimitRequest
     public ApiRes add() {
         PayInterfaceDefine payInterfaceDefine = getObject(PayInterfaceDefine.class);
         boolean result = payInterfaceDefineService.save(payInterfaceDefine);
@@ -103,6 +105,7 @@ public class PayInterfaceDefineController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_IF_DEFINE_EDIT')")
     @PutMapping("/{ifCode}")
     @MethodLog(remark = "更新支付接口")
+    @LimitRequest
     public ApiRes update(@PathVariable("ifCode") String ifCode) {
         PayInterfaceDefine payInterfaceDefine = getObject(PayInterfaceDefine.class);
         payInterfaceDefine.setIfCode(ifCode);
@@ -122,6 +125,7 @@ public class PayInterfaceDefineController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PC_IF_DEFINE_DEL')")
     @DeleteMapping("/{ifCode}")
     @MethodLog(remark = "删除支付接口")
+    @LimitRequest
     public ApiRes delete(@PathVariable("ifCode") String ifCode) {
         if (payPassageService.count(PayPassage.gw().eq(PayPassage::getIfCode, ifCode)) > 0
                 || payOrderService.count(PayOrder.gw().eq(PayOrder::getIfCode, ifCode)) > 0) {
