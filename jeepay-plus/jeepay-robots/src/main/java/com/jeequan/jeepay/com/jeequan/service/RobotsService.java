@@ -74,7 +74,15 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
      */
     private static final String REDIS_MCH_SOURCE_SUFFIX = "REDIS_MCH_SOURCE_";
 
+    /**
+     * 商户已经识别成功的查单消息,通过订单号存储，方便识别  value message
+     */
     private static final String REDIS_MCH_SOURCE_ORDER_SUFFIX = "REDIS_MCH_SOURCE_ORDER_";
+
+    /**
+     * 存储已转发的查单信息  订单号 商户订单号 value 转发到通道群的message ID
+     */
+    private static final String REDIS_ORDER_FORWARD_SUFFIX = "REDIS_ORDER_FORWARD_";
 
     private static final String GROUP_ID = "\\b频道(?:id|ID)\\b";
 
@@ -149,6 +157,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     private static final String BLIND_MGR = "绑定管理群";
 
     private static final String DELETE_MSG = "删除";
+
+    private static final String ORDER_REGEX = "^[a-zA-Z0-9-_\\$%]{7,}$";
 
     @Autowired
     private SysConfigService sysConfigService;
@@ -376,7 +386,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("产品费率 -- 查询商户已开通产品实时费率" + System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
             stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作" + System.lineSeparator());
-            stringBuffer.append("zz -- 回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
+            stringBuffer.append("zz -- 催单：回复商户发单消息进行转发，例如：zz 加急加急" + System.lineSeparator());
+            stringBuffer.append("zz 订单号/商户订单号 xxxx-- 催单：直接发送订单号以及备注信息进行催单，例如：zz P1234567890 加急加急" + System.lineSeparator());
             stringBuffer.append("今日跑量 -- 查看今日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("昨日跑量 -- 查看昨日商户或通道完整跑量统计" + System.lineSeparator());
             stringBuffer.append("今日结算 -- 查看今日结算信息" + System.lineSeparator());
@@ -487,6 +498,43 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
         //==================================匹配文字命令==========================================================
         String text = message.getText().trim();
+
+        if (text.indexOf("zz ") == 0) {
+            String tempStr = text.replaceAll("zz ", "").trim();
+
+            //分割备注
+            int firstSpaceIndex = tempStr.indexOf(" ");
+            String unionOrderId = "";
+            String remark = "";
+            // 截取第一个空格之后的所有内容
+            if (firstSpaceIndex != -1) {
+                remark = tempStr.substring(firstSpaceIndex + 1).trim();
+                unionOrderId = tempStr.substring(0, firstSpaceIndex).trim();
+            } else {
+                //没有备注 无效催单
+                return;
+            }
+
+            //看是否催单信息  格式 zz 单号
+            Pattern patternReminders = Pattern.compile(ORDER_REGEX);
+            Matcher matcherReminders = patternReminders.matcher(unionOrderId);
+            if (matcherReminders.matches()) {
+                Message messagePaySource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
+                Message messageMchSource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
+                if (messageMchSource != null || messagePaySource != null) {
+                    //有缓存，催单
+                    if (messagePaySource != null) {
+                        if (messagePaySource.getFrom().getUserName().equals(getBotUsername())) {
+                            sendReplyMessage(messagePaySource.getChatId(), messagePaySource.getMessageId(), remark);
+                        }
+                        return;
+                    }
+                }
+                return;
+            }
+            return;
+        }
+
         //绑定管理群
         if (text.trim().equals(BLIND_MGR)) {
             //是否admin
@@ -1788,20 +1836,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     }
 
     private void sendMchSettle(JSONArray mchNos, Long chatId, Date date) {
-//        [M1695799133] 华阳 今日结算：
-//===================================
-//        跑量汇总
-//                入账汇总
-//===================================
-//        显示商户资金流水
-//                手动调账记录
-//        以及提现记录
-//                还有非当天时间创建的资金流水入账
-//        汇总
-//                ===================================
-//        显示前日日终最后一笔入账余额
-//                显示当日日终最后一笔入账余额
-
         try {
             if (mchNos.isEmpty()) {
                 return;
@@ -2156,22 +2190,33 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     /**
      * 发送单条订单消息
      *
-     * @param unionOrderId
+     * @param messageStr
      * @param message
      */
-    public void sendSingleQuery(String unionOrderId, Message message) {
-        if (StringUtils.isNotEmpty(unionOrderId)) {
+    public void sendSingleQuery(String messageStr, Message message) {
+
+        if (StringUtils.isNotEmpty(messageStr)) {
             Long chatId = message.getChatId();
             RobotsMch robotsMch = robotsMchService.getMch(chatId);
 
-            String regex = "^[a-zA-Z0-9-_\\$%]{7,}$";
+            int firstSpaceIndex = messageStr.indexOf(" ");
+            String unionOrderId = "";
+            String remark = "";
+            // 截取第一个空格之后的所有内容
+            if (firstSpaceIndex != -1) {
+                remark = messageStr.substring(firstSpaceIndex + 1);
+                unionOrderId = messageStr.substring(0, firstSpaceIndex);
+            } else {
+                unionOrderId = messageStr;
+            }
 
-            Pattern pattern = Pattern.compile(regex);
+            Pattern pattern = Pattern.compile(ORDER_REGEX);
             Matcher matcher = pattern.matcher(unionOrderId);
 
             if (!matcher.matches()) {
                 return;
             }
+
 
             //不是通道群
             if (robotsPassageService.count(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId)) > 0) {
@@ -2193,10 +2238,19 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 }
 
                 LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
-                wrapper.and(wr -> {
-                    wr.eq(PayOrder::getPayOrderId, unionOrderId).or().eq(PayOrder::getMchOrderNo, unionOrderId);
-                    wr.in(PayOrder::getMchNo, mchNos);
-                });
+                if (StringUtils.isNotEmpty(remark)) {
+                    String orderStr = messageStr.substring(0, firstSpaceIndex);
+                    wrapper.and(wr -> {
+                        wr.eq(PayOrder::getPayOrderId, orderStr).or().eq(PayOrder::getMchOrderNo, orderStr);
+                        wr.in(PayOrder::getMchNo, mchNos);
+                    });
+                } else {
+                    wrapper.and(wr -> {
+                        wr.eq(PayOrder::getPayOrderId, messageStr.trim()).or().eq(PayOrder::getMchOrderNo, messageStr.trim());
+                        wr.in(PayOrder::getMchNo, mchNos);
+                    });
+                }
+
 
                 PayOrder payOrder = null;
                 try {
@@ -2235,8 +2289,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 //                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
 //                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
 //                        }
-
-                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, payOrder.getPayOrderId());
+                        String addOnInfo = payOrder.getPayOrderId();
+                        if (StringUtils.isNotEmpty(remark)) {
+                            addOnInfo = addOnInfo + System.lineSeparator() + "备注:" + remark;
+                        }
+                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, addOnInfo);
                         if (messageTemp != null) {
 
                             //商户群查单-原消息
@@ -2244,6 +2301,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                             //商户已经识别成功的查单消息,通过订单号存储，方便识别
                             RedisUtil.set(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrder.getPayOrderId(), message, 2, TimeUnit.HOURS);
+
+                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + payOrder.getPayOrderId(), messageTemp, 2, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + payOrder.getMchOrderNo(), messageTemp, 2, TimeUnit.HOURS);
 
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
@@ -2266,7 +2326,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         RobotsMch robotsMchAdmin = robotsMchService.getManageMch();
                         if (robotsMchAdmin != null) {
                             StringBuffer stringBuffer = new StringBuffer();
-                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                            stringBuffer.append("商户 " + robotsMch.getMchNo() + " 查单:" + System.lineSeparator());
                             stringBuffer.append("商户订单号 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
                             stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
@@ -2274,7 +2334,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             sendSingleMessage(robotsMchAdmin.getChatId(), stringBuffer.toString());
                         } else {
                             StringBuffer stringBuffer = new StringBuffer();
-                            stringBuffer.append("商户[" + robotsMch.getMchNo() + "] 查单:" + System.lineSeparator());
+                            stringBuffer.append("商户 " + robotsMch.getMchNo() + " 查单:" + System.lineSeparator());
                             stringBuffer.append("商户订单号 [ " + payOrder.getMchOrderNo() + " ] " + System.lineSeparator());
                             stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBuffer.append("未检测到已绑定的通道群,请先绑定后再查单!" + System.lineSeparator());
@@ -2414,9 +2474,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 StringBuffer stringBuffer = new StringBuffer();
                 stringBuffer.append("订单已回调！" + System.lineSeparator());
                 stringBuffer.append("商户单号：[ <b>" + payload.getMchOrderNo() + "</b> ]" + System.lineSeparator());
-//                stringBuffer.append("平台单号：[ " + payload.getPayOrderId() + " ]" + System.lineSeparator());
+
                 sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), stringBuffer.toString());
                 RedisUtil.del(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrderId);
+
+                RedisUtil.del(REDIS_ORDER_FORWARD_SUFFIX + payload.getPayOrderId());
+                RedisUtil.del(REDIS_ORDER_FORWARD_SUFFIX + payload.getMchOrderNo());
             }
 
 

@@ -127,7 +127,6 @@ public class MchAppMultipleController extends CommonCtrl {
             List<PayPassage> updatePassageList = new ArrayList<>();
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
             for (int i = 0; i < selectedIds.size(); i++) {
-                //todo 判断是否有定时任务  更新定时任务状态
                 PayPassage passage = new PayPassage();
                 Long passageId = selectedIds.getLongValue(i);
                 passage.setPayPassageId(passageId);
