@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.mgr.ctrl.passage;
 
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -35,6 +36,7 @@ public class MchAppBalanceController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
     @MethodLog(remark = "调整通道余额")
     @PutMapping("/{payPassageId}")
+    @LimitRequest
     public ApiRes update(@PathVariable("payPassageId") Long payPassageId) {
 
         String changeAmount = getValString("changeAmount");
