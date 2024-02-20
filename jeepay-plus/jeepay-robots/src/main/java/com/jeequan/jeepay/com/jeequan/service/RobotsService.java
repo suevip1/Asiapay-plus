@@ -522,13 +522,19 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 Message messagePaySource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
                 Message messageMchSource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
                 if (messageMchSource != null || messagePaySource != null) {
+                    Message replySource = null;
                     //有缓存，催单
                     if (messagePaySource != null) {
-                        if (messagePaySource.getFrom().getUserName().equals(getBotUsername())) {
-                            sendReplyMessage(messagePaySource.getChatId(), messagePaySource.getMessageId(), remark);
-                        }
-                        return;
+                        replySource = messagePaySource;
                     }
+                    if (messageMchSource != null) {
+                        replySource = messageMchSource;
+                    }
+
+                    if (replySource.getFrom().getUserName().equals(getBotUsername())) {
+                        sendReplyMessage(replySource.getChatId(), replySource.getMessageId(), remark);
+                    }
+                    return;
                 }
                 return;
             }
