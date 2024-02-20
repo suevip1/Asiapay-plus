@@ -113,6 +113,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
     private static final String QUERY_PRODUCT = "产品费率";
 
+    private static final String QUERY_PRODUCT_SINGLE = "产品费率\\s+([\\d,]+)";
+
 
     /**
      * 绑定通道
@@ -794,6 +796,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 String mchNoStr = robotsMch.getMchNo();
                 JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
 
+                Map<Long, Product> productMap = statisticsService.productService.getProductMap();
 
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
@@ -801,9 +804,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
 
                     List<MchProduct> records = statisticsService.mchProductService.list(MchProduct.gw().select(MchProduct::getMchNo, MchProduct::getCreatedAt, MchProduct::getMchRate, MchProduct::getProductId).eq(MchProduct::getMchNo, mchNo).eq(MchProduct::getState, CS.YES));
-
-                    Map<Long, Product> productMap = statisticsService.productService.getProductMap();
-
 
                     if (records.isEmpty()) {
                         sendSingleMessage(chatId, mchInfoStr + " 没有已绑定的产品记录");
@@ -819,6 +819,63 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     }
                 }
                 return;
+            }
+            return;
+        }
+
+        //查单个产品费率
+        Pattern patternProductRate = Pattern.compile(QUERY_PRODUCT_SINGLE);
+        Matcher matcherProductRate = patternProductRate.matcher(text);
+        if (matcherProductRate.matches()) {
+            String productIdStr = text.substring(5);
+            try {
+                RobotsMch robotsMch = robotsMchService.getMch(chatId);
+                if (robotsMch != null && StringUtils.isNotEmpty(robotsMch.getMchNo())) {
+                    Long productId = 0L;
+                    try {
+                        productId = Long.parseLong(productIdStr);
+                    } catch (Exception e) {
+                        sendSingleMessage(chatId, "未查询到商户下ID [" + productIdStr + "] 产品");
+                    }
+
+                    String mchNoStr = robotsMch.getMchNo();
+                    JSONArray jsonArray = JSONArray.parseArray(mchNoStr);
+
+                    Map<Long, Product> productMap = statisticsService.productService.getProductMap();
+
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
+                        MchInfo mchInfo = mchInfoService.getById(mchNo);
+                        String mchInfoStr = "[" + mchInfo.getMchNo() + "] <b>" + mchInfo.getMchName() + "</b>";
+
+                        List<MchProduct> records = statisticsService.mchProductService.list(MchProduct.gw().select(MchProduct::getMchNo, MchProduct::getMchRate, MchProduct::getProductId).eq(MchProduct::getMchNo, mchNo).eq(MchProduct::getState, CS.YES).eq(MchProduct::getProductId, productId));
+
+                        if (!records.isEmpty()) {
+
+                            if (records.size() == 1) {
+                                StringBuilder stringBuffer = new StringBuilder();
+                                stringBuffer.append(mchInfoStr).append(" 产品列表:").append(System.lineSeparator());
+
+                                MchProduct record = records.get(0);
+                                String productInfo = "[" + record.getProductId() + "] " + productMap.get(record.getProductId()).getProductName();
+                                stringBuffer.append(productInfo).append("   ").append(GetRateStr(record.getMchRate())).append(System.lineSeparator());
+
+                                sendSingleMessage(chatId, stringBuffer.toString());
+                            } else {
+                                log.error("检查记录，产品-商户绑定费率重复" + mchInfoStr + " " + productId);
+                            }
+                        } else {
+                            sendSingleMessage(chatId, mchInfoStr + " 没有[" + productId + "]的产品");
+                        }
+                    }
+                    return;
+                } else {
+                    sendSingleMessage(chatId, "未绑定商户,请先绑定商户");
+                }
+            } catch (Exception e) {
+                log.error("聊天原文:" + text);
+                log.error(e.getMessage(), e);
+                sendSingleMessage(chatId, "查询异常,请联系管理员");
             }
             return;
         }
