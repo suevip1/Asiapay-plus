@@ -299,7 +299,6 @@ public class RedisUtil {
         HashOperations<String, String, Object> hashOperations = getStringRedisTemplate().opsForHash();
         //判断 对应的 List<Long> 是否存在
         Object tempObj = hashOperations.get(CS.ERROR_PASSAGE, passageId.toString());
-
         JSONArray tempList = null;
         if (tempObj == null) {
             tempList = new JSONArray();

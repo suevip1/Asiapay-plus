@@ -314,6 +314,7 @@ public class CS {
 
     public interface ROBOT_WARN_TYPE {
         Byte PASSAGE_ERROR = 1;  //通道异常
+        Byte NOTIFY_ERROR = 2;  //通知异常
     }
 
     //接口类型

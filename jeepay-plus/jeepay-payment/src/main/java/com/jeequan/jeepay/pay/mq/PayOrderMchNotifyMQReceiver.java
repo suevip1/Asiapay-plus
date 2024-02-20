@@ -18,8 +18,13 @@ package com.jeequan.jeepay.pay.mq;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.components.mq.model.PayOrderMchNotifyMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnNotify;
+import com.jeequan.jeepay.components.mq.model.RobotWarnPassage;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.MchNotifyRecord;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.impl.MchNotifyRecordService;
@@ -96,6 +101,11 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
             //通知次数 >= 最大通知次数时， 更新响应结果为异常， 不在继续延迟发送消息
             if (currentCount >= record.getNotifyCountLimit()) {
                 mchNotifyRecordService.updateNotifyResult(notifyId, MchNotifyRecord.STATE_FAIL, res);
+                //通知失败的记录发送至机器人 并发送到管理群
+                RobotWarnNotify robotWarnNotify = new RobotWarnNotify();
+                robotWarnNotify.setPayOrderId(record.getOrderId());
+                robotWarnNotify.setMchNo(record.getMchNo());
+                mqSender.send(RobotWarnMQ.build(CS.ROBOT_WARN_TYPE.NOTIFY_ERROR, JSONObject.toJSONString(robotWarnNotify)));
                 return;
             }
 

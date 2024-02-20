@@ -126,7 +126,7 @@ const tableColumns = [
   },
   { key: 'bizType', title: '业务类型', scopedSlots: { customRender: 'bizTypeSlot' }, width: '100px' },
   { key: 'remark', dataIndex: 'remark', title: '备注' },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期' }
+  { key: 'createdAt', dataIndex: 'createdAt', title: '入账时间' }
 ]
 
 export default {

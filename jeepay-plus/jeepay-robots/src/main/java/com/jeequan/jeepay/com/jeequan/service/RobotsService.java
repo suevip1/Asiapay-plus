@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.jeequan.jeepay.components.mq.model.RobotListenPayOrderSuccessMQ;
 import com.jeequan.jeepay.components.mq.model.RobotWarnMQ;
+import com.jeequan.jeepay.components.mq.model.RobotWarnNotify;
 import com.jeequan.jeepay.components.mq.model.RobotWarnPassage;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
@@ -2556,13 +2557,22 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     public void receive(RobotWarnMQ.MsgPayload robotWarn) {
         try {
             Byte warnType = robotWarn.getWarnType();
-            if (warnType == CS.ROBOT_WARN_TYPE.PASSAGE_ERROR) {
+            if (Objects.equals(warnType, CS.ROBOT_WARN_TYPE.PASSAGE_ERROR)) {
                 RobotWarnPassage robotWarnPassage = JSONObject.parseObject(robotWarn.getData(), RobotWarnPassage.class);
                 if (robotWarnPassage != null) {
                     //异常信息存入redis
                     RedisUtil.savePassageErrorInfo(robotWarnPassage.getPassageId(), robotWarnPassage.getTimestamp());
                 } else {
                     log.error("转换 RobotWarnPassage 为空，检查代码");
+                }
+            } else if (Objects.equals(warnType, CS.ROBOT_WARN_TYPE.NOTIFY_ERROR)) {
+                RobotWarnNotify robotWarnNotify = JSONObject.parseObject(robotWarn.getData(), RobotWarnNotify.class);
+                RobotsMch robotsMch = robotsMchService.getManageMch();
+                if (robotsMch != null) {
+                    String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！";
+                    sendSingleMessage(robotsMch.getChatId(), messageStr);
+                } else {
+                    log.error("转换 RobotWarnNotify 为空，检查代码");
                 }
             }
         } catch (Exception e) {
