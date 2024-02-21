@@ -100,7 +100,6 @@ public class MchAppController extends CommonCtrl {
                 }
             }
 
-
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
                 if (sortOrder.equals("descend")) {
                     wrapper.orderBy(true, false, "balance");
@@ -109,9 +108,14 @@ public class MchAppController extends CommonCtrl {
                 }
             }
 
-//            if(StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)){
-//                wrapper.orderBy(true, true, "CONVERT(pay_passage_name USING gbk) COLLATE gbk_chinese_ci");
-//            }
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("rate") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "rate");
+                } else {
+                    wrapper.orderBy(true, true, "rate");
+                }
+            }
+
 
 
             IPage<PayPassage> pages = payPassageService.page(getIPage(true), wrapper);
@@ -151,6 +155,7 @@ public class MchAppController extends CommonCtrl {
                     passage.addExt("successRate", "0.00");
                 }
             }
+            
 //            pages.setTotal(payPassageList.size());
             pages.setRecords(payPassageList);
             return ApiRes.ok(pages);

@@ -329,7 +329,7 @@ const tableColumns = [
   { key: 'weightsSlot', title: '轮询权重', width: 100, scopedSlots: { customRender: 'weightsSlot' } },
   { key: 'quotaLimitState', width: 210, title: '通道授信限制', scopedSlots: { customRender: 'quotaLimitStateSlot' } },
   { key: 'timeLimitState', width: 210, title: '通道定时设置', scopedSlots: { customRender: 'timeLimitStateSlot' } },
-  { key: 'rate', title: '通道费率', width: 100, scopedSlots: { customRender: 'rateSlot' } },
+  { key: 'rate', title: '通道费率', sorter: true, width: 100, scopedSlots: { customRender: 'rateSlot' } },
   { key: 'successRate', title: '成功率(天)', width: 100, scopedSlots: { customRender: 'successRateSlot' } },
   { key: 'payRuleStr', width: 120, title: '收款规则', scopedSlots: { customRender: 'payRuleStrSlot' } },
   { key: 'configStr', width: 160, title: '三方用户/通道标识', scopedSlots: { customRender: 'configStrSlot' } },
