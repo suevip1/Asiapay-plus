@@ -85,7 +85,12 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 // import { SelectTypes } from 'ant-design-vue/es/select'
-import { API_URL_MCH_APP, API_URL_MGR_PASSAGE_STAT, API_URL_PAYWAYS_LIST, req } from '@/api/manage'
+import {
+  API_URL_MCH_APP_LIST,
+  API_URL_MGR_PASSAGE_STAT,
+  API_URL_PAYWAYS_LIST,
+  req
+} from '@/api/manage'
 import moment from 'moment'
 
 // eslint-disable-next-line no-unused-vars
@@ -151,9 +156,11 @@ export default {
     req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
       that.productList = res.records
     })
-    req.list(API_URL_MCH_APP, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
-      that.payPassageList = res.records
-    })
+    if (this.$access('ENT_MCH_APP_LIST')) {
+      req.list(API_URL_MCH_APP_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+        that.payPassageList = res
+      })
+    }
     // 默认今天
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD') // 开始时间

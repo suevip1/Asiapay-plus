@@ -388,7 +388,7 @@ export default {
       })
     }
     if (this.$access('ENT_MCH_APP_LIST')) {
-      req.list(API_URL_MCH_APP_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
+      req.list(API_URL_MCH_APP_LIST, { 'pageSize': -1 }).then(res => { // 通道下拉选择列表
         that.payPassageList = res
       })
     }

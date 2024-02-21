@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +95,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void removeUnusedPayPassage() {
         List<PayPassage> list = list(PayPassage.gw().eq(PayPassage::getState, CS.HIDE));
+        log.info("【过期通道数据定时清理任务开始执行】{}", new Date());
         for (int i = 0; i < list.size(); i++) {
             Long payPassageId = list.get(i).getPayPassageId();
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getPassageId, payPassageId)) == 0) {
@@ -102,6 +104,7 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
                 log.info("自动清理任务，清理通道成功: " + payPassageId);
             }
         }
+        log.info("【过期通道数据定时清理任务执行完成】{}", new Date());
     }
 
 
