@@ -90,17 +90,28 @@ public class MchAppController extends CommonCtrl {
             //全局排序+搜索可用
             wrapper.orderBy(true, false, "state");
 
-
+            String sortField = reqJson.getString("sortField");
             String sortOrder = reqJson.getString("sortOrder");
-            if (StringUtils.isNotEmpty(sortOrder)) {
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("payPassageId") && StringUtils.isNotEmpty(sortOrder)) {
                 if (sortOrder.equals("descend")) {
                     wrapper.orderBy(true, false, "CONVERT(pay_passage_name USING gbk) COLLATE gbk_chinese_ci");
-                }else{
+                } else {
                     wrapper.orderBy(true, true, "CONVERT(pay_passage_name USING gbk) COLLATE gbk_chinese_ci");
                 }
-            } else {
-                wrapper.orderBy(true, true, "CONVERT(pay_passage_name USING gbk) COLLATE gbk_chinese_ci");
             }
+
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "balance");
+                } else {
+                    wrapper.orderBy(true, true, "balance");
+                }
+            }
+
+//            if(StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)){
+//                wrapper.orderBy(true, true, "CONVERT(pay_passage_name USING gbk) COLLATE gbk_chinese_ci");
+//            }
 
 
             IPage<PayPassage> pages = payPassageService.page(getIPage(true), wrapper);
