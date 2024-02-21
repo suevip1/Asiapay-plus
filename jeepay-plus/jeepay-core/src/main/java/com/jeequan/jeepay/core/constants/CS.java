@@ -630,6 +630,8 @@ public class CS {
         String CPPAY = "cppay";
 
         String A8PAY = "a8pay";
+
+        String MCPAY = "mcpay";
     }
 
 
