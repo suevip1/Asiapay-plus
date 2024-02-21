@@ -1,7 +1,6 @@
-package com.jeequan.jeepay.pay.channel.fusheng;
+package com.jeequan.jeepay.pay.channel.a8pay;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -12,7 +11,6 @@ import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.HttpClientPoolUtil;
 import com.jeequan.jeepay.core.utils.JeepayKit;
-import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -31,13 +29,13 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class FushengPaymentService extends AbstractPaymentService {
+public class A8payPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "[浮笙支付]";
+    private static final String LOG_TAG = "[A8支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.FUSHENG;
+        return CS.IF_CODE.A8PAY;
     }
 
     @Override
@@ -75,10 +73,11 @@ public class FushengPaymentService extends AbstractPaymentService {
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("pay_md5sign", sign);
             map.put("pay_productname", "下单");
+            map.put("content_type", "json");
 
             String payGateway = normalMchParams.getPayGateway();
 
-            raw = HttpUtil.post(payGateway, map, 10000);
+            raw = HttpClientPoolUtil.sendPostForm(payGateway,map);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
 
@@ -111,5 +110,61 @@ public class FushengPaymentService extends AbstractPaymentService {
             log.error(e.getMessage(), e);
         }
         return res;
+    }
+
+
+    public static void main(String[] args) {
+        String raw = "";
+
+        Map<String, Object> map = new HashMap<>();
+        String key = "xgbrmc4lx7oyw7eru3ne649wktnxwjgg";
+
+        String pay_memberid = "10402";
+        String pay_orderid = RandomStringUtils.random(20, true, true);
+        String pay_applydate = DateUtil.now();
+        String pay_bankcode = "939";
+        String pay_notifyurl = "https://www.test.com";
+        String pay_callbackurl = pay_notifyurl;
+        String pay_amount = AmountUtil.convertCent2Dollar(20000L);
+
+        map.put("pay_memberid", pay_memberid);
+        map.put("pay_orderid", pay_orderid);
+        map.put("pay_applydate", pay_applydate);
+        map.put("pay_bankcode", pay_bankcode);
+        map.put("pay_notifyurl", pay_notifyurl);
+        map.put("pay_callbackurl", pay_callbackurl);
+        map.put("pay_amount", pay_amount);
+
+
+        String sign = JeepayKit.getSign(map, key).toUpperCase();
+        map.put("pay_md5sign", sign);
+        map.put("pay_productname", "下单");
+        map.put("content_type", "json");
+        log.info("[{}]请求:{}", LOG_TAG, JSONObject.toJSONString(map));
+        String payGateway = "http://a8.55pay.cc/Pay_Index.html";
+
+//        raw = HttpClientPoolUtil.doPostJson(payGateway, JSONObject.toJSONString(map));
+//        raw = HttpUtil.post(payGateway, map, 10000);
+
+        // 发送POST请求并指定JSON数据
+        raw = HttpClientPoolUtil.sendPostForm(payGateway,map);
+
+        log.info("[{}]请求响应:{}", LOG_TAG, raw);
+
+        JSONObject result = JSON.parseObject(raw, JSONObject.class);
+        //拉起订单成功
+        if (result.getString("code").equals("200")) {
+            String payUrl = "";
+            String data = result.getString("data");
+            if (StringUtils.isNotEmpty(data)) {
+                payUrl = data;
+            }
+            String dataPayUrl = result.getString("payurl");
+            if (StringUtils.isNotEmpty(dataPayUrl)) {
+                payUrl = dataPayUrl;
+            }
+            String passageOrderId = "";
+            log.info("[{}]请求响应:{}", LOG_TAG, payUrl);
+        }
     }
 }

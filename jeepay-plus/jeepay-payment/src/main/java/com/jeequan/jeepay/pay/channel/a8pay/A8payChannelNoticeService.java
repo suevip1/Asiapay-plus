@@ -1,8 +1,5 @@
-package com.jeequan.jeepay.pay.channel.jqkpay;
+package com.jeequan.jeepay.pay.channel.a8pay;
 
-
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -10,7 +7,6 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
@@ -23,21 +19,22 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
+
 
 @Slf4j
 @Service
-public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
-    private static final String LOG_TAG = "[jqk支付]";
+public class A8payChannelNoticeService extends AbstractChannelNoticeService {
+
+    private static final String LOG_TAG = "[A8支付]";
 
     private static final String ON_FAIL = "fail";
 
-    private static final String ON_SUCCESS = "success";
+    private static final String ON_SUCCESS = "OK";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.JQKPAY;
+        return CS.IF_CODE.A8PAY;
     }
 
     @Override
@@ -71,33 +68,11 @@ public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
             ResponseEntity okResponse = textResp(ON_SUCCESS);
             result.setResponseEntity(okResponse);
 
+            //交易状态 “00” 为成功
+            String returncode = jsonParams.getString("returncode");
 
-            ///查单
-            NormalMchParams normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
-            String key = normalMchParams.getSecret();
-
-            Map<String, Object> map = new HashMap<>();
-            String mchid = normalMchParams.getMchNo();
-            String out_trade_no = payOrder.getPayOrderId();
-            String timestamp = System.currentTimeMillis() / 1000 + "";
-            map.put("mchid", mchid);
-            map.put("out_trade_no", out_trade_no);
-            map.put("timestamp", timestamp);
-            String sign = JeepayKit.getSign(map, key);
-            map.put("sign", sign);
-
-            // 发送POST请求并指定JSON数据
-            HttpResponse response = HttpUtil.createPost(normalMchParams.getQueryUrl()).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();
-            // 处理响应
-            String raw = response.body();
-            log.info("{} 查单请求响应:{}", LOG_TAG, raw);
-            JSONObject queryResult = JSON.parseObject(raw, JSONObject.class);
-
-            //支付状态：NOTPAY：未支付；SUCCESS：已支付
-            String status = queryResult.getJSONObject("data").getString("status");
-
-            if (!status.equals("SUCCESS")) {
-                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, status);
+            if (!returncode.equals("00")) {
+                log.info("[{}]回调通知订单状态错误:{}", LOG_TAG, returncode);
                 result.setChannelState(ChannelRetMsg.ChannelState.CONFIRM_FAIL);
             } else {
                 //验签成功后判断上游订单状态
@@ -119,8 +94,8 @@ public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
      * @return
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
-        String orderNo = jsonParams.getString("out_trade_no");        // 商户订单号
-        String txnAmt = jsonParams.getString("pay_amount");        // 支付金额
+        String orderNo = jsonParams.getString("orderid");        // 商户订单号
+        String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
@@ -137,13 +112,13 @@ public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
         String sign = jsonParams.getString("sign");
-        Map<String, Object> map = JSON.parseObject(jsonParams.toJSONString());
+        Map map = JSON.parseObject(jsonParams.toJSONString());
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
-            final String signContentStr = SignatureUtils.getSignContent(map, null, null) + "&key=" + secret;
+            final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
             final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
-            if (signStr.equalsIgnoreCase(sign)) {
+            if (signStr.equalsIgnoreCase(sign) && orderAmount.compareTo(channelNotifyAmount) == 0) {
                 return true;
             } else {
                 log.error("{} 验签或校验金额失败！ 回调参数：parameter = {}", LOG_TAG, jsonParams);
@@ -153,9 +128,5 @@ public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
             log.info("{} 获取商户配置失败！ 参数：parameter = {}", LOG_TAG, jsonParams);
             return false;
         }
-    }
-
-    public static void main(String[] args) {
-
     }
 }

@@ -112,9 +112,9 @@ public class Xxpay8PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "PADGDYHSTY35E6RGHTEXAWXXIILCKOLFDZFNVQWTBS5JMANGU12X3X3YQMMEBDJLQFWQ992FWB9GX8KUFPLOOOVS4VN73ZNRPK04KMLC6PNRMAH9A6OJO2CXKPGOKWWK";
+        String key = "FTNUHY2RM6WAGJGDGMAAV7VIIMGLSYZHTVPBXVQFUBGIF4ABW2JQKKZP2EGR5P5ENMXXDWASCTOYIXR8POBS2AX5AF61ICRPAHLCSY6HCYOQDXBBZY3ZWUYEGXXGUH9I";
 
-        String mchId = "20000156";
+        String mchId = "20000159";
         String productId = "8046";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         long amount = 10000;
