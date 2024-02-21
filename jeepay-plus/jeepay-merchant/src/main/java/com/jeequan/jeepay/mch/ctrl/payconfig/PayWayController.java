@@ -17,6 +17,7 @@ package com.jeequan.jeepay.mch.ctrl.payconfig;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.Product;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mch.ctrl.CommonCtrl;
@@ -49,6 +50,7 @@ public class PayWayController extends CommonCtrl {
         Product queryObject = getObject(Product.class);
 
         LambdaQueryWrapper<Product> condition = Product.gw();
+        condition.ne(Product::getState, CS.HIDE);
         if (queryObject.getProductId() != null) {
             condition.like(Product::getProductId, queryObject.getProductId());
         }

@@ -55,6 +55,7 @@ public class MchProductService extends ServiceImpl<MchProductMapper, MchProduct>
         }
 
         LambdaQueryWrapper<Product> productWrapper = Product.gw();
+        productWrapper.ne(Product::getState, CS.HIDE);
         productWrapper.orderByAsc(Product::getProductId);
         List<Product> productList = productService.list(productWrapper);
 

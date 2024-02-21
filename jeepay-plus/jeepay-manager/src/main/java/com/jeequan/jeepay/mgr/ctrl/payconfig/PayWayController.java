@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.core.model.ApiRes;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 
 /**
- * 支付方式管理类
+ * 支付产品管理类
  *
  * @author zhuxiao
  * @site https://www.jeequan.com
@@ -49,10 +50,8 @@ public class PayWayController extends CommonCtrl {
     MchPayPassageService mchPayPassageService;
     @Autowired
     PayOrderService payOrderService;
-
     @Autowired
     PayPassageService passageService;
-
     @Autowired
     MchProductService mchProductService;
 
@@ -67,6 +66,7 @@ public class PayWayController extends CommonCtrl {
         try {
             Product queryObject = getObject(Product.class);
             LambdaQueryWrapper<Product> condition = Product.gw();
+            condition.ne(Product::getState, CS.HIDE);
             if (queryObject.getProductId() != null) {
                 condition.like(Product::getProductId, queryObject.getProductId());
             }
@@ -108,13 +108,13 @@ public class PayWayController extends CommonCtrl {
      */
     @PreAuthorize("hasAuthority('ENT_PC_WAY_ADD')")
     @PostMapping
-    @MethodLog(remark = "新增支付方式")
+    @MethodLog(remark = "新增支付产品")
     @LimitRequest
     public ApiRes add() {
         Product product = getObject(Product.class);
 
         if (productService.count(Product.gw().eq(Product::getProductId, product.getProductId())) > 0) {
-            throw new BizException("支付方式代码已存在");
+            throw new BizException("支付产品ID已存在");
         }
         product.setProductId(product.getProductId());
         product.setUpdatedAt(new Date());
@@ -133,7 +133,7 @@ public class PayWayController extends CommonCtrl {
      */
     @PreAuthorize("hasAuthority('ENT_PC_WAY_EDIT')")
     @PutMapping("/{wayCode}")
-    @MethodLog(remark = "更新支付方式")
+    @MethodLog(remark = "更新支付产品")
     @LimitRequest
     public ApiRes update(@PathVariable("wayCode") Long wayCode) {
         Product product = getObject(Product.class);
@@ -153,19 +153,19 @@ public class PayWayController extends CommonCtrl {
      */
     @PreAuthorize("hasAuthority('ENT_PC_WAY_DEL')")
     @DeleteMapping("/{productId}")
-    @MethodLog(remark = "删除支付方式")
+    @MethodLog(remark = "删除支付产品")
     @LimitRequest
-    public ApiRes delete(@PathVariable("productId") String productId) {
-        // 校验该支付方式是否有商户已配置通道或者已有订单
-        if (passageService.count(PayPassage.gw().eq(PayPassage::getProductId, productId)) > 0
-                || payOrderService.count(PayOrder.gw().eq(PayOrder::getProductId, productId)) > 0) {
-            throw new BizException("该支付产品已有商户配置通道或已发生交易，无法删除！");
-        }
+    public ApiRes delete(@PathVariable("productId") Long productId) {
+        Product product = new Product();
+        product.setProductId(productId);
+        product.setState(CS.HIDE);
+        boolean result = productService.updateById(product);
 
-        boolean result = productService.removeById(productId);
-        mchProductService.remove(MchProduct.gw().eq(MchProduct::getProductId, productId));
         if (!result) {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_DELETE);
+        } else {
+            //移除绑定产品
+            mchProductService.remove(MchProduct.gw().eq(MchProduct::getProductId, productId));
         }
         return ApiRes.ok();
     }

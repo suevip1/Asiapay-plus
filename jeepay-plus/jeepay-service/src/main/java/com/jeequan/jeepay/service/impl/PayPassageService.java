@@ -100,7 +100,6 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
             Long payPassageId = list.get(i).getPayPassageId();
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getPassageId, payPassageId)) == 0) {
                 mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
-                mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
                 log.info("自动清理任务，清理通道成功: " + payPassageId);
             }
         }

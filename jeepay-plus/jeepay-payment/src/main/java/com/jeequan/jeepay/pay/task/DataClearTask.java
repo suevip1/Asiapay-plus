@@ -70,6 +70,9 @@ public class DataClearTask {
 
     @Autowired
     private PayPassageService payPassageService;
+
+    @Autowired
+    private ProductService productService;
     @Async
     @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
     public void start() {
@@ -97,6 +100,9 @@ public class DataClearTask {
         sysLogService.ClearSysLog(offsetDate, QUERY_PAGE_SIZE);
         //检查有无可删除的通道
         payPassageService.removeUnusedPayPassage();
+
+        //检查并清理可删除产品
+        productService.removeUnusedProduct();
     }
 
 }

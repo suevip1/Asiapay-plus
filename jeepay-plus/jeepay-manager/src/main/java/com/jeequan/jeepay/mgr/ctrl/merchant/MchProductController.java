@@ -52,6 +52,7 @@ public class MchProductController extends CommonCtrl {
                 productMchMap.put(listBlind.get(i).getProductId(), listBlind.get(i));
             }
             LambdaQueryWrapper<Product> productWrapper = Product.gw();
+            productWrapper.ne(Product::getState, CS.HIDE);
             //查询参数 商户号
             if (productId != null) {
                 productWrapper.eq(Product::getProductId, productId);
