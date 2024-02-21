@@ -77,12 +77,14 @@ const tableColumns = [
     fixed: 'left',
     title: '产品代码',
     width: '120px',
+    sorter: true,
     scopedSlots: { customRender: 'wayCodeSlot' }
   },
   {
     key: 'productName',
     title: '产品名称',
-    dataIndex: 'productName'
+    dataIndex: 'productName',
+    sorter: true
   },
   {
     key: 'state', // key为必填项，用于标志该列的唯一
@@ -97,7 +99,8 @@ const tableColumns = [
   {
     key: 'createdAt',
     title: '创建时间',
-    dataIndex: 'createdAt'
+    dataIndex: 'createdAt',
+    sorter: true
   },
   {
     key: 'op',

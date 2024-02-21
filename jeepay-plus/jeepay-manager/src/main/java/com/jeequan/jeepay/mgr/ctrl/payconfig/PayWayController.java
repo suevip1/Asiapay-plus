@@ -15,7 +15,9 @@
  */
 package com.jeequan.jeepay.mgr.ctrl.payconfig;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
@@ -64,22 +66,55 @@ public class PayWayController extends CommonCtrl {
     @GetMapping
     public ApiRes list() {
         try {
+            JSONObject reqJson = getReqParamJSON();
+
             Product queryObject = getObject(Product.class);
-            LambdaQueryWrapper<Product> condition = Product.gw();
-            condition.ne(Product::getState, CS.HIDE);
+            QueryWrapper<Product> condition = new QueryWrapper<>();
+            condition.ne("state", CS.HIDE);
+
+            String sortField = reqJson.getString("sortField");
+            String sortOrder = reqJson.getString("sortOrder");
+            condition.orderBy(true, false, "state");
+
             if (queryObject.getProductId() != null) {
-                condition.like(Product::getProductId, queryObject.getProductId());
+                condition.like("product_id", queryObject.getProductId());
             }
             if (StringUtils.isNotEmpty(queryObject.getProductName())) {
-                condition.like(Product::getProductName, queryObject.getProductName().trim());
+                condition.like("product_name", queryObject.getProductName().trim());
             }
             if (queryObject.getState() != null) {
-                condition.like(Product::getState, queryObject.getState());
+                condition.like("state", queryObject.getState());
             }
             if (queryObject.getLimitState() != null) {
-                condition.like(Product::getLimitState, queryObject.getLimitState());
+                condition.like("limit_state", queryObject.getLimitState());
             }
-            condition.orderByAsc(Product::getProductId);
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("productName") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    condition.orderBy(true, false, "CONVERT(product_name USING gbk) COLLATE gbk_chinese_ci");
+                } else {
+                    condition.orderBy(true, true, "CONVERT(product_name USING gbk) COLLATE gbk_chinese_ci");
+                }
+            }
+
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("productId") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    condition.orderBy(true, false, "product_id");
+                } else {
+                    condition.orderBy(true, true, "product_id");
+                }
+            }
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("createdAt") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    condition.orderBy(true, false, "created_at");
+                } else {
+                    condition.orderBy(true, true, "created_at");
+                }
+            }
+
+            condition.orderBy(true, true, "product_id");
 
             IPage<Product> pages = productService.page(getIPage(true), condition);
 
