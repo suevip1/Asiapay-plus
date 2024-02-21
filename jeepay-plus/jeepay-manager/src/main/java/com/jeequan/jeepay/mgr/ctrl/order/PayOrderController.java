@@ -75,9 +75,13 @@ public class PayOrderController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         try {
+            Long start = System.currentTimeMillis();
             PayOrder payOrder = getObject(PayOrder.class);
             JSONObject paramJSON = getReqParamJSON();
             LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
+            //商户号、名 订单号、商户订单号、产品、通道、状态、金额、是否手动补单、回调状态、创建时间
+            wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchOrderNo, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getPassageId, PayOrder::getAmount, PayOrder::getState, PayOrder::getForceChangeState
+                    , PayOrder::getCreatedAt, PayOrder::getNotifyState);
             IPage<PayOrder> pages = payOrderService.listByPage(getIPage(), payOrder, paramJSON, wrapper);
             List<PayOrder> records = pages.getRecords();
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
@@ -85,6 +89,8 @@ public class PayOrderController extends CommonCtrl {
                 records.get(i).addExt("passageName", payPassageMap.get(records.get(i).getPassageId()).getPayPassageName());
             }
             pages.setRecords(records);
+            Long end = System.currentTimeMillis();
+            logger.error((end - start) / 1000f + "");
             return ApiRes.page(pages);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

@@ -306,7 +306,7 @@ import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import {
   API_URL_MCH_APP,
   API_URL_MCH_APP_BALANCE, API_URL_MCH_APP_MULTIPLE_SET,
-  API_URL_MCH_APP_RESET_BALANCE, API_URL_PASSAGE_STAT_LIST,
+  API_URL_MCH_APP_RESET_BALANCE,
   API_URL_PAYWAYS_LIST,
   req, reqLoad
 } from '@/api/manage'
@@ -412,20 +412,15 @@ export default {
   },
   methods: {
     queryFunc () {
-      const that = this
+      // const that = this
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
       this.selectedIds = []
-      req.postDataNormal('/api/passageRealTimeStat', '', that.searchData).then(res => { // 产品下拉列表
-        that.totalPassageInfo = res
-      })
+      this.getPassageStatInfo()
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
       return req.list(API_URL_MCH_APP, params)
-    },
-    searchFunc: function () { // 点击【查询】按钮点击事件
-      this.$refs.infoTable.refTable(true)
     },
     addOrEdit: function () { // 点击【查询】按钮点击事件
       this.$refs.infoTable.refTable()
@@ -447,7 +442,7 @@ export default {
       this.$infoBox.confirmDanger('确认删除？', '', () => {
         req.delById(API_URL_MCH_APP, appId).then(res => {
           that.$message.success('删除成功！')
-          that.searchFunc()
+          that.queryFunc()
         })
       })
     },
@@ -680,9 +675,8 @@ export default {
     },
     getPassageStatInfo: function () {
       const that = this
-      req.getNormal(API_URL_PASSAGE_STAT_LIST, 'statPassageInfo').then(res => {
+      req.postDataNormal('/api/passageRealTimeStat', '', that.searchData).then(res => { // 产品下拉列表
         that.totalPassageInfo = res
-        that.autoCleanEnable = res.payPassageAutoClean
       })
     },
     changeStr2ellipsis (orderNo, baseLength) {
@@ -704,7 +698,7 @@ export default {
       return new Promise((resolve, reject) => {
         that.$infoBox.confirmDanger(title, content, () => {
               return reqLoad.updateById(API_URL_MCH_APP, recordId, param).then(res => {
-                that.searchFunc()
+                that.queryFunc()
                 resolve()
               }).catch(err => reject(err))
             },

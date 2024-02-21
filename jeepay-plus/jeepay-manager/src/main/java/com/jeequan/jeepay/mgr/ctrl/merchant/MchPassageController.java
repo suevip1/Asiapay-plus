@@ -66,6 +66,7 @@ public class MchPassageController extends CommonCtrl {
             }
 
             LambdaQueryWrapper<PayPassage> payPassageWrapper = PayPassage.gw();
+            payPassageWrapper.ne(PayPassage::getState, CS.HIDE);
             //查询参数
             if (queryObj.getPayPassageId() != null) {
                 payPassageWrapper.eq(PayPassage::getPayPassageId, queryObj.getPayPassageId());

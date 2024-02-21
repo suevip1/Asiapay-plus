@@ -18,6 +18,7 @@ import com.jeequan.jeepay.service.impl.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.Collator;
@@ -42,14 +43,13 @@ public class MchAppController extends CommonCtrl {
     private ProductService productService;
 
     @Autowired
-    private PayOrderService payOrderService;
-
-    @Autowired
-    private MchPayPassageService mchPayPassageService;
-
+    private RobotsPassageService robotsPassageService;
 
     @Autowired
     private StatisticsPassageService statisticsPassageService;
+
+    @Autowired
+    private MchPayPassageService mchPayPassageService;
 
     /**
      * @Author: ZhuXiao
@@ -63,7 +63,7 @@ public class MchAppController extends CommonCtrl {
             PayPassage payPassage = getObject(PayPassage.class);
 
             QueryWrapper<PayPassage> wrapper = new QueryWrapper<>();
-
+            wrapper.ne("state", CS.HIDE);
             if (StringUtils.isNotEmpty(payPassage.getPayPassageName())) {
                 wrapper.like("pay_passage_name", payPassage.getPayPassageName().trim());
             }
@@ -241,17 +241,21 @@ public class MchAppController extends CommonCtrl {
     @MethodLog(remark = "删除通道")
     @DeleteMapping("/{payPassageId}")
     @LimitRequest
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public ApiRes delete(@PathVariable("payPassageId") Long payPassageId) {
-        //todo 通道删除改为状态变 -1 ,每日固定时间检测 是否还存在相关通道
-        if (payOrderService.count(PayOrder.gw().eq(PayOrder::getPassageId, payPassageId)) > 0) {
-            throw new BizException("该支付通道已发生交易，无法删除！");
+        PayPassage payPassage = new PayPassage();
+        payPassage.setPayPassageId(payPassageId);
+        payPassage.setState(CS.HIDE);
+        boolean isSuccess = payPassageService.updateById(payPassage);
+        if (isSuccess) {
+            //移除机器人绑定的通道
+            robotsPassageService.remove(RobotsPassage.gw().eq(RobotsPassage::getPassageId, payPassageId));
+            //移除绑定
+            mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
+            return ApiRes.ok();
+        } else {
+            logger.error("隐藏通道失败: " + payPassageId);
+            return ApiRes.customFail("删除失败,请稍后再试");
         }
-        //删除通道-商户绑定关系表
-        //删除通道-产品绑定
-        //有无未关闭的订单
-        mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
-        payPassageService.removePayPassage(payPassageId);
-
-        return ApiRes.ok();
     }
 }

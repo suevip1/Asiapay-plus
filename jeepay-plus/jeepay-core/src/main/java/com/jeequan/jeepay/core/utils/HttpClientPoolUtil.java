@@ -1,5 +1,6 @@
 package com.jeequan.jeepay.core.utils;
 
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -158,7 +159,7 @@ public class HttpClientPoolUtil {
      * @param params 请求参数
      * @return
      */
-    public static String doGet(String url, Map<String, Object> params)  {
+    public static String doGet(String url, Map<String, Object> params) {
         return doGet(url, null, params);
     }
 
@@ -170,7 +171,7 @@ public class HttpClientPoolUtil {
      * @return
      * @throws Exception
      */
-    public static String doGet(String url, Map<String, Object> headers, Map<String, Object> params)  {
+    public static String doGet(String url, Map<String, Object> headers, Map<String, Object> params) {
         long startTime = System.currentTimeMillis();
         HttpEntity httpEntity = null;
         HttpRequestBase method = null;
@@ -188,14 +189,14 @@ public class HttpClientPoolUtil {
                 }
             }
             URI uri = builder.build();
-           // LOGGER.info("请求地址：" + uri);
+            // LOGGER.info("请求地址：" + uri);
             method = getRequest(uri, headers, HttpGet.METHOD_NAME, DEFAULT_CONTENT_TYPE, 10);
             HttpContext context = HttpClientContext.create();
             CloseableHttpResponse httpResponse = httpClient.execute(method, context);
             httpEntity = httpResponse.getEntity();
             if (httpEntity != null) {
                 responseBody = EntityUtils.toString(httpEntity, "UTF-8");
-             //   LOGGER.info("请求URL: " + url + "+  返回状态码：" + httpResponse.getStatusLine().getStatusCode());
+                //   LOGGER.info("请求URL: " + url + "+  返回状态码：" + httpResponse.getStatusLine().getStatusCode());
             }
             ;
         } catch (HttpHostConnectException e) {
@@ -239,7 +240,7 @@ public class HttpClientPoolUtil {
      * @param params 请求body参数
      * @return
      */
-    public static String doPost(String url, Map<String, Object> params)  {
+    public static String doPost(String url, Map<String, Object> params) {
         return doPost(url, null, params);
     }
 
@@ -252,7 +253,7 @@ public class HttpClientPoolUtil {
      * @param params  请求body参数
      * @return
      */
-    public static String doPost(String url, Map<String, Object> headers, Map<String, Object> params)  {
+    public static String doPost(String url, Map<String, Object> headers, Map<String, Object> params) {
         JSONObject data = JSONObject.parseObject(JSON.toJSONString(params));
         long startTime = System.currentTimeMillis();
         HttpEntity httpEntity = null;
@@ -282,7 +283,7 @@ public class HttpClientPoolUtil {
             }
             e.printStackTrace();
             log.error("execute post request exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                            + (System.currentTimeMillis() - startTime));
+                    + (System.currentTimeMillis() - startTime));
         } finally {
             if (httpEntity != null) {
                 try {
@@ -290,13 +291,14 @@ public class HttpClientPoolUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("close response exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                                    + (System.currentTimeMillis() - startTime));
+                            + (System.currentTimeMillis() - startTime));
                 }
             }
         }
         return responseBody;
     }
-    public static String doPostJson(String url,String json) {
+
+    public static String doPostJson(String url, String json) {
 
         long startTime = System.currentTimeMillis();
         HttpEntity httpEntity = null;
@@ -326,7 +328,7 @@ public class HttpClientPoolUtil {
             }
             e.printStackTrace();
             log.error("execute post request exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                            + (System.currentTimeMillis() - startTime));
+                    + (System.currentTimeMillis() - startTime));
         } finally {
             if (httpEntity != null) {
                 try {
@@ -334,11 +336,26 @@ public class HttpClientPoolUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("close response exception, url:" + url + ", exception:" + e.toString() + ", cost time(ms):"
-                                    + (System.currentTimeMillis() - startTime));
+                            + (System.currentTimeMillis() - startTime));
                 }
             }
         }
         return responseBody;
+    }
+
+    public static String sendPostForm(String url, Map<String, Object> params) {
+        // 创建POST请求
+        cn.hutool.http.HttpRequest request = cn.hutool.http.HttpRequest.post(url)
+                .contentType("application/x-www-form-urlencoded");
+
+        // 将Map参数添加到请求中
+        params.forEach(request::form);
+
+        // 发送请求并接收响应
+        cn.hutool.http.HttpResponse response = request.timeout(10000).execute();
+
+        // 返回响应内容
+        return response.body();
     }
 
 }

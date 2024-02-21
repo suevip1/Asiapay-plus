@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.agent.ctrl.CommonCtrl;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.entity.StatisticsAgentPassage;
 import com.jeequan.jeepay.core.model.ApiRes;
@@ -43,7 +44,7 @@ public class AgentPassageListController extends CommonCtrl {
             PayPassage payPassage = getObject(PayPassage.class);
 
             LambdaQueryWrapper<PayPassage> wrapper = PayPassage.gw();
-
+            wrapper.ne(PayPassage::getState, CS.HIDE);
             wrapper.eq(PayPassage::getAgentNo, getCurrentAgentNo());
 
             if (payPassage.getPayPassageId() != null) {

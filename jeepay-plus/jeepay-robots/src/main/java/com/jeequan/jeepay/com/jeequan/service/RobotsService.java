@@ -389,6 +389,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("产品费率 -- 查询商户已开通产品实时费率").append(System.lineSeparator());
             stringBuffer.append("产品费率 ID-- 查询商户已开通单个产品实时费率").append(System.lineSeparator());
             stringBuffer.append("XXXXXXX -- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作").append(System.lineSeparator());
+            stringBuffer.append("XXXXXXX 备注XXX-- 直接发送平台订单号或商户订单号<b>并带图</b>进行<b>查单</b>操作").append(System.lineSeparator());
             stringBuffer.append("XXXXXXX 换行 XXXXXXX -- 多单查询每个单号间请换行<b>并带图</b>进行<b>查单</b>操作").append(System.lineSeparator());
             stringBuffer.append("zz -- 催单：回复商户发单消息进行转发，例如：zz 加急加急").append(System.lineSeparator());
             stringBuffer.append("zz 订单号/商户订单号 xxxx-- 催单：直接发送订单号以及备注信息进行催单，例如：zz P1234567890 加急加急").append(System.lineSeparator());

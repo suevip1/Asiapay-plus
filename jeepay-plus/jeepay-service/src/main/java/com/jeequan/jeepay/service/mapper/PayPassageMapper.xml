@@ -53,6 +53,6 @@
         </where>
     </update>
     <select id="sumPassageInfo" parameterType="java.util.Map" resultType="com.alibaba.fastjson.JSONObject" >
-        select sum(balance) as totalBalance,count(*) as passageNum from t_pay_passage
+        select sum(balance) as totalBalance,count(*) as passageNum from t_pay_passage WHERE state != -1
     </select>
 </mapper>

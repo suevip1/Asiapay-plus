@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.core.model.ApiRes;
@@ -38,7 +39,7 @@ public class PassageListController extends CommonCtrl {
     public ApiRes list() {
         try {
             LambdaQueryWrapper<PayPassage> wrapper = PayPassage.gw();
-
+            wrapper.ne(PayPassage::getState, CS.HIDE);
             wrapper.select(PayPassage::getPayPassageId, PayPassage::getPayPassageName);
 
             List<PayPassage> payPassageList = payPassageService.list(wrapper);

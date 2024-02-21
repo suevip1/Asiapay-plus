@@ -2,12 +2,16 @@ package com.jeequan.jeepay.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.cache.RedisUtil;
+import com.jeequan.jeepay.core.constants.CS;
+import com.jeequan.jeepay.core.entity.MchPayPassage;
+import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.PayPassageMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +38,12 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
     private final static String REDIS_SUFFIX = "Passage_Pay_Config";
     @Resource
     private PayPassageMapper payPassageMapper;
+
+    @Autowired
+    private MchPayPassageService mchPayPassageService;
+
+    @Autowired
+    private PayOrderService payOrderService;
 
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class}, isolation = Isolation.SERIALIZABLE)
     public PayPassage queryPassageInfo(Long payPassageId) {
@@ -77,7 +87,21 @@ public class PayPassageService extends ServiceImpl<PayPassageMapper, PayPassage>
         if (!removePayPassage) {
             throw new BizException("删除当前通道失败");
         }
+        mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
         return true;
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    public void removeUnusedPayPassage() {
+        List<PayPassage> list = list(PayPassage.gw().eq(PayPassage::getState, CS.HIDE));
+        for (int i = 0; i < list.size(); i++) {
+            Long payPassageId = list.get(i).getPayPassageId();
+            if (payOrderService.count(PayOrder.gw().eq(PayOrder::getPassageId, payPassageId)) == 0) {
+                mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
+                mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
+                log.info("自动清理任务，清理通道成功: " + payPassageId);
+            }
+        }
     }
 
 

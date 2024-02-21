@@ -76,6 +76,7 @@ public class CS {
      **/
     public static final byte NO = 0;
     public static final byte YES = 1;
+    public static final byte HIDE = -1;
 
     /**
      * 实时统计总订单
@@ -563,8 +564,6 @@ public class CS {
 
         String DIGUA = "digua";
 
-        String QXPAY = "qxpay";
-
         String OPEN = "open";
 
         String WLAN = "wlan";
@@ -629,6 +628,8 @@ public class CS {
         String CYOUPAY = "cyoupay";
 
         String CPPAY = "cppay";
+
+        String A8PAY = "a8pay";
     }
 
 

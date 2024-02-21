@@ -162,7 +162,7 @@ public class ChannelNoticeController extends AbstractCtrl {
             if (!StringKit.checkInWhiteList(requestIp, normalMchParams.getWhiteList())) {
                 log.error("回调IP[{}]不在白名单之内,白名单列表[{}]:", requestIp, normalMchParams.getWhiteList());
 
-                String noticeInfo = "回调IP[" + request + "]不在白名单之内,白名单列表[" + normalMchParams.getWhiteList() + "]";
+                String noticeInfo = "回调IP[" + requestIp + "]不在白名单之内,白名单列表[" + normalMchParams.getWhiteList() + "]";
                 payOrderService.updateNoticeInfo(payOrderId, noticeInfo);
                 throw new BizException("回调IP白名单校验异常！");
             }

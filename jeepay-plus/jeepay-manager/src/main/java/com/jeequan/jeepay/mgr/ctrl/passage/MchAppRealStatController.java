@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.entity.Product;
@@ -14,6 +15,8 @@ import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.PayOrderService;
 import com.jeequan.jeepay.service.impl.PayPassageService;
+import com.jeequan.jeepay.service.impl.SysConfigService;
+import com.jeequan.jeepay.service.impl.SysUserAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +34,16 @@ public class MchAppRealStatController extends CommonCtrl {
     @Autowired
     private PayPassageService payPassageService;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     public ApiRes countReal() {
         try {
             PayPassage payPassage = getObject(PayPassage.class);
 
             QueryWrapper<PayPassage> wrapper = new QueryWrapper<>();
-
+            wrapper.ne("state", CS.HIDE);
             if (StringUtils.isNotEmpty(payPassage.getPayPassageName())) {
                 wrapper.like("pay_passage_name", payPassage.getPayPassageName().trim());
             }
@@ -62,7 +68,7 @@ public class MchAppRealStatController extends CommonCtrl {
             JSONObject result = new JSONObject();
             result.put("totalBalance", totalAmount);
             result.put("passageNum", payPassageList.size());
-
+            result.put("payPassageAutoClean", sysConfigService.getPassageAutoClearConfig());
             return ApiRes.ok(result);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

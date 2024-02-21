@@ -234,7 +234,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
         //商户代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNo())) {
-            wrapper.eq(PayOrder::getAgentNo, payOrder.getAgentNo().trim());
+            wrapper.like(PayOrder::getAgentNo, payOrder.getAgentNo().trim());
         }
         //通道代理
         if (StringUtils.isNotEmpty(payOrder.getAgentNoPassage())) {
@@ -273,7 +273,6 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
             wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
-
         wrapper.orderByDesc(PayOrder::getCreatedAt);
 
         return page(iPage, wrapper);
@@ -341,7 +340,8 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
             wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
-
+        wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchOrderNo, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getPassageId, PayOrder::getAmount, PayOrder::getState, PayOrder::getForceChangeState
+                , PayOrder::getCreatedAt, PayOrder::getNotifyState,PayOrder::getUpdatedAt,PayOrder::getForceChangeBeforeState,PayOrder::getForceChangeLoginName);
         wrapper.orderByDesc(PayOrder::getUpdatedAt);
 
         return page(iPage, wrapper);
@@ -411,7 +411,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         }
 
         wrapper.orderByDesc(PayOrder::getUpdatedAt);
-
+        wrapper.select(PayOrder::getAmount, PayOrder::getState, PayOrder::getPassageFeeAmount, PayOrder::getAgentFeeAmount, PayOrder::getAgentPassageFee, PayOrder::getMchFeeAmount);
         return list(wrapper);
     }
 
@@ -477,9 +477,10 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
         if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
             wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
-
+//        ("商户号", "商户名称", "支付金额", "订单号", "商户订单号", "支付状态", "创建时间", "成功时间");
         wrapper.orderByDesc(PayOrder::getCreatedAt);
-
+        wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchOrderNo, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getPassageId, PayOrder::getAmount, PayOrder::getState, PayOrder::getForceChangeState
+                , PayOrder::getCreatedAt, PayOrder::getNotifyState,PayOrder::getSuccessTime);
         return list(wrapper);
     }
 

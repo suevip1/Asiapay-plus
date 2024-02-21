@@ -47,6 +47,7 @@ public class PassageStatController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         LambdaQueryWrapper<PayPassage> wrapper = PayPassage.gw();
+        wrapper.ne(PayPassage::getState, CS.HIDE);
         wrapper.orderByDesc(PayPassage::getBalance);
         IPage<PayPassage> pages = payPassageService.page(getIPage(), wrapper);
         return ApiRes.page(pages);
