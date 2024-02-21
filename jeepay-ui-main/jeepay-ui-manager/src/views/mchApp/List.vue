@@ -389,6 +389,7 @@ export default {
   },
   mounted () {
     this.queryFunc()
+    this.$message.info('默认按创建时间排序，可点击排序按钮修改排序')
     const that = this
     req.list(API_URL_PAYWAYS_LIST, { 'pageSize': -1 }).then(res => { // 产品下拉选择列表
       that.productList = res.records

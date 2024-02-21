@@ -5,8 +5,8 @@
         <a-form layout="inline" class="table-head-ground">
           <div class="table-layer">
             <jeepay-text-up :placeholder="'商户号'" :msg="searchData.mchNo" v-model="searchData.mchNo"/>
-            <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo"/>
             <jeepay-text-up :placeholder="'商户名称'" :msg="searchData.mchName" v-model="searchData.mchName"/>
+            <jeepay-text-up :placeholder="'代理商号'" :msg="searchData.agentNo" v-model="searchData.agentNo"/>
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.state" placeholder="商户状态" default-value="">
                 <a-select-option value="">全部</a-select-option>
@@ -117,12 +117,12 @@ import { saveAs } from 'file-saver'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'mchName', fixed: 'left', width: '150px', title: '商户名称', scopedSlots: { customRender: 'mchNameSlot' } },
+  { key: 'mchName', fixed: 'left', width: '150px', sorter: true, title: '商户名称', scopedSlots: { customRender: 'mchNameSlot' } },
   { key: 'mchNo', title: '商户号', dataIndex: 'mchNo', width: '130px' },
   { key: 'agentNo', title: '代理商', width: '260px', scopedSlots: { customRender: 'agentInfoSlot' } },
-  { key: 'balance', title: '商户余额(￥)', width: '300px', scopedSlots: { customRender: 'balanceSlot' } },
+  { key: 'balance', title: '商户余额(￥)', sorter: true, width: '300px', scopedSlots: { customRender: 'balanceSlot' } },
   { key: 'state', title: '状态', width: '80px', scopedSlots: { customRender: 'stateSlot' } },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: '250px' },
+  { key: 'createdAt', dataIndex: 'createdAt', sorter: true, title: '创建日期', width: '250px' },
   { key: 'remark', dataIndex: 'remark', title: '备注', width: '120px' },
   { key: 'op', title: '操作', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }
 ]

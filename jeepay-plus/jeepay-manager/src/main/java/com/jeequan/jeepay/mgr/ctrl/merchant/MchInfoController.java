@@ -20,6 +20,7 @@ import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.components.mq.model.CleanMchLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.model.ResetIsvMchAppInfoConfigMQ;
@@ -79,23 +80,53 @@ public class MchInfoController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         try {
+            JSONObject reqJson = getReqParamJSON();
             MchInfo mchInfo = getObject(MchInfo.class);
 
-            LambdaQueryWrapper<MchInfo> wrapper = MchInfo.gw();
+            QueryWrapper<MchInfo> wrapper = new QueryWrapper<>();
             if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
-                wrapper.like(MchInfo::getMchNo, mchInfo.getMchNo().trim());
+                wrapper.eq("mch_no", mchInfo.getMchNo().trim());
             }
             if (StringUtils.isNotEmpty(mchInfo.getAgentNo())) {
-                wrapper.like(MchInfo::getAgentNo, mchInfo.getAgentNo().trim());
+                wrapper.eq("agent_no", mchInfo.getAgentNo().trim());
             }
             if (StringUtils.isNotEmpty(mchInfo.getMchName())) {
-                wrapper.like(MchInfo::getMchName, mchInfo.getMchName().trim());
+                wrapper.like("mch_name", mchInfo.getMchName().trim());
             }
 
             if (mchInfo.getState() != null) {
-                wrapper.eq(MchInfo::getState, mchInfo.getState());
+                wrapper.eq("state", mchInfo.getState());
             }
-            wrapper.orderByAsc(MchInfo::getCreatedAt);
+
+            String sortField = reqJson.getString("sortField");
+            String sortOrder = reqJson.getString("sortOrder");
+
+            wrapper.orderBy(true, false, "state");
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("mchName") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "CONVERT(mch_name USING gbk) COLLATE gbk_chinese_ci");
+                } else {
+                    wrapper.orderBy(true, true, "CONVERT(mch_name USING gbk) COLLATE gbk_chinese_ci");
+                }
+            }
+
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "balance");
+                } else {
+                    wrapper.orderBy(true, true, "balance");
+                }
+            }
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("createdAt") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "created_at");
+                } else {
+                    wrapper.orderBy(true, true, "created_at");
+                }
+            }
 
             List<AgentAccountInfo> agentAccountInfos = agentAccountInfoService.list();
 
