@@ -75,7 +75,7 @@ public class PayOrderController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         try {
-            Long start = System.currentTimeMillis();
+//            Long start = System.currentTimeMillis();
             PayOrder payOrder = getObject(PayOrder.class);
             JSONObject paramJSON = getReqParamJSON();
             LambdaQueryWrapper<PayOrder> wrapper = PayOrder.gw();
@@ -89,8 +89,8 @@ public class PayOrderController extends CommonCtrl {
                 records.get(i).addExt("passageName", payPassageMap.get(records.get(i).getPassageId()).getPayPassageName());
             }
             pages.setRecords(records);
-            Long end = System.currentTimeMillis();
-            logger.error((end - start) / 1000f + "");
+//            Long end = System.currentTimeMillis();
+//            logger.error((end - start) / 1000f + "");
             return ApiRes.page(pages);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

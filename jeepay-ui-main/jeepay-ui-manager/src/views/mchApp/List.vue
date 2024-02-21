@@ -321,7 +321,7 @@ import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'payPassageId', fixed: 'left', width: '240px', title: '通道名称/所属产品', scopedSlots: { customRender: 'payPassageId' } },
+  { key: 'payPassageId', fixed: 'left', sorter: true, width: '240px', title: '通道名称/所属产品', scopedSlots: { customRender: 'payPassageId' } },
   { key: 'state', title: '状态', fixed: 'left', width: 100, scopedSlots: { customRender: 'stateSlot' } },
   { key: 'balance', title: '通道余额', width: 180, scopedSlots: { customRender: 'balanceSlot' } },
   { key: 'weightsSlot', title: '轮询权重', width: 100, scopedSlots: { customRender: 'weightsSlot' } },
