@@ -32,7 +32,9 @@
           <a-button style="margin-left: 8px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="setting" @click="setAutoClean">通道自动日切设置</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="exclamation-circle" @click="setCloseAll">关闭全部通道</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="issues-close" @click="setOpenRecently">打开最近启用通道</a-button>
-          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="edit" @click="setMultiplePassage">批量操作通道</a-button>
+        </div>
+        <div style="margin-bottom: 10px">
+          <a-button v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="edit" @click="setMultiplePassage">批量开关通道</a-button>
         </div>
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">

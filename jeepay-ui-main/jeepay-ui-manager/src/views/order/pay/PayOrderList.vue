@@ -145,6 +145,10 @@
         <template slot="passageSlot" slot-scope="{record}">
           <span style="color: #007EFF;">[{{ record.passageId }}]</span><span>{{ record.passageName }}</span>
         </template> <!-- 商户信息插槽 -->
+        <template slot="timeSlot" slot-scope="{record}">
+          <span>{{ record.createdAt }}</span><br />
+          <span>{{ record.successTime }}</span>
+        </template> <!-- 商户信息插槽 -->
         <template slot="orderSlot" slot-scope="{record}">
           <div class="order-list">
             <p><span style="color:#007EFF;background:#DFEFFF">支付单号</span><b>{{ record.payOrderId }}</b></p>
@@ -409,8 +413,8 @@ const tableColumns = [
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'forceChangeState', title: '手动补单', scopedSlots: { customRender: 'forceChangeStateSlot' }, width: 100 },
   { key: 'notifyState', title: '回调状态', scopedSlots: { customRender: 'notifySlot' }, width: 100 },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 150 },
-  { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 200 },
+  { key: 'createdAt', title: '创建/成功时间', width: 180, scopedSlots: { customRender: 'timeSlot' } },
+  { key: 'passageName', title: '通道', scopedSlots: { customRender: 'passageSlot' }, width: 250 },
   { key: 'op', title: '操作', width: 250, align: 'center', fixed: 'right', scopedSlots: { customRender: 'opSlot' } }
 ]
 

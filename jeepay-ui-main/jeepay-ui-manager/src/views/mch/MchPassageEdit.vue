@@ -135,8 +135,8 @@ import { message } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'nameSlot', fixed: 'left', width: '350px', title: '通道名称', scopedSlots: { customRender: 'nameSlot' } },
-  { key: 'agentSlot', title: '通道代理', scopedSlots: { customRender: 'agentSlot' } },
+  { key: 'nameSlot', fixed: 'left', width: '300px', title: '通道名称', scopedSlots: { customRender: 'nameSlot' } },
+  { key: 'agentSlot', title: '通道代理', width: '200px', scopedSlots: { customRender: 'agentSlot' } },
   { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } },
   { key: 'mchProductRate', title: '商户产品费率', scopedSlots: { customRender: 'mchProductRateSlot' } },
   { key: 'mchRate', title: '通道费率', scopedSlots: { customRender: 'mchRateSlot' } },

@@ -77,6 +77,7 @@ public class MchAppMultipleController extends CommonCtrl {
                 passage.setTimeLimit(CS.NO);
                 updatePassageList.add(passage);
             }
+            //提高这个方法的事务级别
             payPassageService.saveOrUpdateBatch(updatePassageList);
             return ApiRes.ok();
         } catch (Exception e) {

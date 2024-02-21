@@ -225,7 +225,7 @@ public class ProductMchController extends CommonCtrl {
 
         List<String> mchNoList = new LinkedList<>();
 
-        if (selectedIds == null || selectedIds.size() == 0) {
+        if (selectedIds == null || selectedIds.isEmpty()) {
             return ApiRes.customFail("请先选中需要批量修改的商户");
         }
 
@@ -252,9 +252,15 @@ public class ProductMchController extends CommonCtrl {
                 item.setProductId(productId);
                 item.setMchNo(mchNoList.get(i));
             }
-            item.setMchRate(new BigDecimal(setAllRate));
-            item.setAgentRate(new BigDecimal(setAllAgentRate));
-            item.setState(changeAllState);
+            if (!StringUtils.isNullOrEmpty(setAllRate)) {
+                item.setMchRate(new BigDecimal(setAllRate));
+            }
+            if (!StringUtils.isNullOrEmpty(setAllAgentRate)) {
+                item.setAgentRate(new BigDecimal(setAllAgentRate));
+            }
+            if (changeAllState != null) {
+                item.setState(changeAllState);
+            }
             result.add(item);
         }
         boolean isSuccess = mchProductService.saveOrUpdateBatch(result);

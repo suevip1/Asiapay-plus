@@ -126,7 +126,7 @@
     </template>
     <!-- 统一设置弹窗 -->
     <template>
-      <a-modal v-model="isShowAllSetModal" title="统一配置产品" @ok="confirmSetAll">
+      <a-modal v-model="isShowAllSetModal" title="批量配置产品" @ok="confirmSetAll">
         <a-form-model :label-col="{span: 6}" :wrapper-col="{span: 15}">
           <a-form-model-item label="状态" prop="state">
             <a-radio-group v-model="changeAllState">
@@ -138,11 +138,19 @@
               </a-radio>
             </a-radio-group>
           </a-form-model-item>
+          <a-form-model-item label="修改选项：" >
+            <a-checkbox-group v-model="setEnableItem" @change="onMultipleChange">
+              <a-checkbox value="1" name="type">商户费率</a-checkbox>
+              <a-checkbox value="2" name="type">代理费率</a-checkbox>
+            </a-checkbox-group>
+            <br />
+            <b style="color: rgb(128,128,128)">请勾选需要批量操作的选项!</b>
+          </a-form-model-item>
           <a-form-model-item label="商户费率：">
-            <a-input prefix="%" type="number" v-model="setAllRate" />
+            <a-input prefix="%" type="number" v-model="setAllRate" :disabled="enableSetMch" />
           </a-form-model-item>
           <a-form-model-item label="代理费率：">
-            <a-input prefix="%" type="number" v-model="setAllAgentRate" />
+            <a-input prefix="%" type="number" v-model="setAllAgentRate" :disabled="enableSetAgent" />
           </a-form-model-item>
         </a-form-model>
       </a-modal>
@@ -189,10 +197,13 @@ export default {
       mchName: '',
       mchInfo: {},
       selectedIds: [],
-      changeAllState: 0,
+      changeAllState: '',
       isShowAllSetModal: false,
       setAllRate: 0,
-      setAllAgentRate: 0
+      setAllAgentRate: 0,
+      setEnableItem: [],
+      enableSetMch: true,
+      enableSetAgent: true
     }
   },
   mounted () {
@@ -210,6 +221,13 @@ export default {
       }
     }
   },
+  watch: {
+    isShowAllSetModal: function (o, n) {
+      if (n) {
+        this.resetMultipleSet()
+      }
+    }
+  },
   methods: {
     show: function (record) { // 弹层打开事件
       // 查询商户所有开通的产品
@@ -218,8 +236,7 @@ export default {
       this.mchNo = record.mchNo
       this.mchName = record.mchName
       this.searchData.mchNo = record.mchNo
-      this.setAllRate = 0
-      this.setAllAgentRate = 0
+      this.resetMultipleSet()
       this.selectedIds = []
       if (this.$refs.mchProductTable !== undefined) {
         this.$refs.mchProductTable.refTable(true)
@@ -255,7 +272,7 @@ export default {
       params.agentRate = this.changeAgentRate / 100
       params.mchNo = this.mchNo
       req.updateById(API_URL_MCH_PRODUCT_LIST, '', params).then(res => {
-        this.$refs.mchProductTable.refTable(true)
+        this.$refs.mchProductTable.refTable()
         this.$message.success('修改成功')
       })
       this.isShowModal = false
@@ -300,27 +317,47 @@ export default {
         return
       }
       this.isShowAllSetModal = true
-      this.setAllRate = 0
-      this.setAllAgentRate = 0
+      this.resetMultipleSet()
     },
     confirmSetAll () {
       this.btnLoading = true
       const that = this
       const params = { }
-      params.setAllRate = this.setAllRate / 100
-      params.setAllAgentRate = this.setAllAgentRate / 100
+      if (!this.enableSetMch) {
+        params.setAllRate = this.setAllRate / 100
+      }
+      if (!this.enableSetAgent) {
+        params.setAllAgentRate = this.setAllAgentRate / 100
+      }
       params.selectedIds = this.selectedIds
       params.changeAllState = this.changeAllState
+      that.isShowAllSetModal = false
       req.postDataNormal(API_URL_MCH_PRODUCT_LIST + '/setAllRate', this.mchNo, params).then(res => {
-        that.setAllRate = 0
-        that.setAllAgentRate = 0
+        that.resetMultipleSet()
         setTimeout(() => {
           that.btnLoading = false
-          that.isShowAllSetModal = false
-          that.$refs.mchProductTable.refTable(true)
+          that.$refs.mchProductTable.refTable()
           that.$message.success('修改成功')
         }, 500) // 1000毫秒等于1秒
       })
+    },
+    onMultipleChange () {
+      this.enableSetMch = !this.setEnableItem.includes('1')
+      if (this.enableSetMch) {
+        this.setAllRate = 0
+      }
+      this.enableSetAgent = !this.setEnableItem.includes('2')
+      if (this.enableSetAgent) {
+        this.setAllAgentRate = 0
+      }
+    },
+    resetMultipleSet () {
+      this.enableSetMch = true
+      this.setAllRate = 0
+      this.enableSetAgent = true
+      this.setAllAgentRate = 0
+      this.changeAllState = ''
+      this.setEnableItem = []
     }
   }
 }

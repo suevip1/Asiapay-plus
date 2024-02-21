@@ -156,6 +156,11 @@ public class PayWayController extends CommonCtrl {
     @MethodLog(remark = "删除支付产品")
     @LimitRequest
     public ApiRes delete(@PathVariable("productId") Long productId) {
+        //检查是否还有非隐藏状态的关联通道
+        if (passageService.count(PayPassage.gw().eq(PayPassage::getProductId, productId).ne(PayPassage::getState, CS.HIDE)) > 0) {
+            return ApiRes.customFail("该产品还有已关联的通道未删除，请先删除通道");
+        }
+
         Product product = new Product();
         product.setProductId(productId);
         product.setState(CS.HIDE);

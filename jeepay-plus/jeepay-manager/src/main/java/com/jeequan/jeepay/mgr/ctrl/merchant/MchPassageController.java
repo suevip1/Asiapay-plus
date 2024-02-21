@@ -109,8 +109,14 @@ public class MchPassageController extends CommonCtrl {
                 }
 
                 item.addExt("rate", passageList.get(i).getRate());
+
                 //添加产品-商户费率
-                BigDecimal productRate = mchProductMap.get(passageList.get(i).getProductId()).getMchRate();
+                MchProduct mchProduct = mchProductMap.get(passageList.get(i).getProductId());
+                BigDecimal productRate = BigDecimal.ZERO;
+                if (mchProduct != null) {
+                    productRate = mchProduct.getMchRate();
+                }
+
                 item.addExt("productRate", productRate);
 
                 result.add(item);
