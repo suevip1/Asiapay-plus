@@ -155,7 +155,7 @@ public class MchAppController extends CommonCtrl {
                     passage.addExt("successRate", "0.00");
                 }
             }
-            
+
 //            pages.setTotal(payPassageList.size());
             pages.setRecords(payPassageList);
             return ApiRes.ok(pages);

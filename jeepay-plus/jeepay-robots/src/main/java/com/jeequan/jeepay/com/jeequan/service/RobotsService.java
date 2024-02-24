@@ -45,6 +45,7 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import javax.annotation.PostConstruct;
@@ -76,12 +77,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     private static final String REDIS_MCH_SOURCE_SUFFIX = "REDIS_MCH_SOURCE_";
 
     /**
-     * 商户已经识别成功的查单消息,通过订单号存储，方便识别  value message
+     * （用于处理查单过程中变成成功的订单）商户已经识别成功的查单消息,通过订单号存储，方便识别  value message
      */
     private static final String REDIS_MCH_SOURCE_ORDER_SUFFIX = "REDIS_MCH_SOURCE_ORDER_";
 
     /**
-     * 存储已转发的查单信息  订单号 商户订单号 value 转发到通道群的message ID
+     * （用于催单命令）存储已转发的查单信息  订单号 商户订单号 value 转发到通道群的message ID
      */
     private static final String REDIS_ORDER_FORWARD_SUFFIX = "REDIS_ORDER_FORWARD_";
 
@@ -446,7 +447,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             }
 
             //REDIS_SOURCE_SUFFIX  存储的是 转发到 通道群的suffix+id 商户群 message
-            Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
+            Message messageSource = RedisUtil.getObject(REDIS_SOURCE_SUFFIX + messageReply.getChatId() + messageReply.getMessageId(), Message.class);
             //有缓存
             if (messageSource != null) {
                 //是本机器人发的消息
@@ -465,9 +466,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 return;
             }
 
-            //检测是否催单信息
+            //检测是否催单信息  回复的形式
             //REDIS_MCH_SOURCE_SUFFIX 存储的是 商户群suffix+id 通道群message
-            Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getMessageId(), Message.class);
+            Message messageForwardSource = RedisUtil.getObject(REDIS_MCH_SOURCE_SUFFIX + messageReply.getChatId() + messageReply.getMessageId(), Message.class);
             if (messageForwardSource != null && message.hasText()) {
                 if (message.getText().indexOf("zz ") == 0) {
                     if (messageForwardSource.getFrom().getUserName().equals(getBotUsername())) {
@@ -520,24 +521,14 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 return;
             }
 
-            //看是否催单信息  格式 zz 单号
+            //看是否催单信息 （直接发送订单号催单的）
             Pattern patternReminders = Pattern.compile(ORDER_REGEX);
             Matcher matcherReminders = patternReminders.matcher(unionOrderId);
             if (matcherReminders.matches()) {
-                Message messagePaySource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
-                Message messageMchSource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + unionOrderId, Message.class);
-                if (messageMchSource != null || messagePaySource != null) {
-                    Message replySource = null;
-                    //有缓存，催单
-                    if (messagePaySource != null) {
-                        replySource = messagePaySource;
-                    }
-                    if (messageMchSource != null) {
-                        replySource = messageMchSource;
-                    }
-
-                    if (replySource.getFrom().getUserName().equals(getBotUsername())) {
-                        sendReplyMessage(replySource.getChatId(), replySource.getMessageId(), remark);
+                Message messagePaySource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + message.getChatId() + unionOrderId, Message.class);
+                if (messagePaySource != null) {
+                    if (messagePaySource.getFrom().getUserName().equals(getBotUsername())) {
+                        sendReplyMessage(messagePaySource.getChatId(), messagePaySource.getMessageId(), remark);
                     }
                     return;
                 }
@@ -2349,36 +2340,38 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     Long passageId = payOrder.getPassageId();
                     RobotsPassage robotsPassage = robotsPassageService.getById(passageId);
                     if (robotsPassage != null) {
-//                        StringBuffer stringBuffer = new StringBuffer();
-//                        stringBuffer.append("请核实订单是否支付。如支付，烦请补单。如有异常，请回复此条消息进行反馈！(两小时内回复有效):" + System.lineSeparator());
-//                        stringBuffer.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
-//                        if (StringUtils.isNotEmpty(payOrder.getPassageOrderNo())) {
-//                            stringBuffer.append("通道订单号为 [ " + payOrder.getPassageOrderNo() + " ] " + System.lineSeparator());
-//                        }
+
                         String addOnInfo = payOrder.getPayOrderId();
                         if (StringUtils.isNotEmpty(remark)) {
                             addOnInfo = addOnInfo + System.lineSeparator() + "备注:" + remark;
                         }
-                        Message messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, addOnInfo);
+
+                        Message messageTemp = null;
+                        try {
+                            //转发到通道群的message
+                            messageTemp = sendQueryOrderMessage(robotsPassage.getChatId(), message, addOnInfo);
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        }
                         if (messageTemp != null) {
 
-                            //商户群查单-原消息
-                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getMessageId(), messageTemp, 2, TimeUnit.HOURS);
+                            //商户群查单 chatId+messageId -原消息  用于识别回复方式的催单
+                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getChatId() + message.getMessageId(), messageTemp, 4, TimeUnit.HOURS);
 
                             //商户已经识别成功的查单消息,通过订单号存储，方便识别
-                            RedisUtil.set(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrder.getPayOrderId(), message, 2, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrder.getPayOrderId(), message, 4, TimeUnit.HOURS);
 
-                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + payOrder.getPayOrderId(), messageTemp, 2, TimeUnit.HOURS);
-                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + payOrder.getMchOrderNo(), messageTemp, 2, TimeUnit.HOURS);
+                            //用于识别是否催单信息
+                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + message.getChatId() + unionOrderId, messageTemp, 4, TimeUnit.HOURS);
 
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
-                            stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
+//                            stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBufferOrderInfo.append("商户订单号 [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
                             message.setText(stringBufferOrderInfo.toString());
 
                             //机器人发到通道群的转发的消息,key是新消息ID，值是存储的商户群原消息
-                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getChatId() + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
 
                             sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
                         } else {
@@ -2543,9 +2536,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                 sendReplyMessage(messageSource.getChatId(), messageSource.getMessageId(), stringBuffer.toString());
                 RedisUtil.del(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrderId);
-
-                RedisUtil.del(REDIS_ORDER_FORWARD_SUFFIX + payload.getPayOrderId());
-                RedisUtil.del(REDIS_ORDER_FORWARD_SUFFIX + payload.getMchOrderNo());
             }
 
 
