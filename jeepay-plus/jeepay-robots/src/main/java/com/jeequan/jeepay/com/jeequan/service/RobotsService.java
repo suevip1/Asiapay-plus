@@ -517,8 +517,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 remark = tempStr.substring(firstSpaceIndex + 1).trim();
                 unionOrderId = tempStr.substring(0, firstSpaceIndex).trim();
             } else {
-                //没有备注 无效催单
-                return;
+                //没有备注
+                unionOrderId = tempStr.trim();
             }
 
             //看是否催单信息 （直接发送订单号催单的）
@@ -528,6 +528,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 Message messagePaySource = RedisUtil.getObject(REDIS_ORDER_FORWARD_SUFFIX + message.getChatId() + unionOrderId, Message.class);
                 if (messagePaySource != null) {
                     if (messagePaySource.getFrom().getUserName().equals(getBotUsername())) {
+                        if (!StringUtils.isNotEmpty(remark)) {
+                            remark = "<b>烦请加急处理!</b>";
+                        }
                         sendReplyMessage(messagePaySource.getChatId(), messagePaySource.getMessageId(), remark);
                     }
                     return;
