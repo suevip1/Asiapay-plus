@@ -74,13 +74,14 @@ public class ConfigContextQueryService {
     /**
      * 查询所有可用通道
      *
-     * @param mchNo
+     * @param mchInfo
      * @param product
      * @param orderAmount
      * @return
      */
-    public List<PayConfigContext> queryAllPayConfig(String mchNo, Product product, Long orderAmount) {
+    public List<PayConfigContext> queryAllPayConfig(MchInfo mchInfo, Product product, Long orderAmount) {
 
+        String mchNo = mchInfo.getMchNo();
         Long productId = product.getProductId();
 
         List<PayConfigContext> payConfigContextList = getAvailablePassage(mchNo, product.getProductId());
@@ -152,9 +153,6 @@ public class ConfigContextQueryService {
 
         //去重
         List<PayConfigContext> resultList = CollUtil.distinct(filterRuleList);
-
-        //商户信息
-        MchInfo mchInfo = queryMchInfo(mchNo);
 
         //检查 实际成本与商户-产品费率 去除费率过高的通道配置
         List<PayConfigContext> rateFilterList = new ArrayList<>();

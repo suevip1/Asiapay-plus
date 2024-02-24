@@ -20,9 +20,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
-import com.jeequan.jeepay.core.entity.PayOrder;
-import com.jeequan.jeepay.core.entity.PayPassage;
-import com.jeequan.jeepay.core.entity.StatisticsPlat;
+import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.mgr.ctrl.config.data.PassageStat;
@@ -79,8 +77,8 @@ public class MainChartController extends CommonCtrl {
         if (yesterdayStatisticsPlat == null) {
             yesterdayStatisticsPlat = StatisticsPlat.Empty();
         }
-        int mchNum = mchInfoService.count();
-        int agentNum = agentAccountInfoService.count();
+        int mchNum = mchInfoService.count(MchInfo.gw().ne(MchInfo::getState, CS.HIDE));
+        int agentNum = agentAccountInfoService.count(AgentAccountInfo.gw().ne(AgentAccountInfo::getState, CS.HIDE));
         jsonObject.put("todayCount", todayStatisticsPlat);
         jsonObject.put("yesterdayCount", yesterdayStatisticsPlat);
         jsonObject.put("mchNum", mchNum);

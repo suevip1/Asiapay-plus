@@ -41,7 +41,7 @@
           </a-form-model-item>
         </a-col>
       </a-row>
-      <a-row>
+      <a-row v-if="saveObject.mchNo!='M1691231056'">
         <a-col :span="10">
           <a-form-model-item label="状态" prop="state">
             <a-radio-group v-model="saveObject.state">

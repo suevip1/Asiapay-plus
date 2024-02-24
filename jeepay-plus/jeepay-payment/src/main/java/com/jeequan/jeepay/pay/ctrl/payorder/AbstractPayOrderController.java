@@ -72,6 +72,9 @@ public abstract class AbstractPayOrderController extends ApiController {
     private SysConfigService sysConfigService;
 
     @Autowired
+    private ErrorOrderService errorOrderService;
+
+    @Autowired
     private IMQSender mqSender;
 
     private static final String ORDER_TAG = "[下单校验]";
@@ -95,39 +98,46 @@ public abstract class AbstractPayOrderController extends ApiController {
         //是否新订单模式 [  一般接口都为新订单模式，需要先 在DB插入一个新订单， 导致此处需要特殊判断下。 如果已存在则直接更新，否则为插入。  ]
         try {
             String mchNo = bizRQ.getMchNo();
+            MchInfo mchInfo = configContextQueryService.queryMchInfo(mchNo);
 
             //校验是否当前正在轮询中的订单
             if (!RedisUtil.tryLockOrder(mchNo, bizRQ.getMchOrderNo())) {
                 log.error("{}商户订单[{}]已存在，已入库到redis", ORDER_TAG, bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "重复的商户订单号!", JSONObject.toJSONString(bizRQ));
                 throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
             }
 
             //是否在数据库中
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo).eq(PayOrder::getMchOrderNo, bizRQ.getMchOrderNo())) > 0) {
                 log.error("{}商户订单[{}]已存在", ORDER_TAG, bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "重复的商户订单号!", JSONObject.toJSONString(bizRQ));
                 throw new BizException("商户订单[" + bizRQ.getMchOrderNo() + "]已存在");
             }
 
             if (StringUtils.isNotEmpty(bizRQ.getNotifyUrl()) && !StringKit.isAvailableUrl(bizRQ.getNotifyUrl())) {
                 log.error("{}异步通知地址协议仅支持http:// 或 https:// !,商户回调地址[{}] [{}]", ORDER_TAG, bizRQ.getNotifyUrl(), bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "异步通知地址协议仅支持http:// 或 https:// !", JSONObject.toJSONString(bizRQ));
                 throw new BizException("异步通知地址协议仅支持http:// 或 https:// !");
             }
 
             Product product = configContextQueryService.queryProduct(productId);
             if (product == null) {
                 log.error("{}下单失败[{}]产品不存在 [{}]", ORDER_TAG, bizRQ.getProductId(), bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "[" + bizRQ.getProductId() + "] 产品不存在", JSONObject.toJSONString(bizRQ));
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品不存在");
             }
             if (product.getState() == CS.NO) {
                 log.error("{}下单失败[{}]产品状态不可用 [{}]", ORDER_TAG, bizRQ.getProductId(), bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "[" + bizRQ.getProductId() + "] 产品状态不可用", JSONObject.toJSONString(bizRQ));
                 throw new BizException("下单失败，[" + bizRQ.getProductId() + "] 产品状态不可用");
             }
 
             //1、查询所有可用通道
-            List<PayConfigContext> payConfigList = configContextQueryService.queryAllPayConfig(mchNo, product, bizRQ.getAmount());
+            List<PayConfigContext> payConfigList = configContextQueryService.queryAllPayConfig(mchInfo, product, bizRQ.getAmount());
 
             if (payConfigList == null || payConfigList.size() == 0) {
                 log.error("{}没有可用的通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
+                errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "[" + bizRQ.getMchNo() + "] 没有可用的通道", JSONObject.toJSONString(bizRQ));
                 throw new BizException("没有可用的通道");
             }
             //轮询次数
@@ -141,6 +151,7 @@ public abstract class AbstractPayOrderController extends ApiController {
                 PayConfigContext payConfigContextCurrent = PayCommonUtil.getPayPassageByWeights(payConfigList);
                 if (payConfigContextCurrent == null) {
                     log.error("{}没有可用的支付通道[{}]", ORDER_TAG, bizRQ.getMchOrderNo());
+                    errorOrderService.saveErrorOrder(mchInfo, bizRQ.getMchOrderNo(), bizRQ.getAmount(), "[" + bizRQ.getMchNo() + "] 没有可用的通道", JSONObject.toJSONString(bizRQ));
                     throw new BizException("没有可用的支付通道");
                 }
                 //复制元素，防止remove引用乱
@@ -149,7 +160,7 @@ public abstract class AbstractPayOrderController extends ApiController {
                 payConfigList.remove(payConfigContextCurrent);
 
                 payConfigCopy.setProduct(product);
-                MchInfo mchInfo = payConfigCopy.getMchInfo();
+
                 //3、获取支付接口
                 IPaymentService paymentService = getService(payConfigCopy.getPayPassage().getIfCode());
                 //4、生成对应订单对象,一次下单只生成一个订单号

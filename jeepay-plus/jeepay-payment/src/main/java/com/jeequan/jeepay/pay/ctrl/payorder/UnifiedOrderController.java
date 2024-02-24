@@ -57,7 +57,6 @@ public class UnifiedOrderController extends AbstractPayOrderController {
      **/
     @PostMapping("/api/pay/unifiedOrder")
     public ApiRes unifiedOrder() {
-        //todo 检查是否允许下单（余额是否充足）
         if (!CheckOrderProcessAvailable()) {
             log.error("四方租户余额不足,请充值后再使用");
             return ApiRes.customFail("系统异常,请联系四方平台");

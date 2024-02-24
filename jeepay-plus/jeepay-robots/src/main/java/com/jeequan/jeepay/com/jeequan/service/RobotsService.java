@@ -652,7 +652,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     sendSingleMessage(chatId, "当前群已绑定为四方管理群，不可重复绑定商户");
                     return;
                 }
-                log.info(chatId + "");
+
                 if (checkIsPassageChat(chatId)) {
                     sendSingleMessage(chatId, "当前群已绑定为通道群，不可重复绑定商户");
                     return;
@@ -661,7 +661,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 String mchNo = text.substring(5);
                 MchInfo mchInfo = mchInfoService.getById(mchNo);
 
-                if (mchInfo == null) {
+                if (mchInfo == null && mchInfo.getState() != CS.HIDE) {
                     sendSingleMessage(chatId, "未查询到该商户 [" + mchNo + "] 请检查！");
                 } else {
                     robotsMchService.updateBlindMch(chatId, mchNo);
@@ -1341,7 +1341,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     for (int index = 0; index < passageIds.length; index++) {
                         //检查格式以及是否存在通道
                         Long passageId = Long.parseLong(passageIds[index]);
-                        if (payPassageMap.containsKey(passageId)) {
+                        if (payPassageMap.containsKey(passageId) && payPassageMap.get(passageId).getState() != CS.HIDE) {
                             RobotsPassage robotsPassage = new RobotsPassage();
                             robotsPassage.setChatId(chatId);
                             robotsPassage.setPassageId(passageId);

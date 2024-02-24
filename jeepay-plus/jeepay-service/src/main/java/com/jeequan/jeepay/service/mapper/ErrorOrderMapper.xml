@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeequan.jeepay.service.mapper.ErrorOrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.jeequan.jeepay.core.entity.ErrorOrder">
+        <id column="error_order_id" property="errorOrderId" />
+        <result column="mch_no" property="mchNo" />
+        <result column="mch_name" property="mchName" />
+        <result column="amount" property="amount" />
+        <result column="mch_req" property="mchReq" />
+        <result column="mch_resp" property="mchResp" />
+        <result column="mch_order_no" property="mchOrderNo" />
+        <result column="created_at" property="createdAt" />
+    </resultMap>
+
+</mapper>

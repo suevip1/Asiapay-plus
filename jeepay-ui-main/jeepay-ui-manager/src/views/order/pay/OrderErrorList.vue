@@ -376,6 +376,7 @@ export default {
   computed: {
   },
   mounted () {
+    this.$message.info('异常订单仅保留近两天数据，请知悉')
     this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
     this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
     this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
