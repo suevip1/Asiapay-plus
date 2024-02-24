@@ -271,6 +271,11 @@ public class MchAppController extends CommonCtrl {
     @LimitRequest
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public ApiRes delete(@PathVariable("payPassageId") Long payPassageId) {
+
+        PayPassage oldPassage = payPassageService.queryPassageInfo(payPassageId);
+        if (!(oldPassage.getBalance() == 0)) {
+            return ApiRes.fail(ApiCodeEnum.DELETE_BALANCE_NOT_ZERO_PASSAGE);
+        }
         PayPassage payPassage = new PayPassage();
         payPassage.setPayPassageId(payPassageId);
         payPassage.setState(CS.HIDE);

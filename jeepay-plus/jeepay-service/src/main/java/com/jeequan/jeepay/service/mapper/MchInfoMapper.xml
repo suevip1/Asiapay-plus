@@ -53,7 +53,7 @@
     </update>
 
     <select id="sumMchInfo" parameterType="java.util.Map" resultType="com.alibaba.fastjson.JSONObject" >
-        select sum(balance) as totalBalance,sum(freeze_balance) as freezeBalance,count(*) as mchNum from t_mch_info
+        select sum(balance) as totalBalance,sum(freeze_balance) as freezeBalance,count(*) as mchNum from t_mch_info WHERE state != -1
     </select>
 
 </mapper>

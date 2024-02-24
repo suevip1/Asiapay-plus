@@ -31,6 +31,8 @@ public enum ApiCodeEnum{
     SYSTEM_ERROR(10, "系统异常[%s]"),
     PARAMS_ERROR(11, "参数有误[%s]"),
     DB_ERROR(12, "数据库服务异常"),
+    DELETE_BALANCE_NOT_ZERO(4000, "删除失败，余额或冻结金额不为0元，请先清空余额"),
+    DELETE_BALANCE_NOT_ZERO_PASSAGE(4001, "删除失败，通道余额不为0元，请先清空余额"),
 
     SYS_OPERATION_FAIL_CREATE(5000, "新增失败"),
     SYS_OPERATION_FAIL_DELETE(5001, "删除失败"),

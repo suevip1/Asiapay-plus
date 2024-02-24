@@ -194,8 +194,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     @Autowired
     private MchHistoryService mchHistoryService;
 
-    @Autowired
-    private PassageTransactionHistoryService passageTransactionHistoryService;
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -2562,8 +2560,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             } else if (Objects.equals(warnType, CS.ROBOT_WARN_TYPE.NOTIFY_ERROR)) {
                 RobotWarnNotify robotWarnNotify = JSONObject.parseObject(robotWarn.getData(), RobotWarnNotify.class);
                 RobotsMch robotsMch = robotsMchService.getManageMch();
-                if (robotsMch != null) {
-                    String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！";
+                MchInfo mchInfo = mchInfoService.getById(robotWarnNotify.getMchNo());
+                if (robotsMch != null && mchInfo != null) {
+                    String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + mchInfo.getMchName() + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！";
                     sendSingleMessage(robotsMch.getChatId(), messageStr);
                 } else {
                     log.error("转换 RobotWarnNotify 为空，检查代码");

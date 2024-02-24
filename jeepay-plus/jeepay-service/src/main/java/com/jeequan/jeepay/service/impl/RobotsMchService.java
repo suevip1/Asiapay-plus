@@ -154,4 +154,19 @@ public class RobotsMchService extends ServiceImpl<RobotsMchMapper, RobotsMch> {
         saveOrUpdate(robotsMch);
     }
 
+    /**
+     * 根据商户号解绑单个商户
+     * @param mchNo
+     */
+    public void removeMch(String mchNo) {
+        //查找其他群有没有绑定
+        List<RobotsMch> robotsMchOldList = list(RobotsMch.gw().like(RobotsMch::getMchNo, mchNo.trim()));
+
+        if (!robotsMchOldList.isEmpty()) {
+            for (int i = 0; i < robotsMchOldList.size(); i++) {
+                unBlindMch(robotsMchOldList.get(i).getChatId(), mchNo);
+            }
+        }
+    }
+
 }

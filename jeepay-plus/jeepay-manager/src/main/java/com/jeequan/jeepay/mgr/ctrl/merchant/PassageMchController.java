@@ -75,6 +75,7 @@ public class PassageMchController extends CommonCtrl {
             }
 
             LambdaQueryWrapper<MchInfo> mchInfoWrapper = MchInfo.gw();
+            mchInfoWrapper.ne(MchInfo::getState, CS.HIDE);
             //查询参数 商户号
             if (!StringUtils.isNullOrEmpty(mchNo)) {
                 mchInfoWrapper.eq(MchInfo::getMchNo, mchNo.trim());

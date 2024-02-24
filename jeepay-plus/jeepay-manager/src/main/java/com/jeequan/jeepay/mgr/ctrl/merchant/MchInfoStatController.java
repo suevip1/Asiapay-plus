@@ -44,6 +44,7 @@ public class MchInfoStatController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         LambdaQueryWrapper<MchInfo> wrapper = MchInfo.gw();
+        wrapper.ne(MchInfo::getState,CS.HIDE);
         wrapper.orderByDesc(MchInfo::getBalance);
         IPage<MchInfo> pages = mchInfoService.page(getIPage(), wrapper);
         return ApiRes.page(pages);

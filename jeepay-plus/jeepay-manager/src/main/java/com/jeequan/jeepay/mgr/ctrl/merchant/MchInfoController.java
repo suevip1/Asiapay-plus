@@ -84,6 +84,7 @@ public class MchInfoController extends CommonCtrl {
             MchInfo mchInfo = getObject(MchInfo.class);
 
             QueryWrapper<MchInfo> wrapper = new QueryWrapper<>();
+            wrapper.ne("state", CS.HIDE);
             if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
                 wrapper.eq("mch_no", mchInfo.getMchNo().trim());
             }
@@ -182,11 +183,21 @@ public class MchInfoController extends CommonCtrl {
     @RequestMapping(value = "/{mchNo}", method = RequestMethod.DELETE)
     @LimitRequest
     public ApiRes delete(@PathVariable("mchNo") String mchNo) {
-        if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchNo)) > 0) {
-            throw new BizException("该商户已发生交易，无法删除！");
+
+        MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
+
+        if (!(mchInfo.getBalance() == 0 && mchInfo.getFreezeBalance() == 0)) {
+            return ApiRes.fail(ApiCodeEnum.DELETE_BALANCE_NOT_ZERO);
+        }
+        if (mchNo.equals("M1691231056")) {
+            return ApiRes.customFail("测试商户无法删除!");
         }
 
-        List<Long> userIdList = mchInfoService.removeByMchNo(mchNo);
+        mchInfo.setState(CS.HIDE);
+        mchInfoService.updateMchInfo(mchInfo);
+        //删除关联数据
+
+        List<Long> userIdList = mchInfoService.removeMchDepends(mchNo);
         // 推送mq删除redis用户缓存
         mqSender.send(CleanMchLoginAuthCacheMQ.build(userIdList));
         return ApiRes.ok();

@@ -31,6 +31,6 @@
     </update>
 
     <select id="sumAgentInfo" parameterType="java.util.Map" resultType="com.alibaba.fastjson.JSONObject" >
-        select sum(balance) as totalBalance,sum(freeze_balance) as freezeBalance,count(*) as agentNum from t_agent_account_info
+        select sum(balance) as totalBalance,sum(freeze_balance) as freezeBalance,count(*) as agentNum from t_agent_account_info WHERE state != -1
     </select>
 </mapper>

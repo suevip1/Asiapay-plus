@@ -183,7 +183,8 @@ export default {
       const that = this
       this.$infoBox.confirmDanger('确认删除？', '该操作将删除商户下所有配置及用户信息', () => {
         reqLoad.delById(API_URL_MCH_LIST, recordId).then(res => {
-          that.$refs.infoTable.refTable(true)
+          that.$refs.infoTable.refTable()
+          that.getMchStatInfo()
           this.$message.success('删除成功')
         })
       })

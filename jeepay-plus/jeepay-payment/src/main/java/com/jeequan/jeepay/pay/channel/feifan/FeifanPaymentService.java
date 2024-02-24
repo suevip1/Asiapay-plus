@@ -112,12 +112,12 @@ public class FeifanPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "rejDOHbhnZviUTpxNtfEMcSdyokQRLgG";
+        String key = "LpoEGmaIgYRHDWfrwuxtiXFqZlPdVUhb";
 
-        String merId = "2024012039";
+        String merId = "20240211";
         String orderId = RandomStringUtils.random(15, true, true);
         String orderAmt = AmountUtil.convertCent2Dollar(200000L);
-        String channel = "8001";
+        String channel = "713";
         String desc = "desc";
         String ip = "127.0.0.1";
         String notifyUrl = "http://www.test.com";
@@ -138,7 +138,7 @@ public class FeifanPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toUpperCase();
         map.put("sign", sign);
 
-        String payGateway = "https://system.xdragonpay.com/pay";
+        String payGateway = "https://api.blipay.top/pay";
 
 //        raw = HttpUtil.post(payGateway, map,10000);
         // 发送POST请求并指定JSON数据

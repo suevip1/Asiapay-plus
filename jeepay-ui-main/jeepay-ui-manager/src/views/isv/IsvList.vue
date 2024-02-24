@@ -106,11 +106,11 @@ import InfoAddOrEdit from './AddOrEdit'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
-  { key: 'agentName', width: '200px', title: '代理商名称', fixed: 'left', scopedSlots: { customRender: 'isvNameSlot' } },
+  { key: 'agentName', width: '200px', sorter: true, title: '代理商名称', fixed: 'left', scopedSlots: { customRender: 'isvNameSlot' } },
   { key: 'agentNo', title: '代理商户号', dataIndex: 'agentNo', width: '150px' },
-  { key: 'balance', title: '代理余额', width: 300, scopedSlots: { customRender: 'balanceSlot' } },
+  { key: 'balance', title: '代理余额', width: 300, sorter: true, scopedSlots: { customRender: 'balanceSlot' } },
   { key: 'state', title: '代理商状态', scopedSlots: { customRender: 'stateSlot' } },
-  { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期' },
+  { key: 'createdAt', dataIndex: 'createdAt', sorter: true, title: '创建日期' },
   { key: 'updatedAt', dataIndex: 'updatedAt', title: '修改日期' },
   { key: 'remark', dataIndex: 'remark', title: '备注' },
   { key: 'op', title: '操作', width: '260px', fixed: 'right', align: 'center', scopedSlots: { customRender: 'opSlot' } }

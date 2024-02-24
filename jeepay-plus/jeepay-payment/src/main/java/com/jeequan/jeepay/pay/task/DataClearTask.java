@@ -73,8 +73,14 @@ public class DataClearTask {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private MchInfoService mchInfoService;
+
     @Async
     @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
+//    @Async
+//    @Scheduled(cron = "00 25 23 * * ?") // 每天凌晨四点执行
     public void start() {
         int dayOffset = -(Integer.parseInt(sysConfigService.getDBApplicationConfig().getDataOffset()) - 1);
         Date date = DateUtil.parse(DateUtil.today());
@@ -103,6 +109,9 @@ public class DataClearTask {
 
         //检查并清理可删除产品
         productService.removeUnusedProduct();
+
+        //检查并真正清理商户
+        mchInfoService.removeMchAuto();
     }
 
 }

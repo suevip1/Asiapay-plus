@@ -66,6 +66,9 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Resource
     private MchInfoMapper mchInfoMapper;
 
+    @Autowired
+    private RobotsMchService robotsMchService;
+
     /**
      * 查询商户信息
      *
@@ -197,6 +200,58 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
         }
     }
 
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    public List<Long> removeMchDepends(String mchNo) {
+        try {
+            // 2.删除当前商户配置的支付通道
+            mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getMchNo, mchNo.trim()));
+
+            // 3.删除当前商户对应的产品表
+            mchProductService.remove(MchProduct.gw().eq(MchProduct::getMchNo, mchNo));
+
+            List<SysUser> userList = sysUserService.list(SysUser.gw()
+                    .eq(SysUser::getBelongInfoId, mchNo)
+                    .eq(SysUser::getSysType, CS.SYS_TYPE.MCH)
+            );
+
+            // 返回的用户id
+            List<Long> userIdList = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(userList)) {
+                for (SysUser user : userList) {
+                    userIdList.add(user.getSysUserId());
+                }
+                // 5.删除当前商户用户子用户信息
+                sysUserAuthService.remove(SysUserAuth.gw().in(SysUserAuth::getUserId, userIdList));
+            }
+
+            // 6.删除当前商户的登录用户
+            sysUserService.remove(SysUser.gw()
+                    .eq(SysUser::getBelongInfoId, mchNo)
+                    .eq(SysUser::getSysType, CS.SYS_TYPE.MCH)
+            );
+
+            //7.删除机器人商户相关的数据-只移除对应的并更新
+            robotsMchService.removeMch(mchNo);
+            return userIdList;
+        } catch (Exception e) {
+            throw new BizException(e.getMessage());
+        }
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    public void removeMchAuto() {
+        log.info("【过期商户数据定时清理任务开始执行】{}", new Date());
+        List<MchInfo> list = list(MchInfo.gw().eq(MchInfo::getState, CS.HIDE));
+        for (int i = 0; i < list.size(); i++) {
+            MchInfo mchInfo = list.get(i);
+            if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchInfo.getMchNo().trim())) == 0) {
+                log.info("【清理过期商户-】[{}]{}", mchInfo.getMchNo(), mchInfo.getMchName());
+                removeByMchNo(list.get(i).getMchNo());
+            }
+        }
+        log.info("【过期商户数据定时清理任务执行完成】{}", new Date());
+    }
+
     /**
      * 更新账户余额
      *
@@ -207,7 +262,7 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
     @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
     public void updateBalance(String mchNo, Long changeAmount) {
         try {
-            Map params = new HashMap();
+            Map<String, Object> params = new HashMap();
             params.put("mchNo", mchNo);
             params.put("changeAmount", changeAmount);
             int isSuccess = mchInfoMapper.updateBalance(params);
