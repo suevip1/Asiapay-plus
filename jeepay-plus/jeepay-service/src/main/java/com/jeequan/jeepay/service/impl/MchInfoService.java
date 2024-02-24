@@ -247,6 +247,8 @@ public class MchInfoService extends ServiceImpl<MchInfoMapper, MchInfo> {
             if (payOrderService.count(PayOrder.gw().eq(PayOrder::getMchNo, mchInfo.getMchNo().trim())) == 0) {
                 log.info("【清理过期商户-】[{}]{}", mchInfo.getMchNo(), mchInfo.getMchName());
                 removeByMchNo(list.get(i).getMchNo());
+            }else{
+                log.info("【商户仍有数据-】[{}]{}", mchInfo.getMchNo(), mchInfo.getMchName());
             }
         }
         log.info("【过期商户数据定时清理任务执行完成】{}", new Date());

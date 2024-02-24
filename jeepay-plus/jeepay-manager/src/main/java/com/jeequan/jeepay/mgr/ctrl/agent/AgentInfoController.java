@@ -4,6 +4,7 @@ import cn.hutool.core.codec.Base64;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.components.mq.model.CleanAgentLoginAuthCacheMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
@@ -44,6 +45,12 @@ public class AgentInfoController extends CommonCtrl {
     private PayOrderService payOrderService;
 
     @Autowired
+    private MchInfoService mchInfoService;
+
+    @Autowired
+    private PayPassageService payPassageService;
+
+    @Autowired
     private SysUserAuthService sysUserAuthService;
     @Autowired
     private SysUserService sysUserService;
@@ -59,18 +66,51 @@ public class AgentInfoController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         try {
+            JSONObject reqJson = getReqParamJSON();
+
             AgentAccountInfo agentAccountInfo = getObject(AgentAccountInfo.class);
-            LambdaQueryWrapper<AgentAccountInfo> wrapper = AgentAccountInfo.gw();
+            QueryWrapper<AgentAccountInfo> wrapper = new QueryWrapper();
+            wrapper.ne("state", CS.HIDE);
             if (StringUtils.isNotEmpty(agentAccountInfo.getAgentNo())) {
-                wrapper.eq(AgentAccountInfo::getAgentNo, agentAccountInfo.getAgentNo());
+                wrapper.eq("agent_no", agentAccountInfo.getAgentNo());
             }
             if (StringUtils.isNotEmpty(agentAccountInfo.getAgentName())) {
-                wrapper.like(AgentAccountInfo::getAgentName, agentAccountInfo.getAgentName().trim());
+                wrapper.like("agent_name", agentAccountInfo.getAgentName().trim());
             }
             if (agentAccountInfo.getState() != null) {
-                wrapper.eq(AgentAccountInfo::getState, agentAccountInfo.getState());
+                wrapper.eq("state", agentAccountInfo.getState());
             }
-            wrapper.orderByDesc(AgentAccountInfo::getCreatedAt);
+
+            String sortField = reqJson.getString("sortField");
+            String sortOrder = reqJson.getString("sortOrder");
+
+            wrapper.orderBy(true, false, "state");
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("agentName") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "CONVERT(agent_name USING gbk) COLLATE gbk_chinese_ci");
+                } else {
+                    wrapper.orderBy(true, true, "CONVERT(agent_name USING gbk) COLLATE gbk_chinese_ci");
+                }
+            }
+
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "balance");
+                } else {
+                    wrapper.orderBy(true, true, "balance");
+                }
+            }
+
+            if (StringUtils.isNotEmpty(sortField) && sortField.equals("createdAt") && StringUtils.isNotEmpty(sortOrder)) {
+                if (sortOrder.equals("descend")) {
+                    wrapper.orderBy(true, false, "created_at");
+                } else {
+                    wrapper.orderBy(true, true, "created_at");
+                }
+            }
+
             IPage<AgentAccountInfo> pages = agentAccountInfoService.page(getIPage(true), wrapper);
             return ApiRes.page(pages);
         } catch (Exception e) {
@@ -110,10 +150,25 @@ public class AgentInfoController extends CommonCtrl {
     @RequestMapping(value = "/{agentNo}", method = RequestMethod.DELETE)
     @LimitRequest
     public ApiRes delete(@PathVariable("agentNo") String agentNo) {
-        if (payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNo, agentNo)) > 0 || payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNoPassage, agentNo)) > 0) {
-            throw new BizException("该代理已发生交易，无法删除！");
+        AgentAccountInfo agentAccountInfo = agentAccountInfoService.queryAgentInfo(agentNo);
+
+        //余额是否清空
+        if (!(agentAccountInfo.getBalance() == 0 && agentAccountInfo.getFreezeBalance() == 0)) {
+            return ApiRes.fail(ApiCodeEnum.DELETE_BALANCE_NOT_ZERO);
         }
-        List<Long> userIdList = agentAccountInfoService.removeByAgentNo(agentNo);
+        //是否还存在下级商户
+        if (mchInfoService.count(MchInfo.gw().eq(MchInfo::getAgentNo, agentNo)) > 0) {
+            return ApiRes.customFail("当前代理商下还有解绑的商户,请先解绑对应商户");
+        }
+
+        //是否还存在下级通道
+        if (payPassageService.count(PayPassage.gw().eq(PayPassage::getAgentNo, agentNo)) > 0) {
+            return ApiRes.customFail("当前代理商下还有未解绑的通道,请先解绑对应通道");
+        }
+        agentAccountInfo.setState(CS.HIDE);
+        agentAccountInfoService.updateAgentInfo(agentAccountInfo);
+
+        List<Long> userIdList = agentAccountInfoService.removeAgentDepends(agentNo);
         // 清除redis 登录用户缓存
         mqSender.send(CleanAgentLoginAuthCacheMQ.build(userIdList));
         return ApiRes.ok();

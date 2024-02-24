@@ -8,6 +8,7 @@ import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.AgentAccountInfoMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -16,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -29,6 +27,7 @@ import java.util.Map;
  * @author [mybatis plus generator]
  * @since 2023-06-22
  */
+@Slf4j
 @Service
 public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper, AgentAccountInfo> {
 
@@ -49,6 +48,9 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
 
     @Autowired
     private SysUserAuthService sysUserAuthService;
+
+    @Autowired
+    private PayOrderService payOrderService;
 
     /**
      * 通过代理商号获取
@@ -184,6 +186,84 @@ public class AgentAccountInfoService extends ServiceImpl<AgentAccountInfoMapper,
         } catch (Exception e) {
             throw new BizException(e.getMessage());
         }
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    public List<Long> removeAgentDepends(String agentNo) {
+        try {
+            // 0.当前代理是否存在
+            AgentAccountInfo agentAccountInfo = getById(agentNo);
+            if (agentAccountInfo == null) {
+                throw new BizException("该代理不存在");
+            }
+
+            // 1.当前代理是否存在下级通道、下级商户  改为0 或提示
+            List<MchInfo> mchInfoList = mchInfoService.list(MchInfo.gw().eq(MchInfo::getAgentNo, agentNo));
+
+            for (int i = 0; i < mchInfoList.size(); i++) {
+                MchInfo mchInfo = mchInfoList.get(i);
+                List<MchProduct> mchProductList = mchProductService.list(MchProduct.gw().eq(MchProduct::getMchNo, mchInfo.getMchNo()).ne(MchProduct::getAgentRate, BigDecimal.ZERO));
+                for (int index = 0; index < mchProductList.size(); index++) {
+                    MchProduct mchProduct = mchProductList.get(index);
+                    mchProduct.setAgentRate(BigDecimal.ZERO);
+                    mchProductService.saveOrUpdate(mchProduct);
+                }
+                mchInfo.setAgentNo("");
+                mchInfoService.updateMchInfo(mchInfo);
+            }
+
+            //通道代理清理
+            List<PayPassage> passageList = payPassageService.list(PayPassage.gw().eq(PayPassage::getAgentNo, agentNo));
+            for (int index = 0; index < passageList.size(); index++) {
+                PayPassage payPassage = passageList.get(index);
+                payPassage.setAgentRate(BigDecimal.ZERO);
+                payPassage.setAgentNo("");
+                payPassageService.updatePassageInfo(payPassage);
+            }
+
+            List<SysUser> userList = sysUserService.list(SysUser.gw()
+                    .eq(SysUser::getBelongInfoId, agentNo)
+                    .eq(SysUser::getSysType, CS.SYS_TYPE.AGENT)
+            );
+
+            // 返回的用户id
+            List<Long> userIdList = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(userList)) {
+                for (SysUser user : userList) {
+                    userIdList.add(user.getSysUserId());
+                }
+                // 5.删除当前商户用户子用户信息
+                sysUserAuthService.remove(SysUserAuth.gw().in(SysUserAuth::getUserId, userIdList));
+            }
+
+            // 6.删除当前商户的登录用户
+            sysUserService.remove(SysUser.gw()
+                    .eq(SysUser::getBelongInfoId, agentNo)
+                    .eq(SysUser::getSysType, CS.SYS_TYPE.AGENT)
+            );
+
+            return userIdList;
+        } catch (Exception e) {
+            throw new BizException(e.getMessage());
+        }
+    }
+
+    @Transactional(transactionManager = "transactionManager", rollbackFor = {Exception.class})
+    public void removeAgentAuto() {
+        log.info("【过期代理数据定时清理任务开始执行】{}", new Date());
+        List<AgentAccountInfo> list = list(AgentAccountInfo.gw().eq(AgentAccountInfo::getState, CS.HIDE));
+        for (int i = 0; i < list.size(); i++) {
+            AgentAccountInfo agentAccountInfo = list.get(i);
+            String agentNo = agentAccountInfo.getAgentNo();
+
+            if (payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNo, agentNo)) == 0 && payOrderService.count(PayOrder.gw().eq(PayOrder::getAgentNoPassage, agentNo)) == 0) {
+                log.info("【清理过期代理-】[{}]{}", agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName());
+                removeByAgentNo(agentNo);
+            }else{
+                log.info("【代理仍有数据-】[{}]{}", agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName());
+            }
+        }
+        log.info("【过期代理数据定时清理任务执行完成】{}", new Date());
     }
 
 

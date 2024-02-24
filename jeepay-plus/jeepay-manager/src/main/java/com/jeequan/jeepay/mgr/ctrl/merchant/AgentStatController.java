@@ -2,6 +2,7 @@ package com.jeequan.jeepay.mgr.ctrl.merchant;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.ApiRes;
@@ -33,6 +34,7 @@ public class AgentStatController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         LambdaQueryWrapper<AgentAccountInfo> wrapper = AgentAccountInfo.gw();
+        wrapper.ne(AgentAccountInfo::getState, CS.HIDE);
         wrapper.orderByDesc(AgentAccountInfo::getBalance);
         IPage<AgentAccountInfo> pages = agentAccountInfoService.page(getIPage(), wrapper);
         return ApiRes.page(pages);

@@ -159,7 +159,7 @@ export default {
       const that = this
       this.$infoBox.confirmDanger('确认删除？', '请确认该代理商下未分配商户', () => {
         req.delById(API_URL_ISV_LIST, recordId).then(res => {
-          that.$refs.infoTable.refTable(false)
+          that.$refs.infoTable.refTable()
           this.$message.success('删除成功')
         })
       })
