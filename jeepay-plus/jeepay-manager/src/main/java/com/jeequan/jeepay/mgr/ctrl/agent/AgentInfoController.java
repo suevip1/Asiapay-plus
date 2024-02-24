@@ -158,7 +158,7 @@ public class AgentInfoController extends CommonCtrl {
         }
         //是否还存在下级商户
         if (mchInfoService.count(MchInfo.gw().eq(MchInfo::getAgentNo, agentNo)) > 0) {
-            return ApiRes.customFail("当前代理商下还有解绑的商户,请先解绑对应商户");
+            return ApiRes.customFail("当前代理商下还有未解绑的商户,请先解绑对应商户");
         }
 
         //是否还存在下级通道

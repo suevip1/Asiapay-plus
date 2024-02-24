@@ -81,8 +81,8 @@ public class DataClearTask {
     private AgentAccountInfoService agentAccountInfoService;
 
     @Async
-//    @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
-    @Scheduled(cron = "00 49 23 * * ?") // 每天凌晨四点执行
+    @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
+//    @Scheduled(cron = "00 03 00 * * ?") // 每天凌晨四点执行
     public void start() {
         int dayOffset = -(Integer.parseInt(sysConfigService.getDBApplicationConfig().getDataOffset()) - 1);
         Date date = DateUtil.parse(DateUtil.today());
