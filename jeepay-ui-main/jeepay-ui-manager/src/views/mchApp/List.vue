@@ -29,12 +29,10 @@
         <div>
           <a-button v-if="$access('ENT_MCH_APP_ADD')" type="primary" icon="plus" @click="addFunc" class="mg-b-30">新建</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="minus-circle" @click="setAllBalanceZero">余额清空</a-button>
-          <a-button style="margin-left: 8px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="setting" @click="setAutoClean">通道自动日切设置</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="setting" @click="setAutoClean">通道自动日切设置</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="danger" icon="exclamation-circle" @click="setCloseAll">关闭全部通道</a-button>
           <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="issues-close" @click="setOpenRecently">打开最近启用通道</a-button>
-        </div>
-        <div style="margin-bottom: 10px">
-          <a-button v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="edit" @click="setMultiplePassage">批量开关通道</a-button>
+          <a-button style="margin-left: 16px" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" icon="edit" @click="setMultiplePassage">批量操作通道</a-button>
         </div>
       </div>
       <div style="background-color: #fafafa;padding-left: 15px;padding-top: 10px;padding-bottom: 10px;border-bottom: 1px solid #e8e8e8">
@@ -98,7 +96,7 @@
         <template slot="timeLimitStateSlot" slot-scope="{record}">
           <a-button size="small" v-if="$access('ENT_MCH_APP_EDIT')" type="primary" @click="clickChangeTimeLimit(record)" >设置</a-button>
           &nbsp;<a-badge :status="record.timeLimit === 0?'error':'processing'" :text="record.timeLimit === 0?'禁用':'启用'" />
-          &nbsp;<span style="color: #1E2229">{{record.timeLimit === 1?record.timeRules : ''}}</span>
+          &nbsp;<span :style="{'color': '#1E2229' ,'text-decoration': record.timeLimit === 0?'line-through':''}">{{record.timeRules}}</span>
         </template>
         <template slot="successRateSlot" slot-scope="{record}">
           &nbsp;<b>{{record.successRate}}%</b>
@@ -298,6 +296,7 @@
     <MchPayConfigAddOrEdit ref="mchPayConfigAddOrEdit" :callbackFunc="addOrEdit" />
     <PassageMchBlindEdit ref="passageMchBlindEdit" :callbackFunc="addOrEdit" />
     <PassagePayTest ref="passagePayTest"></PassagePayTest>
+    <MultipleEdit ref="multipleEdit" :callbackFunc="addOrEdit"></MultipleEdit>
   </page-header-wrapper>
 </template>
 
@@ -320,6 +319,7 @@ import moment from 'moment'
 import PassagePayTest from '@/views/mchApp/PassagePayTest.vue'
 import JeepayTableColState from '@/components/JeepayTable/JeepayTableColState.vue'
 import { message } from 'ant-design-vue'
+import MultipleEdit from '@/views/mchApp/MultipleEdit.vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -338,7 +338,7 @@ const tableColumns = [
 
 export default {
   name: 'MchAppPage',
-  components: { JeepayTableColState, PassagePayTest, JeepayTable, JeepayTableColumns, JeepayTextUp, MchAppAddOrEdit, MchPayConfigAddOrEdit, PayPassageDetail, PassageMchBlindEdit },
+  components: { MultipleEdit, JeepayTableColState, PassagePayTest, JeepayTable, JeepayTableColumns, JeepayTextUp, MchAppAddOrEdit, MchPayConfigAddOrEdit, PayPassageDetail, PassageMchBlindEdit },
   data () {
     return {
       btnLoading: false,
@@ -386,6 +386,7 @@ export default {
       },
       stateLoading: false,
       selectedIds: [],
+      selectedPassageStr: [],
       selectedRowKeys: [] // 批量选中的key
     }
   },
@@ -406,8 +407,11 @@ export default {
         onChange: (selectedRowKeys, selectedRows) => {
           that.selectedRowKeys = selectedRowKeys
           that.selectedIds = [] // 清空选中数组
+          that.selectedPassageStr = []
           selectedRows.forEach(function (data) { // 赋值选中参数
             that.selectedIds.push(data.payPassageId)
+            const str = '[' + data.payPassageId + '] ' + data.payPassageName
+            that.selectedPassageStr.push(str)
           })
         }
       }
@@ -605,10 +609,11 @@ export default {
     },
     setMultiplePassage: function () { // 批量操作通道
       if (this.selectedIds.length === 0) {
-        message.error('请先选择要批量操作的通道')
+        message.error('请先勾选需要进行批量操作的通道!')
         return
       }
-      this.isShowMultipleModal = true
+      this.$refs.multipleEdit.show(this.selectedIds, this.selectedPassageStr)
+      // this.isShowMultipleModal = true
     },
     setAutoClean: function () { // 自动清零
       this.isShowSetAutoCleanModal = true
