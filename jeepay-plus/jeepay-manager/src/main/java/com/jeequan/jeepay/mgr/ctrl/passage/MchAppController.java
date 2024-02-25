@@ -116,7 +116,9 @@ public class MchAppController extends CommonCtrl {
                 }
             }
 
-
+            if (StringUtils.isEmpty(sortField) || StringUtils.isEmpty(sortOrder)) {
+                wrapper.orderBy(true, true, "created_at");
+            }
 
             IPage<PayPassage> pages = payPassageService.page(getIPage(true), wrapper);
 

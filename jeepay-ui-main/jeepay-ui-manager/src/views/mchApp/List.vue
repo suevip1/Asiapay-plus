@@ -371,7 +371,7 @@ export default {
       limitTimeStart: '',
       limitTimeEnd: '',
       autoCleanEnable: 0, // 零点自动清零是否打开
-      multipleState: 0, // 零点自动清零是否打开
+      multipleState: '', // 零点自动清零是否打开
       totalPassageInfo: {
         passageNum: 0,
         totalBalance: 0
@@ -673,7 +673,7 @@ export default {
         that.$message.success('操作成功')
         that.selectedIds = []
         that.selectedRowKeys = []
-        that.multipleState = 0
+        that.multipleState = ''
       })
     },
     getPassageStatInfo: function () {
