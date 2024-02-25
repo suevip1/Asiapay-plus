@@ -13,5 +13,4 @@
         <result column="mch_order_no" property="mchOrderNo" />
         <result column="created_at" property="createdAt" />
     </resultMap>
-
 </mapper>

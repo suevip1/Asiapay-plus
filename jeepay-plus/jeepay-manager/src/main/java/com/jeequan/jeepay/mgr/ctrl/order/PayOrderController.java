@@ -23,6 +23,7 @@ import com.jeequan.jeepay.components.mq.model.BalanceChangeMQ;
 import com.jeequan.jeepay.components.mq.model.PayOrderForceSuccessMQ;
 import com.jeequan.jeepay.components.mq.model.StatisticsOrderMQ;
 import com.jeequan.jeepay.components.mq.vender.IMQSender;
+import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
@@ -125,6 +126,7 @@ public class PayOrderController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PAY_ORDER_EDIT')")
     @MethodLog(remark = "强制补单")
     @RequestMapping(value = "/{payOrderId}/forcePayOrderSuccess", method = RequestMethod.GET)
+    @LimitRequest
     public ApiRes forcePayOrderSuccess(@PathVariable("payOrderId") String payOrderId) {
         //检查当前用户是否绑定谷歌
         String account = getCurrentUser().getSysUser().getLoginUsername();
@@ -174,6 +176,7 @@ public class PayOrderController extends CommonCtrl {
     @PreAuthorize("hasAuthority('ENT_PAY_ORDER_EDIT')")
     @MethodLog(remark = "订单测试冲正")
     @RequestMapping(value = "/{payOrderId}/forcePayOrderRedo", method = RequestMethod.GET)
+    @LimitRequest
     public ApiRes forcePayOrderRedo(@PathVariable("payOrderId") String payOrderId) {
         //检查当前用户是否绑定谷歌
         String account = getCurrentUser().getSysUser().getLoginUsername();

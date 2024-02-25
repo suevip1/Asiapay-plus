@@ -80,6 +80,9 @@ public class DataClearTask {
     @Autowired
     private AgentAccountInfoService agentAccountInfoService;
 
+    @Autowired
+    private ErrorOrderService errorOrderService;
+
     @Async
     @Scheduled(cron = "0 0 04 * * ?") // 每天凌晨四点执行
 //    @Scheduled(cron = "00 03 00 * * ?") // 每天凌晨四点执行
@@ -117,6 +120,12 @@ public class DataClearTask {
 
         //检查并清理代理
         agentAccountInfoService.removeAgentAuto();
+
+        //保留近三天记录
+        int dayOffsetErrorOrder = -4;
+        Date offsetDateErrorOrder = DateUtil.offsetDay(date, dayOffsetErrorOrder);
+        //清除过期的异常订单
+        errorOrderService.ClearErrorOrder(offsetDateErrorOrder, QUERY_PAGE_SIZE);
     }
 
 }

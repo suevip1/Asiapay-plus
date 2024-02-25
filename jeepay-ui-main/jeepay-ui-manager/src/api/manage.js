@@ -120,6 +120,7 @@ export const API_URL_MCH_PASSAGE_LIST = '/api/mchPassageInfo'
 
 export const PAY_ORDER_FORCE_SUCCESS = '/api/payOrder'
 
+export const ERROR_ORDER_LIST = '/api/errorOrder'
 export const API_PAY_ORDER_TEST = '/api/payOrderTest'
 
 /**
