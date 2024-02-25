@@ -13,7 +13,7 @@
             <a-col :span="23" :offset="1"><b style="color: black">优先绑定管理群，管理群用于接收预警、提示等！管路群、商户群、通道群每个群只能同时绑定一种类型，管理群唯一</b></a-col>
           </a-row>
           <a-row>
-            <a-col :span="23" :offset="1"><b style="color: black">后台只包含四方工作人员部分命令,其他命令直接拉机器人进去 /help 实时查看</b></a-col>
+            <a-col :span="23" :offset="1"><b style="color: black">后台只包含四方工作人员部分命令,其他命令直接拉机器人进去 <b style="color: red">/help</b> 实时查看</b></a-col>
           </a-row>
           <br/>
           <a-row>
