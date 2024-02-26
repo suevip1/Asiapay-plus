@@ -143,7 +143,6 @@ public class CS {
 
     public static final String CHANGE_BALANCE_REDIS_SUFFIX = "BalanceChange";
 
-    public static final String ROBOTS_CONFIG_GROUP = "robotsConfigGroup";
 
     /**
      * 机器人相关，管理群商户号
@@ -218,6 +217,8 @@ public class CS {
                 return "订单关闭";
             case PayOrder.STATE_ERROR:
                 return "出码失败";
+            case PayOrder.STATE_CHANGE:
+                return "调额入账";
         }
         return "";
     }

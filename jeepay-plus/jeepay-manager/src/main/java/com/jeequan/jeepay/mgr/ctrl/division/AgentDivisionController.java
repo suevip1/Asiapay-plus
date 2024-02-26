@@ -4,11 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.LimitRequest;
+import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
+import com.jeequan.jeepay.core.model.PayConfig;
+import com.jeequan.jeepay.core.utils.SpringBeansUtil;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
+import com.jeequan.jeepay.mgr.ctrl.config.SysConfigController;
 import com.jeequan.jeepay.service.impl.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/agentDivision")
@@ -33,6 +38,9 @@ public class AgentDivisionController extends CommonCtrl {
 
     @Autowired
     private AgentAccountHistoryService agentAccountHistoryService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
@@ -185,5 +193,32 @@ public class AgentDivisionController extends CommonCtrl {
         jsonObject.put("count", list.size());
         jsonObject.put("totalAmount", totalAmount);
         return ApiRes.ok(jsonObject);
+    }
+
+    @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
+    @RequestMapping(value = "/getConfig", method = RequestMethod.POST)
+    public ApiRes getConfig() {
+        PayConfig payConfig = sysConfigService.getPayConfig();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("agentFee", payConfig.getAgentFee());
+        jsonObject.put("agentFeeRate", payConfig.getAgentFeeRate());
+        jsonObject.put("agentMinWithdraw", payConfig.getAgentMinWithdraw());
+        return ApiRes.ok(jsonObject);
+    }
+
+    @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
+    @MethodLog(remark = "设置商户结算配置")
+    @RequestMapping(value = "/setConfig", method = RequestMethod.POST)
+    @LimitRequest
+    public ApiRes setConfig() {
+        JSONObject paramJSON = getReqParamJSON();
+        Map<String, Object> updateMap = JSONObject.toJavaObject(paramJSON, Map.class);
+        int update = sysConfigService.updateByConfigKey(updateMap);
+        if (update <= 0) {
+            return ApiRes.fail(ApiCodeEnum.SYSTEM_ERROR, "更新失败");
+        }
+        // 异步更新到MQ
+        SpringBeansUtil.getBean(SysConfigController.class).updateSysConfigMQ("payConfigGroup");
+        return ApiRes.ok();
     }
 }

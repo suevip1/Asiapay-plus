@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.SysConfig;
 import com.jeequan.jeepay.core.model.DBApplicationConfig;
+import com.jeequan.jeepay.core.model.PayConfig;
 import com.jeequan.jeepay.core.model.RobotsConfig;
 import com.jeequan.jeepay.core.service.ISysConfigService;
 import com.jeequan.jeepay.service.mapper.SysConfigMapper;
@@ -64,7 +65,7 @@ public class SysConfigService extends ServiceImpl<SysConfigMapper, SysConfig> im
     /**
      * 支付相关设置
      */
-    private static MutablePair<String, RobotsConfig> PAY_CONFIG = new MutablePair<>("payConfigGroup", null);
+    private static MutablePair<String, PayConfig> PAY_CONFIG = new MutablePair<>("payConfigGroup", null);
 
     public synchronized void initDBConfig(String groupKey) {
 
@@ -101,8 +102,14 @@ public class SysConfigService extends ServiceImpl<SysConfigMapper, SysConfig> im
         return this.selectByGroupKey(ROBOTS_CONFIG.getLeft()).toJavaObject(RobotsConfig.class);
     }
 
+    @Override
+    public PayConfig getPayConfig() {
+        return this.selectByGroupKey(PAY_CONFIG.getLeft()).toJavaObject(PayConfig.class);
+    }
+
     /**
      * 获取通道自动清零设置
+     *
      * @return
      */
     public Byte getPassageAutoClearConfig() {
@@ -148,13 +155,13 @@ public class SysConfigService extends ServiceImpl<SysConfigMapper, SysConfig> im
     }
 
 
-    public int updateByConfigKey(Map<String, String> updateMap) {
+    public int updateByConfigKey(Map<String, Object> updateMap) {
         int count = 0;
         Set<String> set = updateMap.keySet();
         for (String k : set) {
             SysConfig sysConfig = new SysConfig();
             sysConfig.setConfigKey(k);
-            sysConfig.setConfigVal(updateMap.get(k));
+            sysConfig.setConfigVal(updateMap.get(k).toString());
             boolean update = sysConfigService.saveOrUpdate(sysConfig);
             if (update) {
                 count++;

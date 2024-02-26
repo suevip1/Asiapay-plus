@@ -16,6 +16,7 @@
 package com.jeequan.jeepay.core.service;
 
 import com.jeequan.jeepay.core.model.DBApplicationConfig;
+import com.jeequan.jeepay.core.model.PayConfig;
 import com.jeequan.jeepay.core.model.RobotsConfig;
 
 public interface ISysConfigService {
@@ -25,4 +26,5 @@ public interface ISysConfigService {
 
     RobotsConfig getRobotsConfig();
 
+    PayConfig getPayConfig();
 }

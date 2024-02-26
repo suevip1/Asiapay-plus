@@ -34,6 +34,8 @@ export function getOrderStateName (state) {
       return '订单关闭'
     case 7:
       return '出码失败'
+    case 8:
+      return '调额入账'
   }
   return '未知'
 }

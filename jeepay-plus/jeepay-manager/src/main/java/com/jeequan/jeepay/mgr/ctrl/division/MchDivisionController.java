@@ -9,7 +9,10 @@ import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
+import com.jeequan.jeepay.core.model.PayConfig;
+import com.jeequan.jeepay.core.utils.SpringBeansUtil;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
+import com.jeequan.jeepay.mgr.ctrl.config.SysConfigController;
 import com.jeequan.jeepay.service.impl.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -30,7 +34,8 @@ public class MchDivisionController extends CommonCtrl {
     private MchInfoService mchInfoService;
     @Autowired
     private MchHistoryService mchHistoryService;
-
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
@@ -69,6 +74,7 @@ public class MchDivisionController extends CommonCtrl {
 
     @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
     @RequestMapping(value = "/reviewOk/{recordId}", method = RequestMethod.POST)
+    @MethodLog(remark = "通过商户结算申请")
     @LimitRequest
     public ApiRes reviewOk(@PathVariable("recordId") Long recordId) {
         JSONObject jsonObject = getReqParamJSON();
@@ -122,6 +128,7 @@ public class MchDivisionController extends CommonCtrl {
      */
     @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
     @RequestMapping(value = "/reviewRefuse/{recordId}", method = RequestMethod.POST)
+    @MethodLog(remark = "拒绝商户结算申请")
     @LimitRequest
     public ApiRes reviewRefuse(@PathVariable("recordId") Long recordId) {
         JSONObject jsonObject = getReqParamJSON();
@@ -184,6 +191,33 @@ public class MchDivisionController extends CommonCtrl {
         jsonObject.put("count", list.size());
         jsonObject.put("totalAmount", totalAmount);
         return ApiRes.ok(jsonObject);
+    }
+
+    @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
+    @RequestMapping(value = "/getConfig", method = RequestMethod.POST)
+    public ApiRes getConfig() {
+        PayConfig payConfig = sysConfigService.getPayConfig();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("mchFee", payConfig.getMchFee());
+        jsonObject.put("mchFeeRate", payConfig.getMchFeeRate());
+        jsonObject.put("mchMinWithdraw", payConfig.getMchMinWithdraw());
+        return ApiRes.ok(jsonObject);
+    }
+
+    @PreAuthorize("hasAuthority('ENT_DIVISION_MCH')")
+    @MethodLog(remark = "设置商户结算配置")
+    @RequestMapping(value = "/setConfig", method = RequestMethod.POST)
+    @LimitRequest
+    public ApiRes setConfig() {
+        JSONObject paramJSON = getReqParamJSON();
+        Map<String, Object> updateMap = JSONObject.toJavaObject(paramJSON, Map.class);
+        int update = sysConfigService.updateByConfigKey(updateMap);
+        if (update <= 0) {
+            return ApiRes.fail(ApiCodeEnum.SYSTEM_ERROR, "更新失败");
+        }
+        // 异步更新到MQ
+        SpringBeansUtil.getBean(SysConfigController.class).updateSysConfigMQ("payConfigGroup");
+        return ApiRes.ok();
     }
 
 }

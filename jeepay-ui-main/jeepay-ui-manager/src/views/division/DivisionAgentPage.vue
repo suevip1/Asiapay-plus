@@ -25,6 +25,16 @@
           </a-statistic>
         </a-card>
       </a-col>
+      <a-col :span="4">
+        <a-card class="division" style="height: 81px">
+          <p>最小结算: <b>{{ (agentMinWithdraw / 100).toFixed(2) }}</b></p>
+          <p>单笔手续费: <b>{{ (agentFee / 100).toFixed(2) }}</b></p>
+          <p>单笔费率: <b>{{ (agentFeeRate * 100).toFixed(2) }}%</b></p>
+        </a-card>
+      </a-col>
+      <a-col :span="4">
+        <a-button type="primary" @click="showSetModal">代理结算设置</a-button>
+      </a-col>
     </a-row>
     <a-card style="margin-top: 20px">
       <div class="table-page-search-wrapper" @keydown.enter="queryFunc">
@@ -183,6 +193,24 @@
         </div>
       </a-drawer>
     </template>
+    <template>
+      <a-modal v-model="isShowSetModal" title="代理结算设置" @ok="handleSetOkFunc">
+        <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
+          <b style="color: rgb(128,128,128);font-size: 13px">代理结算手续费=结算金额*比例手续费+固定手续费</b><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">如：申请结算10000元，手续费1%，固定手续费10元。</span><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">综合手续费=10000*1%+10 为110元</span><br/><br/>
+          <a-form-model-item label="最小结算金额设置">
+            <a-input prefix="￥" v-model="saveObject.agentMinWithdraw" placeholder="请输入" type="number" />
+          </a-form-model-item>
+          <a-form-model-item label="单笔 [固定] 手续费">
+            <a-input prefix="￥" v-model="saveObject.agentFee" placeholder="请输入" type="number" />
+          </a-form-model-item>
+          <a-form-model-item label="单笔 [比例] 手续费">
+            <a-input prefix="%" v-model="saveObject.agentFeeRate" placeholder="请输入" type="number" />
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
   </page-header-wrapper>
 </template>
 <script>
@@ -213,7 +241,17 @@ export default {
       }, // 查询条件
       selectedRange: [],
       changeObject: {},
+      groupKey: 'payConfigGroup',
+      saveObject: {
+        'agentFee': 0,
+        'agentFeeRate': 0,
+        'agentMinWithdraw': 0
+      },
+      agentFee: 0,
+      agentFeeRate: 0,
+      agentMinWithdraw: 0,
       visible: false, // 审核抽屉
+      isShowSetModal: false, // 结算设置弹窗
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -223,16 +261,13 @@ export default {
         ]
       },
       tableColumns: tableColumns,
-      mchInfo: {},
       isShowModal: false,
-      changeRules: {
-        amount: [
-          { required: true, message: '请输入申请金额', trigger: 'blur' }
-        ]
-      },
       detailData: {},
       reviewedRemark: '',
-      countData: {}
+      countData: {
+        'totalAmount': 0,
+        'count': 0
+      }
     }
   },
   components: { JeepayTextUp, JeepayTable, JeepayTableColumns },
@@ -293,20 +328,78 @@ export default {
     },
     onClose () {
       this.visible = false
+    },
+    showSetModal () {
+      this.isShowSetModal = true
+      this.saveObject = {
+        'agentFee': this.agentFee / 100,
+        'agentFeeRate': this.agentFeeRate * 100,
+        'agentMinWithdraw': this.agentMinWithdraw / 100
+      }
+    },
+    handleSetOkFunc () {
+      if (this.agentMinWithdraw <= this.agentFee && this.agentFee !== 0) {
+        this.$message.error('提现手续费不能大于最小提现金额')
+        return
+      }
+      this.setWithdrawConfig()
+      this.isShowSetModal = false
+    },
+    setWithdrawConfig () {
+      const that = this
+      const num1 = Number(that.saveObject.agentFee)
+      const num2 = Number(that.saveObject.agentFeeRate)
+      const num3 = Number(that.saveObject.agentMinWithdraw)
+      if (!(typeof num1 === 'number' && !isNaN(num1))) {
+        that.$message.error('设置的格式有误，只能输入数字')
+        return
+      }
+      if (!(typeof num2 === 'number' && !isNaN(num2))) {
+        that.$message.error('设置的格式有误，只能输入数字')
+        return
+      }
+      if (!(typeof num3 === 'number' && !isNaN(num3))) {
+        that.$message.error('设置的格式有误，只能输入数字')
+        return
+      }
+      const params = { }
+      params.agentFee = that.saveObject.agentFee * 100
+      params.agentFeeRate = that.saveObject.agentFeeRate / 100
+      params.agentMinWithdraw = that.saveObject.agentMinWithdraw * 100
+      req.postDataNormal(API_URL_AGENT_DIVISION, 'setConfig', params).then(res => {
+        that.$message.success('修改结算设置成功')
+        that.getInitData()
+      }).catch((err) => {
+        console.error(err)
+      })
+    },
+    getInitData () {
+      const that = this
+      req.postDataNormal(API_URL_AGENT_DIVISION, 'count').then(res => {
+        that.countData = res
+      }).catch((err) => {
+        console.error(err)
+      })
+      req.postDataNormal(API_URL_AGENT_DIVISION, 'getConfig').then(res => {
+        that.agentFee = res.agentFee
+        that.agentFeeRate = res.agentFeeRate
+        that.agentMinWithdraw = res.agentMinWithdraw
+      }).catch((err) => {
+        console.error(err)
+      })
     }
   },
   computed: {
   },
   mounted () {
-    const that = this
-    req.postDataNormal(API_URL_AGENT_DIVISION, 'count').then(res => {
-      that.countData = res
-    }).catch((err) => {
-      console.error(err)
-    })
+    this.getInitData()
   }
 }
 </script>
 <style scoped lang="less">
-
+.division p{
+  //margin-top: 6px;
+  margin: 3px;
+  margin-left: 12px;
+}
 </style>

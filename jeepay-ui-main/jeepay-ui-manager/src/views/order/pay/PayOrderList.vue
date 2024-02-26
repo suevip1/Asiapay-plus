@@ -170,6 +170,9 @@
             <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" title="确认强制补单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeFunc(record.payOrderId)">
               <a-button type="link" >强制补单</a-button>
             </a-popconfirm>
+            <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" title="确认强制补单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeFunc(record.payOrderId)">
+              <a-button type="link" >调额入账</a-button>
+            </a-popconfirm>
             <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 2" title="确认标记为测试订单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeRedo(record.payOrderId)">
               <a-button type="link" >测试冲正</a-button>
             </a-popconfirm>
@@ -231,8 +234,8 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
-                  {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':detailData.state === 7?'出码失败':'未知' }}
+                <a-tag :color="getOrderStateColor(detailData.state)">
+                  {{ getOrderStateName(detailData.state) }}
                 </a-tag>
               </a-descriptions-item>
             </a-descriptions>
@@ -394,6 +397,7 @@ import RefundModal from './RefundModal' // 退款弹出框
 import JeepayTextUp from '@/components/JeepayTextUp/JeepayTextUp' // 文字上移组件
 import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
+import { getOrderStateColor, getOrderStateName } from '@/utils/util'
 import {
   API_URL_MCH_APP_LIST,
   API_URL_PAY_ORDER_LIST,
@@ -487,6 +491,8 @@ export default {
     next()
   },
   methods: {
+    getOrderStateColor,
+    getOrderStateName,
     queryFunc () {
       this.btnLoading = true
       if (this.realTimeStatOpen) {

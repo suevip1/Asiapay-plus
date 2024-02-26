@@ -82,6 +82,11 @@ public class PayOrder extends BaseModel {
      */
     public static final byte STATE_ERROR = 7;
 
+    /**
+     * 调额入账（部分金额入账）
+     */
+    public static final byte STATE_CHANGE = 8;
+
     public static final byte DIVISION_MODE_FORBID = 0; //该笔订单不允许分账
     public static final byte DIVISION_MODE_AUTO = 1; //支付成功按配置自动完成分账
     public static final byte DIVISION_MODE_MANUAL = 2; //商户手动分账(解冻商户金额)

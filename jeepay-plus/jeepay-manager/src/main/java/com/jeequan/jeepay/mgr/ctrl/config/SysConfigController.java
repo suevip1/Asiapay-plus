@@ -85,7 +85,7 @@ public class SysConfigController extends CommonCtrl {
 	@LimitRequest
 	public ApiRes update(@PathVariable("groupKey") String groupKey) {
 		JSONObject paramJSON = getReqParamJSON();
-		Map<String, String> updateMap = JSONObject.toJavaObject(paramJSON, Map.class);
+		Map<String, Object> updateMap = JSONObject.toJavaObject(paramJSON, Map.class);
 		int update = sysConfigService.updateByConfigKey(updateMap);
 		if(update <= 0) {
             return ApiRes.fail(ApiCodeEnum.SYSTEM_ERROR, "更新失败");
