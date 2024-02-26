@@ -202,7 +202,12 @@
         <div class="chart-data">
           <div v-show="!skeletonIsShow">
             <div class="pay-count-title">
-              <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">实时监控</span><span style="color: #969B9F">（近30分钟）</span>
+              <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">实时监控</span>
+              <a-radio-group v-model="tablePassageChannel" button-style="solid" @change="selectPassageTab">
+                <a-radio-button value="5">5分钟</a-radio-button>
+                <a-radio-button value="20">20分钟</a-radio-button>
+                <a-radio-button value="60">60分钟</a-radio-button>
+              </a-radio-group>
             </div>
             <template>
               <div id="chartContainer" style="max-width:800px;width: 700px;min-width: 700px; height:500px;"></div>
@@ -266,6 +271,7 @@
           yesterdayCount: {}
         },
         tableChannel: '5', // tab选择
+        tablePassageChannel: '5', // tab选择
         tableColumns: tableColumns,
         passageData: [],
         chartPassage: null,
@@ -293,7 +299,7 @@
         this.chartPassage = echarts.init(chartContainer)
         this.passageData = []
         const that = this
-        getRealTimeStat().then(res => {
+        getRealTimeStat(this.tablePassageChannel).then(res => {
           // 在这里配置你的图表选项和数据
           const yAxisData = []
           for (var key in res) {
@@ -389,10 +395,13 @@
         this.searchData.time = this.tableChannel
         this.$refs.infoTable.refTable(true)
       },
+      selectPassageTab () {
+        this.updatePassageData()
+      },
       updatePassageData () {
         const that = this
         that.passageData = []
-        getRealTimeStat().then(res => {
+        getRealTimeStat(this.tablePassageChannel).then(res => {
           const yAxisData = []
           for (const key in res) {
             if (res.hasOwnProperty(key)) {

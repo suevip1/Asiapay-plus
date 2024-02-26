@@ -252,9 +252,9 @@ export function getTwoDayCount () {
   })
 }
 
-export function getRealTimeStat () {
+export function getRealTimeStat (time) {
   return request.request({
-    url: API_URL_MAIN_STATISTIC + '/realTimeCount',
+    url: API_URL_MAIN_STATISTIC + '/realTimeCount/' + time,
     method: 'GET'
   })
 }

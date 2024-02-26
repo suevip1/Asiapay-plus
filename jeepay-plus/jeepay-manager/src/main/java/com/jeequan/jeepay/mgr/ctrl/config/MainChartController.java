@@ -104,14 +104,15 @@ public class MainChartController extends CommonCtrl {
     }
 
     @PreAuthorize("hasAuthority('ENT_C_MAIN_PAY_COUNT')")
-    @RequestMapping(value = "/realTimeCount", method = RequestMethod.GET)
-    public ApiRes realTimeCount() {
+    @RequestMapping(value = "/realTimeCount/{time}", method = RequestMethod.GET)
+    public ApiRes realTimeCount(@PathVariable("time") Integer time) {
         JSONObject json;
         Date now = DateUtil.parse(DateUtil.now());
         Map<String, Object> payOrderAllMap = RedisUtil.retrieveCollection(CS.REAL_TIME_STAT);
         Map<String, Object> payOrderSuccessMap = RedisUtil.retrieveCollection(CS.REAL_TIME_SUCCESS_STAT);
-        List<PayPassage> passageList = payPassageService.list();
 
+        //初始化通道统计
+        List<PayPassage> passageList = payPassageService.list();
         Map<String, PassageStat> passageMap = new HashMap<>();
         for (int index = 0; index < passageList.size(); index++) {
             PassageStat passageStat = new PassageStat();
@@ -120,6 +121,7 @@ public class MainChartController extends CommonCtrl {
             passageMap.put(passageList.get(index).getPayPassageId().toString(), passageStat);
         }
 
+        //清除过期的成功的订单
         for (Map.Entry<String, Object> entry : payOrderSuccessMap.entrySet()) {
             PayOrder payOrder = JSON.parseObject((String) entry.getValue(), PayOrder.class);
             long betweenMin = DateUtil.between(now, payOrder.getCreatedAt(), DateUnit.MINUTE);
@@ -130,29 +132,34 @@ public class MainChartController extends CommonCtrl {
 
         List<PayOrder> listMerge = new ArrayList<>();
         //比较重复项-成功的订单以创建时间为准
-        if (payOrderAllMap.size() != 0) {
+        if (!payOrderAllMap.isEmpty()) {
+
             for (Map.Entry<String, Object> entry : payOrderAllMap.entrySet()) {
                 PayOrder payOrder = JSON.parseObject((String) entry.getValue(), PayOrder.class);
 
                 long betweenMin = DateUtil.between(now, payOrder.getCreatedAt(), DateUnit.MINUTE);
-                if (betweenMin >= 30) {
+                if (betweenMin >= 61) {
                     RedisUtil.deleteFromHash(CS.REAL_TIME_STAT, payOrder.getPayOrderId());
                 } else {
-                    Long passageId = payOrder.getPassageId();
-                    PassageStat passageStat = (PassageStat) passageMap.get(passageId.toString());
-                    if (passageStat != null) {
-                        int count = passageStat.getAllCount() + 1;
-                        passageStat.setAllCount(count);
-                        passageMap.replace(passageId.toString(), passageStat);
-                        if (payOrderSuccessMap.containsKey(payOrder.getPayOrderId())) {
-                            listMerge.add(payOrder);
+                    //满足统计的时间维度
+                    if (betweenMin <= time) {
+                        Long passageId = payOrder.getPassageId();
+                        PassageStat passageStat = passageMap.get(passageId.toString());
+                        if (passageStat != null) {
+                            int count = passageStat.getAllCount() + 1;
+                            passageStat.setAllCount(count);
+                            passageMap.replace(passageId.toString(), passageStat);
+                            //这一单是成功的，加入到listMerge
+                            if (payOrderSuccessMap.containsKey(payOrder.getPayOrderId())) {
+                                listMerge.add(payOrder);
+                            }
                         }
                     }
                 }
             }
         }
 
-        if (listMerge.size() != 0) {
+        if (!listMerge.isEmpty()) {
             //成功单统计
             for (int i = 0; i < listMerge.size(); i++) {
                 PayOrder payOrder = listMerge.get(i);
@@ -210,9 +217,6 @@ public class MainChartController extends CommonCtrl {
      *
      * @return
      */
-//    @PreAuthorize("hasAuthority('ENT_C_MAIN_PAY_COUNT')")
-//    @RequestMapping(value = "/realTimeConcurrent/{time}", method = RequestMethod.GET)
-//    public ApiRes realTimeConcurrent(@PathVariable("time") Integer time) {
     @PreAuthorize("hasAuthority('ENT_C_MAIN_PAY_COUNT')")
     @RequestMapping(value = "/realTimeConcurrent", method = RequestMethod.GET)
     public ApiRes realTimeConcurrent() {
