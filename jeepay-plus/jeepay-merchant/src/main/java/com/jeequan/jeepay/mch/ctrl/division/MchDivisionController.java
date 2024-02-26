@@ -104,6 +104,10 @@ public class MchDivisionController extends CommonCtrl {
 
         Long fee = AmountUtil.calPercentageFee(divisionRecord.getAmount(), payConfig.getMchFeeRate()) + payConfig.getMchFee();
         //检测最小提现额度，算出手续费
+        Long divisionAmount = divisionRecord.getAmount() - fee;
+        if (divisionAmount <= 0) {
+            return ApiRes.customFail("申请金额过小无法体现!需要手续费[" + AmountUtil.convertCent2DollarShort(fee) + "]元");
+        }
 
         Date submitDate = new Date();
         boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), fee, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH, submitDate);

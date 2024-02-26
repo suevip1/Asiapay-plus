@@ -106,6 +106,11 @@ public class AgentDivisionController extends CommonCtrl {
 
         Long fee = AmountUtil.calPercentageFee(divisionRecord.getAmount(), payConfig.getAgentFeeRate()) + payConfig.getAgentFee();
 
+        //检测最小提现额度，算出手续费
+        Long divisionAmount = divisionRecord.getAmount() - fee;
+        if (divisionAmount <= 0) {
+            return ApiRes.customFail("申请金额过小无法体现!需要手续费[" + AmountUtil.convertCent2DollarShort(fee) + "]元");
+        }
 
         Date submitDate = new Date();
         boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), fee, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT, submitDate);
