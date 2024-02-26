@@ -10,10 +10,13 @@ import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
+import com.jeequan.jeepay.core.model.PayConfig;
+import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.mch.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.DivisionRecordService;
 import com.jeequan.jeepay.service.impl.MchHistoryService;
 import com.jeequan.jeepay.service.impl.MchInfoService;
+import com.jeequan.jeepay.service.impl.SysConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +38,10 @@ public class MchDivisionController extends CommonCtrl {
 
     @Autowired
     private MchHistoryService mchHistoryService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
+
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
@@ -88,9 +95,18 @@ public class MchDivisionController extends CommonCtrl {
         if ((mchInfo.getBalance() < divisionRecord.getAmount())) {
             return ApiRes.customFail("申请金额大于可提现余额!");
         }
-        Date submitDate = new Date();
 
-        boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH, submitDate);
+        PayConfig payConfig = sysConfigService.getPayConfig();
+
+        if (payConfig.getMchMinWithdraw() > divisionRecord.getAmount()) {
+            return ApiRes.customFail("申请金额小于最小提现限制，最小提现金额![" + AmountUtil.convertCent2DollarShort(payConfig.getMchMinWithdraw()) + "]元");
+        }
+
+        Long fee = AmountUtil.calPercentageFee(divisionRecord.getAmount(), payConfig.getMchFeeRate()) + payConfig.getMchFee();
+        //检测最小提现额度，算出手续费
+
+        Date submitDate = new Date();
+        boolean isSuccess = divisionRecordService.SaveDivisionRecord(mchInfo.getMchNo(), mchInfo.getMchName(), divisionRecord.getAmount(), fee, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_MCH, submitDate);
         if (isSuccess) {
             //增加商户资金流水记录
             mchInfo = mchInfoService.queryMchInfo(getCurrentMchNo());
@@ -119,4 +135,15 @@ public class MchDivisionController extends CommonCtrl {
         }
         return ApiRes.fail(ApiCodeEnum.DB_ERROR);
     }
+
+    @RequestMapping(value = "/getConfig", method = RequestMethod.POST)
+    public ApiRes getConfig() {
+        PayConfig payConfig = sysConfigService.getPayConfig();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("mchFee", payConfig.getMchFee());
+        jsonObject.put("mchFeeRate", payConfig.getMchFeeRate());
+        jsonObject.put("mchMinWithdraw", payConfig.getMchMinWithdraw());
+        return ApiRes.ok(jsonObject);
+    }
+
 }

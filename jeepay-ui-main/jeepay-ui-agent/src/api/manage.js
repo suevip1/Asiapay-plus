@@ -33,6 +33,15 @@ export const req = {
   // 通用删除接口
   delById: (url, bizId) => {
     return request.request({ url: url + '/' + bizId, method: 'DELETE' }, true, true, false)
+  },
+  postNormal: (url, apiUrl) => {
+    return request.request({ url: url + '/' + apiUrl, method: 'POST' }, true, true, true)
+  },
+  postDataNormal: (url, apiUrl, data) => {
+    return request.request({ url: url + '/' + apiUrl, method: 'POST', data: data }, true, true, true)
+  },
+  getNormal: (url, apiUrl) => {
+    return request.request({ url: url + '/' + apiUrl, method: 'GET' }, true, true, true)
   }
 }
 

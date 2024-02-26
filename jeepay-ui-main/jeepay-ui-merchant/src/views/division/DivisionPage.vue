@@ -38,6 +38,13 @@
           </a-statistic>
         </a-card>
       </a-col>
+      <a-col :span="4">
+        <a-card class="division" style="height: 81px">
+          <p>最小结算: <b>{{ (mchMinWithdraw / 100).toFixed(2) }}</b></p>
+          <p>单笔手续费: <b>{{ (mchFee / 100).toFixed(2) }}</b></p>
+          <p>单笔费率: <b>{{ (mchFeeRate * 100).toFixed(2) }}%</b></p>
+        </a-card>
+      </a-col>
     </a-row>
     <a-row style="margin-top: 20px">
       <a-col>
@@ -97,7 +104,7 @@
           <b style="color: #4BD884">{{(record.divisionAmount / 100).toFixed(2)}}</b>
         </template>
         <template slot="feeSlot" slot-scope="{record}">
-          <span >{{(record.divisionFeeRate / 100).toFixed(2)}}</span>
+          <span >{{(record.divisionAmountFee / 100).toFixed(2)}}</span>
         </template>
         <template slot="stateSlot" slot-scope="{record}">
           <!-- 1-待结算 2-结算成功, 3-结算失败(取消),4-超时关闭 -->
@@ -165,6 +172,9 @@ export default {
       tableColumns: tableColumns,
       mchInfo: {},
       isShowModal: false,
+      mchFee: 0,
+      mchFeeRate: 0,
+      mchMinWithdraw: 0,
       changeRules: {
         amount: [
           { required: true, message: '请输入申请金额', trigger: 'blur' }
@@ -229,9 +239,20 @@ export default {
     }).catch((err) => {
       console.error(err)
     })
+    req.postDataNormal(API_URL_MCH_DIVISION, 'getConfig').then(res => {
+      that.mchFee = res.mchFee
+      that.mchFeeRate = res.mchFeeRate
+      that.mchMinWithdraw = res.mchMinWithdraw
+    }).catch((err) => {
+      console.error(err)
+    })
   }
 }
 </script>
 <style scoped lang="less">
-
+.division p{
+  //margin-top: 6px;
+  margin: 3px;
+  margin-left: 12px;
+}
 </style>

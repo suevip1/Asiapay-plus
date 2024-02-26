@@ -66,7 +66,7 @@ public class DivisionRecordService extends ServiceImpl<DivisionRecordMapper, Div
         divisionRecord.setUserName(userName);
         divisionRecord.setAmount(amount);
         divisionRecord.setDivisionAmount(amount - fee);
-        divisionRecord.setDivisionAmountFee(0L);
+        divisionRecord.setDivisionAmountFee(fee);
         divisionRecord.setDivisionFeeRate(BigDecimal.ZERO);
         divisionRecord.setState(DivisionRecord.STATE_WAIT);
         divisionRecord.setUserType(userType);

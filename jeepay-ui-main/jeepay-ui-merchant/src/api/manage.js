@@ -30,6 +30,10 @@ export const req = {
     return request.request({ url: url + '/' + bizId, method: 'PUT', data: data }, true, true, false)
   },
 
+  postDataNormal: (url, apiUrl, data) => {
+    return request.request({ url: url + '/' + apiUrl, method: 'POST', data: data }, true, true, true)
+  },
+
   // 通用删除接口
   delById: (url, bizId) => {
     return request.request({ url: url + '/' + bizId, method: 'DELETE' }, true, true, false)

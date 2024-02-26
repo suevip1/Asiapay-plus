@@ -90,7 +90,7 @@
           <b style="color: #4BD884">{{(record.divisionAmount / 100).toFixed(2)}}</b>
         </template>
         <template slot="feeSlot" slot-scope="{record}">
-          <span >{{(record.divisionFeeRate / 100).toFixed(2)}}</span>
+          <span >{{(record.divisionAmountFee / 100).toFixed(2)}}</span>
         </template>
         <template slot="stateSlot" slot-scope="{record}">
           <!-- 1-待结算 2-结算成功, 3-结算失败(取消),4-超时关闭 -->

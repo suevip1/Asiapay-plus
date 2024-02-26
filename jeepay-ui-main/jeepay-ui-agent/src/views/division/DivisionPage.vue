@@ -38,6 +38,13 @@
           </a-statistic>
         </a-card>
       </a-col>
+      <a-col :span="4">
+        <a-card class="division" style="height: 81px">
+          <p>最小结算: <b>{{ (agentMinWithdraw / 100).toFixed(2) }}</b></p>
+          <p>单笔手续费: <b>{{ (agentFee / 100).toFixed(2) }}</b></p>
+          <p>单笔费率: <b>{{ (agentFeeRate * 100).toFixed(2) }}%</b></p>
+        </a-card>
+      </a-col>
     </a-row>
     <a-row style="margin-top: 20px">
       <a-col>
@@ -97,7 +104,7 @@
           <b style="color: #4BD884">{{(record.divisionAmount / 100).toFixed(2)}}</b>
         </template>
         <template slot="feeSlot" slot-scope="{record}">
-          <span >{{(record.divisionFeeRate / 100).toFixed(2)}}</span>
+          <span >{{(record.divisionAmountFee / 100).toFixed(2)}}</span>
         </template>
         <template slot="stateSlot" slot-scope="{record}">
           <!-- 1-待结算 2-结算成功, 3-结算失败(取消),4-超时关闭 -->
@@ -163,6 +170,9 @@ export default {
         ]
       },
       tableColumns: tableColumns,
+      agentFee: 0,
+      agentFeeRate: 0,
+      agentMinWithdraw: 0,
       agentInfo: {},
       isShowModal: false,
       changeRules: {
@@ -229,9 +239,20 @@ export default {
     }).catch((err) => {
       console.error(err)
     })
+    req.postDataNormal(API_URL_AGENT_DIVISION, 'getConfig').then(res => {
+      that.agentFee = res.agentFee
+      that.agentFeeRate = res.agentFeeRate
+      that.agentMinWithdraw = res.agentMinWithdraw
+    }).catch((err) => {
+      console.error(err)
+    })
   }
 }
 </script>
 <style scoped lang="less">
-
+.division p{
+  //margin-top: 6px;
+  margin: 3px;
+  margin-left: 12px;
+}
 </style>

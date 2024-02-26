@@ -13,11 +13,15 @@ import com.jeequan.jeepay.core.entity.AgentAccountInfo;
 import com.jeequan.jeepay.core.entity.DivisionRecord;
 import com.jeequan.jeepay.core.entity.MchInfo;
 import com.jeequan.jeepay.core.model.ApiRes;
+import com.jeequan.jeepay.core.model.PayConfig;
+import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.service.impl.AgentAccountHistoryService;
 import com.jeequan.jeepay.service.impl.AgentAccountInfoService;
 import com.jeequan.jeepay.service.impl.DivisionRecordService;
+import com.jeequan.jeepay.service.impl.SysConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +40,9 @@ public class AgentDivisionController extends CommonCtrl {
 
     @Autowired
     private AgentAccountHistoryService agentAccountHistoryService;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
@@ -80,7 +87,6 @@ public class AgentDivisionController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.POST)
     @LimitRequest
     public ApiRes add() {
-        //todo 检测提现限额
         DivisionRecord divisionRecord = getObject(DivisionRecord.class);
         AgentAccountInfo agentAccountInfo = agentAccountInfoService.queryAgentInfo(getCurrentAgentNo());
 
@@ -91,8 +97,18 @@ public class AgentDivisionController extends CommonCtrl {
         if ((agentAccountInfo.getBalance() < divisionRecord.getAmount())) {
             return ApiRes.customFail("申请金额大于可提现余额!");
         }
+
+        PayConfig payConfig = sysConfigService.getPayConfig();
+
+        if (payConfig.getAgentMinWithdraw() > divisionRecord.getAmount()) {
+            return ApiRes.customFail("申请金额小于最小提现限制，最小提现金额![" + AmountUtil.convertCent2DollarShort(payConfig.getAgentMinWithdraw()) + "]元");
+        }
+
+        Long fee = AmountUtil.calPercentageFee(divisionRecord.getAmount(), payConfig.getAgentFeeRate()) + payConfig.getAgentFee();
+
+
         Date submitDate = new Date();
-        boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), 0L, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT, submitDate);
+        boolean isSuccess = divisionRecordService.SaveDivisionRecord(agentAccountInfo.getAgentNo(), agentAccountInfo.getAgentName(), divisionRecord.getAmount(), fee, divisionRecord.getRemark(), DivisionRecord.USER_TYPE_AGENT, submitDate);
         if (isSuccess) {
             //增加代理资金流水记录
             agentAccountInfo = agentAccountInfoService.queryAgentInfo(getCurrentAgentNo());
@@ -119,5 +135,15 @@ public class AgentDivisionController extends CommonCtrl {
             return ApiRes.ok();
         }
         return ApiRes.fail(ApiCodeEnum.DB_ERROR);
+    }
+
+    @RequestMapping(value = "/getConfig", method = RequestMethod.POST)
+    public ApiRes getConfig() {
+        PayConfig payConfig = sysConfigService.getPayConfig();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("agentFee", payConfig.getAgentFee());
+        jsonObject.put("agentFeeRate", payConfig.getAgentFeeRate());
+        jsonObject.put("agentMinWithdraw", payConfig.getAgentMinWithdraw());
+        return ApiRes.ok(jsonObject);
     }
 }
