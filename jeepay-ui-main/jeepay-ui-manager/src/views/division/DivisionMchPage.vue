@@ -178,7 +178,7 @@
             <a-form-model-item label="商户备注">
               <a-input
                   type="textarea"
-                  disabled="true"
+                  disabled="disabled"
                   style="height: 100px;color: black"
                   v-model="detailData.remark"
               />
