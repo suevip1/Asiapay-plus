@@ -6,18 +6,13 @@ import com.jeequan.jeepay.core.aop.LimitRequest;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
-import com.jeequan.jeepay.core.entity.PassageTransactionHistory;
-import com.jeequan.jeepay.core.entity.PayPassage;
-import com.jeequan.jeepay.core.entity.SysUser;
-import com.jeequan.jeepay.core.entity.SysUserAuth;
+import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.GoogleAuthUtil;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
-import com.jeequan.jeepay.service.impl.PassageTransactionHistoryService;
-import com.jeequan.jeepay.service.impl.PayPassageService;
-import com.jeequan.jeepay.service.impl.SysUserAuthService;
+import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +37,12 @@ public class MchAppMultipleController extends CommonCtrl {
 
     @Autowired
     private PassageTransactionHistoryService passageTransactionHistoryService;
+
+    @Autowired
+    private RobotsPassageService robotsPassageService;
+
+    @Autowired
+    private MchPayPassageService mchPayPassageService;
 
     private static final String RECENTLY_OPEN = "recently_open";
 
@@ -131,6 +132,13 @@ public class MchAppMultipleController extends CommonCtrl {
                 return ApiRes.customFail("请先选中需要批量操作的通道");
             }
 
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
+            }
+
             List<PayPassage> updatePassageList = new ArrayList<>();
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
             for (int i = 0; i < selectedIds.size(); i++) {
@@ -175,6 +183,13 @@ public class MchAppMultipleController extends CommonCtrl {
                 return ApiRes.customFail("请先选中需要批量操作的通道");
             }
 
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
+            }
+
             List<PayPassage> updatePassageList = new ArrayList<>();
             for (int i = 0; i < selectedIds.size(); i++) {
                 PayPassage passage = new PayPassage();
@@ -203,16 +218,15 @@ public class MchAppMultipleController extends CommonCtrl {
             JSONObject reqJson = getReqParamJSON();
             JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
 
+            if (selectedIds == null || selectedIds.isEmpty()) {
+                return ApiRes.customFail("请先选中需要批量操作的通道");
+            }
 
             //检查当前用户是否绑定谷歌
             String account = getCurrentUser().getSysUser().getLoginUsername();
             SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
-            if (sysUserAuth == null) {
-                return ApiRes.customFail("当前账号不可用");
-            }
-
-            if (selectedIds == null || selectedIds.isEmpty()) {
-                return ApiRes.customFail("请先选中需要批量操作的通道");
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
             }
 
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
@@ -271,6 +285,13 @@ public class MchAppMultipleController extends CommonCtrl {
                 return ApiRes.customFail("请先设置费率");
             }
 
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
+            }
+
             List<PayPassage> updatePassageList = new ArrayList<>();
             for (int i = 0; i < selectedIds.size(); i++) {
                 PayPassage passage = new PayPassage();
@@ -304,6 +325,13 @@ public class MchAppMultipleController extends CommonCtrl {
 
             if (selectedIds == null || selectedIds.isEmpty()) {
                 return ApiRes.customFail("请先选中需要批量操作的通道");
+            }
+
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
             }
 
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
@@ -348,6 +376,13 @@ public class MchAppMultipleController extends CommonCtrl {
                 return ApiRes.customFail("请先选中需要批量操作的通道");
             }
 
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
+            }
+
             Map<Long, PayPassage> payPassageMap = payPassageService.getPayPassageMap();
             List<PayPassage> updatePassageList = new ArrayList<>();
 
@@ -367,6 +402,58 @@ public class MchAppMultipleController extends CommonCtrl {
             boolean isSuccess = payPassageService.saveOrUpdateBatch(updatePassageList);
             if (!isSuccess) {
                 return ApiRes.customFail("批量操作失败，请稍后再试");
+            }
+            return ApiRes.ok();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return ApiRes.customFail("操作失败,请联系管理员");
+        }
+    }
+
+    @PreAuthorize("hasAuthority('ENT_MCH_APP_EDIT')")
+    @MethodLog(remark = "批量删除通道")
+    @RequestMapping(value = "/multipleSetDelete", method = RequestMethod.POST)
+    @LimitRequest
+    public ApiRes multipleSetDelete() {
+        try {
+            JSONObject reqJson = getReqParamJSON();
+            JSONArray selectedIds = reqJson.getJSONArray("selectedIds");
+
+            if (selectedIds == null || selectedIds.isEmpty()) {
+                return ApiRes.customFail("请先选中需要批量操作的通道");
+            }
+
+            //检查当前用户是否绑定谷歌
+            String account = getCurrentUser().getSysUser().getLoginUsername();
+            SysUserAuth sysUserAuth = sysUserAuthService.selectByLogin(account, CS.AUTH_TYPE.LOGIN_USER_NAME, CS.SYS_TYPE.MGR);
+            if (sysUserAuth == null || sysUserAuth.getGoogleAuthStatus() == CS.NO) {
+                return ApiRes.customFail("敏感操作，请先绑定谷歌验证码");
+            }
+
+
+            List<Long> ids = selectedIds.toJavaList(Long.class);
+            //余额为零且在所选ID里面的
+            List<PayPassage> passageList = payPassageService.list(PayPassage.gw().in(PayPassage::getPayPassageId, ids).eq(PayPassage::getBalance, 0L));
+            if (passageList.size() != ids.size()) {
+                return ApiRes.customFail("所选通道中存在余额不为零的通道，请检查");
+            }
+
+            for (int i = 0; i < passageList.size(); i++) {
+                PayPassage payPassage = new PayPassage();
+                Long payPassageId = passageList.get(i).getPayPassageId();
+
+                payPassage.setPayPassageId(payPassageId);
+                payPassage.setState(CS.HIDE);
+
+                boolean isSuccess = payPassageService.updateById(payPassage);
+                if (isSuccess) {
+                    //移除机器人绑定的通道
+                    robotsPassageService.remove(RobotsPassage.gw().eq(RobotsPassage::getPassageId, payPassageId));
+                    //移除绑定
+                    mchPayPassageService.remove(MchPayPassage.gw().eq(MchPayPassage::getPayPassageId, payPassageId));
+                } else {
+                    logger.error("[批量操作]隐藏通道失败: " + payPassageId + " " + passageList.get(i).getPayPassageName());
+                }
             }
             return ApiRes.ok();
         } catch (Exception e) {

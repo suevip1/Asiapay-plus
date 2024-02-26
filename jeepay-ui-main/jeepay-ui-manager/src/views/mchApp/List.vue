@@ -430,6 +430,7 @@ export default {
       return req.list(API_URL_MCH_APP, params)
     },
     addOrEdit: function () { // 点击【查询】按钮点击事件
+      this.getPassageStatInfo()
       this.$refs.infoTable.refTable()
     },
     addFunc: function () { // 业务通用【新增】 函数

@@ -29,7 +29,14 @@
         <a-col :span="24">
           <a-form-model-item label="通道支付配置">
             <a-button @click="showSetGate">修改下单网关</a-button>
-            <a-button style="margin-left: 32px" @click="showSetIP">修改回调IP</a-button>
+            <a-button style="margin-left: 32px" @click="showSetIP">修改通道回调IP</a-button>
+          </a-form-model-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-model-item label="通道删除">
+            <a-popconfirm title="确认删除所选通道么?请先保证所选的通道余额为零" ok-text="确认" cancel-text="取消" @confirm="handleSetDeleteOkFunc">
+              <a-button type="danger" >批量删除通道</a-button>
+            </a-popconfirm>
           </a-form-model-item>
         </a-col>
       </a-row>
@@ -198,6 +205,15 @@ export default {
       const params = { }
       params.selectedIds = this.selectedIds
       req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'multipleSetBalanceZero/', params).then(res => {
+        that.$message.success('操作成功')
+        that.resetTempData()
+      })
+    },
+    handleSetDeleteOkFunc () {
+      const that = this
+      const params = { }
+      params.selectedIds = this.selectedIds
+      req.postDataNormal(API_URL_MCH_APP_MULTIPLE_SET, 'multipleSetDelete/', params).then(res => {
         that.$message.success('操作成功')
         that.resetTempData()
       })
