@@ -71,8 +71,7 @@ public class MchStatController extends CommonCtrl {
         wrapper.orderByDesc(StatisticsMch::getTotalSuccessAmount);
         IPage<StatisticsMch> pages = statisticsMchService.page(getIPage(true), wrapper);
         List<StatisticsMch> records = statisticsMchService.list(wrapper);
-//        log.info(records.size() + "");
-//        List<StatisticsMch> records = pages.getRecords();
+
         for (int i = 0; i < records.size(); i++) {
             records.get(i).addExt("mchName", mchMap.get(records.get(i).getMchNo()).getMchName());
         }

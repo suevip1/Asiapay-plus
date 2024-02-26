@@ -194,6 +194,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     @Autowired
     private MchHistoryService mchHistoryService;
 
+    @Autowired
+    private StatisticsMchService statisticsMchService;
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -1937,6 +1940,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                                 stringBuffer.append("[" + CS.GetMchBizTypeString(mchHistory.getBizType()) + "]: <b>" + AmountUtil.convertCent2Dollar(mchHistory.getAmount()) + "</b> | " + DateUtil.formatDateTime(mchHistory.getCreatedAt()) + remark + System.lineSeparator());
                             }
                             stringBuffer.append("-----------------------" + System.lineSeparator());
+                            stringBuffer.append("手续费总额：" + AmountUtil.convertCent2DollarShort(statisticsMch.getTotalMchCost()) + System.lineSeparator());
+                            stringBuffer.append("-----------------------" + System.lineSeparator());
                         }
 
                         //当日 第一笔流水 最后一笔流水
@@ -1950,6 +1955,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             stringBuffer.append("日终余额: " + AmountUtil.convertCent2Dollar(last.getAfterBalance()) + System.lineSeparator());
                             stringBuffer.append("-----------------------" + System.lineSeparator());
                         }
+
+
+                        //查当日手续费
+
                         stringBuffer.append("当前商户余额: <b>" + AmountUtil.convertCent2DollarShort(mchInfo.getBalance()) + "</b>" + System.lineSeparator());
                         stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
                         sendSingleMessageAndPin(chatId, stringBuffer.toString());
