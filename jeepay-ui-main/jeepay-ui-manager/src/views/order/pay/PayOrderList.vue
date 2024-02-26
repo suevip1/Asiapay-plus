@@ -46,6 +46,7 @@
                 <a-select-option value="5">测试冲正</a-select-option>
                 <a-select-option value="6">订单关闭</a-select-option>
                 <a-select-option value="7">出码失败</a-select-option>
+                <a-select-option value="8">调额入账</a-select-option>
               </a-select>
             </a-form-item>
             <a-form-item label="" class="table-head-layout">
@@ -124,11 +125,8 @@
         </template> <!-- 商户信息插槽 -->
         <template slot="amountSlot" slot-scope="{record}"><b>￥{{ record.amount/100 }}</b></template> <!-- 订单金额插槽 -->
         <template slot="stateSlot" slot-scope="{record}">
-          <a-tag
-            :key="record.state"
-            :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
-          >
-            {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
+          <a-tag :color="getOrderStateColor(record.state)">
+            {{ getOrderStateName(record.state) }}
           </a-tag>
         </template>
         <template slot="forceChangeStateSlot" slot-scope="{record}">
@@ -170,9 +168,7 @@
             <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" title="确认强制补单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeFunc(record.payOrderId)">
               <a-button type="link" >强制补单</a-button>
             </a-popconfirm>
-            <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" title="确认强制补单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeFunc(record.payOrderId)">
-              <a-button type="link" >调额入账</a-button>
-            </a-popconfirm>
+            <a-button v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 1 || record.state === 3|| record.state === 6" type="link" @click="showChangeModal(record)">调额入账</a-button>
             <a-popconfirm v-if="$access('ENT_PAY_ORDER_EDIT') && record.state === 2" title="确认标记为测试订单么?" ok-text="确认" cancel-text="取消" @confirm="forceChangeRedo(record.payOrderId)">
               <a-button type="link" >测试冲正</a-button>
             </a-popconfirm>
@@ -390,6 +386,21 @@
         </a-row>
       </a-drawer>
     </template>
+    <template>
+      <a-modal v-model="isShowChangeModel" title="订单调额入账" @ok="handleSetChangeOkFunc">
+        <a-form-model :label-col="{span: 8}" :wrapper-col="{span: 13}">
+          <b style="color: rgb(128,128,128);font-size: 13px">1、此操为当用户支付金额与订单金额不一致时使用</b><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">2、调整后的金额将自动以[调账]的方式入账对应商户、通道</span><br/>
+          <b style="color: rgb(210,27,27);font-size: 13px">3、此操作不会给商户发送回调！！！请注意通知商户</b><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">4、如订单金额100元，用户支付了40元，下面输入框填40即可</b><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">5、请先核对信息后谨慎操作</span><br/><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">原订单金额: <b>￥{{(selectChangeOrder.amount/100).toFixed(2)}}</b></span><br/><br/>
+          <a-form-model-item label="需要入账的金额">
+            <a-input prefix="￥" v-model="selectChangeAmount" placeholder="请输入" type="number" />
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
+    </template>
   </page-header-wrapper>
 </template>
 <script>
@@ -449,6 +460,9 @@ export default {
       autoRefresh: false,
       timer: null,
       autoRefreshCoolDown: 120,
+      isShowChangeModel: false,
+      selectChangeOrder: {},
+      selectChangeAmount: 0,
       ranges: {
         今天: [moment().startOf('day'), moment().endOf('day')],
         昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
@@ -585,6 +599,29 @@ export default {
         that.realTimeStatOpen = false
         that.statLoading = false
       }
+    },
+    showChangeModal (record) {
+      this.isShowChangeModel = true
+      this.selectChangeOrder = record
+    },
+    handleSetChangeOkFunc () {
+      var payType2Num = Number(this.selectChangeAmount)
+      if (!(typeof payType2Num === 'number' && !isNaN(payType2Num))) {
+        this.$message.error('请输入正确格式的数字')
+        return
+      }
+      this.changeOrderAmount(this.selectChangeOrder.payOrderId)
+      this.isShowChangeModel = false
+    },
+    changeOrderAmount: function (recordId) {
+      const that = this
+      const amount = this.selectChangeAmount * 100
+      req.getNormal(PAY_ORDER_FORCE_SUCCESS, recordId + '/changePayOrder/' + amount).then(res => {
+        that.$message.success('订单调额入账成功')
+        that.selectChangeAmount = 0
+        that.selectChangeOrder = {}
+        that.$refs.infoTable.refTable(false)
+      })
     }
   }
 }

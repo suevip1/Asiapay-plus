@@ -58,6 +58,8 @@ export function getOrderStateColor (state) {
       return ''
     case 7:
       return '#F03B44'
+    case 8:
+      return '#F03B44'
   }
   return ''
 }

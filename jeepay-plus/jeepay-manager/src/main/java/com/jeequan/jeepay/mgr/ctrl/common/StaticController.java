@@ -15,10 +15,6 @@
  */
 package com.jeequan.jeepay.mgr.ctrl.common;
 
-import com.jeequan.jeepay.components.mq.model.PayOrderForceSuccessMQ;
-import com.jeequan.jeepay.components.mq.vender.IMQSender;
-import com.jeequan.jeepay.core.entity.PayOrder;
-import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.components.oss.config.OssYmlConfig;
 import org.springframework.beans.factory.annotation.Autowired;

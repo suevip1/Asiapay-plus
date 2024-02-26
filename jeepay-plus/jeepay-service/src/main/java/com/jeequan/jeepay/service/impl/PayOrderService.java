@@ -111,6 +111,16 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
                 .eq(PayOrder::getPayOrderId, payOrderId));
     }
 
+    public boolean updateOrderChange(String payOrderId, String loginName, Byte beforeState, Date updateTime) {
+        PayOrder updateRecord = new PayOrder();
+        updateRecord.setState(PayOrder.STATE_CHANGE);
+        updateRecord.setUpdatedAt(updateTime);
+        updateRecord.setForceChangeLoginName(loginName);
+        updateRecord.setForceChangeBeforeState(beforeState);
+        return update(updateRecord, new LambdaUpdateWrapper<PayOrder>()
+                .eq(PayOrder::getPayOrderId, payOrderId));
+    }
+
     /**
      * 将成功状态的订单修改为测试冲正
      *

@@ -167,11 +167,11 @@
           <div v-show="!skeletonIsShow">
             <div>
               <div class="pay-count-title">
-                <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">数据排名</span>
+                <span class="chart-title" style="font-weight: bold;color: #262626;font-size: 18px">实时并发</span>
                 <a-radio-group v-model="tableChannel" button-style="solid" @change="selectTab">
-                  <a-radio-button value="1">商户</a-radio-button>
-                  <a-radio-button value="2">通道</a-radio-button>
-                  <a-radio-button value="3">代理</a-radio-button>
+                  <a-radio-button value="5">5分钟</a-radio-button>
+                  <a-radio-button value="20">20分钟</a-radio-button>
+                  <a-radio-button value="60">60分钟</a-radio-button>
                 </a-radio-group>
               </div>
               <div style="margin-top: 12px;">
@@ -183,25 +183,14 @@
                     :tableColumns="tableColumns"
                     :pageSize = 10
                     :searchData="searchData"
+                    rowKey="mchName"
                 >
                   <template slot="nameSlot" slot-scope="{record}">
-                    <template v-if="tableChannel=== '1'">
-                      <span class="name-label">[{{ record.mchNo }}]&nbsp{{ record.mchName }}</span>
-                    </template>
-                    <template v-else-if="tableChannel=== '2'">
-                      <span class="name-label">[{{ record.payPassageId }}]&nbsp{{ record.payPassageName }}</span>
-                    </template>
-                    <template v-if="tableChannel=== '3'">
-                      <span class="name-label">[{{ record.agentNo }}]&nbsp;{{ record.agentName }}</span>
-                    </template>
+                    <span class="name-label">{{ record.mchName }}</span>
                   </template> <!-- 自定义插槽 -->
-                  <template slot="stateSlot" slot-scope="{record}">
-                    <a-badge :status="record.state === 0?'error':'processing'" :text="record.state === 0?'禁用':'启用'" />
+                  <template slot="perMinCountSlot" slot-scope="{record}">
+                    <b>{{record.perMinCount}}</b>
                   </template>
-                  <!--    全局金额颜色参考此处    -->
-                  <template slot="balanceSlot" slot-scope="{record}">
-                    &nbsp;&nbsp;<b :style="{'color': record.balance >0 ? '#4BD884' : '#DB4B4B'}" >{{ (record.balance/100).toFixed(2) }}</b>
-                  </template> <!-- 自定义插槽 -->
                 </JeepayTable>
               </div>
             </div>
@@ -232,9 +221,8 @@
   // import { TinyArea, Column, Pie, measureTextWidth } from '@antv/g2plot'
   import * as echarts from 'echarts'
   import {
-    API_URL_AGENT_STAT_LIST,
-    API_URL_MCH_STAT_LIST,
-    API_URL_PASSAGE_STAT_LIST, getRealTimeStat,
+     API_URL_MAIN_STATISTIC,
+    getRealTimeStat,
     getTwoDayCount,
     req
   } from '@/api/manage'
@@ -245,9 +233,9 @@
   import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns.vue'
   import JeepayTable from '@/components/JeepayTable/JeepayTable.vue' // 空数据展示的组件，首页自用
   const tableColumns = [
-    { key: 'name', fixed: 'left', width: '350px', title: 'ID/名称', scopedSlots: { customRender: 'nameSlot' } },
-    { key: 'balance', title: '余额(￥)', scopedSlots: { customRender: 'balanceSlot' } },
-    { key: 'state', title: '状态', width: '100px', scopedSlots: { customRender: 'stateSlot' } }
+    { key: 'name', fixed: 'left', width: '350px', title: '商户名', scopedSlots: { customRender: 'nameSlot' } },
+    { key: 'allCount', title: '有效下单次数', dataIndex: 'allCount' },
+    { key: 'perMinCount', title: '并发数/每分钟', width: '200px', scopedSlots: { customRender: 'perMinCountSlot' } }
   ]
   export default {
     data () {
@@ -260,7 +248,9 @@
         pieDays: false, // 饼状图的关闭按钮是否展示
         visible: false,
         recordId: store.state.user.userId,
-        searchData: {}, // 查询条件
+        searchData: {
+          'time': 5
+        }, // 查询条件
         greetImg: store.state.user.avatarImgPath, // 头像图片地址
         isPayType: true, // 产品是否存在数据
         isPayCount: true, // 交易统计是否存在数据
@@ -275,7 +265,7 @@
           todayCount: {},
           yesterdayCount: {}
         },
-        tableChannel: '1', // tab选择
+        tableChannel: '5', // tab选择
         tableColumns: tableColumns,
         passageData: [],
         chartPassage: null,
@@ -381,21 +371,11 @@
         })
         this.timer = setInterval(function () {
           that.updatePassageData()
+          that.$refs.infoTable.refTable()
         }, 30000)
       },
       reqTableDataFunc: (params) => {
-        // 区分 1-商户 2-通道 3-代理
-        if (params.tableChannel === undefined) {
-          return req.list(API_URL_MCH_STAT_LIST, params)
-        }
-        switch (params.tableChannel) {
-          case '1':
-            return req.list(API_URL_MCH_STAT_LIST, params)
-          case '2':
-            return req.list(API_URL_PASSAGE_STAT_LIST, params)
-          case '3':
-            return req.list(API_URL_AGENT_STAT_LIST, params)
-        }
+        return req.list(API_URL_MAIN_STATISTIC + '/realTimeConcurrent', params)
       },
       moment,
       disabledDate (current) {
@@ -406,19 +386,7 @@
         that.skeletonIsShow = false
       },
       selectTab () {
-        // rowKey
-        switch (this.tableChannel) {
-          case '1':
-            this.rowKey = 'mchNo'
-            break
-          case '2':
-            this.rowKey = 'payPassageId'
-            break
-          case '3':
-            this.rowKey = 'agentNo'
-            break
-        }
-        this.searchData.tableChannel = this.tableChannel
+        this.searchData.time = this.tableChannel
         this.$refs.infoTable.refTable(true)
       },
       updatePassageData () {
