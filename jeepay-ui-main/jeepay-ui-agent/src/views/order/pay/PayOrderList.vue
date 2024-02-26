@@ -38,6 +38,7 @@
                 <a-select-option value="5">测试冲正</a-select-option>
                 <a-select-option value="6">订单关闭</a-select-option>
                 <a-select-option value="7">出码失败</a-select-option>
+                <a-select-option value="8">调额入账</a-select-option>
               </a-select>
             </a-form-item>
             <span class="table-page-search-submitButtons">
@@ -65,11 +66,8 @@
         </template> <!-- 商户信息插槽 -->
         <template slot="amountSlot" slot-scope="{record}"><b>￥{{ record.amount/100 }}</b></template> <!-- 订单金额插槽 -->
         <template slot="stateSlot" slot-scope="{record}">
-          <a-tag
-              :key="record.state"
-              :color="record.state === 0?'blue':record.state === 1?'orange':record.state === 2?'#4BD884':record.state === 6?'':'#F03B44'"
-          >
-            {{ record.state === 0?'订单生成':record.state === 1?'支付中':record.state === 2?'支付成功':record.state === 3?'支付失败':record.state === 4?'已撤销':record.state === 5?'测试冲正':record.state === 6?'订单关闭':record.state === 7?'出码失败':'未知' }}
+          <a-tag :color="getOrderStateColor(record.state)">
+            {{ getOrderStateName(record.state) }}
           </a-tag>
         </template>
         <template slot="productSlot" slot-scope="{record}">
@@ -147,8 +145,8 @@
           <a-col :sm="12">
             <a-descriptions>
               <a-descriptions-item label="订单状态">
-                <a-tag :color="detailData.state === 0?'blue':detailData.state === 1?'orange':detailData.state === 2?'#4BD884':detailData.state === 6?'':'#F03B44'">
-                  {{ detailData.state === 0?'订单生成':detailData.state === 1?'支付中':detailData.state === 2?'支付成功':detailData.state === 3?'支付失败':detailData.state === 4?'已撤销':detailData.state === 5?'测试冲正':detailData.state === 6?'订单关闭':detailData.state === 7?'出码失败':'未知' }}
+                <a-tag :color="getOrderStateColor(detailData.state)">
+                  {{ getOrderStateName(detailData.state) }}
                 </a-tag>
               </a-descriptions-item>
             </a-descriptions>
@@ -228,6 +226,7 @@ import {
   req
 } from '@/api/manage'
 import moment from 'moment'
+import { getOrderStateColor, getOrderStateName } from '@/utils/util'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -280,6 +279,8 @@ export default {
     this.queryFunc()
   },
   methods: {
+    getOrderStateColor,
+    getOrderStateName,
     queryFunc () {
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
