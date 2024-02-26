@@ -19,7 +19,8 @@
         <!-- 当侧边栏卷起来的时候，切换仅有J字母的图标 -->
         <img src="@/assets/logo-j.svg" alt="jeequan">
         <!-- 在这里可以添加title，我们以图片的方式替代文字 -->
-        <img v-show="!collapsed" src="@/assets/svg/jeepay.svg" alt="jeepay" style="width:90px;margin: 5px 0 0 5px">
+<!--        <img v-show="!collapsed" src="@/assets/svg/jeepay.svg" alt="jeepay" style="width:90px;margin: 5px 0 0 5px">-->
+        <b v-show="!collapsed" style="width:90px;" class="platName">{{ platName }}</b>
       </div>
     </template>
     <!-- 1.0.0+ 版本 pro-layout 提供 API,
@@ -86,7 +87,8 @@ export default {
       query: {},
 
       // 是否手机模式
-      isMobile: false
+      isMobile: false,
+      platName: '亚洲科技'
     }
   },
   computed: {
@@ -115,6 +117,10 @@ export default {
           this.collapsed = !this.collapsed
         }, 16)
       })
+    }
+    const titleName = localStorage.getItem('platName')
+    if (titleName !== undefined && titleName !== '') {
+      this.platName = titleName
     }
   },
   methods: {
@@ -148,4 +154,13 @@ export default {
 
 <style lang="less">
 @import "./BasicLayout.less";
+.platName{
+  margin: 5px 0 0 5px;
+  font-size: 17px;
+  background: linear-gradient(to bottom, #379EE9 0%, #2772BC 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent; /* 对于非WebKit浏览器 */
+  -webkit-text-fill-color: transparent; /* 对于WebKit浏览器 */
+}
 </style>
