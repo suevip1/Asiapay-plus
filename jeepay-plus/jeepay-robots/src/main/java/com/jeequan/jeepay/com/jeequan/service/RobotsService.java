@@ -2597,14 +2597,25 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 }
             } else if (Objects.equals(warnType, CS.ROBOT_WARN_TYPE.NOTIFY_ERROR)) {
                 RobotWarnNotify robotWarnNotify = JSONObject.parseObject(robotWarn.getData(), RobotWarnNotify.class);
-                RobotsMch robotsMch = robotsMchService.getManageMch();
                 MchInfo mchInfo = mchInfoService.getById(robotWarnNotify.getMchNo());
-                if (robotsMch != null && mchInfo != null) {
+
+                //检查是否有商户群
+                RobotsMch robotsMch = robotsMchService.getOne(RobotsMch.gw().like(RobotsMch::getMchNo, mchInfo.getMchNo()).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
+                if (robotsMch != null) {
                     String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + mchInfo.getMchName() + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！";
                     sendSingleMessage(robotsMch.getChatId(), messageStr);
                 } else {
-                    log.error("转换 RobotWarnNotify 为空，检查代码");
+                    //没有则发管理群
+                    RobotsMch robotsMchManage = robotsMchService.getManageMch();
+                    if (robotsMchManage != null) {
+                        String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + mchInfo.getMchName() + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！" + System.lineSeparator() + "[建议及时绑定商户群，机器人将自动发送通知失败提醒到商户群]";
+                        sendSingleMessage(robotsMchManage.getChatId(), messageStr);
+                    } else {
+                        log.error("转换 RobotWarnNotify 为空，检查代码");
+                    }
                 }
+
+
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
