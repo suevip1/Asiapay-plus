@@ -345,25 +345,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             String text = update.getMessage().getText().trim();
             String userName = update.getMessage().getFrom().getUserName();
 
-//            if (text.equals(TODAY_SETTLE) || text.equals(YESTERDAY_SETTLE)) {
-//                if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
-//                    //全部商户
-//                    List<RobotsMch> list = findNonMchDuplicateChatIds();
-//
-//                    Date date = new Date();
-//                    Date today = DateUtil.parse(DateUtil.today());
-//                    if (text.equals(TODAY_SETTLE)) {
-//                        date = today;
-//                    } else {
-//                        date = DateUtil.offsetDay(today, -1);
-//                    }
-//
-//                    for (int i = 0; i < list.size(); i++) {
-//                        RobotsMch robotsMch = list.get(i);
-//                        sendSettleInfo(robotsMch, date);
-//                    }
-//                }
-//            }
             if (text.equals(TODAY_SETTLE) || text.equals(YESTERDAY_SETTLE)) {
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                     sendReplyMessage(update.getMessage().getChatId(), update.getMessage().getMessageId(), "请回复此条消息，发送[确认执行]发送商户结算");
