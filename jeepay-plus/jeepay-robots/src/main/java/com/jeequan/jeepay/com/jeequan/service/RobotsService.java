@@ -347,7 +347,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
             if (text.equals(TODAY_SETTLE) || text.equals(YESTERDAY_SETTLE)) {
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
-                    sendReplyMessage(update.getMessage().getChatId(), update.getMessage().getMessageId(), "请回复此条消息，发送[确认执行]发送商户结算");
+                    sendReplyMessage(update.getMessage().getChatId(), update.getMessage().getMessageId(), "请回复你发送的这条消息，发送[确认执行]发送商户结算");
                 }
             }
             return;
