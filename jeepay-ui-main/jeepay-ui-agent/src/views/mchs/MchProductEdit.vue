@@ -1,7 +1,7 @@
 <template>
   <a-drawer
       :visible="visible"
-      :title=" true ? '商户-支付产品配置' : '' "
+      :title="'商户-支付产品费率'"
       @close="onClose"
       :body-style="{ paddingBottom: '80px' }"
       width="50%"

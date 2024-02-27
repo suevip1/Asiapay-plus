@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.agent.ctrl.CommonCtrl;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.service.impl.MchInfoService;
@@ -47,6 +48,7 @@ public class AgentMchInfoController extends CommonCtrl {
             LambdaQueryWrapper<MchInfo> wrapper = MchInfo.gw();
 
             wrapper.eq(MchInfo::getAgentNo, getCurrentAgentNo());
+            wrapper.ne(MchInfo::getState, CS.HIDE);
 
             if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
                 wrapper.eq(MchInfo::getMchNo, mchInfo.getMchNo().trim());
