@@ -72,6 +72,7 @@ public class AgentMchInfoController extends CommonCtrl {
 
                     statisticsAgentMch.setTotalAmount(0L);
                     statisticsAgentMch.setTotalOrderCount(0);
+                    statisticsAgentMch.setTotalSuccessAmount(0L);
                 }
                 list.get(i).addExt("stat", statisticsAgentMch);
             }
@@ -83,87 +84,4 @@ public class AgentMchInfoController extends CommonCtrl {
         }
     }
 
-//    @PostMapping(value = "/exportExcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    public void exportExcel() throws Exception {
-//        MchHistory mchHistory = getObject(MchHistory.class);
-//        JSONObject paramJSON = getReqParamJSON();
-//        if (mchHistory == null) {
-//            mchHistory = new MchHistory();
-//        }
-//        LambdaQueryWrapper<MchHistory> wrapper = MchHistory.gw();
-//
-//        //商号
-//        wrapper.eq(MchHistory::getMchNo, getCurrentMchNo());
-//
-//        //订单
-//        if (StringUtils.isNotEmpty(mchHistory.getPayOrderId())) {
-//            wrapper.eq(MchHistory::getPayOrderId, mchHistory.getPayOrderId());
-//        }
-//        //资金方向
-//        if (mchHistory.getFundDirection() != null && mchHistory.getFundDirection() != 0) {
-//            wrapper.eq(MchHistory::getFundDirection, mchHistory.getFundDirection());
-//        }
-//        //业务类型
-//        if (mchHistory.getBizType() != null && mchHistory.getBizType() != 0) {
-//            wrapper.eq(MchHistory::getBizType, mchHistory.getBizType());
-//        }
-//        if (paramJSON != null) {
-//            if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
-//                wrapper.ge(MchHistory::getCreatedAt, paramJSON.getString("createdStart"));
-//            }
-//            if (StringUtils.isNotEmpty(paramJSON.getString("createdEnd"))) {
-//                wrapper.le(MchHistory::getCreatedAt, paramJSON.getString("createdEnd"));
-//            }
-//        }
-//        wrapper.orderByDesc(MchHistory::getCreatedAt);
-//
-//        IPage<MchHistory> pages = mchHistoryService.page(getIPage(true), wrapper);
-//
-//        int count = pages.getRecords().size();
-//        if (count > 65535) {
-//            throw new BizException("导出最大数据不能超过65535行！");
-//        } else {
-//            List<List> excelData = new ArrayList();
-//            List<String> header = Arrays.asList("记录ID", "变更前余额(元)", "变更金额(元)", "变更后余额(元)", "业务类型", "业务订单号", "商户订单号", "订单金额", "时间");
-//            excelData.add(header);
-//            Iterator iteratorRecord = pages.getRecords().iterator();
-//
-//            while (iteratorRecord.hasNext()) {
-//                MchHistory record = (MchHistory) iteratorRecord.next();
-//                List<String> rowData = new ArrayList();
-//                //id
-//                rowData.add(String.valueOf(record.getMchHistoryId()));
-//                //变更前余额
-//                rowData.add(AmountUtil.convertCent2Dollar(record.getBeforeBalance() + ""));
-//                //变更金额
-//                String prefix = record.getFundDirection() == CS.FUND_DIRECTION_INCREASE ? "+" : "";
-//                rowData.add(prefix + AmountUtil.convertCent2Dollar(record.getAmount() + ""));
-//                //变更后余额
-//                rowData.add(AmountUtil.convertCent2Dollar(record.getAfterBalance() + ""));
-//                //业务类型
-//                if (record.getBizType() == CS.BIZ_TYPE_CHANGE) {
-//                    rowData.add(CS.GetMchBizTypeString(record.getBizType()) + "-(操作员用户名)-" + record.getCreatedLoginName());
-//                } else {
-//                    rowData.add(CS.GetMchBizTypeString(record.getBizType()));
-//                }
-//
-//                //业务订单号
-//                rowData.add(record.getPayOrderId());
-//                //商户订单号
-//                rowData.add(record.getMchOrderNo());
-//                //订单金额
-//                if (record.getPayOrderAmount() != null) {
-//                    rowData.add(AmountUtil.convertCent2Dollar(record.getPayOrderAmount() + ""));
-//                } else {
-//                    rowData.add("");
-//                }
-//
-//                //时间
-//                rowData.add(DateUtil.format(record.getCreatedAt(), "yyyy-MM-dd HH-mm-ss"));
-//                excelData.add(rowData);
-//            }
-//
-//            this.writeExcelStream(excelData);
-//        }
-//    }
 }

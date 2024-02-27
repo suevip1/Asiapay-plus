@@ -90,6 +90,8 @@ export const API_URL_AGENT_PASSAGE = '/api/passageInfo'
 /** 商户App管理 **/
 export const API_URL_MCH_APP = '/api/mchApps'
 export const API_URL_AGENT_PASSAGE_LIST = '/api/agentPassage'
+
+export const API_URL_AGENT_MCH_PRODUCT_LIST = '/api/mchProduct'
 /** 支付订单管理 **/
 export const API_URL_PAY_ORDER_LIST = '/api/payOrder'
 

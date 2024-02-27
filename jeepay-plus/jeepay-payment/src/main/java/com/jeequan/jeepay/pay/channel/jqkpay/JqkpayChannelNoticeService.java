@@ -156,6 +156,24 @@ public class JqkpayChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     public static void main(String[] args) {
+        String test = "{\n" +
+                "    \"order_no\": \"20240219010551877558\",\n" +
+                "    \"mchid\": 10642,\n" +
+                "    \"out_trade_no\": \"P1759262967347044354\",\n" +
+                "    \"pay_amount\": \"1.01\",\n" +
+                "    \"sign\": \"06B83273B32A012BCA86516D5DB9302C\",\n" +
+                "    \"attach\": \"\",\n" +
+                "    \"success_time\": 1708275966,\n" +
+                "    \"status\": \"SUCCESS\"\n" +
+                "}";
+
+        Map map = JSON.parseObject(test);
+        String secret = "W80msPjEwY9j5Hj1YxI2bMRg8ig1vOfp";
+        map.remove("sign");
+        final String signContentStr = SignatureUtils.getSignContent(map, null, null) + "&key=" + secret;
+        log.info(signContentStr);
+        final String signStr = SignatureUtils.md5(signContentStr).toUpperCase();
+        log.info(signStr);
 
     }
 }

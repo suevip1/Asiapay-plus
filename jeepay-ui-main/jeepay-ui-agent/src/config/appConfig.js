@@ -21,6 +21,7 @@ export const asyncRouteDefine = {
   'MainPage': { defaultPath: '/main', component: () => import('@/views/dashboard/Analysis') },
 
   'MchAppPage': { defaultPath: '/apps', component: () => import ('@/views/mchApp/List') }, // 商户应用列表
+  'MchAgentPage': { defaultPath: '/apps', component: () => import ('@/views/mchs/MchList') }, // 商户应用列表
   'PayTestPage': { defaultPath: '/paytest', component: () => import ('@/views/payTest/PayTest') }, // 支付测试
   'MchTransferPage': { defaultPath: '/doTransfer', component: () => import ('@/views/transfer/MchTransferPage') }, // 转账
 

@@ -69,6 +69,9 @@ public class SysLogController extends CommonCtrl {
             if (StringUtils.isNotEmpty(sysLog.getSysType())) {
                 condition.eq(SysLog::getSysType, sysLog.getSysType());
             }
+            if (StringUtils.isNotEmpty(sysLog.getMethodRemark())) {
+                condition.like(SysLog::getMethodRemark, sysLog.getMethodRemark());
+            }
             if (paramJSON != null) {
                 if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
                     condition.ge(SysLog::getCreatedAt, paramJSON.getString("createdStart"));
@@ -98,29 +101,5 @@ public class SysLogController extends CommonCtrl {
             return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_SELETE);
         }
         return ApiRes.ok(sysLog);
-    }
-
-    /**
-     * 日志删除接口
-     *
-     * @param selectedIds
-     * @return
-     */
-//    @PreAuthorize("hasAuthority('ENT_SYS_LOG_DEL')")
-//    @MethodLog(remark = "删除日志信息")
-    @RequestMapping(value = "/{selectedIds}", method = RequestMethod.DELETE)
-    @LimitRequest
-    public ApiRes delete(@PathVariable("selectedIds") String selectedIds) {
-        //todo 配置到定时任务中
-        String[] ids = selectedIds.split(",");
-        List<Long> idsList = new LinkedList<>();
-        for (String id : ids) {
-            idsList.add(Long.valueOf(id));
-        }
-        boolean result = sysLogService.removeByIds(idsList);
-        if (!result) {
-            return ApiRes.fail(ApiCodeEnum.SYS_OPERATION_FAIL_DELETE);
-        }
-        return ApiRes.ok();
     }
 }

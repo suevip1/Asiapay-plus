@@ -1,4 +1,4 @@
-package com.jeequan.jeepay.pay.channel.kamipay;
+package com.jeequan.jeepay.pay.channel.sifangkj;
 
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
-import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
@@ -20,24 +19,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
-
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
-
+/**
+ * 四方科技支付
+ */
 @Service
 @Slf4j
-public class KamipayPaymentService extends AbstractPaymentService {
+public class SifangkjpayPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "[大富卡密支付2]";
+    private static final String LOG_TAG = "[四方科技支付]";
 
     @Override
     public String getIfCode() {
-        return CS.IF_CODE.KAMIPAY;
+        return CS.IF_CODE.SIFANGKJPAY;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -49,46 +46,44 @@ public class KamipayPaymentService extends AbstractPaymentService {
         try {
             PayPassage payPassage = payConfigContext.getPayPassage();
             //支付参数转换
-            NormalMchParams normalMchParams = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
+            SifangkjpayParamsModel sifangkjpayParamsModel = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), SifangkjpayParamsModel.class);
 
             Map<String, Object> map = new HashMap<>();
-            String key = normalMchParams.getSecret();
+            String key = sifangkjpayParamsModel.getSecret();
 
-            String mchid = normalMchParams.getMchNo();
-            String mch_order_id = payOrder.getPayOrderId();
-            String price = AmountUtil.convertCent2Dollar(payOrder.getAmount());
+            String pay_osn = payOrder.getPayOrderId();
+            String card_type = sifangkjpayParamsModel.getPayType();
+            String card_price = AmountUtil.convertCent2Dollar(payOrder.getAmount());
+            String notify_url = getNotifyUrl(payOrder.getPayOrderId());
+            String return_url = notify_url;
+            String merchant_id = sifangkjpayParamsModel.getMchNo();
+            Long timestamp = System.currentTimeMillis() / 1000;
+            String nonce = RandomStringUtils.random(8, true, false);
 
-
-            String card_type = normalMchParams.getPayType();
-
-            String time = System.currentTimeMillis() / 1000 + "";
-            String notify = getNotifyUrl(payOrder.getPayOrderId());
-            String rand = RandomInt() + "";
-
-            map.put("mchid", mchid);
-            map.put("mch_order_id", mch_order_id);
-            map.put("price", price);
-
+            map.put("app_secret", key);
+            map.put("pay_osn", pay_osn);
             map.put("card_type", card_type);
-            map.put("time", time);
-            map.put("notify", notify);
+            map.put("card_price", card_price);
+            map.put("notify_url", notify_url);
+            map.put("return_url", return_url);
+            map.put("merchant_id", merchant_id);
+            map.put("timestamp", timestamp);
+            map.put("nonce", nonce);
 
-            map.put("rand", rand);
-
-            String signContent = mchid + mch_order_id + price + card_type + notify + time + rand + key;
-            String sign = SignatureUtils.md5(signContent).toLowerCase();
+            String signStr = SignatureUtils.getSignContentFilterEmpty(map, null);
+            String sign = SignatureUtils.md5(signStr).toLowerCase();
             map.put("sign", sign);
 
-            String payGateway = normalMchParams.getPayGateway();
-
+            String payGateway = sifangkjpayParamsModel.getPayGateway();
             raw = HttpUtil.post(payGateway, map, 10000);
-            log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
+            log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             //拉起订单成功
-            if (result.getString("code").equals("0")) {
+            if (result.getString("code").equals("200")) {
+                JSONObject data = result.getJSONObject("data");
 
-                String payUrl = result.getJSONObject("data").getString("url");
+                String payUrl = data.getString("url");
                 String passageOrderId = "";
 
                 res.setPayDataType(CS.PAY_DATA_TYPE.PAY_URL);
@@ -113,45 +108,34 @@ public class KamipayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "1e61a119c0b9d9e48a09d5a871859213";
+        String key = "65d6f553d4cabalv97ZownhV5KtfymAiI";
 
-        String mchid = "2100021";
-        String mch_order_id = RandomStringUtils.random(15, true, true);
-        String price = AmountUtil.convertCent2Dollar(10000L);
+        String pay_osn = RandomStringUtils.random(15, true, true);
+        String card_type = "22";
+        String card_price = AmountUtil.convertCent2Dollar(2000L);
+        String notify_url = "https://www.test.com";
+        String return_url = notify_url;
+        String merchant_id = "202422499066";
+        Long timestamp = System.currentTimeMillis() / 1000;
+        String nonce = RandomStringUtils.random(8, true, false);
 
-
-        String card_type = "3005";
-
-        String time = System.currentTimeMillis() / 1000 + "";
-        String notify = "https://www.test.com";
-        String rand = RandomInt() + "";
-
-
-        map.put("mchid", mchid);
-        map.put("mch_order_id", mch_order_id);
-        map.put("price", price);
-
+        map.put("app_secret", key);
+        map.put("pay_osn", pay_osn);
         map.put("card_type", card_type);
-        map.put("time", time);
-        map.put("notify", notify);
+        map.put("card_price", card_price);
+        map.put("notify_url", notify_url);
+        map.put("return_url", return_url);
+        map.put("merchant_id", merchant_id);
+        map.put("timestamp", timestamp);
+        map.put("nonce", nonce);
 
-        map.put("rand", rand);
-
-        String signContent = mchid + mch_order_id + price + card_type + notify + time + rand + key;
-        String sign = SignatureUtils.md5(signContent).toLowerCase();
-
+        String signStr = SignatureUtils.getSignContentFilterEmpty(map, null);
+        log.info("[{}]签名串:{}", LOG_TAG, signStr);
+        String sign = SignatureUtils.md5(signStr).toLowerCase();
         map.put("sign", sign);
-        String payGateway = "https://dwl.yzdaifu.com/api/pay";
-        log.info("[{}]请求:{}", LOG_TAG, map);
 
+        String payGateway = "http://114.55.34.87/api/square/placeAnOrder";
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
-    }
-
-    private static int RandomInt() {
-        Random random = new Random();
-        int lowerBound = 100000;
-        int upperBound = 999999;
-        return random.nextInt(upperBound - lowerBound + 1) + lowerBound;
     }
 }

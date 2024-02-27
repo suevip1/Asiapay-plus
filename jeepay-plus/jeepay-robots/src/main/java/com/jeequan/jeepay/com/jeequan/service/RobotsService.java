@@ -912,6 +912,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                 Long totalAmount = 0L;
                 Long amount = 0L;
+                Long totalCost = 0L;
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
                     MchInfo mchInfo = mchInfoService.getById(mchNo);
@@ -929,11 +930,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         sendSingleMessage(chatId, sbTemp.toString());
                         totalAmount += todayStatisticsMch.getTotalSuccessAmount();
                         amount += (todayStatisticsMch.getTotalSuccessAmount() - todayStatisticsMch.getTotalMchCost());
+                        totalCost += todayStatisticsMch.getTotalMchCost();
                     }
                 }
                 if (jsonArray.size() > 1) {
                     StringBuffer stringBuffer1 = new StringBuffer();
                     stringBuffer1.append("跑量汇总: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+                    stringBuffer1.append("手续费: <b>" + AmountUtil.convertCent2Dollar(totalCost) + "</b>" + System.lineSeparator());
                     stringBuffer1.append("入账汇总: <b>" + AmountUtil.convertCent2Dollar(amount) + "</b>");
                     sendSingleMessage(chatId, stringBuffer1.toString());
                 }
@@ -947,6 +950,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 StringBuffer stringBuffer = new StringBuffer();
                 Long totalBalance = 0L;
                 Long balance = 0L;
+                Long totalCost = 0L;
                 stringBuffer.append("统计日期：<b>" + DateUtil.today() + "</b>" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
                 stringBuffer.append("通道|跑量金额|费率|入账金额" + System.lineSeparator());
@@ -962,10 +966,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         stringBuffer.append(passageInfoStr + " | " + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + " | " + GetRateStr(payPassage.getRate()) + " | " + AmountUtil.convertCent2Dollar(amount) + System.lineSeparator());
                         balance += (amount);
                         totalBalance += statisticsPassage.getTotalSuccessAmount();
+                        totalCost += statisticsPassage.getTotalPassageCost();
                     }
                 }
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
                 stringBuffer.append("跑量汇总：<b>" + AmountUtil.convertCent2Dollar(totalBalance) + "</b>" + System.lineSeparator());
+                stringBuffer.append("手续费: <b>" + AmountUtil.convertCent2Dollar(totalCost) + "</b>" + System.lineSeparator());
                 stringBuffer.append("入账汇总：<b>" + AmountUtil.convertCent2Dollar(balance) + "</b>" + System.lineSeparator());
                 sendSingleMessage(chatId, stringBuffer.toString());
                 return;
@@ -989,7 +995,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                 Long totalAmount = 0L;
                 Long amount = 0L;
-
+                Long totalCost = 0L;
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i); // 假设你要根据某个键来查找
                     MchInfo mchInfo = mchInfoService.getById(mchNo);
@@ -1008,11 +1014,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                         totalAmount += todayStatisticsMch.getTotalSuccessAmount();
                         amount += (todayStatisticsMch.getTotalSuccessAmount() - todayStatisticsMch.getTotalMchCost());
+                        totalCost += todayStatisticsMch.getTotalMchCost();
                     }
                 }
                 if (jsonArray.size() > 1) {
                     StringBuffer stringBuffer1 = new StringBuffer();
                     stringBuffer1.append("跑量汇总: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+                    stringBuffer1.append("手续费: <b>" + AmountUtil.convertCent2Dollar(totalCost) + "</b>" + System.lineSeparator());
                     stringBuffer1.append("入账汇总: <b>" + AmountUtil.convertCent2Dollar(amount) + "</b>");
                     sendSingleMessage(chatId, stringBuffer1.toString());
                 }
@@ -1025,6 +1033,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                 Long totalBalance = 0L;
                 Long balance = 0L;
+                Long totalCost = 0L;
                 stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
                 stringBuffer.append("通道|跑量金额|费率|入账金额" + System.lineSeparator());
@@ -1041,10 +1050,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         stringBuffer.append(passageInfoStr + " | " + AmountUtil.convertCent2Dollar(statisticsPassage.getTotalSuccessAmount()) + " | " + GetRateStr(payPassage.getRate()) + " | " + AmountUtil.convertCent2Dollar(amount) + System.lineSeparator());
                         balance += (amount);
                         totalBalance += statisticsPassage.getTotalSuccessAmount();
+                        totalCost += statisticsPassage.getTotalPassageCost();
                     }
                 }
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
                 stringBuffer.append("跑量汇总：<b>" + AmountUtil.convertCent2Dollar(totalBalance) + "</b>" + System.lineSeparator());
+                stringBuffer.append("手续费: <b>" + AmountUtil.convertCent2Dollar(totalCost) + "</b>" + System.lineSeparator());
                 stringBuffer.append("入账汇总：<b>" + AmountUtil.convertCent2Dollar(balance) + "</b>" + System.lineSeparator());
                 sendSingleMessage(chatId, stringBuffer.toString());
                 return;
@@ -1983,8 +1994,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         stringBuffer.append("<b>请注意是否还有支付中的订单,可能导致结算数据有少许出入</b>" + System.lineSeparator());
                         sendSingleMessageAndPin(chatId, stringBuffer.toString());
                     }
-                    //跑量汇总
-                    //入账汇总
                 }
             }
         } catch (Exception e) {

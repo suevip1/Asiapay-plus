@@ -201,11 +201,11 @@ import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns.vue'
 import JeepayTable from '@/components/JeepayTable/JeepayTable.vue' // 空数据展示的组件，首页自用
 const tableColumns = [
   { key: 'name', fixed: 'left', width: '150px', title: '商户号/名称', scopedSlots: { customRender: 'nameSlot' } },
-  { key: 'balance', title: '余额(￥)', width: 150, scopedSlots: { customRender: 'balanceSlot' } },
-  { key: 'totalCount', title: '总单量', width: '80px', dataIndex: 'ext.stat.totalOrderCount' },
-  { key: 'successCount', title: '成交单量', width: '80px', dataIndex: 'ext.stat.orderSuccessCount' },
-  { key: 'state', title: '成功率', scopedSlots: { customRender: 'stateSlot' } },
-  { key: 'fee', title: '代理收入(￥)', scopedSlots: { customRender: 'feeSlot' } }
+  { key: 'balance', title: '余额(￥)', width: 120, scopedSlots: { customRender: 'balanceSlot' } },
+  { key: 'totalCount', title: '总单量', width: 80, dataIndex: 'ext.stat.totalOrderCount' },
+  { key: 'successCount', title: '成交单量', width: 80, dataIndex: 'ext.stat.orderSuccessCount' },
+  { key: 'state', title: '成功率', width: 80, scopedSlots: { customRender: 'stateSlot' } },
+  { key: 'fee', title: '代理收入(￥)', width: 100, scopedSlots: { customRender: 'feeSlot' } }
 ]
 
 const tablePassageColumns = [

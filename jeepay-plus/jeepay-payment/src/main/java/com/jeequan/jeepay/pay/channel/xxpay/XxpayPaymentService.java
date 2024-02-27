@@ -131,12 +131,12 @@ public class XxpayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "TBL7V8AYJ5SDP4EYMYUOVM4SDF4SO7THXHPKSC26J7NTB3H9LT0Q2X7PKZYXDOSSWT7YFJEPW8I0T56J5EAVU8CSS5C906U5NCSVU7AT7546OGV7LJRD4WZ2MVZPGM4A";
+        String key = "YSIAUBMEB81KFBHA1LKFEX6FVWGNWJZXQYZNHHKH4F0ZQ4WG3YUZURRDBLWHBNLM0WQVSOO0O06ZYDPF6TBJBUETVI4O78YCDZ8YOAC0GHQ6SJP33M95IIYMYMKFA5NT";
 
-        String mchId = "80000050";
-        String productId = "9";
+        String mchId = "20000208";
+        String productId = "8137";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
-        long amount = 100000;
+        long amount = 10000;
         String currency = "cny";
 
         String notifyUrl = "https://www.test.com";
@@ -162,7 +162,7 @@ public class XxpayPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "http://stpay168.com:6088/api/pay/create_payorder";
+        String payGateway = "https://api.yoaapay.com/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map,10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

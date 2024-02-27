@@ -117,14 +117,14 @@ public class Rixinpay4PaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "enlg7y3z5630rnm7jrczdwt9paqyqdwn";
+        String key = "lrmotcetb05hvawvtao9mxptxa8sr7fs";
 
-        String pay_memberid = "211129844";
+        String pay_memberid = "220525203";
         String pay_orderid = RandomStringUtils.random(15, true, true);
         String pay_applydate = DateUtil.now();
 
 
-        String pay_bankcode = "2718";
+        String pay_bankcode = "620";
         String pay_notifyurl = "https://www.test.com";
         String pay_callbackurl = pay_notifyurl;
 
@@ -148,7 +148,7 @@ public class Rixinpay4PaymentService extends AbstractPaymentService {
         map.put("pay_productname", "下单");
         map.put("pay_type", "JSON");
 
-        String payGateway = "http://www.yongxinfa88.com/Pay_Index.html";
+        String payGateway = "http://www.yagepay.com/Pay_Index.html";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

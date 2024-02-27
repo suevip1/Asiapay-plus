@@ -112,10 +112,10 @@ public class FeiyuePaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "72bc0398a0d0f67b15d4109e78b2a689";
+        String key = "83fa6e439c37ab54f7e13bc7af810317";
 
-        String merchant_no = "81712049";
-        String pay_code = "145582";
+        String merchant_no = "79185677";
+        String pay_code = "971653";
         String order_amount = AmountUtil.convertCent2Dollar(30000L);
         String order_no = RandomStringUtils.random(15, true, true);
         String callback_url = "https://www.test.com";
@@ -133,7 +133,7 @@ public class FeiyuePaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "http://api.dstayy.com/v2/order/add";
+        String payGateway = "http://api.huihuangthree.com/v2/order/add";
 
         // 发送POST请求并指定JSON数据
         HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON

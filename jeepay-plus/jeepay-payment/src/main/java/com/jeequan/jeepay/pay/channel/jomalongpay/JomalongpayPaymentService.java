@@ -103,10 +103,10 @@ public class JomalongpayPaymentService extends AbstractPaymentService {
         String raw = "";
 
         Map<String, Object> map = new HashMap<>();
-        String key = "EJ1BF11WEAXIA8TCRW5IOEWCNPZ3SYCAV2YOXDWRRLWJZCOZJMOELDP2IRPOQSPRHYULI8KURVBE00LRGFYDZLLDTMSSVZJGQFH04LRHXCZTI1RUXA2RNE8LDYZJTAAV";
+        String key = "4CPAX2SWB7DJEURINHW5ASB0BF8RJIYJRK0XIIDAMRKCOL3A8XB4IMBDFZWYEGWRGZI1P7CPZORK2TEITXBANPDD5CNHVYIKWLMTJ1U1BZVFWVQZJHPE8INCBNO3UDBD";
 
-        String mchId = "10021";
-        String productId = "8008";
+        String mchId = "10035";
+        String productId = "2001";
         String mchOrderNo = RandomStringUtils.random(15, true, true);
         long amount = 1000;
         String notifyUrl = "https://www.test.com";
@@ -119,7 +119,7 @@ public class JomalongpayPaymentService extends AbstractPaymentService {
         String sign = JeepayKit.getSign(map, key).toLowerCase();
         map.put("sign", sign);
 
-        String payGateway = "http://pay.tyuezf.cfd/api/pay/create_order";
+        String payGateway = "http://pay.jomalong.click/api/pay/create_order";
 
         raw = HttpUtil.post(payGateway, map, 10000);
         // 发送POST请求并指定JSON数据

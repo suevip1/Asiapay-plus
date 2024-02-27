@@ -10,11 +10,14 @@
                 :show-time="{ format: 'HH:mm:ss' }"
                 format="YYYY-MM-DD HH:mm:ss"
                 :disabled-date="disabledDate"
+                :ranges="ranges"
+                v-model="selectedRange"
               >
                 <a-icon slot="suffixIcon" type="sync" />
               </a-range-picker>
             </a-form-item>
             <jeepay-text-up :placeholder="'用户登录名'" :msg="searchData.loginUsername" v-model="searchData.loginUsername" />
+            <jeepay-text-up :placeholder="'操作描述'" :msg="searchData.methodRemark" v-model="searchData.methodRemark" />
             <a-form-item label="" class="table-head-layout">
               <a-select v-model="searchData.sysType" placeholder="所属系统" default-value="">
                 <a-select-option value="">全部</a-select-option>
@@ -25,8 +28,8 @@
             </a-form-item>
 
             <span class="table-page-search-submitButtons">
-              <a-button type="primary" icon="search" @click="queryhFunc" :loading="btnLoading">搜索</a-button>
-              <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {}">重置</a-button>
+              <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">搜索</a-button>
+              <a-button style="margin-left: 8px" icon="reload" @click="resetData">重置</a-button>
             </span>
           </div>
         </a-form>
@@ -36,11 +39,10 @@
       <JeepayTable
         @btnLoadClose="btnLoading=false"
         ref="infoTable"
-        :initData="true"
+        :initData="false"
         :reqTableDataFunc="reqTableDataFunc"
         :tableColumns="tableColumns"
         :searchData="searchData"
-        :rowSelection="rowSelection"
         rowKey="sysLogId"
       >
         <template slot="userNameSlot" slot-scope="{record}"><b>{{ record.loginUsername }}</b></template> <!-- 自定义插槽 -->
@@ -149,7 +151,6 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable'
 import JeepayTableColumns from '@/components/JeepayTable/JeepayTableColumns'
 import { API_URL_SYS_LOG, req } from '@/api/manage'
 import moment from 'moment'
-import { message, Modal } from 'ant-design-vue'
 
 // eslint-disable-next-line no-unused-vars
 const tableColumns = [
@@ -168,53 +169,34 @@ export default {
     return {
       tableColumns: tableColumns,
       searchData: {},
-      selectedIds: [], // 选中的数据
       createdStart: '', // 选择开始时间
       createdEnd: '', // 选择结束时间
       visible: false,
       detailData: {},
-      btnLoading: false
+      btnLoading: false,
+      ranges: {
+        今天: [moment().startOf('day'), moment().endOf('day')],
+        昨天: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+        近一周: [
+          moment().subtract(1, 'week').startOf('day'),
+          moment().endOf('day')
+        ]
+      },
+      selectedRange: null
     }
   },
   computed: {
-    rowSelection () {
-      const that = this
-      return {
-        onChange: (selectedRowKeys, selectedRows) => {
-          that.selectedIds = [] // 清空选中数组
-          selectedRows.forEach(function (data) { // 赋值选中参数
-            that.selectedIds.push(data.sysLogId)
-          })
-        }
-      }
-    }
   },
   mounted () {
+    this.selectedRange = [moment().startOf('day'), moment().endOf('day')] // 开始时间
+    this.searchData.createdStart = this.selectedRange[0].format('YYYY-MM-DD HH:mm:ss') // 开始时间
+    this.searchData.createdEnd = this.selectedRange[1].format('YYYY-MM-DD HH:mm:ss') // 结束时间
+    this.$refs.infoTable.refTable(true)
   },
   methods: {
     // 请求table接口数据
     reqTableDataFunc: (params) => {
       return req.list(API_URL_SYS_LOG, params)
-    },
-    delFunc: function () {
-      const that = this
-      if (that.selectedIds.length === 0) {
-        message.error('请选择要删除的日志')
-        return false
-      }
-      Modal.confirm({
-        title: '确认删除' + that.selectedIds.length + '条日志吗？',
-        okType: 'danger',
-        onOk () {
-          req.delById(API_URL_SYS_LOG, that.selectedIds).then(res => {
-            that.selectedIds = [] // 清空选中数组
-            that.$refs.infoTable.refTable(true)
-            that.$message.success('删除成功')
-          })
-        },
-        onCance () {
-        }
-      })
     },
     searchFunc: function () { // 点击【查询】按钮点击事件
       this.$refs.infoTable.refTable(true)
@@ -237,9 +219,13 @@ export default {
     onClose () {
       this.visible = false
     },
-    queryhFunc () {
+    queryFunc () {
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
+    },
+    resetData () {
+      this.searchData = {}
+      this.selectedRange = []
     }
   }
 }
