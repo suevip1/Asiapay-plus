@@ -351,7 +351,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
             wrapper.eq(PayOrder::getPassageOrderNo, payOrder.getPassageOrderNo());
         }
         wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchOrderNo, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getPassageId, PayOrder::getAmount, PayOrder::getState, PayOrder::getForceChangeState
-                , PayOrder::getCreatedAt, PayOrder::getNotifyState,PayOrder::getUpdatedAt,PayOrder::getForceChangeBeforeState,PayOrder::getForceChangeLoginName);
+                , PayOrder::getCreatedAt, PayOrder::getNotifyState, PayOrder::getUpdatedAt, PayOrder::getForceChangeBeforeState, PayOrder::getForceChangeLoginName);
         wrapper.orderByDesc(PayOrder::getUpdatedAt);
 
         return page(iPage, wrapper);
@@ -490,7 +490,7 @@ public class PayOrderService extends ServiceImpl<PayOrderMapper, PayOrder> {
 //        ("商户号", "商户名称", "支付金额", "订单号", "商户订单号", "支付状态", "创建时间", "成功时间");
         wrapper.orderByDesc(PayOrder::getCreatedAt);
         wrapper.select(PayOrder::getPayOrderId, PayOrder::getMchOrderNo, PayOrder::getMchNo, PayOrder::getMchName, PayOrder::getProductId, PayOrder::getProductName, PayOrder::getPassageId, PayOrder::getAmount, PayOrder::getState, PayOrder::getForceChangeState
-                , PayOrder::getCreatedAt, PayOrder::getNotifyState,PayOrder::getSuccessTime);
+                , PayOrder::getCreatedAt, PayOrder::getNotifyState, PayOrder::getSuccessTime, PayOrder::getMchFeeAmount, PayOrder::getMchFeeRate);
         return list(wrapper);
     }
 
