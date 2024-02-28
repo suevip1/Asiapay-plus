@@ -44,7 +44,7 @@
       <JeepayTable
         @btnLoadClose="btnLoading=false"
         ref="infoTable"
-        :initData="true"
+        :initData="false"
         :reqTableDataFunc="reqTableDataFunc"
         :tableColumns="tableColumns"
         :searchData="searchData"
@@ -144,11 +144,12 @@ export default {
     }
   },
   mounted () {
-    this.getAgentStatInfo()
+    this.queryFunc()
   },
   methods: {
     queryFunc () {
       this.btnLoading = true
+      this.getAgentStatInfo()
       this.$refs.infoTable.refTable(true)
     },
     // 请求table接口数据
@@ -188,6 +189,7 @@ export default {
       this.isShowModal = false
     },
     searchFunc: function () { // 点击【查询】按钮点击事件
+      this.getAgentStatInfo()
       this.$refs.infoTable.refTable(true)
     },
     addFunc: function () { // 业务通用【新增】 函数
@@ -198,7 +200,7 @@ export default {
     },
     getAgentStatInfo: function () {
       const that = this
-      req.getNormal(API_URL_AGENT_STAT_LIST, 'statAgentInfo').then(res => {
+      req.postDataNormal(API_URL_AGENT_STAT_LIST, 'statAgentInfo', this.searchData).then(res => {
         that.totalAgentInfo = res
       })
     }

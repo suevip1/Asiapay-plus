@@ -2,6 +2,7 @@ package com.jeequan.jeepay.mgr.ctrl.merchant;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.aop.MethodLog;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
@@ -12,6 +13,7 @@ import com.jeequan.jeepay.core.entity.Product;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,15 +46,45 @@ public class MchInfoStatController extends CommonCtrl {
     @RequestMapping(value = "", method = RequestMethod.GET)
     public ApiRes list() {
         LambdaQueryWrapper<MchInfo> wrapper = MchInfo.gw();
-        wrapper.ne(MchInfo::getState,CS.HIDE);
+        wrapper.ne(MchInfo::getState, CS.HIDE);
         wrapper.orderByDesc(MchInfo::getBalance);
         IPage<MchInfo> pages = mchInfoService.page(getIPage(), wrapper);
         return ApiRes.page(pages);
     }
 
     @PreAuthorize("hasAuthority('ENT_MCH_LIST')")
-    @RequestMapping(value = "/statMchInfo", method = RequestMethod.GET)
+    @RequestMapping(value = "/statMchInfo", method = RequestMethod.POST)
     public ApiRes statMchInfo() {
-        return ApiRes.ok(mchInfoService.sumMchInfo());
+        MchInfo mchInfo = getObject(MchInfo.class);
+
+        QueryWrapper<MchInfo> wrapper = new QueryWrapper<>();
+        wrapper.ne("state", CS.HIDE);
+        if (StringUtils.isNotEmpty(mchInfo.getMchNo())) {
+            wrapper.eq("mch_no", mchInfo.getMchNo().trim());
+        }
+        if (StringUtils.isNotEmpty(mchInfo.getAgentNo())) {
+            wrapper.eq("agent_no", mchInfo.getAgentNo().trim());
+        }
+        if (StringUtils.isNotEmpty(mchInfo.getMchName())) {
+            wrapper.like("mch_name", mchInfo.getMchName().trim());
+        }
+
+        if (mchInfo.getState() != null) {
+            wrapper.eq("state", mchInfo.getState());
+        }
+        wrapper.select("balance", "mch_no", "freeze_balance");
+        List<MchInfo> mchInfoList = mchInfoService.list(wrapper);
+        Long totalBalance = 0L;
+        Long freezeBalance = 0L;
+        for (int i = 0; i < mchInfoList.size(); i++) {
+            totalBalance+= mchInfoList.get(i).getBalance();
+            freezeBalance+= mchInfoList.get(i).getFreezeBalance();
+        }
+        JSONObject resp = new JSONObject();
+        resp.put("totalBalance",totalBalance);
+        resp.put("freezeBalance",freezeBalance);
+        resp.put("mchNum",mchInfoList.size());
+
+        return ApiRes.ok(resp);
     }
 }

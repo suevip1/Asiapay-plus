@@ -46,7 +46,7 @@
       <JeepayTable
         @btnLoadClose="btnLoading=false"
         ref="infoTable"
-        :initData="true"
+        :initData="false"
         :reqTableDataFunc="reqTableDataFunc"
         :tableColumns="tableColumns"
         :searchData="searchData"
@@ -155,18 +155,20 @@ export default {
     }
   },
   mounted () {
-    this.getMchStatInfo()
+    this.queryFunc()
   },
   methods: {
     queryFunc () {
       this.btnLoading = true
       this.$refs.infoTable.refTable(true)
+      this.getMchStatInfo()
     },
     // 请求table接口数据
     reqTableDataFunc: (params) => {
       return req.list(API_URL_MCH_LIST, params)
     },
     searchFunc: function () { // 点击【查询】按钮点击事件
+      this.getMchStatInfo()
       this.$refs.infoTable.refTable(true)
     },
     addFunc: function () { // 业务通用【新增】 函数
@@ -223,7 +225,7 @@ export default {
     },
     getMchStatInfo: function () {
       const that = this
-      req.getNormal(API_URL_MCH_STAT_LIST, 'statMchInfo').then(res => {
+      req.postDataNormal(API_URL_MCH_STAT_LIST, 'statMchInfo', this.searchData).then(res => {
         that.totalMchInfo = res
       })
     },

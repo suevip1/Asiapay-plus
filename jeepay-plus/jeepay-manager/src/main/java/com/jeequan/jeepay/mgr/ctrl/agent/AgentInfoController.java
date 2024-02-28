@@ -42,9 +42,6 @@ public class AgentInfoController extends CommonCtrl {
     private AgentAccountInfoService agentAccountInfoService;
 
     @Autowired
-    private PayOrderService payOrderService;
-
-    @Autowired
     private MchInfoService mchInfoService;
 
     @Autowired

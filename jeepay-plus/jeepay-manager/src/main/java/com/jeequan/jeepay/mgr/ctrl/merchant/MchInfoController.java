@@ -66,9 +66,6 @@ public class MchInfoController extends CommonCtrl {
     private AgentAccountInfoService agentAccountInfoService;
 
     @Autowired
-    private PayOrderService payOrderService;
-
-    @Autowired
     private IMQSender mqSender;
 
     /**
