@@ -393,7 +393,8 @@
           <span style="color: rgb(128,128,128);font-size: 13px">2、调整后的金额将自动以[调账]的方式入账对应商户、通道</span><br/>
           <b style="color: rgb(210,27,27);font-size: 13px">3、此操作不会给商户发送回调！！！请注意通知商户</b><br/>
           <b style="color: rgb(128,128,128);font-size: 13px">4、如订单金额100元，用户支付了40元，下面输入框填40即可</b><br/>
-          <span style="color: rgb(128,128,128);font-size: 13px">5、请先核对信息后谨慎操作</span><br/><br/>
+          <b style="color: rgb(128,128,128);font-size: 13px">5、此操作将按[新金额]重新计算对应费用</b><br/>
+          <span style="color: rgb(128,128,128);font-size: 13px">6、请先核对信息后谨慎操作</span><br/><br/>
           <span style="color: rgb(128,128,128);font-size: 13px">原订单金额: <b>￥{{(selectChangeOrder.amount/100).toFixed(2)}}</b></span><br/><br/>
           <a-form-model-item label="需要入账的金额">
             <a-input prefix="￥" v-model="selectChangeAmount" placeholder="请输入" type="number" />

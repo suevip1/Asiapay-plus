@@ -476,12 +476,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     //是通道群发的消息
                     List<RobotsPassage> robotsPassageList = robotsPassageService.list(RobotsPassage.gw().eq(RobotsPassage::getChatId, chatId));
                     if (!robotsPassageList.isEmpty()) {
-                        if (message.hasText()) {
-                            if (!message.getText().contains("@")) {
-                                sendQueryMessage(message, messageSource);
-                            }
-                        }
-
+                        sendQueryMessage(message, messageSource);
                     }
                 }
                 return;
@@ -1589,11 +1584,20 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
             if (message.isReply()) {
                 if (message.hasPhoto()) {
-                    SendPhoto sendPhoto = new SendPhoto();
 
-                    stringBuffer.append(message.getCaption() + System.lineSeparator());
+                    if (StringUtils.isNotEmpty(message.getCaption()) && message.getCaption().contains("@")) {
+                        return;
+                    }
+
+                    SendPhoto sendPhoto = new SendPhoto();
+                    if (StringUtils.isNotEmpty(message.getCaption())) {
+                        stringBuffer.append(message.getCaption() + System.lineSeparator());
+                    }
                     stringBuffer.append(System.lineSeparator());
-                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+                    if (sourceMessage.hasText() && StringUtils.isNotEmpty(sourceMessage.getText())) {
+                        stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+                    }
+
 
                     sendPhoto.setChatId(chatId); // Replace with the destination chat ID
                     sendPhoto.setPhoto(new InputFile(message.getPhoto().get(0).getFileId()));
@@ -1602,8 +1606,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     sendPhoto.setParseMode(ParseMode.HTML);
                     execute(sendPhoto);
                 } else if (message.hasText()) {
+                    if (StringUtils.isNotEmpty(message.getText()) && message.getText().contains("@")) {
+                        return;
+                    }
                     SendMessage sendMessage = new SendMessage();
-
                     stringBuffer.append(message.getText() + System.lineSeparator());
                     stringBuffer.append(System.lineSeparator());
                     stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
@@ -1613,20 +1619,21 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
                     sendMessage.setParseMode(ParseMode.HTML);
                     execute(sendMessage);
-                } else if (message.hasVideo()) {
-                    SendVideo sendVideo = new SendVideo();
-
-                    stringBuffer.append(message.getCaption() + System.lineSeparator());
-                    stringBuffer.append(System.lineSeparator());
-                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
-
-                    sendVideo.setChatId(chatId); // Replace with the destination chat ID
-                    sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
-                    sendVideo.setCaption(stringBuffer.toString());
-                    sendVideo.setReplyToMessageId(sourceMessage.getMessageId());
-                    sendVideo.setParseMode(ParseMode.HTML);
-                    execute(sendVideo);
                 }
+//                else if (message.hasVideo()) {
+//                    SendVideo sendVideo = new SendVideo();
+//
+//                    stringBuffer.append(message.getCaption() + System.lineSeparator());
+//                    stringBuffer.append(System.lineSeparator());
+//                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+//
+//                    sendVideo.setChatId(chatId); // Replace with the destination chat ID
+//                    sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
+//                    sendVideo.setCaption(stringBuffer.toString());
+//                    sendVideo.setReplyToMessageId(sourceMessage.getMessageId());
+//                    sendVideo.setParseMode(ParseMode.HTML);
+//                    execute(sendVideo);
+//                }
             }
         } catch (Exception e) {
             log.error("{} {}", LOG_TAG, e);
@@ -2405,7 +2412,6 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
-//                            stringBufferOrderInfo.append("支付订单号 [ " + payOrder.getPayOrderId() + " ] " + System.lineSeparator());
                             stringBufferOrderInfo.append("商户订单号 [ <b>" + payOrder.getMchOrderNo() + "</b> ] " + System.lineSeparator());
                             message.setText(stringBufferOrderInfo.toString());
 
