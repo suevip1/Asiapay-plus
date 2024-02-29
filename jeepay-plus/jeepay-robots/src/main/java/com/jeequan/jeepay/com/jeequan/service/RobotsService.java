@@ -321,7 +321,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
                     Date date = new Date();
                     Date today = DateUtil.parse(DateUtil.today());
-                    if (text.equals(TODAY_SETTLE)) {
+                    if (textReply.equals(TODAY_SETTLE)) {
                         date = today;
                     } else {
                         date = DateUtil.offsetDay(today, -1);
@@ -332,6 +332,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         sendSettleInfo(robotsMch, date);
                     }
                 }
+                return;
             }
             if (text.equals(TODAY_SETTLE) || text.equals(YESTERDAY_SETTLE)) {
                 if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {

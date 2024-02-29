@@ -494,6 +494,7 @@ public class CS {
         String WWGOPAY = "wwgopay";
         String HENGSHENG = "hengsheng";
         String LIYUPAY = "liyupay";
+        String LIYUPAY2 = "liyupay2";
         String HUOYAN = "huoyan";
         String TENGCHENG = "tengcheng";
         String XIAOSAN = "xiaosan";
@@ -592,6 +593,8 @@ public class CS {
 
         String XXPAY11 = "xxpay11";
 
+        String XXPAY12 = "xxpay12";
+
         String SHPAY = "shpay";
 
         String RZPAY = "rzpay";
@@ -638,6 +641,7 @@ public class CS {
         String SEPTPAY = "septpay";
 
         String RONGHE = "ronghe";
+        String JINGDUN = "jingdun";
     }
 
 
