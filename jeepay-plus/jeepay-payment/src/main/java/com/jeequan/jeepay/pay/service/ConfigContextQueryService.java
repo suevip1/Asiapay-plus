@@ -21,7 +21,6 @@ import com.jeequan.jeepay.core.entity.*;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.pay.model.*;
-import com.jeequan.jeepay.pay.util.PayCommonUtil;
 import com.jeequan.jeepay.service.impl.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -68,7 +67,6 @@ public class ConfigContextQueryService {
     public Product queryProduct(Long productId) {
         return productService.getById(productId);
     }
-
 
 
     /**
@@ -118,26 +116,37 @@ public class ConfigContextQueryService {
         // 检查金额是否符合收款规则
         List<PayConfigContext> filterRuleList = new ArrayList<>();
         for (int i = 0; i < filterAmountList.size(); i++) {
-            PayConfigContext configContext = filterAmountList.get(i);
 
-            //范围金额
-            if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_RANGE) {
-                //此处存的是 元
-                String[] range = configContext.getPayPassage().getPayRules().trim().split("-");
-                Long min = Long.parseLong(AmountUtil.convertDollar2Cent(range[0]));
-                Long max = Long.parseLong(AmountUtil.convertDollar2Cent(range[1]));
-                if (orderAmount.longValue() >= min.longValue() && orderAmount.longValue() <= max.longValue()) {
-                    filterRuleList.add(configContext);
-                    continue;
+            PayConfigContext configContext = filterAmountList.get(i);
+            try {
+                //范围金额
+                if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_RANGE) {
+                    //此处存的是 元
+                    String[] range = configContext.getPayPassage().getPayRules().trim().split("-");
+                    if (range.length >= 2) {
+                        String minStr = range[0];
+                        String maxStr = range[1];
+                        if (StringUtils.isNotEmpty(minStr) && StringUtils.isNotEmpty(maxStr)) {
+                            Long min = Long.parseLong(AmountUtil.convertDollar2Cent(minStr));
+                            Long max = Long.parseLong(AmountUtil.convertDollar2Cent(maxStr));
+                            if (orderAmount.longValue() >= min.longValue() && orderAmount.longValue() <= max.longValue()) {
+                                filterRuleList.add(configContext);
+                                continue;
+                            }
+                        }
+                    }
                 }
+            } catch (Exception ignored) {
+                log.error(ignored.getMessage(), ignored);
             }
 
             //指定金额
             if (configContext.getPayPassage().getPayType() == PayPassage.PAY_TYPE_SPECIFIED) {
                 String[] amounts = configContext.getPayPassage().getPayRules().trim().split("\\|");
-                if (amounts != null) {
-                    for (int index = 0; index < amounts.length; index++) {
-                        Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amounts[index]));
+                for (int index = 0; index < amounts.length; index++) {
+                    String amountItem = amounts[index];
+                    if (StringUtils.isNotEmpty(amountItem)) {
+                        Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountItem));
                         if (orderAmount.longValue() == amount.longValue()) {
                             filterRuleList.add(configContext);
                             break;

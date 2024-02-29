@@ -636,6 +636,8 @@ public class CS {
 
         String SIFANGKJPAY = "sifangkjpay";
         String SEPTPAY = "septpay";
+
+        String RONGHE = "ronghe";
     }
 
 

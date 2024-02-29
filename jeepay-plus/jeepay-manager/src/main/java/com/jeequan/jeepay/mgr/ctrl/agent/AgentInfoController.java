@@ -66,7 +66,7 @@ public class AgentInfoController extends CommonCtrl {
             JSONObject reqJson = getReqParamJSON();
 
             AgentAccountInfo agentAccountInfo = getObject(AgentAccountInfo.class);
-            QueryWrapper<AgentAccountInfo> wrapper = new QueryWrapper();
+            QueryWrapper<AgentAccountInfo> wrapper = new QueryWrapper<>();
             wrapper.ne("state", CS.HIDE);
             if (StringUtils.isNotEmpty(agentAccountInfo.getAgentNo())) {
                 wrapper.eq("agent_no", agentAccountInfo.getAgentNo());
@@ -81,31 +81,21 @@ public class AgentInfoController extends CommonCtrl {
             String sortField = reqJson.getString("sortField");
             String sortOrder = reqJson.getString("sortOrder");
 
-            wrapper.orderBy(true, false, "state");
-
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("agentName") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "CONVERT(agent_name USING gbk) COLLATE gbk_chinese_ci");
-                } else {
-                    wrapper.orderBy(true, true, "CONVERT(agent_name USING gbk) COLLATE gbk_chinese_ci");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "CONVERT(agent_name USING gbk) COLLATE gbk_chinese_ci");
             }
 
 
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "balance");
-                } else {
-                    wrapper.orderBy(true, true, "balance");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "balance");
             }
 
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("createdAt") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "created_at");
-                } else {
-                    wrapper.orderBy(true, true, "created_at");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "created_at");
+            }
+
+            if (StringUtils.isEmpty(sortField) || StringUtils.isEmpty(sortOrder)) {
+                wrapper.orderBy(true, true, "created_at");
             }
 
             IPage<AgentAccountInfo> pages = agentAccountInfoService.page(getIPage(true), wrapper);

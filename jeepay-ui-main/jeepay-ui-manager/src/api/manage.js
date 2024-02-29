@@ -253,6 +253,9 @@ export function getTwoDayCount () {
 }
 
 export function getRealTimeStat (time) {
+  if (time === undefined) {
+    time = 20
+  }
   return request.request({
     url: API_URL_MAIN_STATISTIC + '/realTimeCount/' + time,
     method: 'GET'

@@ -99,32 +99,24 @@ public class MchInfoController extends CommonCtrl {
             String sortField = reqJson.getString("sortField");
             String sortOrder = reqJson.getString("sortOrder");
 
-            wrapper.orderBy(true, false, "state");
 
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("mchName") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "CONVERT(mch_name USING gbk) COLLATE gbk_chinese_ci");
-                } else {
-                    wrapper.orderBy(true, true, "CONVERT(mch_name USING gbk) COLLATE gbk_chinese_ci");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "CONVERT(mch_name USING gbk) COLLATE gbk_chinese_ci");
             }
 
 
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("balance") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "balance");
-                } else {
-                    wrapper.orderBy(true, true, "balance");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "balance");
             }
 
             if (StringUtils.isNotEmpty(sortField) && sortField.equals("createdAt") && StringUtils.isNotEmpty(sortOrder)) {
-                if (sortOrder.equals("descend")) {
-                    wrapper.orderBy(true, false, "created_at");
-                } else {
-                    wrapper.orderBy(true, true, "created_at");
-                }
+                wrapper.orderBy(true, !sortOrder.equals("descend"), "created_at");
             }
+
+            if (StringUtils.isEmpty(sortField) || StringUtils.isEmpty(sortOrder)) {
+                wrapper.orderBy(true, true, "created_at");
+            }
+
 
             List<AgentAccountInfo> agentAccountInfos = agentAccountInfoService.list();
 
