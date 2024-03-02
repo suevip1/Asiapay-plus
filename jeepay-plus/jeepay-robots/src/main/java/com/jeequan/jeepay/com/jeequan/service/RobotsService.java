@@ -949,7 +949,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 Long totalCost = 0L;
                 stringBuffer.append("统计日期：<b>" + DateUtil.today() + "</b>" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
-                stringBuffer.append("通道|跑量金额|费率|入账金额" + System.lineSeparator());
+                stringBuffer.append("通道|跑量金额|实时费率|入账金额" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
                 for (int i = 0; i < passageList.size(); i++) {
                     PayPassage payPassage = passageList.get(i);
@@ -1032,7 +1032,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 Long totalCost = 0L;
                 stringBuffer.append("统计日期：<b>" + DateUtil.format(yesterday, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
-                stringBuffer.append("通道|跑量金额|费率|入账金额" + System.lineSeparator());
+                stringBuffer.append("通道|跑量金额|实时费率|入账金额" + System.lineSeparator());
                 stringBuffer.append("-----------------------------------------------" + System.lineSeparator());
 
                 for (int i = 0; i < passageList.size(); i++) {
@@ -1134,7 +1134,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
                         userNickname += message.getFrom().getLastName();
                     }
-                    robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
+                    robotsMchRecordsService.AddTotalRecord(chatId, amount, userNickname);
 
                     sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
@@ -1219,7 +1219,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
                         userNickname += message.getFrom().getLastName();
                     }
-                    robotsMchRecordsService.AddTotalRecord(chatId, amount, userNickname);
+                    robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
                     robotsMch.setBalance(robotsMch.getBalance() + amount);
                     robotsMchService.saveOrUpdate(robotsMch);
 
@@ -1620,21 +1620,22 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     sendMessage.setReplyToMessageId(sourceMessage.getMessageId());
                     sendMessage.setParseMode(ParseMode.HTML);
                     execute(sendMessage);
+                } else if (message.hasVideo()) {
+                    SendVideo sendVideo = new SendVideo();
+                    if (StringUtils.isNotEmpty(message.getCaption()) && message.getCaption().contains("@")) {
+                        return;
+                    }
+                    stringBuffer.append(message.getCaption() + System.lineSeparator());
+                    stringBuffer.append(System.lineSeparator());
+                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
+
+                    sendVideo.setChatId(chatId); // Replace with the destination chat ID
+                    sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
+                    sendVideo.setCaption(stringBuffer.toString());
+                    sendVideo.setReplyToMessageId(sourceMessage.getMessageId());
+                    sendVideo.setParseMode(ParseMode.HTML);
+                    execute(sendVideo);
                 }
-//                else if (message.hasVideo()) {
-//                    SendVideo sendVideo = new SendVideo();
-//
-//                    stringBuffer.append(message.getCaption() + System.lineSeparator());
-//                    stringBuffer.append(System.lineSeparator());
-//                    stringBuffer.append(sourceMessage.getText() + System.lineSeparator());
-//
-//                    sendVideo.setChatId(chatId); // Replace with the destination chat ID
-//                    sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
-//                    sendVideo.setCaption(stringBuffer.toString());
-//                    sendVideo.setReplyToMessageId(sourceMessage.getMessageId());
-//                    sendVideo.setParseMode(ParseMode.HTML);
-//                    execute(sendVideo);
-//                }
             }
         } catch (Exception e) {
             log.error("{} {}", LOG_TAG, e);
@@ -1852,7 +1853,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(dayTitle + "跑量明细：" + System.lineSeparator());
         stringBuffer.append("----------------------------------" + System.lineSeparator());
-        stringBuffer.append("产品|跑量|费率|应结算" + System.lineSeparator());
+        stringBuffer.append("产品|跑量|实时费率|应结算" + System.lineSeparator());
         stringBuffer.append("----------------------------------" + System.lineSeparator());
         for (int i = 0; i < list.size(); i++) {
             stringBuffer.append("[" + list.get(i).getProductId() + "] "
@@ -1917,8 +1918,8 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             }
         }
         stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
-        stringBuffer.append("当日下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
-        stringBuffer.append("记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("当日记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
         stringBuffer.append("================" + System.lineSeparator());
         stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(dayStatStr);
@@ -1926,7 +1927,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(totalStatStr);
         stringBuffer.append("================" + System.lineSeparator());
-        stringBuffer.append("(<b>记账累积,下发日清</b>)" + System.lineSeparator());
+        stringBuffer.append("(<b>下发累积，记账日清</b>)" + System.lineSeparator());
 
         if (isPin) {
             sendReplyAndPinMessage(chatId, messageId, stringBuffer.toString());
@@ -2403,13 +2404,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         if (messageTemp != null) {
 
                             //商户群查单 chatId+messageId -原消息  用于识别回复方式的催单
-                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getChatId() + message.getMessageId(), messageTemp, 4, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_MCH_SOURCE_SUFFIX + message.getChatId() + message.getMessageId(), messageTemp, 24, TimeUnit.HOURS);
 
                             //商户已经识别成功的查单消息,通过订单号存储，方便识别
-                            RedisUtil.set(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrder.getPayOrderId(), message, 4, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_MCH_SOURCE_ORDER_SUFFIX + payOrder.getPayOrderId(), message, 24, TimeUnit.HOURS);
 
                             //用于识别是否催单信息
-                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + message.getChatId() + unionOrderId, messageTemp, 4, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_ORDER_FORWARD_SUFFIX + message.getChatId() + unionOrderId, messageTemp, 24, TimeUnit.HOURS);
 
                             StringBuffer stringBufferOrderInfo = new StringBuffer();
                             stringBufferOrderInfo.append("机器人补充信息：" + System.lineSeparator());
@@ -2417,7 +2418,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             message.setText(stringBufferOrderInfo.toString());
 
                             //机器人发到通道群的转发的消息,key是新消息ID，值是存储的商户群原消息
-                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getChatId() + messageTemp.getMessageId(), message, 2, TimeUnit.HOURS);
+                            RedisUtil.set(REDIS_SOURCE_SUFFIX + messageTemp.getChatId() + messageTemp.getMessageId(), message, 24, TimeUnit.HOURS);
 
                             sendReplyMessage(chatId, message.getMessageId(), "订单已传达，请稍等!");
                         } else {
