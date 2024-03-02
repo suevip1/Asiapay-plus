@@ -1974,7 +1974,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                             for (int x = 0; x < mchHistories.size(); x++) {
                                 MchHistory mchHistory = mchHistories.get(x);
                                 String remark = "";
-                                if (StringUtils.isNotEmpty(mchHistory.getRemark().trim())) {
+                                if (StringUtils.isNotEmpty(mchHistory.getRemark())) {
                                     remark = "| 备注: " + mchHistory.getRemark().trim();
                                 }
                                 stringBuffer.append("[" + CS.GetMchBizTypeString(mchHistory.getBizType()) + "]: <b>" + AmountUtil.convertCent2Dollar(mchHistory.getAmount()) + "</b> | " + DateUtil.formatDateTime(mchHistory.getCreatedAt()) + remark + System.lineSeparator());
