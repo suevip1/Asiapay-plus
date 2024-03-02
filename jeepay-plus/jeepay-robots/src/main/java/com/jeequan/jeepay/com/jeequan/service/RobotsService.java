@@ -129,15 +129,15 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     /**
      * 下发功能
      */
-    private static final String ADD_RECORD = "[+-]\\d+(\\.\\d+)?";
-    private static final String REVOKE_RECORD = "撤销下发";
-    private static final String CLEAR_RECORD = "清除下发";
+    private static final String ADD_RECORD_TOTAL = "[+-]\\d+(\\.\\d+)?";
+    private static final String REVOKE_RECORD_TOTAL = "撤销下发";
+    private static final String CLEAR_RECORD_TOTAL = "清除下发";
     /**
      * 记账
      */
-    private static final String ADD_RECORD_TOTAL = "记账 [+-]?\\d+(\\.\\d+)?";
-    private static final String REVOKE_RECORD_TOTAL = "撤销记账";
-    private static final String CLEAR_RECORD_TOTAL = "清除记账";
+    private static final String ADD_RECORD = "记账 [+-]?\\d+(\\.\\d+)?";
+    private static final String REVOKE_RECORD = "撤销记账";
+    private static final String CLEAR_RECORD = "清除记账";
     private static final String TODAY_RECORD = "今日账单";
     private static final String YESTERDAY_RECORD = "昨日账单";
 
@@ -396,12 +396,12 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
             stringBuffer.append("欢迎使用亚洲科技四方系统机器人，以下是机器人使用说明:").append(System.lineSeparator());
             stringBuffer.append("======================================").append(System.lineSeparator());
             stringBuffer.append("<b>记账功能</b>:（记账数据每个群分开，无需绑定商户，敏感操作需管理员以及操作员权限）").append(System.lineSeparator());
-            stringBuffer.append("+xxx -- (下发仅保留当日记录)添加下发金额，xxx为金额，例如：+1000").append(System.lineSeparator());
-            stringBuffer.append("-xxx -- (下发仅保留当日记录)扣减下发金额，xxx为金额，例如：-1000").append(System.lineSeparator());
+            stringBuffer.append("+xxx -- (下发金额累加不清空)添加下发金额，xxx为金额，例如：+1000").append(System.lineSeparator());
+            stringBuffer.append("-xxx -- (下发金额累加不清空)扣减下发金额，xxx为金额，例如：-1000").append(System.lineSeparator());
             stringBuffer.append("撤销下发 -- 删除最后一笔下发记录").append(System.lineSeparator());
             stringBuffer.append("清除下发 -- 删除当天的全部下发记录").append(System.lineSeparator());
-            stringBuffer.append("记账 xxx -- (记账金额累加不清空)添加记账金额，xxx为金额，例如：记账 1000").append(System.lineSeparator());
-            stringBuffer.append("记账 -xxx -- (记账金额累加不清空)扣减记账金额，xxx为金额，例如：记账 -1000").append(System.lineSeparator());
+            stringBuffer.append("记账 xxx -- (记账仅保留当日记录)添加记账金额，xxx为金额，例如：记账 1000").append(System.lineSeparator());
+            stringBuffer.append("记账 -xxx -- (记账仅保留当日记录)扣减记账金额，xxx为金额，例如：记账 -1000").append(System.lineSeparator());
             stringBuffer.append("撤销记账 -- 删除最后一笔记账记录").append(System.lineSeparator());
             stringBuffer.append("清除记账 -- 删除当天的全部记账记录").append(System.lineSeparator());
             stringBuffer.append("今日账单 -- 查看今日完整账单").append(System.lineSeparator());
@@ -1117,10 +1117,11 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         if (matcherAddRecord.matches()) {
             if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
                 try {
-                    String amountStr = text;
 
-                    Date today = DateUtil.parse(DateUtil.today());
+                    String amountStr = text.substring(3);
                     Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
+                    Date today = DateUtil.parse(DateUtil.today());
+
 
                     if (amount.longValue() == 0) {
                         //发送今日账单
@@ -1134,7 +1135,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
                         userNickname += message.getFrom().getLastName();
                     }
-                    robotsMchRecordsService.AddTotalRecord(chatId, amount, userNickname);
+                    robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
 
                     sendBillStat(chatId, today, message.getMessageId(), "今日", true);
                 } catch (Exception e) {
@@ -1203,10 +1204,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         robotsMchService.save(robotsMch);
                     }
 
-                    String amountStr = text.substring(3);
-                    Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
+                    String amountStr = text;
 
                     Date today = DateUtil.parse(DateUtil.today());
+                    Long amount = Long.parseLong(AmountUtil.convertDollar2Cent(amountStr));
 
                     if (amount.longValue() == 0) {
                         sendBillStat(chatId, today, message.getMessageId(), "今日", true);
@@ -1219,7 +1220,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (StringUtils.isNotEmpty(message.getFrom().getLastName())) {
                         userNickname += message.getFrom().getLastName();
                     }
-                    robotsMchRecordsService.AddDayRecord(chatId, amount, userNickname);
+                    robotsMchRecordsService.AddTotalRecord(chatId, amount, userNickname);
                     robotsMch.setBalance(robotsMch.getBalance() + amount);
                     robotsMchService.saveOrUpdate(robotsMch);
 
@@ -1899,6 +1900,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
         Long totalAmount = robotsMch.getBalance();
         Long dayAmount = 0L;
+        Long totalDayAmount = 0L;
         StringBuffer dayStatStr = new StringBuffer();
         for (int i = 0; i < dayList.size(); i++) {
             if (dayList.get(i).getState() == CS.YES) {
@@ -1912,20 +1914,23 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         StringBuffer totalStatStr = new StringBuffer();
         for (int i = 0; i < totalList.size(); i++) {
             if (totalList.get(i).getState() == CS.YES) {
+                totalDayAmount += totalList.get(i).getAmount();
                 totalStatStr.append(DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  <b>" + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "</b>  " + totalList.get(i).getUserName() + System.lineSeparator());
             } else {
                 totalStatStr.append("<s>" + DateUtil.format(totalList.get(i).getCreatedAt(), "HH:mm:ss") + "  " + AmountUtil.convertCent2Dollar(totalList.get(i).getAmount()) + "  " + totalList.get(i).getUserName() + "</s>  " + totalList.get(i).getRemark() + System.lineSeparator());
             }
         }
         stringBuffer.append("<b>" + DateUtil.format(date, "yyyy-MM-dd") + "</b>" + System.lineSeparator());
-        stringBuffer.append("下发总额: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
-        stringBuffer.append("当日记账总额: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("[<b>下发总额</b>]: <b>" + AmountUtil.convertCent2Dollar(totalAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("当日记账累计: <b>" + AmountUtil.convertCent2Dollar(dayAmount) + "</b>" + System.lineSeparator());
         stringBuffer.append("================" + System.lineSeparator());
-        stringBuffer.append(dayTitle + "下发: (" + dayList.size() + "笔)" + System.lineSeparator());
-        stringBuffer.append(dayStatStr);
-        stringBuffer.append("================" + System.lineSeparator());
-        stringBuffer.append(dayTitle + "记账: (" + totalList.size() + "笔)" + System.lineSeparator());
+        stringBuffer.append(dayTitle + "下发: (" + totalList.size() + "笔)" + System.lineSeparator());
         stringBuffer.append(totalStatStr);
+        stringBuffer.append("----------------" + System.lineSeparator());
+        stringBuffer.append("当日下发累计: <b>" + AmountUtil.convertCent2Dollar(totalDayAmount) + "</b>" + System.lineSeparator());
+        stringBuffer.append("================" + System.lineSeparator());
+        stringBuffer.append(dayTitle + "记账: (" + dayList.size() + "笔)" + System.lineSeparator());
+        stringBuffer.append(dayStatStr);
         stringBuffer.append("================" + System.lineSeparator());
         stringBuffer.append("(<b>下发累积，记账日清</b>)" + System.lineSeparator());
 
