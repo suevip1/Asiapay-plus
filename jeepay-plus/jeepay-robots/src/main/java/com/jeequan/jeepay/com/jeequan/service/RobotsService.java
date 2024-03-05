@@ -2610,8 +2610,13 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 //检查是否有商户群
                 RobotsMch robotsMch = robotsMchService.getOne(RobotsMch.gw().like(RobotsMch::getMchNo, mchInfo.getMchNo()).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
                 if (robotsMch != null) {
-                    String messageStr = "商户 [" + robotWarnNotify.getMchNo() + "]" + mchInfo.getMchName() + System.lineSeparator() + "订单 [<b>" + robotWarnNotify.getPayOrderId() + "</b>]" + System.lineSeparator() + "发送通知失败，请及时处理！";
-                    sendSingleMessage(robotsMch.getChatId(), messageStr);
+                    PayOrder payOrder = payOrderService.getById(robotWarnNotify.getPayOrderId());
+                    StringBuilder messageStr =new StringBuilder();
+                    messageStr.append("商户 [" + robotWarnNotify.getMchNo() + "] " + mchInfo.getMchName() + System.lineSeparator());
+                    messageStr.append("商户单号 [<b>" + payOrder.getMchOrderNo() + "</b>]" + System.lineSeparator());
+                    messageStr.append("订单 [" + robotWarnNotify.getPayOrderId() + "]" + System.lineSeparator());
+                    messageStr.append("发送商户通知失败，请及时处理！");
+                    sendSingleMessage(robotsMch.getChatId(), messageStr.toString());
                 } else {
                     //没有则发管理群
                     RobotsMch robotsMchManage = robotsMchService.getManageMch();
