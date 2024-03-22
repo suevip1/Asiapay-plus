@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.jiuzhou;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 
 @Service
@@ -73,8 +71,8 @@ public class JiuzhouPaymentService extends AbstractPaymentService {
             String sign = JeepayKit.getSign(map, key).toLowerCase();
             map.put("sign", sign);
 
-
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             raw = HttpUtil.post(payGateway, map, 10000);

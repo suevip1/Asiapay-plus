@@ -322,186 +322,115 @@ public class CS {
     //接口类型
     public interface IF_CODE {
         String TESTPAY = "testpay";
-
         String ASIAPAY = "asiapay";
-
         String ASIAPAYMOBILE = "asiapaymobile";
-
-        /**
-         * 卡密
-         */
         String CARDPAY = "cardpay";
-        /**
-         * 亿付支付
-         */
         String YIFUPAY = "yifupay";
-        /**
-         * 七天支付
-         */
         String QIPAY = "qipay";
-
         String JOMALONGPAY = "jomalongpay";
-
         String LANGUIFANG = "languifang";
-
         String RIXINPAY = "rixinpay";
-
         String RIXINPAY2 = "rixinpay2";
-
         String RIXINPAY3 = "rixinpay3";
         String RIXINPAY4 = "rixinpay4";
-
-        String XXPAY = "xxpay";
-
         String SHAYUPAY = "shayupay";
         String SHAYUPAY2 = "shayupay2";
-
+        String XXPAY = "xxpay";
         String XXPAY2 = "xxpay2";
-
         String XXPAY3 = "xxpay3";
-
         String XXPAY4 = "xxpay4";
         String XXPAY5 = "xxpay5";
         String XXPAY6 = "xxpay6";
-
+        String XXPAY7 = "xxpay7";
+        String XXPAY8 = "xxpay8";
+        String XXPAY9 = "xxpay9";
+        String XXPAY10 = "xxpay10";
+        String XXPAY11 = "xxpay11";
+        String XXPAY12 = "xxpay12";
         String CHANGSHENG = "changsheng";
         String CHANGSHENG2 = "changsheng2";
         String CHANGSHENG3 = "changsheng3";
-
         String XIAOBAWANG = "xiaobawang";
-
+        String XIAOBAWANG2 = "xiaobawang2";
         String TIANHEPAY = "tianhepay";
-
         String SHENGYANG = "shengyang";
-
         String GAWASY = "gawasy";
-
         String PAY731 = "pay731";
-
         String YONGHENG = "yongheng";
-
         String CHUANGXIN = "chuangxin";
-
         String XIAOJI = "xiaoji";
-
         String BENCHI = "benchi";
-
         String NAICHA = "naicha";
-
         String KAMIPAY = "kamipay";
-
         String DAFU = "dafu";
-
         String YONGHANG = "yonghang";
-
         String WANGTING = "wangting";
-
         String HONGYUN = "hongyun";
-
         String YEZIPAY = "yezipay";
-
         String STARPAY = "starpay";
-
         String JIUYIPAY = "jiuyipay";
-
+        String JIUYIPAY2 = "jiuyipay2";
         String CANGQIONG = "cangqiong";
-
         String MUFENG = "mufeng";
-
         String BAIHUI = "baihui";
-
         String DINGXIN = "dingxin";
-
         String CHAOREN = "chaoren";
-
         String YICHUANG = "yichuang";
-
+        String YICHUANG2 = "yichuang2";
         String BOXIN = "boxin";
-
         String SHUNXIN = "shunxin";
-
         String WEILAN = "weilan";
-
         String XUANJIE = "xuanjie";
-
         String GFPAY = "gfpay";
-
         String YUNYIN = "yunyin";
-
         String PANGPANG = "pangpang";
-
         String JUDING = "juding";
-
         String HAIFU = "haifu";
-
         String GANPAY = "ganpay";
-
         String RONGFU = "rongfu";
-
         String RONGFU2 = "rongfu2";
-
         String RONGFU3 = "rongfu3";
-
         String PPPAY = "pppay";
-
         String JIBA = "jiba";
-
+        String JIBA2 = "jiba2";
         String DASHI = "dashi";
-
         String JULIANG = "juliang";
-
         String ANSHUNFA = "anshunfa";
-
         String YIFENG = "yifeng";
-
         String YONGSHENG = "yongsheng";
-
         String JIEDA = "jieda";
-
         String MINGFA = "mingfa";
-
         String MAYI = "mayi";
-
         String LANTIAN = "lantian";
-
         String BOLIN = "bolin";
-
         String G63A = "g63a";
-
         String ANGELPAY = "angelpay";
-
         String XIAMI = "xiami";
-
         String SHANDIAN = "shandian";
-
         String CHUANGYUAN = "chuangyuan";
-
         String HUOJIAN = "huojian";
-
         String XINGWANG = "xingwang";
-
         String FENGYE = "fengye";
-
         String DOUFU = "doufu";
-
         String XIAPI = "xiapi";
-
         String ZHAOCAIMAO = "zhaocaimao";
-
         String TESILA = "tesila";
-
         String DASHENG = "dasheng";
         String WWGOPAY = "wwgopay";
+        String WWGOPAY2 = "wwgopay2";
         String HENGSHENG = "hengsheng";
         String LIYUPAY = "liyupay";
         String LIYUPAY2 = "liyupay2";
         String HUOYAN = "huoyan";
+        String HUOYAN1 = "huoyan1";
         String TENGCHENG = "tengcheng";
         String XIAOSAN = "xiaosan";
         String XIONGMAO = "xiongmao";
         String XIONGMAO2 = "xiongmao2";
         String TENGHUI = "tenghui";
         String POHAO = "pohao";
+        String POHAO2 = "pohao2";
+        String POHAO3 = "pohao3";
         String FEIFAN = "feifan";
         String FEIFAN2 = "feifan2";
         String HUAYUE = "huayue";
@@ -518,130 +447,91 @@ public class CS {
         String SGPAY = "sgpay";
         String GEWASI = "gewasi";
         String XINGCHEN = "xingchen";
-        String XXPAY7 = "xxpay7";
-
         String YIFUXINPAY = "yifuxinpay";
-
         String FEICUI = "feicui";
-
-        String XXPAY8 = "xxpay8";
-
         String YILIAN = "yilian";
-
         String UIDPAY = "uidpay";
-
         String YAOGUAI = "yaoguai";
-
         String JIADE = "jiade";
-
         String SHANGGU = "shanggu";
-
         String YONGCAI = "yongcai";
-
         String XMPAY = "xmpay";
-
         String JIUZHOU = "jiuzhou";
-
         String XIGUA = "xigua";
-
         String HIPAY = "hipay";
-
         String XIANGGOU = "xianggou";
-
         String KUNPENG = "kunpeng";
-
         String DINGSHENG = "dingsheng";
-
         String QINGXIU = "qingxiu";
-
         String FUTEDUO = "futeduo";
-
         String GALIPAY = "galipay";
-
+        String GALIPAY2 = "galipay2";
         String LANSHA = "lansha";
-
-        String XXPAY9 = "xxpay9";
-
         String TIANYANG = "tianyang";
-
         String DIGUA = "digua";
-
         String OPEN = "open";
-
         String WLAN = "wlan";
         String XIAOHONG = "xiaohong";
         String FEIYUE = "feiyue";
-
         String MOBILEPAY = "mobilepay";
-
         String ZHIFUPAY = "zhifupay";
         String QIANXI = "qianxi";
         String QIANGSHENG = "qiangsheng";
         String JINFAN = "jinfan";
         String JQKPAY = "jqkpay";
-
         String DEALPAY = "dealpay";
-
         String AOGUPAY = "aogupay";
-
         String LJPAY = "ljpay";
         String FENGYUN = "fengyun";
         String RUIZE = "ruize";
         String HONGMENG = "hongmeng";
-
-        String XXPAY10 = "xxpay10";
-
-        String XXPAY11 = "xxpay11";
-
-        String XXPAY12 = "xxpay12";
-
         String SHPAY = "shpay";
-
         String RZPAY = "rzpay";
-
         String CYPAY = "cypay";
-
         String APPAY = "appay";
-
         String DOPAY = "dopay";
-
         String ODPAY = "odpay";
-
         String KXPAY = "kxpay";
-
         String MACKPAY = "mackpay";
-
+        String MACKPAY2 = "mackpay2";
         String MOQUEPAY = "moquepay";
-
         String WEIZHIFU = "weizhifu";
-
         String BAOFENG = "baofeng";
-
         String TANGBANG = "tangbang";
-
         String GOODPAY = "goodpay";
-
         String BYPAY = "bypay";
-
         String JCPAY = "jcpay";
-
         String YSPAY = "yspay";
-
         String STOREPAY = "storepay";
-
         String CYOUPAY = "cyoupay";
-
         String CPPAY = "cppay";
-
         String A8PAY = "a8pay";
-
         String MCPAY = "mcpay";
-
         String SIFANGKJPAY = "sifangkjpay";
         String SEPTPAY = "septpay";
-
         String RONGHE = "ronghe";
         String JINGDUN = "jingdun";
+        String DAISO = "daiso";
+        String SHUNFU = "shunfu";
+        String TIANZHAO = "tianzhao";
+        String SANDAO = "sandao";
+        String RCPAY = "rcpay";
+        String GULANG = "gulang";
+        String X5PAY = "x5pay";
+        String YUNDUO = "yunduo";
+        String PPKJPAY = "ppkjpay";
+        String BAIXIANGGUO = "baixiangguo";
+        String DIANDIAN = "diandian";
+        String BAITUO = "baituo";
+        String MEET = "meet";
+        String JIKE = "jike";
+        String APPLE = "apple";
+        String LTFPAY = "ltfpay";
+        String EASYPAY = "easypay";
+        String WUMING = "wuming";
+        String ABCPAY = "abcpay";
+        String BAJIE = "bajie";
+        String XIYANGYANG = "xiyangyang";
     }
 
 

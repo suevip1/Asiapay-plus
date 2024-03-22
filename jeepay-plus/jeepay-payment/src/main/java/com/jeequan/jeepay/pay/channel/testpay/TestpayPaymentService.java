@@ -22,8 +22,6 @@ public class TestpayPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.TESTPAY;
     }
 
-  
-
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) throws Exception {
         log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());

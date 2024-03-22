@@ -7,8 +7,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
-import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.*;
+import com.jeequan.jeepay.core.utils.AmountUtil;
+import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -22,17 +22,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 云银支付
- */
 @Service
 @Slf4j
 public class YunyinPaymentService extends AbstractPaymentService {
@@ -43,8 +35,6 @@ public class YunyinPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.YUNYIN;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

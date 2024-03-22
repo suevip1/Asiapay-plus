@@ -8,7 +8,6 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +34,6 @@ public class TianyangPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.TIANYANG;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

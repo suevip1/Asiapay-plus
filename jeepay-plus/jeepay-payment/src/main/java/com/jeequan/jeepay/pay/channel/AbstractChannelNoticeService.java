@@ -26,7 +26,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 
 /*
 * 实现回调接口抽象类

@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.hipay;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
@@ -9,7 +8,6 @@ import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
-import com.jeequan.jeepay.pay.channel.hengsheng.HengshengParamsModel;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.Map;
 
 
 @Slf4j

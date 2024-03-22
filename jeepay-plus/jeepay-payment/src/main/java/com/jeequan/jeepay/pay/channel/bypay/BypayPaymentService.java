@@ -19,7 +19,6 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -75,6 +74,7 @@ public class BypayPaymentService extends AbstractPaymentService {
             map.put("format", "json");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

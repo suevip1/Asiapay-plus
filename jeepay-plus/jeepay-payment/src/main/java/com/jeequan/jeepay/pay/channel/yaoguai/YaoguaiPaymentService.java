@@ -68,8 +68,8 @@ public class YaoguaiPaymentService extends AbstractPaymentService {
             String sign = SignatureUtils.md5(SignatureUtils.md5(signStr)).toUpperCase();
             map.put("sign", sign);
 
-
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

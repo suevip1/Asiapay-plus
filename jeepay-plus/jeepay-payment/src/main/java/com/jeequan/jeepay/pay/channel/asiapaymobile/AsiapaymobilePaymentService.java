@@ -30,11 +30,8 @@ public class AsiapaymobilePaymentService extends AbstractPaymentService {
 
     @Override
     public String getIfCode() {
-
         return CS.IF_CODE.ASIAPAYMOBILE;
     }
-
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -59,15 +56,18 @@ public class AsiapaymobilePaymentService extends AbstractPaymentService {
             map.put("reqTime", reqTime);
             map.put("clientIp", payOrder.getClientIp());
             map.put("notifyUrl", getNotifyUrl(payOrder.getPayOrderId()));
+
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
 
-            raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
+            String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
+
+            raw = HttpUtil.post(payGateway, map,10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             JSONObject data = result.getJSONObject("data");
-
 
             //拉起订单成功
             if (result.getString("code").equals("0") && StringUtils.isNotEmpty(data.getString("payData"))) {
@@ -91,5 +91,4 @@ public class AsiapaymobilePaymentService extends AbstractPaymentService {
         }
         return res;
     }
-
 }

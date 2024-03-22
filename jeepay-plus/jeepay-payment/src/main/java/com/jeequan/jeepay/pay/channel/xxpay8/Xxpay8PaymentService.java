@@ -22,10 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * xxpay8支付
- */
 @Service
 @Slf4j
 public class Xxpay8PaymentService extends AbstractPaymentService {
@@ -36,7 +32,6 @@ public class Xxpay8PaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XXPAY8;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -80,6 +75,7 @@ public class Xxpay8PaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

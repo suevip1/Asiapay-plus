@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 卡密支付
- */
 @Service
 @Slf4j
 public class CardpayPaymentService extends AbstractPaymentService {
@@ -34,8 +31,6 @@ public class CardpayPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.CARDPAY;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -76,10 +71,14 @@ public class CardpayPaymentService extends AbstractPaymentService {
             map.put("version", version);
             map.put("signType", signType);
             map.put("notifyUrl", notifyUrl);
+
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
 
-            raw = HttpUtil.post(normalMchParams.getPayGateway(), map, 10000);
+            String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
+
+            raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
@@ -105,5 +104,4 @@ public class CardpayPaymentService extends AbstractPaymentService {
         }
         return res;
     }
-
 }

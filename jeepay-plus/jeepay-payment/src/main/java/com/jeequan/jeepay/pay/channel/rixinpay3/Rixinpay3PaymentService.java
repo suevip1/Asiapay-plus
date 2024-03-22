@@ -24,8 +24,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 @Service
 @Slf4j
 public class Rixinpay3PaymentService extends AbstractPaymentService {
@@ -36,8 +34,6 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.RIXINPAY3;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -83,6 +79,7 @@ public class Rixinpay3PaymentService extends AbstractPaymentService {
             map.put("pay_productname", "下单");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

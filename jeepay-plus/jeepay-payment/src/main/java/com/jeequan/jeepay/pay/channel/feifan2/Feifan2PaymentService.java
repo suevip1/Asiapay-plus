@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * 霏凡2支付
- */
 @Service
 @Slf4j
 public class Feifan2PaymentService extends AbstractPaymentService {
@@ -77,6 +74,7 @@ public class Feifan2PaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").header("Accept","application/json").timeout(10000).execute();
             // 处理响应

@@ -22,9 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 安顺发支付
- */
 @Service
 @Slf4j
 public class AnshunfaPaymentService extends AbstractPaymentService {
@@ -34,8 +31,6 @@ public class AnshunfaPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.ANSHUNFA;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -82,6 +77,7 @@ public class AnshunfaPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = anshunfaParamsModel.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

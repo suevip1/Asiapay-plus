@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * 超人支付
- */
 @Service
 @Slf4j
 public class ChaorenPaymentService extends AbstractPaymentService {
@@ -38,8 +35,6 @@ public class ChaorenPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.CHAOREN;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -75,6 +70,7 @@ public class ChaorenPaymentService extends AbstractPaymentService {
             map.put("sign", URLEncoder.encode(sign, "UTF-8"));
 
             String payGateway = chaoRenParamsModel.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpClientPoolUtil.doGet(payGateway+"?"+JeepayKit.genUrlParams(map));
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

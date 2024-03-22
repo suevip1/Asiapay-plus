@@ -23,21 +23,16 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * wwgopay支付
- */
 @Service
 @Slf4j
 public class WwgopayPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "wwgopay支付";
+    private static final String LOG_TAG = "[wwgopay支付]";
 
     @Override
     public String getIfCode() {
         return CS.IF_CODE.WWGOPAY;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -74,6 +69,7 @@ public class WwgopayPaymentService extends AbstractPaymentService {
             map.put("gtype", gtype);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map,10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

@@ -1,14 +1,11 @@
 package com.jeequan.jeepay.pay.channel.xuanjie;
 
-import cn.hutool.http.HttpUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -19,15 +16,12 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * 炫捷支付
- */
 @Service
 @Slf4j
 public class XuanjiePaymentService extends AbstractPaymentService {
@@ -38,8 +32,6 @@ public class XuanjiePaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XUANJIE;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

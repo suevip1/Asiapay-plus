@@ -19,22 +19,16 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 金帆支付
- */
 @Service
 @Slf4j
 public class JinfanPaymentService extends AbstractPaymentService {
 
-    private static final String LOG_TAG = "[金帆支付]";
+    private static final String LOG_TAG = "[jf支付]";
 
     @Override
     public String getIfCode() {
@@ -76,6 +70,7 @@ public class JinfanPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

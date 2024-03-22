@@ -1,7 +1,6 @@
 package com.jeequan.jeepay.pay.channel.a8pay;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -76,6 +75,7 @@ public class A8payPaymentService extends AbstractPaymentService {
             map.put("content_type", "json");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpClientPoolUtil.sendPostForm(payGateway,map);
             channelRetMsg.setChannelOriginResponse(raw);

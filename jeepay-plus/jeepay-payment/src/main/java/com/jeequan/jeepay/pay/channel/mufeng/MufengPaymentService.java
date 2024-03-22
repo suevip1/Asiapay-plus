@@ -24,9 +24,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 沐风支付
- */
 @Service
 @Slf4j
 public class MufengPaymentService extends AbstractPaymentService {
@@ -36,8 +33,6 @@ public class MufengPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.MUFENG;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -83,6 +78,7 @@ public class MufengPaymentService extends AbstractPaymentService {
             map.put("pay_productname", "下单");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

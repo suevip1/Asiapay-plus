@@ -76,6 +76,7 @@ public class LjpayPaymentService extends AbstractPaymentService {
             map.put("pay_productname", "下单");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

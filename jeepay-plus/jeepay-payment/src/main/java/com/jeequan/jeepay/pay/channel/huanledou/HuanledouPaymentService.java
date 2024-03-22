@@ -22,9 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 欢乐豆支付
- */
 @Service
 @Slf4j
 public class HuanledouPaymentService extends AbstractPaymentService {

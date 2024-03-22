@@ -1,7 +1,5 @@
 package com.jeequan.jeepay.pay.channel.mcpay;
 
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -35,7 +33,6 @@ public class McpayPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.MCPAY;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -75,6 +72,7 @@ public class McpayPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpClientPoolUtil.sendPostForm(payGateway, map);
 

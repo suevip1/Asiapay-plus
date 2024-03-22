@@ -18,7 +18,6 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRQ;
 import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -34,8 +33,6 @@ public class YongcaiPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.YONGCAI;
     }
-
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -74,10 +71,10 @@ public class YongcaiPaymentService extends AbstractPaymentService {
             map.put("pay_amount", pay_amount);
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("pay_md5sign", sign);
-
             map.put("pay_productname", "下单");
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

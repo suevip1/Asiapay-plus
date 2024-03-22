@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.qianxi;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -24,9 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 千禧支付
- */
 @Service
 @Slf4j
 public class QianxiPaymentService extends AbstractPaymentService {
@@ -72,6 +68,7 @@ public class QianxiPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

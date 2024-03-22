@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.rzpay;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
@@ -20,7 +19,6 @@ import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -79,8 +77,9 @@ public class RzpayPaymentService extends AbstractPaymentService {
 
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
-            log.info("[{}]请求响应:{}", LOG_TAG, map);
+
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                     .execute();

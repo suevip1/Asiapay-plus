@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.yspay;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -9,7 +8,6 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -40,7 +38,6 @@ public class YspayPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.YSPAY;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -79,6 +76,7 @@ public class YspayPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             raw = HttpUtil.post(payGateway, map, 10000);
@@ -138,10 +136,6 @@ public class YspayPaymentService extends AbstractPaymentService {
 
         String payGateway = "http://8.217.58.124/api/pay/gateway";
 
-        // 发送POST请求并指定JSON数据
-//        HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").execute();
-//        // 处理响应
-//        raw = response.body();
         log.info(JSONObject.toJSONString(map));
         raw = HttpUtil.post(payGateway, map, 10000);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);

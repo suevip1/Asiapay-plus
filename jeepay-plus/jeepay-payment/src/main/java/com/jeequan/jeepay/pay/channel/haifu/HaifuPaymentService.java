@@ -20,15 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 海富支付
- */
 @Service
 @Slf4j
 public class HaifuPaymentService extends AbstractPaymentService {
@@ -39,8 +33,6 @@ public class HaifuPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.HAIFU;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -79,6 +71,7 @@ public class HaifuPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

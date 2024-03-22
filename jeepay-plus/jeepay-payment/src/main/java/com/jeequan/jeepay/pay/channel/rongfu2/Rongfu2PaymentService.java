@@ -22,10 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 容福支付
- */
 @Service
 @Slf4j
 public class Rongfu2PaymentService extends AbstractPaymentService {
@@ -36,8 +32,6 @@ public class Rongfu2PaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.RONGFU2;
     }
-
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class RongheChannelNoticeService extends AbstractChannelNoticeService {
-    private static final String LOG_TAG = "[融合支付]";
+    private static final String LOG_TAG = "[rh支付]";
 
     private static final String ON_FAIL = "fail";
 

@@ -1,7 +1,5 @@
 package com.jeequan.jeepay.pay.channel.liyupay;
 
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jeequan.jeepay.core.constants.CS;
@@ -10,7 +8,6 @@ import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.HttpClientPoolUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.channel.rongfu.RongFuParamsModel;

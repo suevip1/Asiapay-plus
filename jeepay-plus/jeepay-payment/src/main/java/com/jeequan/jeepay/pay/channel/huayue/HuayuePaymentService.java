@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * 华悦支付
- */
 @Service
 @Slf4j
 public class HuayuePaymentService extends AbstractPaymentService {

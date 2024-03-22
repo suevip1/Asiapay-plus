@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class JinfanChannelNoticeService extends AbstractChannelNoticeService {
 
-    private static final String LOG_TAG = "[金帆支付]";
+    private static final String LOG_TAG = "[jf支付]";
 
     private static final String ON_FAIL = "fail";
 

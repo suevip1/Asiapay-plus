@@ -20,9 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 蚂蚁支付
- */
 @Service
 @Slf4j
 public class MayiPaymentService extends AbstractPaymentService {
@@ -33,8 +30,6 @@ public class MayiPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.MAYI;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

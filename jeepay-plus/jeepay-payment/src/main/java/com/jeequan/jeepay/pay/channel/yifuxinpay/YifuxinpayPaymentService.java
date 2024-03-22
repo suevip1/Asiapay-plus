@@ -34,7 +34,6 @@ public class YifuxinpayPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.YIFUXINPAY;
     }
 
-
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
         log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());

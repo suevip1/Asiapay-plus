@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.xiongmao2;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -10,7 +9,6 @@ import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.JeepayKit;
-import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -25,9 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 熊猫2支付
- */
 @Service
 @Slf4j
 public class Xiongmao2PaymentService extends AbstractPaymentService {
@@ -69,6 +64,7 @@ public class Xiongmao2PaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

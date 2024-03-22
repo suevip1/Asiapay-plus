@@ -25,9 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 捷达支付
- */
 @Service
 @Slf4j
 public class GewasiPaymentService extends AbstractPaymentService {
@@ -37,7 +34,6 @@ public class GewasiPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.GEWASI;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -71,6 +67,7 @@ public class GewasiPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).contentType("application/json").timeout(10000).execute();

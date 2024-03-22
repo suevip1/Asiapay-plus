@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.xianggou;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
@@ -35,7 +34,6 @@ public class XianggouPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XIANGGOU;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -73,6 +71,7 @@ public class XianggouPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

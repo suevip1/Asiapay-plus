@@ -9,7 +9,6 @@ import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.JeepayKit;
-import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
@@ -62,8 +61,8 @@ public class XiguaPaymentService extends AbstractPaymentService {
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
 
-
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             // 发送POST请求并指定JSON数据
             raw = HttpUtil.post(payGateway, map, 10000);

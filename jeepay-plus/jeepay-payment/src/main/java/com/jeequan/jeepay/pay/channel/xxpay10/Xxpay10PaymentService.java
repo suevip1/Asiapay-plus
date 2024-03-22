@@ -35,8 +35,6 @@ public class Xxpay10PaymentService extends AbstractPaymentService {
         return CS.IF_CODE.XXPAY10;
     }
 
-
-
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
         log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());

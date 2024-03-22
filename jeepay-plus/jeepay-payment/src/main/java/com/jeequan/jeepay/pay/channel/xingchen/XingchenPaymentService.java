@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.xingchen;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -9,7 +8,6 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -35,7 +33,6 @@ public class XingchenPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XINGCHEN;
     }
-
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -81,8 +78,9 @@ public class XingchenPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
-            raw = HttpUtil.get(payGateway, map, 10000);
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
+            raw = HttpUtil.get(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             channelRetMsg.setChannelOriginResponse(raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);

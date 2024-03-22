@@ -8,7 +8,6 @@ import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -83,11 +82,10 @@ public class GalipayPaymentService extends AbstractPaymentService {
             Map<String, Object> sortedMap = new TreeMap<>(mapData);
             String signStr = JSONObject.toJSONString(sortedMap) + key;
             String sign = SignatureUtils.md5(signStr).toLowerCase();
-
             mapHead.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
-
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(sortedMap));
 
             HttpResponse response = HttpUtil.createPost(payGateway).body("data="+JSONObject.toJSONString(sortedMap)).headerMap(mapHead, false).contentType("application/x-www-form-urlencoded").timeout(10000)
                     .execute();

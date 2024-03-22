@@ -22,10 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 熊猫支付
- */
 @Service
 @Slf4j
 public class XiongmaoPaymentService extends AbstractPaymentService {
@@ -36,8 +32,6 @@ public class XiongmaoPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XIONGMAO;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

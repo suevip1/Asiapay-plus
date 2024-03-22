@@ -25,10 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 恒生支付
- */
 @Service
 @Slf4j
 public class HengshengPaymentService extends AbstractPaymentService {
@@ -39,8 +35,6 @@ public class HengshengPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.HENGSHENG;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {

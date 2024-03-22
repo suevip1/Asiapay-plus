@@ -22,10 +22,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 兴旺支付
- */
 @Service
 @Slf4j
 public class XingwangPaymentService extends AbstractPaymentService {
@@ -36,8 +32,6 @@ public class XingwangPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.XINGWANG;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -69,6 +63,7 @@ public class XingwangPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

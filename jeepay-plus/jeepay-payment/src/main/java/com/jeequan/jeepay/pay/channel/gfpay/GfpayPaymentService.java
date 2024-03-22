@@ -8,7 +8,6 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -24,10 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * Gfpay支付
- */
 @Service
 @Slf4j
 public class GfpayPaymentService extends AbstractPaymentService {
@@ -38,8 +33,6 @@ public class GfpayPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.GFPAY;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -74,6 +67,7 @@ public class GfpayPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.get(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

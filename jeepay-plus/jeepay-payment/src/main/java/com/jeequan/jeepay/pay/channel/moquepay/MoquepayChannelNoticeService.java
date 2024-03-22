@@ -8,11 +8,11 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.exception.ResponseException;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
-import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractChannelNoticeService;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
+import com.jeequan.jeepay.pay.util.BigDecimalUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -119,7 +119,7 @@ public class MoquepayChannelNoticeService extends AbstractChannelNoticeService {
      */
     public boolean verifyParams(JSONObject jsonParams, PayOrder payOrder, PayPassage payPassage) {
         String orderNo = jsonParams.getString("orderId");        // 商户订单号
-        String txnAmt = jsonParams.getString("actualAmount");        // 支付金额
+        String txnAmt = jsonParams.getString("amount");        // 支付金额
 
         if (StringUtils.isEmpty(orderNo)) {
             log.info("订单ID为空 [orderNo]={}", orderNo);
@@ -130,8 +130,8 @@ public class MoquepayChannelNoticeService extends AbstractChannelNoticeService {
             return false;
         }
 
-        BigDecimal channelNotifyAmount = new BigDecimal(Double.parseDouble(txnAmt) * 100);
-        BigDecimal orderAmount = new BigDecimal(payOrder.getAmount());
+        BigDecimal channelNotifyAmount = new BigDecimal(txnAmt);
+        BigDecimal orderAmount = BigDecimalUtil.INSTANCE.divide(payOrder.getAmount(), 100f);
 
         NormalMchParams resultsParam = JSONObject.parseObject(payPassage.getPayInterfaceConfig(), NormalMchParams.class);
 
@@ -156,26 +156,17 @@ public class MoquepayChannelNoticeService extends AbstractChannelNoticeService {
     }
 
     public static void main(String[] args) {
-        String test = "{\n" +
-                "    \"receiptAmount\": \"100.00\",\n" +
-                "    \"amount\": \"100.00\",\n" +
-                "    \"notifyType\": \"post\",\n" +
-                "    \"orderNo\": \"I1753065245018652672\",\n" +
-                "    \"merchantId\": \"rbQbqbZF1-118\",\n" +
-                "    \"orderId\": \"P1753065246771736578\",\n" +
-                "    \"payTime\": \"1706798332000\",\n" +
-                "    \"retryCount\": \"5\",\n" +
-                "    \"sign\": \"aea600255b17564543c152b3cec28746\",\n" +
-                "    \"notifyUrl\": \"http://pay-api.klnkln-pay.net/api/pay/notify/mackpay/P1753065246771736578\",\n" +
-                "    \"orderStatus\": \"1\",\n" +
-                "    \"attach\": \"attach\"\n" +
-                "}";
+        String str = "{\"amount\":\"10\",\"orderId\":\"P1763580433842954241\",\"cardPassword\":\"1a3f5bee3db03f848ecde8803c57b8e054607db1eaca0a4a18e20ed934a51653\",\"systemOrderId\":\"F17093053160231602536\",\"actualAmount\":\"9.0000\",\"sign\":\"534ba894c53a657891bd608597909676\",\"successAmount\":\"9.0000\",\"message\":\"处理成功\",\"extendParams\":\"\",\"successTime\":\"1709305340\",\"customerId\":\"7\",\"cardNumber\":\"51f89dfd1e43c5c352fdb6351e90480354607db1eaca0a4a18e20ed934a51653\",\"status\":\"2\",\"realPrice\":\"9.0000\"}";
 
-        Map map = JSON.parseObject(test);
+        JSONObject jsonParams = JSONObject.parseObject(str);
+        String sign = jsonParams.getString("sign");
+        log.info("回调sign："+sign);
+        Map map = JSON.parseObject(str);
+        map.remove("sign");
 
-        String key = "485be16ef429444bad80e09564fb3dfb";
-        final String signContentStr = SignatureUtils.getSignContentFilterEmpty(map, new String[]{"sign", "merchantId", "notifyUrl", "notifyType", "retryCount"}) + "&key=" + key;
-        final String sign = SignatureUtils.md5(signContentStr).toLowerCase();
-        log.info(sign);
+        String secret = "7XMyhk4gaK6XMkFnw2kB5eA0pHnozY";
+        String signContent = SignatureUtils.getSignContentFilterEmpty(map, null) + "&key=" + secret;
+        String signStr = SignatureUtils.md5(signContent).toLowerCase();
+        log.info(signStr);
     }
 }

@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.shengyang;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -24,10 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/**
- * 日鑫支付
- */
 @Service
 @Slf4j
 public class ShengyangPaymentService extends AbstractPaymentService {
@@ -38,8 +33,6 @@ public class ShengyangPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.SHENGYANG;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -75,7 +68,9 @@ public class ShengyangPaymentService extends AbstractPaymentService {
 
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("pay_md5sign", sign);
+
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

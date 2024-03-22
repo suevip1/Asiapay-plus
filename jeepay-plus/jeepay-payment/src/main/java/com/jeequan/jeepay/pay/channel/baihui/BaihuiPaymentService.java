@@ -22,14 +22,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 百汇支付
- */
 @Service
 @Slf4j
 public class BaihuiPaymentService extends AbstractPaymentService {
@@ -40,8 +35,6 @@ public class BaihuiPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.BAIHUI;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -77,6 +70,7 @@ public class BaihuiPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSON(map).toString()).header("welcome", "welcome-pay").contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                     .execute();

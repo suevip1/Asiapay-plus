@@ -1,6 +1,7 @@
 package com.jeequan.jeepay.core.utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.Cipher;
@@ -122,6 +123,18 @@ public class SignatureUtils {
 
     public static String getSignContentValEncode(Map<String, Object> param, String[] ignoreKeys, Object[] ignoreVal) {
         return getSignContent(param, "=", "&", ignoreKeys, ignoreVal, true);
+    }
+
+    /**
+     * 使用 hmac sha1 算法加密
+     * @param secretKey
+     * @param data
+     * @return
+     */
+    public static String hmacSign(String secretKey, String data) {
+        // 利用 apache 工具类 HmacUtils
+        byte[] bytes = HmacUtils.hmacSha1(secretKey, data);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 
     /**

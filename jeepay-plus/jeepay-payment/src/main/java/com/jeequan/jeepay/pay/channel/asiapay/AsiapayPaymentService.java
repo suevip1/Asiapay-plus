@@ -31,11 +31,8 @@ public class AsiapayPaymentService extends AbstractPaymentService {
 
     @Override
     public String getIfCode() {
-
         return CS.IF_CODE.ASIAPAY;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -60,15 +57,18 @@ public class AsiapayPaymentService extends AbstractPaymentService {
             map.put("reqTime", reqTime);
             map.put("clientIp", payOrder.getClientIp());
             map.put("notifyUrl", getNotifyUrl(payOrder.getPayOrderId()));
+
             String sign = JeepayKit.getSign(map, key).toUpperCase();
             map.put("sign", sign);
 
-            raw = HttpUtil.post(normalMchParams.getPayGateway(), map,10000);
+            String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
+
+            raw = HttpUtil.post(payGateway, map,10000);
             channelRetMsg.setChannelOriginResponse(raw);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);
             JSONObject result = JSON.parseObject(raw, JSONObject.class);
             JSONObject data = result.getJSONObject("data");
-
 
             //拉起订单成功
             if (result.getString("code").equals("0") && StringUtils.isNotEmpty(data.getString("payData"))) {
@@ -98,7 +98,6 @@ public class AsiapayPaymentService extends AbstractPaymentService {
         String key = "XFjGbHNUho8MqYWycYsNFzSwBVvOAIepDz1QDTfoIfKFojXVyTFHReNteWzGSVoXyXLJzDAo9p0G6GIjQYPAPJXSttlymJ9pqvaVUsna8v6cRezJvmTSJleEPImlTqDI";
         String mchNo = "M1691231056";
 
-
         map.put("mchNo", mchNo);
         map.put("mchOrderNo", "AT1202309052102532632");
         map.put("amount", 5000L);
@@ -111,8 +110,5 @@ public class AsiapayPaymentService extends AbstractPaymentService {
 
         String  raw = HttpUtil.post("http://pay-api.kln-mobile.com/api/pay/unifiedOrder", map);
         log.info("[{}]请求响应:{}", LOG_TAG, raw);
-
-
     }
-
 }

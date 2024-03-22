@@ -33,8 +33,6 @@ public class StarpayPaymentService extends AbstractPaymentService {
         return CS.IF_CODE.STARPAY;
     }
 
-  
-
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
         log.info("[{}]开始下单:{}", LOG_TAG, payOrder.getPayOrderId());
@@ -68,6 +66,7 @@ public class StarpayPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

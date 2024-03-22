@@ -1074,7 +1074,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 StringBuffer stringBuffer = new StringBuffer();
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String mchNo = jsonArray.getString(i);
-                    MchInfo mchInfo = mchInfoService.queryMchInfo(mchNo);
+                    MchInfo mchInfo = mchInfoService.getById(mchNo);
                     if (mchInfo == null) {
                         stringBuffer.append("没有查询到商户 [" + mchNo + "] 的记录");
                     } else {
@@ -1686,7 +1686,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 JSONArray jsonArray = JSONArray.parseArray(robotsMch.getMchNo());
                 stringBuffer.append("当前群绑定的商户为: " + System.lineSeparator());
                 for (int i = 0; i < jsonArray.size(); i++) {
-                    MchInfo mchInfo = mchInfoService.queryMchInfo(jsonArray.getString(i));
+                    MchInfo mchInfo = mchInfoService.getById(jsonArray.getString(i));
                     if (mchInfo != null) {
                         stringBuffer.append("[" + mchInfo.getMchNo() + "] " + mchInfo.getMchName() + System.lineSeparator());
                     }

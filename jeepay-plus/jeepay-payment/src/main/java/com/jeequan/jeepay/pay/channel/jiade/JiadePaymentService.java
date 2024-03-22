@@ -1,6 +1,5 @@
 package com.jeequan.jeepay.pay.channel.jiade;
 
-import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -70,8 +69,8 @@ public class JiadePaymentService extends AbstractPaymentService {
             String sign = SignatureUtils.md5(signStr).toLowerCase();
             map.put("sign", sign);
 
-
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             log.info("[{}]请求响应:{}", LOG_TAG, raw);

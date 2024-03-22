@@ -23,9 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 大师支付
- */
 @Service
 @Slf4j
 public class DashiPaymentService extends AbstractPaymentService {
@@ -36,8 +33,6 @@ public class DashiPaymentService extends AbstractPaymentService {
     public String getIfCode() {
         return CS.IF_CODE.DASHI;
     }
-
-  
 
     @Override
     public AbstractRS pay(UnifiedOrderRQ bizRQ, PayOrder payOrder, PayConfigContext payConfigContext) {
@@ -76,6 +71,7 @@ public class DashiPaymentService extends AbstractPaymentService {
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             raw = HttpUtil.post(payGateway, map, 10000);
             channelRetMsg.setChannelOriginResponse(raw);

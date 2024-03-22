@@ -9,7 +9,6 @@ import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.core.entity.PayPassage;
 import com.jeequan.jeepay.core.model.params.NormalMchParams;
 import com.jeequan.jeepay.core.utils.AmountUtil;
-import com.jeequan.jeepay.core.utils.JeepayKit;
 import com.jeequan.jeepay.core.utils.SignatureUtils;
 import com.jeequan.jeepay.pay.channel.AbstractPaymentService;
 import com.jeequan.jeepay.pay.model.PayConfigContext;
@@ -22,10 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
@@ -70,12 +67,12 @@ public class SgpayPaymentService extends AbstractPaymentService {
             map.put("timestamp", timestamp);
             map.put("orderAmount", orderAmount);
 
-
             String signStr = SignatureUtils.getSignContent(map, null, null) + "&key=" + key;
             String sign = SignatureUtils.md5(signStr).toUpperCase();
             map.put("sign", sign);
 
             String payGateway = normalMchParams.getPayGateway();
+            log.info("[{}]请求参数:{}", LOG_TAG, JSONObject.toJSONString(map));
 
             HttpResponse response = HttpUtil.createPost(payGateway).body(JSONObject.toJSONString(map)).contentType("application/json").timeout(10000) // 指定请求体的Content-Type为JSON
                     .execute();
