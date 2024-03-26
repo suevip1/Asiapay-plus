@@ -343,11 +343,21 @@ public class MchAppMultipleController extends CommonCtrl {
                 if (StringUtils.isEmpty(passage.getPayInterfaceConfig())) {
                     return ApiRes.customFail("通道[" + passageId + "] " + passage.getPayPassageName() + " 未配置[支付参数]，请先配置后再批量修改");
                 }
-                NormalMchParams normalMchParams = JSONObject.parseObject(passage.getPayInterfaceConfig(), NormalMchParams.class);
-                normalMchParams.setPayGateway(payGate);
+                JSONObject normalMchParams = JSONObject.parseObject(passage.getPayInterfaceConfig());
+                if (normalMchParams != null) {
+                    String payGateway = normalMchParams.getString("payGateway");
+                    if (StringUtils.isNotEmpty(payGateway)) {
+                        normalMchParams.replace("payGateway", payGate);
+                    } else {
+                        normalMchParams.put("payGateway", payGate);
+                    }
+                } else {
+                    normalMchParams = new JSONObject();
+                    normalMchParams.put("payGateway", payGate);
+                }
 
                 passage.setPayPassageId(passageId);
-                passage.setPayInterfaceConfig(JSONObject.toJSONString(normalMchParams));
+                passage.setPayInterfaceConfig(normalMchParams.toJSONString());
                 updatePassageList.add(passage);
             }
             boolean isSuccess = payPassageService.saveOrUpdateBatch(updatePassageList);
@@ -392,8 +402,20 @@ public class MchAppMultipleController extends CommonCtrl {
                 if (StringUtils.isEmpty(passage.getPayInterfaceConfig())) {
                     return ApiRes.customFail("通道[" + passageId + "] " + passage.getPayPassageName() + " 未配置[支付参数]，请先配置后再批量修改");
                 }
-                NormalMchParams normalMchParams = JSONObject.parseObject(passage.getPayInterfaceConfig(), NormalMchParams.class);
-                normalMchParams.setWhiteList(ip);
+                JSONObject normalMchParams = JSONObject.parseObject(passage.getPayInterfaceConfig());
+                if (normalMchParams != null) {
+                    String payGateway = normalMchParams.getString("whiteList");
+                    if (StringUtils.isNotEmpty(payGateway)) {
+                        normalMchParams.replace("whiteList", ip);
+                    } else {
+                        normalMchParams.put("whiteList", ip);
+                    }
+                } else {
+                    normalMchParams = new JSONObject();
+                    normalMchParams.put("whiteList", ip);
+                }
+//                NormalMchParams normalMchParams = JSONObject.parseObject(passage.getPayInterfaceConfig(), NormalMchParams.class);
+//                normalMchParams.setWhiteList(ip);
 
                 passage.setPayPassageId(passageId);
                 passage.setPayInterfaceConfig(JSONObject.toJSONString(normalMchParams));

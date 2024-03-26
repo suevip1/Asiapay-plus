@@ -1,0 +1,350 @@
+[
+    {
+        "name": "amg-pay",
+        "agentUrl": "http://agent-api.amg-pay.net",
+        "mchUrl": "http://mch-api.amg-pay.net",
+        "mgrUrl": "http://mgr-api.amg-pay.net"
+    },
+    {
+        "name": "ansheng-pay",
+        "agentUrl": "http://agent-api.ansheng-pay.com",
+        "mchUrl": "http://mch-api.ansheng-pay.com",
+        "mgrUrl": "http://mgr-api.ansheng-pay.com"
+    },
+    {
+        "name": "aozhou-pay",
+        "agentUrl": "http://agent-api.aozhou-pay.com",
+        "mchUrl": "http://mch-api.aozhou-pay.com",
+        "mgrUrl": "http://mgr-api.aozhou-pay.com"
+    },
+    {
+        "name": "bailian-pay",
+        "agentUrl": "http://agent-api.bailian-pay.com",
+        "mchUrl": "http://mch-api.bailian-pay.com",
+        "mgrUrl": "http://mgr-api.bailian-pay.com"
+    },
+    {
+        "name": "bainian-pay",
+        "agentUrl": "http://agent-api.bainian-pay.com",
+        "mchUrl": "http://mch-api.bainian-pay.com",
+        "mgrUrl": "http://mgr-api.bainian-pay.com"
+    },
+    {
+        "name": "bosheng-pay",
+        "agentUrl": "http://agent-api.bosheng-pay.com",
+        "mchUrl": "http://mch-api.bosheng-pay.com",
+        "mgrUrl": "http://mgr-api.bosheng-pay.com"
+    },
+    {
+        "name": "chaoyuekj-pay",
+        "agentUrl": "http://agent-api.chaoyuekj-pay.com",
+        "mchUrl": "http://mch-api.chaoyuekj-pay.com",
+        "mgrUrl": "http://mgr-api.chaoyuekj-pay.com"
+    },
+    {
+        "name": "chuangshi-pay",
+        "agentUrl": "http://agent-api.chuangshi-pay.com",
+        "mchUrl": "http://mch-api.chuangshi-pay.com",
+        "mgrUrl": "http://mgr-api.chuangshi-pay.com"
+    },
+    {
+        "name": "dabaitupay",
+        "agentUrl": "http://agent-api.dabaitupay.com",
+        "mchUrl": "http://mch-api.dabaitupay.com",
+        "mgrUrl": "http://mgr-api.dabaitupa.com"
+    },
+    {
+        "name": "decheng-pay",
+        "agentUrl": "http://agent-api.decheng-pay.com",
+        "mchUrl": "http://mch-api.decheng-pay.com",
+        "mgrUrl": "http://mgr-api.decheng-pay.com"
+    },
+    {
+        "name": "derunpay",
+        "agentUrl": "http://agent-api.derunpay.com",
+        "mchUrl": "http://mch-api.derunpay.com",
+        "mgrUrl": "http://mgr-api.derunpay.com"
+    },
+    {
+        "name": "eluosi-pay",
+        "agentUrl": "http://agent-api.eluosi-pay.com",
+        "mchUrl": "http://mch-api.eluosi-pay.com",
+        "mgrUrl": "http://mgr-api.eluosi-pay.com"
+    },
+    {
+        "name": "gcdspay",
+        "agentUrl": "http://agent-api.gcdspay.com",
+        "mchUrl": "http://mch-api.gcdspay.com",
+        "mgrUrl": "http://mgr-api.gcdspay.com"
+    },
+    {
+        "name": "haitangpay",
+        "agentUrl": "http://agent-api.haitangpay.com",
+        "mchUrl": "http://mch-api.haitangpay.com",
+        "mgrUrl": "http://mgr-api.haitangpay.com"
+    },
+    {
+        "name": "hongwei-pay",
+        "agentUrl": "http://agent-api.hongwei-pay.com",
+        "mchUrl": "http://mch-api.hongwei-pay.com",
+        "mgrUrl": "http://mgr-api.hongwei-pay.com"
+    },
+    {
+        "name": "hongyunpay-org",
+        "agentUrl": "http://agent-api.hongyunpay.org",
+        "mchUrl": "http://mch-api.hongyunpay.org",
+        "mgrUrl": "http://mgr-api.hongyunpay.org"
+    },
+    {
+        "name": "huaxia-pay",
+        "agentUrl": "http://agent-api.huaxia-pay.com",
+        "mchUrl": "http://mch-api.huaxia-pay.com",
+        "mgrUrl": "http://mgr-api.huaxia-pay.com"
+    },
+    {
+        "name": "huayangpay",
+        "agentUrl": "http://agent-api.huayangpay.com",
+        "mchUrl": "http://mch-api.huayangpay.com",
+        "mgrUrl": "http://mgr-api.huayangpay.com"
+    },
+    {
+        "name": "huayue-pay",
+        "agentUrl": "http://agent-api.huayue-pay.com",
+        "mchUrl": "http://mch-api.huayue-pay.com",
+        "mgrUrl": "http://mgr-api.huayue-pay.com"
+    },
+    {
+        "name": "jieweierpay",
+        "agentUrl": "http://agent-api.jieweierpay.com",
+        "mchUrl": "http://mch-api.jieweierpay.com",
+        "mgrUrl": "http://mgr-api.jieweierpay.com"
+    },
+    {
+        "name": "jinpai-pay",
+        "agentUrl": "http://agent-api.jinpai-pay.com",
+        "mchUrl": "http://mch-api.jinpai-pay.com",
+        "mgrUrl": "http://mgr-api.jinpai-pay.com"
+    },
+    {
+        "name": "jinqiangui-pay",
+        "agentUrl": "http://agent-api.jinqiangui-pay.com",
+        "mchUrl": "http://mch-api.jinqiangui-pay.com",
+        "mgrUrl": "http://mgr-api.jinqiangui-pay.com"
+    },
+    {
+        "name": "joypay-pay",
+        "agentUrl": "http://agent-api.joypay-pay.com",
+        "mchUrl": "http://mch-api.joypay-pay.com",
+        "mgrUrl": "http://mgr-api.joypay-pay.com"
+    },
+    {
+        "name": "klnkln-pay",
+        "agentUrl": "http://agent-api.klnkln-pay.net",
+        "mchUrl": "http://mch-api.klnkln-pay.net",
+        "mgrUrl": "http://mgr-api.klnkln-pay.net"
+    },
+    {
+        "name": "laike-pay",
+        "agentUrl": "http://agent-api.laike-pay.com",
+        "mchUrl": "http://mch-api.laike-pay.com",
+        "mgrUrl": "http://mgr-api.laike-pay.com"
+    },
+    {
+        "name": "leishe-pay",
+        "agentUrl": "http://agent-api.leishe-pay.com",
+        "mchUrl": "http://mch-api.leishe-pay.com",
+        "mgrUrl": "http://mgr-api.leishe-pay.com"
+    },
+    {
+        "name": "lifeng-pay",
+        "agentUrl": "http://agent-api.lifeng-pay.com",
+        "mchUrl": "http://mch-api.lifeng-pay.com",
+        "mgrUrl": "http://mgr-api.lifeng-pay.com"
+    },
+    {
+        "name": "limingpay",
+        "agentUrl": "http://agent-api.limingpay.com",
+        "mchUrl": "http://mch-api.limingpay.com",
+        "mgrUrl": "http://mgr-api.limingpay.com"
+    },
+    {
+        "name": "longfupay",
+        "agentUrl": "http://agent-api.longfupay.com",
+        "mchUrl": "http://mch-api.longfupay.com",
+        "mgrUrl": "http://mgr-api.longfupay.com"
+    },
+    {
+        "name": "maidanglao-pay",
+        "agentUrl": "http://agent-api.maidanglao-pay.com",
+        "mchUrl": "http://mch-api.maidanglao-pay.com",
+        "mgrUrl": "http://mgr-api.maidanglao-pay.com"
+    },
+    {
+        "name": "meituan-pay",
+        "agentUrl": "http://agent-api.meituan-pay.com",
+        "mchUrl": "http://mch-api.meituan-pay.com",
+        "mgrUrl": "http://mgr-api.meituan-pay.com"
+    },
+    {
+        "name": "ms-pay",
+        "agentUrl": "http://agent-api.ms-pay.net",
+        "mchUrl": "http://mch-api.ms-pay.net",
+        "mgrUrl": "http://mgr-api.ms-pay.net"
+    },
+    {
+        "name": "qiangsen-pay",
+        "agentUrl": "http://agent-api.qiangsen-pay.com",
+        "mchUrl": "http://mch-api.qiangsen-pay.com",
+        "mgrUrl": "http://mgr-api.qiangsen-pay.com"
+    },
+    {
+        "name": "quansheng-pay",
+        "agentUrl": "http://agent-api.quansheng-pay.com",
+        "mchUrl": "http://mch-api.quansheng-pay.com",
+        "mgrUrl": "http://mgr-api.quansheng-pay.com"
+    },
+    {
+        "name": "shanhai-pay",
+        "agentUrl": "http://agent-api.shanhai-pay.com",
+        "mchUrl": "http://mch-api.shanhai-pay.com",
+        "mgrUrl": "http://mgr-api.shanhai-pay.com"
+    },
+    {
+        "name": "shunfeng-pay",
+        "agentUrl": "http://agent-api.shunfeng-pay.com",
+        "mchUrl": "http://mch-api.shunfeng-pay.com",
+        "mgrUrl": "http://mgr-api.shunfeng-pay.com"
+    },
+    {
+        "name": "tangguo-pay",
+        "agentUrl": "http://agent-api.tangguo-pay.com",
+        "mchUrl": "http://mch-api.tangguo-pay.com",
+        "mgrUrl": "http://mgr-api.tangguo-pay.com"
+    },
+    {
+        "name": "tianchen-pay",
+        "agentUrl": "http://agent-api.tianchen-pay.com",
+        "mchUrl": "http://mch-api.tianchen-pay.com",
+        "mgrUrl": "http://mgr-api.tianchen-pay.com"
+    },
+    {
+        "name": "timpay",
+        "agentUrl": "http://agent-api.timpay.net",
+        "mchUrl": "http://mch-api.timpay.net",
+        "mgrUrl": "http://mgr-api.timpay.net"
+    },
+    {
+        "name": "wd-pay",
+        "agentUrl": "http://agent-api.wd-pay.com",
+        "mchUrl": "http://mch-api.wd-pay.com",
+        "mgrUrl": "http://mgr-api.wd-pay.com"
+    },
+    {
+        "name": "weiruan-pay",
+        "agentUrl": "http://agent-api.weiruan-pay.com",
+        "mchUrl": "http://mch-api.weiruan-pay.com",
+        "mgrUrl": "http://mgr-api.weiruan-pay.com"
+    },
+    {
+        "name": "wushuang-pay",
+        "agentUrl": "http://agent-api.wushuang-pay.com",
+        "mchUrl": "http://mch-api.wushuang-pay.com",
+        "mgrUrl": "http://mgr-api.wushuang-pay.com"
+    },
+    {
+        "name": "xiangyun-pay",
+        "agentUrl": "http://agent-api.xiangyun-pay.com",
+        "mchUrl": "http://mch-api.xiangyun-pay.com",
+        "mgrUrl": "http://mgr-api.xiangyun-pay.com"
+    },
+    {
+        "name": "xiaoqiepay",
+        "agentUrl": "http://agent-api.xiaoqiepay.com",
+        "mchUrl": "http://mch-api.xiaoqiepay.com",
+        "mgrUrl": "http://mgr-api.xiaoqiepay.com"
+    },
+    {
+        "name": "xigua-pay",
+        "agentUrl": "http://agent-api.xigua-pay.com",
+        "mchUrl": "http://mch-api.xigua-pay.com",
+        "mgrUrl": "http://mgr-api.xigua-pay.com"
+    },
+    {
+        "name": "xinghe-pay",
+        "agentUrl": "http://agent-api.xinghe-pay.com",
+        "mchUrl": "http://mch-api.xinghe-pay.com",
+        "mgrUrl": "http://mgr-api.xinghe-pay.com"
+    },
+    {
+        "name": "xingqiubei-pay",
+        "agentUrl": "http://agent-api.xingqiubei-pay.com",
+        "mchUrl": "http://mch-api.xingqiubei-pay.com",
+        "mgrUrl": "http://mgr-api.xingqiubei-pay.com"
+    },
+    {
+        "name": "xingran-pay",
+        "agentUrl": "http://agent-api.xingran-pay.com",
+        "mchUrl": "http://mch-api.xingran-pay.com",
+        "mgrUrl": "http://mgr-api.xingran-pay.com"
+    },
+    {
+        "name": "xingyepay",
+        "agentUrl": "http://agent-api.xingyepay.com",
+        "mchUrl": "http://mch-api.xingyepay.com",
+        "mgrUrl": "http://mgr-api.xingyepay.com"
+    },
+    {
+        "name": "yongxin-pay",
+        "agentUrl": "http://agent-api.yongxin-pay.com",
+        "mchUrl": "http://mch-api.yongxin-pay.com",
+        "mgrUrl": "http://mgr-api.yongxin-pay.com"
+    },
+    {
+        "name": "youling-pay",
+        "agentUrl": "http://agent-api.youling-pay.com",
+        "mchUrl": "http://mch-api.youling-pay.com",
+        "mgrUrl": "http://mgr-api.youling-pay.com"
+    },
+    {
+        "name": "yuanda-pay",
+        "agentUrl": "http://agent-api.yuanda-pay.com",
+        "mchUrl": "http://mch-api.yuanda-pay.com",
+        "mgrUrl": "http://mgr-api.yuanda-pay.com"
+    },
+    {
+        "name": "yuanhang24h-pay",
+        "agentUrl": "http://agent-api.yuanhang24h-pay.com",
+        "mchUrl": "http://mch-api.yuanhang24h-pay.com",
+        "mgrUrl": "http://mgr-api.yuanhang24h-pay.com"
+    },
+    {
+        "name": "yuchuang-pay",
+        "agentUrl": "http://agent-api.yuchuang-pay.com",
+        "mchUrl": "http://mch-api.yuchuang-pay.com",
+        "mgrUrl": "http://mgr-api.yuchuang-pay.com"
+    },
+    {
+        "name": "zhiyuan-pay",
+        "agentUrl": "http://agent-api.zhiyuan-pay.com",
+        "mchUrl": "http://mch-api.zhiyuan-pay.com",
+        "mgrUrl": "http://mgr-api.zhiyuan-pay.com"
+    },
+    {
+        "name": "zhonghe-pay",
+        "agentUrl": "http://agent-api.zhonghe-pay.com",
+        "mchUrl": "http://mch-api.zhonghe-pay.com",
+        "mgrUrl": "http://mgr-api.zhonghe-pay.com"
+    },
+    {
+        "name": "zhongzhipay",
+        "agentUrl": "http://agent-api.zhongzhipay.com",
+        "mchUrl": "http://mch-api.zhongzhipay.com",
+        "mgrUrl": "http://mgr-api.zhongzhipay.com"
+    },
+    {
+        "name": "24h-pay",
+        "agentUrl": "http://agent-api.24h-pay.com",
+        "mchUrl": "http://mch-api.24h-pay.com",
+        "mgrUrl": "http://mgr-api.24h-pay.com"
+    }
+]

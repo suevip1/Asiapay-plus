@@ -1785,10 +1785,10 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         JSONObject result = JSONObject.parseObject(raw);
         if (result.getString("code").equals("0")) {
             JSONArray buys = result.getJSONObject("data").getJSONArray("sell");
-            String price = buys.getJSONObject(0).getString("price");
+//            String price = buys.getJSONObject(0).getString("price");
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("<b>" + title + "</b>" + System.lineSeparator());
-            stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
+//            stringBuffer.append("今日汇率 USDT-CNY：<b>" + price + "</b>" + System.lineSeparator());
             for (int i = 0; i < buys.size(); i++) {
                 if (i < 5) {
                     stringBuffer.append(" [" + buys.getJSONObject(i).getString("nickName") + "] " + buys.getJSONObject(i).getString("price") + System.lineSeparator());

@@ -32,6 +32,7 @@ const wrapper = {
   },
   setPlatName (name) {
     localStorage.setItem(appConfig.PLAT_NAME, name)
+    localStorage.setItem(appConfig.APP_TITLE, name)
   }
 }
 export default wrapper
