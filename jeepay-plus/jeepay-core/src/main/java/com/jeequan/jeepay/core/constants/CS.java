@@ -48,7 +48,8 @@ public class CS {
      */
 //    public static final String CHECK_AVAILABLE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/check";
     public static final String CHECK_AVAILABLE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/check";
-
+//    public static final String QUERY_BALANCE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/query";
+    public static final String QUERY_BALANCE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/query";
     /**
      * 系统类型定义
      **/

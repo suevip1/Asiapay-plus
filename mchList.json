@@ -30,12 +30,6 @@
         "mgrUrl": "http://mgr-api.bainian-pay.com"
     },
     {
-        "name": "bosheng-pay",
-        "agentUrl": "http://agent-api.bosheng-pay.com",
-        "mchUrl": "http://mch-api.bosheng-pay.com",
-        "mgrUrl": "http://mgr-api.bosheng-pay.com"
-    },
-    {
         "name": "chaoyuekj-pay",
         "agentUrl": "http://agent-api.chaoyuekj-pay.com",
         "mchUrl": "http://mch-api.chaoyuekj-pay.com",

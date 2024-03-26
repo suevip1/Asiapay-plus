@@ -2,6 +2,7 @@ package com.jeequan.jeepay.com.jeequan.service;
 
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -15,6 +16,7 @@ import com.jeequan.jeepay.components.mq.model.RobotWarnPassage;
 import com.jeequan.jeepay.core.cache.RedisUtil;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.*;
+import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.core.utils.AmountUtil;
 import com.jeequan.jeepay.service.CommonService.StatisticsService;
 import com.jeequan.jeepay.service.impl.*;
@@ -142,7 +144,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
 
 
     private static final String ROBOT_QUIT = "机器人退群";
-//    群发全部 -- 私发机器人内容，再回复该内容：群发全部
+    //    群发全部 -- 私发机器人内容，再回复该内容：群发全部
 //    群发商户 -- 私发机器人内容，再回复该内容：群发商户
 //    群发通道 -- 私发机器人内容，再回复该内容：群发通道
     private static final String SEND_ALL = "群发全部";
@@ -156,6 +158,9 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
     private static final String BLIND_MGR = "绑定管理群";
 
     private static final String DELETE_MSG = "删除";
+
+
+    private static final String QUERY_LIMIT = "查询四方余额";
 
     private static final String ORDER_REGEX = "^[a-zA-Z0-9-_\\$%]{7,}$";
 
@@ -568,6 +573,37 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 }
                 robotsMchService.updateManageMch(chatId);
                 sendSingleMessage(chatId, "当前群绑定四方管理群成功!");
+            }
+            return;
+        }
+        //查询四方余额
+        if (text.trim().equals(QUERY_LIMIT)) {
+            if (robotsUserService.checkIsAdmin(userName) || robotsUserService.checkIsOp(userName)) {
+                RobotsMch robotsMchManage = robotsMchService.getManageMch();
+                if (robotsMchManage != null && Objects.equals(robotsMchManage.getChatId(), chatId)) {
+                    String raw = HttpUtil.post(CS.QUERY_BALANCE_MANAGE_API, new HashMap<>(), 10000);
+                    log.info("QUERY_LIMIT 管理平台返回 - " + raw);
+                    JSONObject resp = JSONObject.parseObject(raw);
+                    int code = resp.getInteger("code");
+                    if (code == 0) {
+                        //区分类型 1-包月 2-比例扣费 3-永久
+                        Long balance = resp.getJSONObject("data").getLong("balance");
+                        String expireDateStr = resp.getJSONObject("data").getString("expireDate");
+                        int type = resp.getJSONObject("data").getInteger("type");
+                        switch (type) {
+                            case 1:
+                                sendSingleMessage(chatId, "当前系统到期日为:" + expireDateStr);
+                                break;
+                            case 2:
+                                sendSingleMessage(chatId, "当前系统余额为:" + AmountUtil.convertCent2DollarShort(balance));
+                                break;
+                            case 3:
+                                sendSingleMessage(chatId, "当前系统为永久有效用户");
+                                break;
+                        }
+                    }
+
+                }
             }
             return;
         }
@@ -2569,6 +2605,72 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
         }
     }
 
+    @Scheduled(fixedRate = 7200000) // 每两小时执行一次
+    public void checkBalanceAndDate() {
+
+        String raw = HttpUtil.post(CS.QUERY_BALANCE_MANAGE_API, new HashMap<>(), 10000);
+        log.info("checkBalanceAndDate 管理平台返回 - " + raw);
+        JSONObject resp = JSONObject.parseObject(raw);
+        int code = resp.getInteger("code");
+        if (code == 0) {
+            //区分类型 1-包月 2-比例扣费 3-永久
+            Long balance = resp.getJSONObject("data").getLong("balance");
+            String expireDateStr = resp.getJSONObject("data").getString("expireDate");
+            int type = resp.getJSONObject("data").getInteger("type");
+            if (type == 3) {
+                return;
+            }
+
+            Date today = DateUtil.parse(DateUtil.today());
+            Date exprieDate = DateUtil.parse(expireDateStr, "yyyy-MM-dd");
+            //前小于后返回正数 相同返回0
+            long betweenDay = DateUtil.between(today, exprieDate, DateUnit.DAY);
+            RobotsMch robotsMch = robotsMchService.getManageMch();
+            if (robotsMch == null) {
+                return;
+            }
+
+
+            //查询余额  800 500 300 提示
+            switch (type) {
+                case 1:
+                    if (betweenDay <= 3) {
+                        //发提示
+                        sendSingleMessage(robotsMch.getChatId(), "当前系统将于" + expireDateStr + "到期,请及时联系工作人员续费.");
+                    }
+                    break;
+                case 2:
+                    if (betweenDay <= 3) {
+                        //发提示
+                        sendSingleMessage(robotsMch.getChatId(), "当前系统将于" + expireDateStr + "到期,请及时联系工作人员续费.");
+                        return;
+                    }
+                    String key800 = "key800";
+                    String key500 = "key500";
+                    String key300 = "key300";
+
+                    String balanceWarn = "当前四方余额为" + AmountUtil.convertCent2DollarShort(balance) + "元,请注意余额额度避免停机！[在四方管理群发送 查询四方余额 查询服务器余额/到期日]";
+                    if (balance <= 80000L && StringUtils.isEmpty(RedisUtil.getString(key800))) {
+                        RedisUtil.setString(key800, "1", 24, TimeUnit.HOURS);
+                        sendSingleMessage(robotsMch.getChatId(), balanceWarn);
+                    } else if (balance <= 50000L && StringUtils.isEmpty(RedisUtil.getString(key500))) {
+                        RedisUtil.setString(key500, "1", 24, TimeUnit.HOURS);
+                        sendSingleMessage(robotsMch.getChatId(), balanceWarn);
+                    } else if (balance <= 30000L && StringUtils.isEmpty(RedisUtil.getString(key300))) {
+                        RedisUtil.setString(key500, "1", 6, TimeUnit.HOURS);
+                        sendSingleMessage(robotsMch.getChatId(), balanceWarn);
+                    }
+                    break;
+                default:
+                    return;
+            }
+        } else {
+            log.error("管理平台返回异常");
+            log.error(raw);
+        }
+
+    }
+
     @Override
     public void receive(RobotListenPayOrderSuccessMQ.MsgPayload payload) {
         try {
@@ -2611,7 +2713,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                 RobotsMch robotsMch = robotsMchService.getOne(RobotsMch.gw().like(RobotsMch::getMchNo, mchInfo.getMchNo()).ne(RobotsMch::getMchNo, CS.ROBOTS_MGR_MCH));
                 if (robotsMch != null) {
                     PayOrder payOrder = payOrderService.getById(robotWarnNotify.getPayOrderId());
-                    StringBuilder messageStr =new StringBuilder();
+                    StringBuilder messageStr = new StringBuilder();
                     messageStr.append("商户 [" + robotWarnNotify.getMchNo() + "] " + mchInfo.getMchName() + System.lineSeparator());
                     messageStr.append("商户单号 [<b>" + payOrder.getMchOrderNo() + "</b>]" + System.lineSeparator());
                     messageStr.append("订单 [" + robotWarnNotify.getPayOrderId() + "]" + System.lineSeparator());
