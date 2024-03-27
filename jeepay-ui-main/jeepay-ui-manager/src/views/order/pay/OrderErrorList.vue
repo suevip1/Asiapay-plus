@@ -57,6 +57,7 @@
           <span style="color: #007EFF;font-size: 14px">{{ record.mchNo }}</span>
         </template> <!-- 商户信息插槽 -->
         <template slot="amountSlot" slot-scope="{record}"><b>￥{{ record.amount/100 }}</b></template> <!-- 订单金额插槽 -->
+        <template slot="productSlot" slot-scope="{record}"><b style="color: #007EFF;">[{{record.productId}}]</b>&nbsp;<span>{{record.productName}}</span></template> <!-- 订单金额插槽 -->
         <template slot="stateSlot">
           <a-tag color="#F03B44">
             异常
@@ -182,6 +183,7 @@ const tableColumns = [
   { key: 'mchName', title: '商户名（快照）', ellipsis: true, width: 200, dataIndex: 'mchName' },
   { key: 'orderNo', title: '商户订单号', scopedSlots: { customRender: 'orderSlot' }, width: 250 },
   { key: 'amount', title: '支付金额', ellipsis: true, width: 150, scopedSlots: { customRender: 'amountSlot' } },
+  { key: 'product', title: '支付产品', ellipsis: true, width: 150, scopedSlots: { customRender: 'productSlot' } },
   { key: 'state', title: '支付状态', scopedSlots: { customRender: 'stateSlot' }, width: 100 },
   { key: 'createdAt', dataIndex: 'createdAt', title: '创建日期', width: 150 },
   { key: 'op', title: '操作', width: 150, align: 'center', scopedSlots: { customRender: 'opSlot' } }

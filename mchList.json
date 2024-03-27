@@ -24,12 +24,6 @@
         "mgrUrl": "http://mgr-api.bailian-pay.com"
     },
     {
-        "name": "bainian-pay",
-        "agentUrl": "http://agent-api.bainian-pay.com",
-        "mchUrl": "http://mch-api.bainian-pay.com",
-        "mgrUrl": "http://mgr-api.bainian-pay.com"
-    },
-    {
         "name": "chaoyuekj-pay",
         "agentUrl": "http://agent-api.chaoyuekj-pay.com",
         "mchUrl": "http://mch-api.chaoyuekj-pay.com",

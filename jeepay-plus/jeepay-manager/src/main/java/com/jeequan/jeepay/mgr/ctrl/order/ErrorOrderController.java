@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.jeequan.jeepay.core.constants.ApiCodeEnum;
 import com.jeequan.jeepay.core.entity.ErrorOrder;
+import com.jeequan.jeepay.core.entity.Product;
 import com.jeequan.jeepay.core.model.ApiRes;
 import com.jeequan.jeepay.mgr.ctrl.CommonCtrl;
 import com.jeequan.jeepay.service.impl.ErrorOrderService;
+import com.jeequan.jeepay.service.impl.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -28,6 +32,8 @@ public class ErrorOrderController extends CommonCtrl {
     @Autowired
     private ErrorOrderService errorOrderService;
 
+    @Autowired
+    private ProductService productService;
 
     /**
      * @author: pangxiaoyu
@@ -42,7 +48,7 @@ public class ErrorOrderController extends CommonCtrl {
             JSONObject paramJSON = getReqParamJSON();
             LambdaQueryWrapper<ErrorOrder> wrapper = ErrorOrder.gw();
             //商户号、名、商户订单号、金额、创建时间
-            wrapper.select(ErrorOrder::getErrorOrderId, ErrorOrder::getMchNo, ErrorOrder::getMchNo, ErrorOrder::getMchName, ErrorOrder::getAmount, ErrorOrder::getCreatedAt,ErrorOrder::getMchOrderNo);
+            wrapper.select(ErrorOrder::getErrorOrderId, ErrorOrder::getMchNo, ErrorOrder::getMchNo, ErrorOrder::getMchName, ErrorOrder::getAmount, ErrorOrder::getCreatedAt, ErrorOrder::getMchOrderNo, ErrorOrder::getMchReq);
             if (paramJSON != null) {
                 if (StringUtils.isNotEmpty(paramJSON.getString("createdStart"))) {
                     wrapper.ge(ErrorOrder::getCreatedAt, paramJSON.getString("createdStart"));
@@ -66,10 +72,24 @@ public class ErrorOrderController extends CommonCtrl {
             }
 
             wrapper.orderByDesc(ErrorOrder::getCreatedAt);
+            Map<Long, Product> productMap = productService.getProductMap();
 
             IPage<ErrorOrder> pages = errorOrderService.page(getIPage(), wrapper);
             List<ErrorOrder> records = pages.getRecords();
-            pages.setRecords(records);
+            List<ErrorOrder> newRecords = new ArrayList<>();
+            for (int i = 0; i < records.size(); i++) {
+                ErrorOrder errorOrderItem = records.get(i);
+                JSONObject mchReq = JSONObject.parseObject(errorOrderItem.getMchReq());
+                Long productId = mchReq.getLong("productId");
+                errorOrderItem.addExt("productId", productId);
+                if (productMap.containsKey(productId)) {
+                    errorOrderItem.addExt("productName", productMap.get(productId).getProductName());
+                } else {
+                    errorOrderItem.addExt("productName", "产品不存在");
+                }
+                newRecords.add(errorOrderItem);
+            }
+            pages.setRecords(newRecords);
             return ApiRes.page(pages);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
