@@ -54,15 +54,15 @@ public class GenDist {
             JSONObject configItem = configs.getJSONObject(i);
             String name = configItem.getString("name");
 
-            String agentPrefix = "agent-dist";
-            String agentTargetPath = releasePath + "\\" + name + "\\" + agentPrefix;
-            String agentNewStr = configItem.getString("agentUrl");
-            execReplaceAndCopy(agentPath, agentTargetPath, agentString, agentNewStr, name, agentPrefix);
-
-            String mchPrefix = "mch-dist";
-            String mchTargetPath = releasePath + "\\" + name + "\\" + mchPrefix;
-            String mchNewStr = configItem.getString("mchUrl");
-            execReplaceAndCopy(mchPath, mchTargetPath, mchString, mchNewStr, name, mchPrefix);
+//            String agentPrefix = "agent-dist";
+//            String agentTargetPath = releasePath + "\\" + name + "\\" + agentPrefix;
+//            String agentNewStr = configItem.getString("agentUrl");
+//            execReplaceAndCopy(agentPath, agentTargetPath, agentString, agentNewStr, name, agentPrefix);
+//
+//            String mchPrefix = "mch-dist";
+//            String mchTargetPath = releasePath + "\\" + name + "\\" + mchPrefix;
+//            String mchNewStr = configItem.getString("mchUrl");
+//            execReplaceAndCopy(mchPath, mchTargetPath, mchString, mchNewStr, name, mchPrefix);
 
             String mgrPrefix = "mgr-dist";
             String mgrTargetPath = releasePath + "\\" + name + "\\" + mgrPrefix;

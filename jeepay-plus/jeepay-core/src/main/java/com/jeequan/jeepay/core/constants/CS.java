@@ -48,8 +48,8 @@ public class CS {
      */
 //    public static final String CHECK_AVAILABLE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/check";
     public static final String CHECK_AVAILABLE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/check";
-//    public static final String QUERY_BALANCE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/query";
-    public static final String QUERY_BALANCE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/query";
+    public static final String QUERY_BALANCE_MANAGE_API = "https://pay-api.aisa-pay.com/api/checkAvailable/query";
+//    public static final String QUERY_BALANCE_MANAGE_API = "http://127.0.0.1:8216/api/checkAvailable/query";
     /**
      * 系统类型定义
      **/
@@ -457,6 +457,7 @@ public class CS {
         String SHANGGU = "shanggu";
         String YONGCAI = "yongcai";
         String XMPAY = "xmpay";
+        String XMPAY2 = "xmpay2";
         String JIUZHOU = "jiuzhou";
         String XIGUA = "xigua";
         String HIPAY = "hipay";
@@ -502,6 +503,7 @@ public class CS {
         String GOODPAY = "goodpay";
         String BYPAY = "bypay";
         String JCPAY = "jcpay";
+        String JC1PAY = "jc1pay";
         String YSPAY = "yspay";
         String STOREPAY = "storepay";
         String CYOUPAY = "cyoupay";
