@@ -20,6 +20,7 @@
                 <a-select-option value="1">启用</a-select-option>
               </a-select>
             </a-form-item>
+            <jeepay-text-up :placeholder="'支付接口配置'" :msg="searchData.payInterfaceConfig" v-model="searchData.payInterfaceConfig"/>
             <span class="table-page-search-submitButtons" style="flex-grow: 0; flex-shrink: 0;">
               <a-button type="primary" icon="search" @click="queryFunc" :loading="btnLoading">查询</a-button>
               <a-button style="margin-left: 8px" icon="reload" @click="() => this.searchData = {}">重置</a-button>

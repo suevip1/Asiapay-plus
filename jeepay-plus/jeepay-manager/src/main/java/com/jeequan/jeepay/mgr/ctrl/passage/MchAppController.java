@@ -81,6 +81,10 @@ public class MchAppController extends CommonCtrl {
                 wrapper.eq("product_id", payPassage.getProductId());
             }
 
+            if (StringUtils.isNotEmpty(payPassage.getPayInterfaceConfig())) {
+                wrapper.like("pay_interface_config", payPassage.getPayInterfaceConfig());
+            }
+
             List<Product> productList = productService.list();
             Map<Long, String> productMap = new HashMap<>();
             for (int i = 0; i < productList.size(); i++) {

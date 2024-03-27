@@ -595,7 +595,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                                 sendSingleMessage(chatId, "当前系统到期日为:" + expireDateStr);
                                 break;
                             case 2:
-                                sendSingleMessage(chatId, "当前系统余额为:" + AmountUtil.convertCent2DollarShort(balance));
+                                sendSingleMessage(chatId, "当前系统余额为:" + AmountUtil.convertCent2DollarShort(balance) + " 当前系统到期日为:" + expireDateStr);
                                 break;
                             case 3:
                                 sendSingleMessage(chatId, "当前系统为永久有效用户");
@@ -2637,6 +2637,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                     if (betweenDay <= 3) {
                         //发提示
                         sendSingleMessage(robotsMch.getChatId(), "当前系统将于" + expireDateStr + "到期,请及时联系工作人员续费.");
+                        return;
                     }
                     break;
                 case 2:
@@ -2657,7 +2658,7 @@ public class RobotsService extends TelegramLongPollingBot implements RobotListen
                         RedisUtil.setString(key500, "1", 24, TimeUnit.HOURS);
                         sendSingleMessage(robotsMch.getChatId(), balanceWarn);
                     } else if (balance <= 30000L && StringUtils.isEmpty(RedisUtil.getString(key300))) {
-                        RedisUtil.setString(key500, "1", 6, TimeUnit.HOURS);
+                        RedisUtil.setString(key300, "1", 6, TimeUnit.HOURS);
                         sendSingleMessage(robotsMch.getChatId(), balanceWarn);
                     }
                     break;
