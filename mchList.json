@@ -334,5 +334,11 @@
         "agentUrl": "http://agent-api.24h-pay.com",
         "mchUrl": "http://mch-api.24h-pay.com",
         "mgrUrl": "http://mgr-api.24h-pay.com"
+    },
+    {
+        "name": "jinzhuan-pay",
+        "agentUrl": "http://agent-api.jinzhuan-pay.com",
+        "mchUrl": "http://mch-api.jinzhuan-pay.com",
+        "mgrUrl": "http://mgr-api.jinzhuan-pay.com"
     }
 ]
