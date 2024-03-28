@@ -535,6 +535,11 @@ public class CS {
         String ABCPAY = "abcpay";
         String BAJIE = "bajie";
         String XIYANGYANG = "xiyangyang";
+        String LIUMANG = "liumang";
+        String YIPAY = "yipay";
+        String SUPERPAY = "superpay";
+        String BICHI = "bichi";
+        String XIAZI = "xiazi";
     }
 
 
