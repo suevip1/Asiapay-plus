@@ -103,12 +103,15 @@ public class GenDist {
 
     private static void replaceInFile(File file, String searchString, String replaceString) {
         try {
+            if(!file.getName().contains(".js")){
+                return;
+            }
             // 读取文件内容
             BufferedReader reader = new BufferedReader(new FileReader(file));
             StringBuilder stringBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
+                stringBuilder.append(line).append("\n");
             }
             reader.close();
 
