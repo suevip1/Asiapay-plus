@@ -6,5 +6,6 @@ import lombok.Data;
 public class MchStat {
     private String mchName;
     private int allCount;
+    private int successCount;
     private int perMinCount;
 }

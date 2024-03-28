@@ -25,6 +25,9 @@
         <template slot="perMinCountSlot" slot-scope="{record}">
           <b>{{record.perMinCount}}</b>
         </template>
+        <template slot="successSlot" slot-scope="{record}">
+          <b style="color: #4BD884">{{((record.successCount / record.allCount)*100).toFixed(2)}}%</b>
+        </template>
       </JeepayTable>
     </div>
   </div>
@@ -42,6 +45,7 @@ import JeepayTable from '@/components/JeepayTable/JeepayTable.vue' // 空数据�
 const tableColumns = [
   { key: 'name', fixed: 'left', width: '350px', title: '商户名', scopedSlots: { customRender: 'nameSlot' } },
   { key: 'allCount', title: '下单次数', dataIndex: 'allCount' },
+  { key: 'successRate', title: '实时成率', scopedSlots: { customRender: 'successSlot' } },
   { key: 'perMinCount', title: '下单次数/每分钟', width: '200px', scopedSlots: { customRender: 'perMinCountSlot' } }
 ]
 export default {

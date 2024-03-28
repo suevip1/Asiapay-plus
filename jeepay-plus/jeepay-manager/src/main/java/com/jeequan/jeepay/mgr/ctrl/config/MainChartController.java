@@ -212,8 +212,9 @@ public class MainChartController extends CommonCtrl {
         return ApiRes.ok();
     }
 
+
     /**
-     * 商户实时并发计算
+     * 商户实时并发/成率计算
      *
      * @return
      */
@@ -240,20 +241,44 @@ public class MainChartController extends CommonCtrl {
         Date now = DateUtil.parse(DateUtil.now());
 
         Map<String, Object> payOrderAllMap = RedisUtil.retrieveCollection(CS.REAL_TIME_STAT);
-        if (!payOrderAllMap.isEmpty()) {
-            List<MchInfo> mchInfoList = mchInfoService.list();
+        Map<String, Object> payOrderSuccessMap = RedisUtil.retrieveCollection(CS.REAL_TIME_SUCCESS_STAT);
 
-            //初始化商户统计集合
-            Map<String, MchStat> mchStatMap = new HashMap<>();
-            for (int index = 0; index < mchInfoList.size(); index++) {
-                MchStat mchStat = new MchStat();
-                mchStat.setMchName("[" + mchInfoList.get(index).getMchNo() + "]" + mchInfoList.get(index).getMchName());
-                mchStat.setAllCount(0);
-                mchStat.setPerMinCount(0);
+        List<MchInfo> mchInfoList = mchInfoService.list();
 
-                mchStatMap.put(mchInfoList.get(index).getMchNo(), mchStat);
+        //初始化商户统计集合
+        Map<String, MchStat> mchStatMap = new HashMap<>();
+        Map<String, Integer> mchSuccessStatMap = new HashMap<>();
+
+        for (int index = 0; index < mchInfoList.size(); index++) {
+            MchStat mchStat = new MchStat();
+            mchStat.setMchName("[" + mchInfoList.get(index).getMchNo() + "]" + mchInfoList.get(index).getMchName());
+            mchStat.setAllCount(0);
+            mchStat.setPerMinCount(0);
+            mchStat.setSuccessCount(0);
+
+            mchStatMap.put(mchInfoList.get(index).getMchNo(), mchStat);
+            mchSuccessStatMap.put(mchInfoList.get(index).getMchNo(), 0);
+        }
+        //统计成功单数
+        if (!payOrderSuccessMap.isEmpty()) {
+            for (Map.Entry<String, Object> entry : payOrderSuccessMap.entrySet()) {
+                PayOrder payOrder = JSON.parseObject((String) entry.getValue(), PayOrder.class);
+                long betweenMin = DateUtil.between(now, payOrder.getCreatedAt(), DateUnit.MINUTE);
+                //超时的移除
+                if (betweenMin >= 61) {
+                    RedisUtil.deleteFromHash(CS.REAL_TIME_SUCCESS_STAT, payOrder.getPayOrderId());
+                } else {
+                    String mchNo = payOrder.getMchNo();
+                    Integer mchSuccessCount = mchSuccessStatMap.get(mchNo);
+                    if (betweenMin <= time) {
+                        mchSuccessCount += 1;
+                        mchSuccessStatMap.replace(mchNo, mchSuccessCount);
+                    }
+                }
             }
-
+        }
+        //并发计算并分页
+        if (!payOrderAllMap.isEmpty()) {
             //统计并发数
             for (Map.Entry<String, Object> entry : payOrderAllMap.entrySet()) {
                 PayOrder payOrder = JSON.parseObject((String) entry.getValue(), PayOrder.class);
@@ -302,7 +327,11 @@ public class MainChartController extends CommonCtrl {
             int maxIndex = pageNumber * pageSize - 1;
             for (Map.Entry<String, MchStat> entry : sortedMap.entrySet()) {
                 if (i >= minIndex && i <= maxIndex) {
-                    records.add(entry.getValue());
+                    MchStat item = entry.getValue();
+                    if (mchSuccessStatMap.containsKey(entry.getKey())) {
+                        item.setSuccessCount(mchSuccessStatMap.get(entry.getKey()));
+                    }
+                    records.add(item);
                 }
                 i++;
             }
