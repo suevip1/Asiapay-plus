@@ -96,7 +96,10 @@ public class PayOrderMchNotifyMQReceiver implements PayOrderMchNotifyMQ.IMQRecei
             if ("SUCCESS".equalsIgnoreCase(res.trim())) {
                 mchNotifyRecordService.updateNotifyResult(notifyId, MchNotifyRecord.STATE_SUCCESS, res);
                 return;
+            } else {
+                log.error("[{}]回调响应错误: {}", record.getOrderId(), res);
             }
+
 
             //通知次数 >= 最大通知次数时， 更新响应结果为异常， 不在继续延迟发送消息
             if (currentCount >= record.getNotifyCountLimit()) {
