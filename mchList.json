@@ -39,7 +39,7 @@
         "name": "dabaitupay",
         "agentUrl": "http://agent-api.dabaitupay.com",
         "mchUrl": "http://mch-api.dabaitupay.com",
-        "mgrUrl": "http://mgr-api.dabaitupa.com"
+        "mgrUrl": "http://mgr-api.dabaitupay.com"
     },
     {
         "name": "decheng-pay",

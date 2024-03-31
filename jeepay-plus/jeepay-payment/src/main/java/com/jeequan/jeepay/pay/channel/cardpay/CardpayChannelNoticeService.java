@@ -111,6 +111,12 @@ public class CardpayChannelNoticeService extends AbstractChannelNoticeService {
 
         String sign = jsonParams.getString("sign");
         Map map = JSON.parseObject(jsonParams.toJSONString());
+
+        if (!map.containsKey("randomStr")) {
+            log.info("随机验证字符参数为空 [randomStr]");
+            return false;
+        }
+        
         map.remove("sign");
         if (resultsParam != null) {
             String secret = resultsParam.getSecret();
